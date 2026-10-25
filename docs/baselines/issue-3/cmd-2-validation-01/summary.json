@@ -1,0 +1,15 @@
+﻿{
+    "Shell":  "cmd",
+    "Sessions":  2,
+    "Mode":  "smoke",
+    "Run":  1,
+    "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+    "ReadyAndWindowMs":  1256.4916,
+    "CloseObservationMs":  1838.4874,
+    "FinalMarkers":  1,
+    "ChildExitCodes":  [
+                           42,
+                           41
+                       ],
+    "ExitCode":  0
+}

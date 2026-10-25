@@ -1,0 +1,28 @@
+﻿{
+    "Shell":  "powershell",
+    "Sessions":  2,
+    "Mode":  "idle",
+    "Run":  1,
+    "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+    "ReadyAndWindowMs":  1168.6833000000001,
+    "CloseObservationMs":  224.8664,
+    "FinalMarkers":  0,
+    "ChildExitCodes":  [
+                           41,
+                           42
+                       ],
+    "ExitCode":  0,
+    "IdleWallSeconds":  62.593574,
+    "IdleOneCoreCpuPercent":  11.333032365271235,
+    "ChildrenOneCoreCpuPercent":  1.2730939441163722,
+    "PrivateBytesMinimum":  228548608,
+    "PrivateBytesMaximum":  229179392,
+    "WorkingSetBytesMinimum":  175538176,
+    "WorkingSetBytesMaximum":  177123328,
+    "ThreadsMinimum":  47,
+    "ThreadsMaximum":  52,
+    "HandlesMinimum":  675,
+    "HandlesMaximum":  680,
+    "ChildrenPrivateBytesMinimum":  105984000,
+    "ChildrenPrivateBytesMaximum":  108228608
+}

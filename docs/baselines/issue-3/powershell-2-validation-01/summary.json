@@ -1,0 +1,15 @@
+﻿{
+    "Shell":  "powershell",
+    "Sessions":  2,
+    "Mode":  "smoke",
+    "Run":  1,
+    "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+    "ReadyAndWindowMs":  1145.0271,
+    "CloseObservationMs":  1947.8422,
+    "FinalMarkers":  2,
+    "ChildExitCodes":  [
+                           42,
+                           41
+                       ],
+    "ExitCode":  0
+}

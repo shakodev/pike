@@ -1,0 +1,282 @@
+﻿[
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  1,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  1016.5766000000001,
+        "CloseObservationMs":  231.24210000000002,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  2,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  1016.1305000000001,
+        "CloseObservationMs":  204.4702,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  3,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  1038.762,
+        "CloseObservationMs":  217.5192,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  4,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  1023.6550000000001,
+        "CloseObservationMs":  206.2537,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  5,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  1040.9112,
+        "CloseObservationMs":  221.2735,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  6,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  981.4432,
+        "CloseObservationMs":  227.3093,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  7,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  1040.1486,
+        "CloseObservationMs":  197.95700000000002,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  8,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  998.60380000000009,
+        "CloseObservationMs":  162.5701,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  9,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  1109.3514,
+        "CloseObservationMs":  150.3748,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  10,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  980.9686,
+        "CloseObservationMs":  207.48260000000002,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  11,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  1046.7702000000002,
+        "CloseObservationMs":  197.1848,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  12,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  997.22160000000008,
+        "CloseObservationMs":  208.40730000000002,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  13,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  980.3504,
+        "CloseObservationMs":  214.32690000000002,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  14,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  1071.3047000000001,
+        "CloseObservationMs":  198.4957,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  15,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  1014.503,
+        "CloseObservationMs":  145.9391,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  16,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  1157.0232,
+        "CloseObservationMs":  209.9368,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  17,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  1025.0796,
+        "CloseObservationMs":  221.1004,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  18,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  994.4224,
+        "CloseObservationMs":  205.37140000000002,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  19,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  940.2604,
+        "CloseObservationMs":  194.9083,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  20,
+        "Renderer":  "wgpu (ICED_BACKEND override); default compiled backend features",
+        "ReadyAndWindowMs":  952.5493,
+        "CloseObservationMs":  139.205,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    }
+]
