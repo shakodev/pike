@@ -1,2 +1,5 @@
 # Retain the published archive bytes for vendor provenance on Windows too.
 /vendor/iced_term/** -text
+/vendor/alacritty_terminal/** -text
+# Preserve large generated upstream terminal fixtures without rendering VT data.
+/vendor/alacritty_terminal/tests/ref/** -diff

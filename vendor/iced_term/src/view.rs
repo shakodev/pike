@@ -367,8 +367,12 @@ impl<'a> TerminalView<'a> {
             },
             BindingAction::Paste => {
                 if let Some(data) = clipboard.read(ClipboardKind::Standard) {
-                    let input: Vec<u8> = data.bytes().collect();
-                    return Some(Command::Write(input));
+                    if let Err(error) =
+                        self.term.backend.preflight_input(data.len())
+                    {
+                        return Some(Command::InputRejected(error));
+                    }
+                    return Some(Command::Write(data.into_bytes()));
                 }
             },
             BindingAction::Copy => {

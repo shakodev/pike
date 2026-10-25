@@ -133,10 +133,14 @@ impl App {
     }
 
     fn write(&mut self, id: u64, command: &'static str) {
-        if let Some(term) = self.terminals.get_mut(&id) {
+        let action = self.terminals.get_mut(&id).map(|term| {
             term.handle(Command::ProxyToBackend(BackendCommand::Write(
                 command.as_bytes().to_vec(),
-            )));
+            )))
+        });
+        if let Some(iced_term::actions::Action::InputRejected(error)) = action {
+            self.note("input_rejected", id, error, 0);
+            self.error = Some(format!("Session {id}: {error}"));
         }
     }
 
@@ -208,6 +212,10 @@ impl App {
                     .terminals
                     .get_mut(&id)
                     .map(|term| term.handle(Command::ProxyToBackend(command)));
+                if let Some(iced_term::actions::Action::InputRejected(error)) = &action {
+                    self.note("input_rejected", id, error, 0);
+                    self.error = Some(format!("Session {id}: {error}"));
+                }
                 if action == Some(iced_term::actions::Action::Shutdown) {
                     self.note("exit", id, self.focused, self.states[&id].final_seen);
                     self.terminals.remove(&id);

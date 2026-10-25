@@ -6,7 +6,7 @@ publish = false
 description = "A lightweight, Windows-first terminal multiplexer"
 
 [workspace]
-members = ["vendor/iced_term"]
+members = ["vendor/iced_term", "vendor/alacritty_terminal"]
 default-members = ["."]
 resolver = "3"
 
@@ -22,6 +22,7 @@ tokio = { version = "=1.54.1", default-features = false, features = ["rt-multi-t
 
 [patch.crates-io]
 iced_term = { path = "vendor/iced_term" }
+alacritty_terminal = { path = "vendor/alacritty_terminal" }
 
 [target.'cfg(windows)'.dev-dependencies]
 # Console-size observation in the deterministic child fixture, not another PTY.

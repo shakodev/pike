@@ -33,16 +33,17 @@ and pull-request cache scoping applies.
 Formatting runs before cache restore to reject simple failures quickly.
 The checks share one job's build artifacts, incremental compilation is
 disabled for these disposable builds, and superseded runs on the same ref
-are canceled. The job has a 30-minute timeout. Shared runners do not run
-GUI/terminal sessions or enforce hardware-dependent CPU, RAM, or latency
-budgets; those remain measured Windows integration/release tasks.
+are canceled. The job has a 30-minute timeout. Shared runners run a headless
+synthetic ConPTY input probe. They do not run GUI sessions or enforce
+hardware-dependent CPU, RAM, or latency budgets; those remain reference-machine
+integration/release tasks.
 
 ## Testing dependency patches
 
 Application `cargo test` does **not** run dependency test suites. iced_term is
 now an explicit workspace member; `default-members = ["."]` keeps the app's
 normal commands from enabling vendor compatibility defaults. CI explicitly
-runs all 25 published vendor unit tests for each lean profile:
+runs all 41 vendor unit tests for each lean profile:
 
 ```yaml
 - name: Test vendored iced_term explicitly
@@ -62,10 +63,22 @@ application tests, and release builds continue to use Pike's root lockfile.
 both renderers. It rejects re-enabled Iced defaults/thread pool, Tokio full
 or unused I/O features, and a renderer dependency leaking into the other
 profile. CI also runs the harness unit tests and measurement-support tests;
-GUI/ConPTY measurements stay on the local reference machine.
+GUI measurements stay on the local reference machine. The bounded-input
+probe exercises a stalled reader, atomic rejection, Unicode byte ordering in
+another session, and cancellation/cleanup under ConPTY on CI as well.
 `tools/test-feature-profile-guard.ps1` supplies synthetic Cargo trees to verify
 that features on earlier package versions cannot be hidden by later entries,
 and that renderer dependencies leaking into the other profile are rejected.
+
+Alacritty 0.25.1 is another explicit workspace member, patched for actual-writer
+byte accounting. CI runs `cargo test --locked -p alacritty_terminal` (145 unit,
+45 reference and one documentation test) and its all-target Clippy separately.
+The packaged dependency lockfiles remain provenance only. After building
+examples, `tools/measure-input-backlog.ps1` runs the headless release fixture;
+its counters are observations, with no hardware timing budget asserted.
+Probe output uses the runner's temporary directory with the workflow run ID
+and attempt. It stays outside cached `target`, so a restored cache cannot
+make a later probe fail its fresh-output-directory check.
 
 ## Validating workflow changes
 

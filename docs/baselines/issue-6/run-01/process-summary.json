@@ -1,0 +1,15 @@
+﻿{
+    "Samples":  90,
+    "PlateauSamples":  59,
+    "PlateauPrivateMinimum":  9039872,
+    "PlateauPrivateMaximum":  9039872,
+    "PlateauWorkingSetMinimum":  11382784,
+    "PlateauWorkingSetMaximum":  11382784,
+    "PlateauOneCoreCpuPercent":  0.90917579635544443,
+    "ExitCode":  0,
+    "ProcessTreeMeasured":  false,
+    "PlateauChildrenPrivateMinimum":  null,
+    "PlateauChildrenPrivateMaximum":  null,
+    "PlateauChildrenOneCoreCpuPercent":  null,
+    "ExecutableSha256":  "4BBAB57FD0673671C898ABF33F3095BF1A6C98568940BC38BA5B071DE0A57343"
+}
