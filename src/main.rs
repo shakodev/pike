@@ -5,7 +5,7 @@ use std::convert::Infallible;
 use iced::widget::{column, container, text};
 use iced::{Element, Fill};
 
-fn main( )->iced::Result{
+fn main() -> iced::Result {
     iced::application(|| (), update, view)
         .title("Pike")
         .window_size((960.0, 640.0))
