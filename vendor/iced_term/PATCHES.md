@@ -65,3 +65,25 @@ powershell -NoProfile -File tools/test-feature-profiles.ps1
 Run both explicit vendor commands above; see
 [issue #5 verification](../../docs/verification/issue-5.md) for measurements
 and API/overload policy details.
+
+## R06 / issue #6 — fallible byte admission
+
+- Every keyboard/paste/protocol/mouse/alternate-scroll write uses the patched
+  Alacritty sender's fallible whole-input admission; no `Notifier::notify` path
+  bypasses it. Return `Action::InputRejected(InputError)` with metadata only.
+- The paste widget preflights before publishing a payload and reuses the
+  clipboard String allocation; actual admission repeats the check atomically.
+  Clipboard API allocation itself is outside the writer budget. Rejections
+  return without font measurement, grid snapshot or terminal redraw.
+- Alternate-screen scroll expansion preflights its full byte count before
+  allocation and handles `i32::MIN` without overflow.
+- Expose `Terminal::{preflight_input,input_status}`, `InputError`, `InputStatus`,
+  and `INPUT_BYTE_LIMIT`. `BackendCommand::RequestShutdown` requests the existing
+  shutdown and explicitly cancels pending input without waiting for cleanup.
+  This is not a joined/drained shutdown acknowledgement (#7).
+  Requested close is marked as expected in the bridge, avoiding a false
+  BackendStopped error while retaining any pre-existing overload/failure.
+- Alacritty's provenance and actual-writer accounting patch are documented in
+  [its ledger](../alacritty_terminal/PATCHES.md). The 41 iced_term regressions
+  run under both renderers, including expected-close/error retention; the new
+  bounded-input and writer-failure tests live with the dependency implementation.

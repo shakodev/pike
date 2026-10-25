@@ -234,6 +234,17 @@ fn loop_proxy_drop_completes_even_with_a_retained_terminal_proxy() {
 }
 
 #[test]
+fn requested_close_completes_cleanly_but_preserves_an_existing_overload() {
+    let (sender, receiver) = channel();
+    sender.expect_close();
+    finish(sender, &receiver, None);
+    let (sender, receiver) = channel();
+    sender.send(Event::PtyWrite("x".repeat(PAYLOAD_LIMIT + 1)));
+    sender.expect_close();
+    finish(sender, &receiver, Some(EventBridgeError::PayloadOverflow));
+}
+
+#[test]
 fn canceled_receive_and_closed_receiver_do_not_panic_or_stall() {
     let (sender, receiver) = channel();
     assert!(receiver.recv().now_or_never().is_none());

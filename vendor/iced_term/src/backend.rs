@@ -1,9 +1,7 @@
 use crate::actions::Action;
 use crate::event_bridge::{EventBridgeEvent, Sender};
 use crate::settings::BackendSettings;
-use alacritty_terminal::event::{
-    Event, EventListener, Notify, OnResize, WindowSize,
-};
+use alacritty_terminal::event::{Event, EventListener, OnResize, WindowSize};
 use alacritty_terminal::event_loop::{EventLoop, Msg, Notifier};
 use alacritty_terminal::grid::{Dimensions, Scroll};
 use alacritty_terminal::index::{Column, Direction, Line, Point, Side};
@@ -16,7 +14,6 @@ use alacritty_terminal::term::{
 use alacritty_terminal::{tty, Grid};
 use iced::keyboard::Modifiers;
 use iced_core::Size;
-use std::borrow::Cow;
 use std::cmp::min;
 use std::io::Result;
 use std::ops::{Index, RangeInclusive};
@@ -35,6 +32,9 @@ pub enum Command {
     MouseReport(MouseButton, Modifiers, Point, bool),
     ProcessAlacrittyEvent(Event),
     EventBridge(EventBridgeEvent),
+    InputRejected(crate::InputError),
+    /// Cancel pending input and request shutdown without waiting for PTY cleanup.
+    RequestShutdown,
 }
 
 #[derive(Debug, Clone)]
@@ -139,6 +139,7 @@ pub struct Backend {
     last_content: RenderableContent,
     pub(crate) url_regex: RegexSearch,
     event_bridge_failed: bool,
+    event_proxy: EventProxy,
 }
 
 impl Backend {
@@ -175,6 +176,7 @@ impl Backend {
 
         let term = Arc::new(FairMutex::new(term));
 
+        let source_proxy = event_proxy.clone();
         let pty_event_loop =
             EventLoop::new(term.clone(), event_proxy, pty, false, false)?;
 
@@ -189,15 +191,23 @@ impl Backend {
             last_content: initial_content,
             url_regex: RegexSearch::new(URL_REGEX).expect("invalid url regexp"),
             event_bridge_failed: false,
+            event_proxy: source_proxy,
         })
     }
 
     pub fn handle(&mut self, cmd: Command) -> Action {
+        if matches!(cmd, Command::RequestShutdown) {
+            self.request_shutdown();
+            return Action::Ignore;
+        }
+        if let Command::InputRejected(error) = cmd {
+            return Action::InputRejected(error);
+        }
         if let Command::EventBridge(event) = cmd {
             return match event {
                 EventBridgeEvent::Error(error) => {
                     self.event_bridge_failed = true;
-                    let _ = self.notifier.0.send(Msg::Shutdown);
+                    self.request_shutdown();
                     Action::EventBridgeError(error)
                 },
                 EventBridgeEvent::Completed => Action::Ignore,
@@ -211,12 +221,22 @@ impl Backend {
                 )
             )
         {
-            return Action::Ignore;
+            return if matches!(cmd, Command::Write(_)) {
+                Action::InputRejected(crate::InputError::Closed)
+            } else {
+                Action::Ignore
+            };
         }
         let mut action = Action::default();
         let term = self.term.clone();
         let mut term = term.lock();
         match cmd {
+            Command::RequestShutdown => {
+                unreachable!("handled before terminal lock")
+            },
+            Command::InputRejected(_) => {
+                unreachable!("handled before terminal lock")
+            },
             Command::EventBridge(_) => {
                 unreachable!("handled before terminal lock")
             },
@@ -229,17 +249,19 @@ impl Backend {
                         action = Action::ChangeTitle(title);
                     },
                     Event::PtyWrite(pty) => {
-                        self.notifier.notify(pty.into_bytes())
+                        action = self.write(pty.as_bytes());
                     },
                     _ => {},
                 };
             },
             Command::Write(input) => {
-                self.write(input);
-                term.scroll_display(Scroll::Bottom);
+                action = self.write(&input);
+                if action == Action::Ignore {
+                    term.scroll_display(Scroll::Bottom);
+                }
             },
             Command::Scroll(delta) => {
-                self.scroll(&mut term, delta);
+                action = self.scroll(&mut term, delta);
             },
             Command::Resize(layout_size, font_measure) => {
                 self.resize(&mut term, layout_size, font_measure);
@@ -254,7 +276,8 @@ impl Backend {
                 self.process_link_action(&term, link_action, point);
             },
             Command::MouseReport(button, modifiers, point, pressed) => {
-                self.process_mouse_report(button, modifiers, point, pressed);
+                action = self
+                    .process_mouse_report(button, modifiers, point, pressed);
             },
         };
 
@@ -309,7 +332,7 @@ impl Backend {
         modifiers: Modifiers,
         point: Point,
         pressed: bool,
-    ) {
+    ) -> Action {
         let mut mods = 0;
         if modifiers.contains(Modifiers::SHIFT) {
             mods += 4;
@@ -339,7 +362,12 @@ impl Backend {
         }
     }
 
-    fn sgr_mouse_report(&self, point: Point, button: u8, pressed: bool) {
+    fn sgr_mouse_report(
+        &self,
+        point: Point,
+        button: u8,
+        pressed: bool,
+    ) -> Action {
         let c = if pressed { 'M' } else { 'm' };
 
         let msg = format!(
@@ -350,15 +378,20 @@ impl Backend {
             c
         );
 
-        self.notifier.notify(msg.as_bytes().to_vec());
+        self.write(msg.as_bytes())
     }
 
-    fn normal_mouse_report(&self, point: Point, button: u8, is_utf8: bool) {
+    fn normal_mouse_report(
+        &self,
+        point: Point,
+        button: u8,
+        is_utf8: bool,
+    ) -> Action {
         let Point { line, column } = point;
         let max_point = if is_utf8 { 2015 } else { 223 };
 
         if line >= max_point || column >= max_point {
-            return;
+            return Action::Ignore;
         }
 
         let mut msg = vec![b'\x1b', b'[', b'M', 32 + button];
@@ -382,7 +415,7 @@ impl Backend {
             msg.push(32 + 1 + line.0 as u8);
         }
 
-        self.notifier.notify(msg);
+        self.write(&msg)
     }
 
     fn start_selection(
@@ -476,11 +509,34 @@ impl Backend {
         }
     }
 
-    fn write<I: Into<Cow<'static, [u8]>>>(&self, input: I) {
-        self.notifier.notify(input);
+    pub(crate) fn preflight_input(
+        &self,
+        bytes: usize,
+    ) -> std::result::Result<(), crate::InputError> {
+        self.notifier.0.preflight_input(bytes)
     }
 
-    fn scroll(&mut self, terminal: &mut Term<EventProxy>, delta_value: i32) {
+    fn request_shutdown(&self) {
+        self.event_proxy.0.expect_close();
+        let _ = self.notifier.0.send(Msg::Shutdown);
+    }
+
+    pub(crate) fn input_status(&self) -> crate::InputStatus {
+        self.notifier.0.input_status()
+    }
+
+    fn write(&self, input: &[u8]) -> Action {
+        match self.notifier.0.send_input(input) {
+            Ok(()) => Action::Ignore,
+            Err(error) => Action::InputRejected(error),
+        }
+    }
+
+    fn scroll(
+        &mut self,
+        terminal: &mut Term<EventProxy>,
+        delta_value: i32,
+    ) -> Action {
         if delta_value != 0 {
             let scroll = Scroll::Delta(delta_value);
             if terminal
@@ -488,19 +544,25 @@ impl Backend {
                 .contains(TermMode::ALTERNATE_SCROLL | TermMode::ALT_SCREEN)
             {
                 let line_cmd = if delta_value > 0 { b'A' } else { b'B' };
-                let mut content = vec![];
+                let repeats = delta_value.unsigned_abs() as usize;
+                let bytes = repeats.saturating_mul(3);
+                if let Err(error) = self.preflight_input(bytes) {
+                    return Action::InputRejected(error);
+                }
+                let mut content = Vec::with_capacity(bytes);
 
-                for _ in 0..delta_value.abs() {
+                for _ in 0..repeats {
                     content.push(0x1b);
                     content.push(b'O');
                     content.push(line_cmd);
                 }
 
-                self.notifier.notify(content);
+                return self.write(&content);
             } else {
                 terminal.grid_mut().scroll_display(scroll);
             }
         }
+        Action::Ignore
     }
 
     pub fn selectable_content(&self) -> String {
@@ -597,7 +659,7 @@ impl Default for RenderableContent {
 
 impl Drop for Backend {
     fn drop(&mut self) {
-        let _ = self.notifier.0.send(Msg::Shutdown);
+        self.request_shutdown();
     }
 }
 

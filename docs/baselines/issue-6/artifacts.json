@@ -1,0 +1,57 @@
+﻿[
+    {
+        "File":  "Cargo.lock",
+        "Bytes":  107311,
+        "Sha256":  "F2499CE171F71875AC098EF7B52161139645CF5F6FA81AC2C778BCFFA2F8B367"
+    },
+    {
+        "File":  "vendor/alacritty_terminal/src/input.rs",
+        "Bytes":  5848,
+        "Sha256":  "7FA0392C60401B862C4DF3F83212412AA18F68F635593F4F394BC6847A7891DE"
+    },
+    {
+        "File":  "vendor/alacritty_terminal/src/event_loop.rs",
+        "Bytes":  17679,
+        "Sha256":  "F869FE7DED9FEE66BA0A3330885C8EC1B3AD8BDA86CB8E965DE00D01BFA9EE77"
+    },
+    {
+        "File":  "vendor/alacritty_terminal/src/tty/windows/blocking.rs",
+        "Bytes":  10346,
+        "Sha256":  "7DAE411DA9AD556589E1B5FC896059D81327CA5FA50848A0C5166D0231338C80"
+    },
+    {
+        "File":  "vendor/iced_term/src/backend.rs",
+        "Bytes":  25485,
+        "Sha256":  "A6CAF1E7F4D9E20DB207157944828CFE5EEAA23F262C4ACE8A69EE30DB9835FA"
+    },
+    {
+        "File":  "vendor/iced_term/src/event_bridge.rs",
+        "Bytes":  7658,
+        "Sha256":  "7D574445A359A0F3B13420A3B75DF4BF65962DF5D6603EB1E053612ED3A948F3"
+    },
+    {
+        "File":  "vendor/iced_term/src/view.rs",
+        "Bytes":  42918,
+        "Sha256":  "F4575DF88255025E996A75012933ACB30251D8E317AD80B742F26DDDB3D2C89E"
+    },
+    {
+        "File":  "examples/input_backlog.rs",
+        "Bytes":  7733,
+        "Sha256":  "806EC7A6A921376DA4FA675867C1DA35F48508B37538605B55DFF0471EA5315E"
+    },
+    {
+        "File":  "examples/input_fixture.rs",
+        "Bytes":  3077,
+        "Sha256":  "BAE3CCB1EB4D74AF298F6CFDE99FEF04713858DCB333768F2514405CE4172FCA"
+    },
+    {
+        "File":  "input_backlog.exe",
+        "Bytes":  3207680,
+        "Sha256":  "4BBAB57FD0673671C898ABF33F3095BF1A6C98568940BC38BA5B071DE0A57343"
+    },
+    {
+        "File":  "input_fixture.exe",
+        "Bytes":  167936,
+        "Sha256":  "6B07CA134100B8CCD55BB769F87C301BC48CF71E7BBCB2832CF4742C7BCBAA6F"
+    }
+]

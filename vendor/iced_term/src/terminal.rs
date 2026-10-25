@@ -63,6 +63,18 @@ impl Terminal {
         &self.widget_id
     }
 
+    pub fn input_status(&self) -> crate::InputStatus {
+        self.backend.input_status()
+    }
+
+    /// Advisory whole-input check. Admission repeats it atomically when handled.
+    pub fn preflight_input(
+        &self,
+        bytes: usize,
+    ) -> std::result::Result<(), crate::InputError> {
+        self.backend.preflight_input(bytes)
+    }
+
     pub fn subscription(&self) -> Subscription<Event> {
         let data = TerminalSubscriptionData {
             id: self.id,
@@ -90,7 +102,9 @@ impl Terminal {
             },
         };
 
-        self.sync_and_redraw();
+        if !matches!(action, Action::InputRejected(_)) {
+            self.sync_and_redraw();
+        }
         action
     }
 

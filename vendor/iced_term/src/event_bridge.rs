@@ -47,6 +47,7 @@ struct State {
     error: Option<EventBridgeError>,
     error_delivered: bool,
     completed: bool,
+    close_requested: bool,
     completion_delivered: bool,
     producers: usize,
     receiver_closed: bool,
@@ -55,7 +56,7 @@ struct State {
 impl State {
     fn finish(&mut self) {
         self.completed = true;
-        if !self.exit && self.error.is_none() {
+        if !self.exit && !self.close_requested && self.error.is_none() {
             self.error = Some(EventBridgeError::BackendStopped);
         }
     }
@@ -136,6 +137,10 @@ impl Clone for Sender {
 }
 
 impl Sender {
+    pub(crate) fn expect_close(&self) {
+        self.shared.lock().close_requested = true;
+    }
+
     pub(crate) fn complete_on_drop(mut self) -> Self {
         self.completes_on_drop = true;
         self
