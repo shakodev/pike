@@ -7,6 +7,8 @@ build. It uses the existing `rust-toolchain.toml`; `rustup show` installs
 and reports that toolchain, its declared components, and installed targets.
 Compiler details (including the MSVC host triple) and Cargo's version are
 printed explicitly. No environment dump or terminal-session logging is used.
+The manual trigger becomes available once the workflow lands on the default
+branch.
 
 Every dependency-resolving check uses `--locked`. The final step checks that
 the manifest, lockfile, and toolchain declaration were not modified. The two
