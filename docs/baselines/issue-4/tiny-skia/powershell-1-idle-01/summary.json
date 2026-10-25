@@ -1,0 +1,27 @@
+﻿{
+    "Shell":  "powershell",
+    "Sessions":  1,
+    "Mode":  "idle",
+    "Run":  1,
+    "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+    "ReadyAndWindowMs":  380.86010000000005,
+    "CloseObservationMs":  170.1625,
+    "FinalMarkers":  0,
+    "ChildExitCodes":  [
+                           41
+                       ],
+    "ExitCode":  0,
+    "IdleWallSeconds":  61.820871099999991,
+    "IdleOneCoreCpuPercent":  39.049312263734834,
+    "ChildrenOneCoreCpuPercent":  1.4912035103950518,
+    "PrivateBytesMinimum":  20336640,
+    "PrivateBytesMaximum":  24952832,
+    "WorkingSetBytesMinimum":  31735808,
+    "WorkingSetBytesMaximum":  36491264,
+    "ThreadsMinimum":  9,
+    "ThreadsMaximum":  13,
+    "HandlesMinimum":  243,
+    "HandlesMaximum":  245,
+    "ChildrenPrivateBytesMinimum":  53465088,
+    "ChildrenPrivateBytesMaximum":  54587392
+}

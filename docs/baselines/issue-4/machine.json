@@ -1,0 +1,68 @@
+﻿{
+    "RecordedAtUtc":  "2026-10-25T17:57:21.4740582Z",
+    "BaseCommit":  "3863e3eb74276127a7422bbd4f7ea56bf4de9570",
+    "OS":  "Microsoft Windows 11 Pro",
+    "Version":  "10.0.26200",
+    "Build":  "26200",
+    "CPU":  "AMD Ryzen 5 2600X Six-Core Processor           ",
+    "PhysicalCores":  6,
+    "LogicalCores":  12,
+    "RAMBytes":  17095331840,
+    "GPU":  "NVIDIA GeForce RTX 2070",
+    "Driver":  "32.0.16.1742",
+    "DisplayWidth":  1920,
+    "DisplayHeight":  1080,
+    "RefreshHz":  280,
+    "PowerPlan":  "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)",
+    "Compiler":  "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "Cargo":  "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "Target":  "x86_64-pc-windows-msvc",
+    "WindowsPowerShellVersion":  "5.1.26100.9711",
+    "PowerShell7Installed":  false,
+    "WindowLogicalSize":  "960x640",
+    "Font":  "upstream monospace 14 DIP, scale_factor 1.3",
+    "History":  "unchanged upstream 10000 lines; small synthetic fixture output, not saturated",
+    "AsyncWorkers":  1,
+    "MaximumBlockingWorkers":  2,
+    "LockfileSha256":  "4788109FC1A8F57F9700856844AD457ED08AB37506CCC6AA039CE785D264A071",
+    "ExecutorSha256":  "D0DE12B5BE9A5B821F82E302EBE0A707B936E37E6E4195E4BEF0AA59A0BD2A63",
+    "HarnessSourceSha256":  "E872EB15D569E061C2D94CF74826FDDD3B9B3B3A148B4FD59CA0018F584EA988",
+    "Binaries":  [
+                     {
+                         "Renderer":  "wgpu",
+                         "Binary":  "pike.exe",
+                         "Bytes":  10566656,
+                         "Sha256":  "A1F147635D50234D2E5253614096BA4B8A160EC51EE8B01443CE1078E1C8FDB7"
+                     },
+                     {
+                         "Renderer":  "wgpu",
+                         "Binary":  "compatibility.exe",
+                         "Bytes":  12692992,
+                         "Sha256":  "3FADAE959439063D90F48ECC1A6DE0BC584ABE73A45054757B29BAF25AE2A9E0"
+                     },
+                     {
+                         "Renderer":  "wgpu",
+                         "Binary":  "pty_fixture.exe",
+                         "Bytes":  146944,
+                         "Sha256":  "AA763051A14F310CCC6EA7D4A3FD3A0ADE4434940B8C4859BD096C5FA045207B"
+                     },
+                     {
+                         "Renderer":  "tiny-skia",
+                         "Binary":  "pike.exe",
+                         "Bytes":  4280832,
+                         "Sha256":  "C42F8D52EE1190AC097EDEE0335FA2BC0CA968EF597602DFBD59B6DDA06E8952"
+                     },
+                     {
+                         "Renderer":  "tiny-skia",
+                         "Binary":  "compatibility.exe",
+                         "Bytes":  6304256,
+                         "Sha256":  "74DCE39F058FF49D5CDE27DC3FBAFAC3DCF7A3EBF8CE45F0180F20FC39AAB85F"
+                     },
+                     {
+                         "Renderer":  "tiny-skia",
+                         "Binary":  "pty_fixture.exe",
+                         "Bytes":  146944,
+                         "Sha256":  "8AA4B70DC8701FF28AB81EF9C73D76FA842E5F2C0CDD3B384018168BAA9425AF"
+                     }
+                 ]
+}

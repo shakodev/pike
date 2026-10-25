@@ -19,6 +19,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         update,
         view,
     )
+    .executor::<pike::executor::SharedExecutor>()
     .title("Pike compatibility harness")
     .window_size((960.0, 640.0))
     .exit_on_close_request(false)
@@ -361,7 +362,7 @@ impl App {
                 text(
                     self.error
                         .as_deref()
-                        .unwrap_or("Unpatched research harness: synthetic child output only")
+                        .unwrap_or("Research harness: synthetic child output only")
                 ),
                 panes,
             ]
@@ -372,30 +373,16 @@ impl App {
     }
 }
 
-// A bounded one-shot research delay between rendered smoke steps. No worker or
-// periodic timer exists during idle measurement. Do not use this in Pike's app.
+// One-shot delays use the application's shared timer driver. No periodic timer
+// exists during idle measurement. Do not use smoke delays in Pike's app.
 fn later(message: Message) -> Task<Message> {
-    let (sender, receiver) = iced::futures::channel::oneshot::channel();
     let duration = if matches!(message, Message::Timeout) {
         Duration::from_secs(3)
     } else {
         Duration::from_millis(250)
     };
-    if std::thread::Builder::new()
-        .name("pike-smoke-delay".into())
-        .spawn(move || {
-            std::thread::sleep(duration);
-            let _ = sender.send(());
-        })
-        .is_err()
-    {
-        return Task::done(Message::Failed("could not start one-shot smoke delay"));
-    }
-    Task::perform(async move { receiver.await.is_ok() }, move |ok| {
-        if ok {
-            message.clone()
-        } else {
-            Message::Failed("smoke delay canceled")
-        }
-    })
+    Task::perform(
+        async move { tokio::time::sleep(duration).await },
+        move |()| message.clone(),
+    )
 }

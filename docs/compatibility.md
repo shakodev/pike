@@ -1,8 +1,34 @@
-# Unpatched compatibility harness
+# Compatibility harness
 
 Issue #3 adds developer examples, not terminal functionality to the Pike app.
-The harness uses the published Iced 0.14.0 / iced_term 0.8.0 / Alacritty
-0.25.1 graph without patches or a second PTY implementation.
+The original issue #3 harness measurements use the published Iced 0.14.0 /
+iced_term 0.8.0 / Alacritty 0.25.1 graph. Issue #4 adds only an iced_term
+manifest patch, renderer profiles, and a shared executor; terminal source
+behavior remains unchanged. No second PTY implementation is used.
+
+## Renderer and executor comparisons
+
+`renderer-wgpu` is the default; build the software renderer with
+`--no-default-features --features renderer-tiny-skia`. Preserve separate
+executables when comparing profiles, since Cargo normally overwrites the
+same output path. The measurement script accepts `-Renderer wgpu|tiny-skia`
+and `-Executable <path/to/compatibility.exe>`; keep that build's `pty_fixture.exe`
+beside it. For example:
+
+```powershell
+powershell -NoProfile -File tools/measure-compatibility.ps1 -Renderer tiny-skia -Executable target/issue-4/tiny-skia/compatibility.exe -Shell cmd -Sessions 2 -Mode idle -OutputDirectory target/compatibility/tiny-skia
+```
+
+Both entry points select `pike::executor::SharedExecutor` once per application.
+The executor enables timers, one async worker and at most two concurrent
+blocking workers. The existing Alacritty/ConPTY workers remain separate.
+Runtime drop cancels async futures and joins finite blocking work. This does
+not implement PTY shutdown acknowledgement/output draining (issue #7).
+The worker cap is not queue admission control; startup/cleanup must not
+enqueue unlimited blocking jobs (issue #10).
+
+The historical observations below describe the unpatched issue #3 baseline.
+Current results are recorded in [issue #4 verification](verification/issue-4.md).
 
 ## Build and run
 
@@ -56,8 +82,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/measure-compatibility.
 ```
 
 Repeat idle/startup with PowerShell and idle with two sessions. Run scenarios
-sequentially outside a debugger. The script selects `ICED_BACKEND=wgpu` only
-in the launched process; both upstream renderer features remain compiled.
+sequentially outside a debugger. The script selects `ICED_BACKEND` from
+`-Renderer` (default `wgpu`) only in the launched process. Build and record
+the corresponding renderer profile; this environment variable does not
+remove compiled features.
 It waits for ready markers and a native window, settles for 10 seconds, and
 takes 61 process-counter samples over at least 60 seconds. App CPU is
 normalized to one core (`100 * CPU seconds / wall seconds`). Child-tree

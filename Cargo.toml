@@ -5,9 +5,23 @@ edition = "2024"
 publish = false
 description = "A lightweight, Windows-first terminal multiplexer"
 
+[workspace]
+members = ["vendor/iced_term"]
+default-members = ["."]
+resolver = "3"
+
+[features]
+default = ["renderer-wgpu"]
+renderer-wgpu = ["iced/wgpu"]
+renderer-tiny-skia = ["iced/tiny-skia"]
+
 [dependencies]
-iced = "=0.14.0"
-iced_term = "=0.8.0"
+iced = { version = "=0.14.0", default-features = false, features = ["tokio", "crisp"] }
+iced_term = { version = "=0.8.0", default-features = false }
+tokio = { version = "=1.54.1", default-features = false, features = ["rt-multi-thread", "sync", "time"] }
+
+[patch.crates-io]
+iced_term = { path = "vendor/iced_term" }
 
 [target.'cfg(windows)'.dev-dependencies]
 # Console-size observation in the deterministic child fixture, not another PTY.

@@ -16,9 +16,12 @@ concurrency:
 
 jobs:
   windows:
-    name: Rust checks (Windows MSVC)
+    name: Rust checks (Windows MSVC, ${{ matrix.renderer }})
     runs-on: windows-2025
     timeout-minutes: 30
+    strategy:
+      matrix:
+        renderer: [wgpu, tiny-skia]
     defaults:
       run:
         shell: pwsh
@@ -52,29 +55,31 @@ jobs:
             ~/.cargo/registry/cache
             ~/.cargo/git/db
             target
-          key: Windows-2025-${{ runner.arch }}-msvc-v1-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.lock') }}
+          key: Windows-2025-${{ runner.arch }}-msvc-v2-${{ matrix.renderer }}-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.lock', 'Cargo.toml', 'vendor/iced_term/Cargo.toml') }}
+
+      - name: Verify renderer and runtime feature isolation
+        run: ./tools/test-feature-profiles.ps1
 
       - name: Clippy
-        run: cargo clippy --locked --all-targets -- -D warnings
+        run: cargo clippy --locked --all-targets --no-default-features --features renderer-${{ matrix.renderer }} -- -D warnings
 
       - name: Test application
-        run: cargo test --locked
+        run: cargo test --locked --no-default-features --features renderer-${{ matrix.renderer }}
 
       - name: Test compatibility examples
-        run: cargo test --locked --examples
+        run: cargo test --locked --examples --no-default-features --features renderer-${{ matrix.renderer }}
 
       - name: Test measurement support
         run: ./tools/test-compatibility-support.ps1
 
-      # App tests do not run a patched dependency's own regression tests.
-      # Add a named step per patch here, using --manifest-path and --locked;
-      # see docs/ci.md for the command and vendor lockfile requirements.
+      - name: Test vendored iced_term explicitly
+        run: cargo test --locked -p iced_term --lib --no-default-features --features iced/${{ matrix.renderer }},iced/tokio
 
       - name: Build release
-        run: cargo build --release --locked
+        run: cargo build --release --locked --no-default-features --features renderer-${{ matrix.renderer }}
 
       - name: Build compatibility examples
-        run: cargo build --release --locked --examples
+        run: cargo build --release --locked --examples --no-default-features --features renderer-${{ matrix.renderer }}
 
       - name: Verify dependency files are unchanged
-        run: git diff --exit-code -- Cargo.toml Cargo.lock rust-toolchain.toml
+        run: git diff --exit-code -- Cargo.toml Cargo.lock rust-toolchain.toml vendor/iced_term/Cargo.toml vendor/iced_term/Cargo.lock

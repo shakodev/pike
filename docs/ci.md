@@ -1,9 +1,10 @@
 # Windows CI
 
 [Windows CI](../.github/workflows/windows.yml) runs on pull requests targeting
-`main`, pushes to `main`, and manual dispatch. One `windows-2025` x64 job runs
+`main`, pushes to `main`, and manual dispatch. A `windows-2025` x64 matrix runs
 formatting, Clippy with denied warnings, application tests, and a release
-build. It uses the existing `rust-toolchain.toml`; `rustup show` installs
+build separately for `renderer-wgpu` and `renderer-tiny-skia`, using
+`--no-default-features`. It uses the existing `rust-toolchain.toml`; `rustup show` installs
 and reports that toolchain, its declared components, and installed targets.
 Compiler details (including the MSVC host triple) and Cargo's version are
 printed explicitly. No environment dump or terminal-session logging is used.
@@ -11,21 +12,21 @@ The manual trigger becomes available once the workflow lands on the default
 branch.
 
 Every dependency-resolving check uses `--locked`. The final step checks that
-the manifest, lockfile, and toolchain declaration were not modified. The two
+the root/vendor manifests, lockfiles, and toolchain declaration were not modified. The two
 official actions are pinned to full commit IDs; checkout does not persist
 credentials, and the workflow only requests `contents: read` permission.
 
 ## Cache and resource use
 
-One cache stores Cargo's registry index/archives, Git dependency database,
+Each renderer cache stores Cargo's registry index/archives, Git dependency database,
 and `target`. It excludes Cargo credentials, installed tools, and the
 application's user data. Its key contains the Windows image family, runner
-architecture, target ABI, cache schema version, and separate `hashFiles`
-digests of `rust-toolchain.toml` and `Cargo.lock`.
+architecture, target ABI, cache schema version, renderer, and `hashFiles`
+digests of `rust-toolchain.toml`, `Cargo.lock`, and root/vendor manifests.
 
-Changing either tracked file invalidates the key. There are no broad restore
+Changing these dependency inputs invalidates the key. There are no broad restore
 prefixes across different lockfiles or toolchains. Cargo still checks inputs
-and recompiles changed application sources after a cache hit. Bump `v1` in
+and recompiles changed application sources after a cache hit. Bump `v2` in
 the key if the cache layout or build settings change. GitHub's normal branch
 and pull-request cache scoping applies.
 
@@ -38,26 +39,30 @@ budgets; those remain measured Windows integration/release tasks.
 
 ## Testing dependency patches
 
-There are no dependency patches in this baseline. Application `cargo test`
-does **not** run dependency test suites. With each future patch, add a named
-step at the marked location in `windows.yml`, for example:
+Application `cargo test` does **not** run dependency test suites. iced_term is
+now an explicit workspace member; `default-members = ["."]` keeps the app's
+normal commands from enabling vendor compatibility defaults. CI explicitly
+runs all 25 published vendor unit tests for each lean profile:
 
 ```yaml
-- name: Test iced_term event delivery patch
-  run: cargo test --locked --manifest-path vendor/iced_term/Cargo.toml --lib event_delivery
+- name: Test vendored iced_term explicitly
+  run: cargo test --locked -p iced_term --lib --no-default-features --features iced/wgpu,iced/tokio
 ```
 
-Replace the crate and filter with the patch's actual upstream/regression
-tests, and confirm the test output executes the intended nonzero test count.
-If relevant coverage spans multiple targets, omit `--lib` or add explicit
-commands as needed. Record those commands in the patch ledger. Include a
-reviewed lockfile for the vendor test crate's graph (including its dev
-dependencies) before using `--locked`; Pike's app lockfile may not govern a
-standalone vendor manifest. Do not regenerate it automatically in CI or
-treat a missing test target or skipped suite as success.
+The other matrix entry uses `iced/tiny-skia,iced/tokio`. Both Iced renderer
+and executor features must be supplied when selecting the vendor alone;
+Iced rejects a build without an executor feature. These tests use the root
+workspace lockfile. The vendor's original packaged lockfile is retained only
+as provenance. Future patches must add focused regression coverage and
+record commands/nonzero test counts in the [patch ledger](../vendor/iced_term/PATCHES.md).
 
 Run the same command locally from the repository root. Normal Clippy,
 application tests, and release builds continue to use Pike's root lockfile.
+`tools/test-feature-profiles.ps1` verifies actual unified Cargo trees for
+both renderers. It rejects re-enabled Iced defaults/thread pool, Tokio full
+or unused I/O features, and a renderer dependency leaking into the other
+profile. CI also runs the harness unit tests and measurement-support tests;
+GUI/ConPTY measurements stay on the local reference machine.
 
 ## Validating workflow changes
 
