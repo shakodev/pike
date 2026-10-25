@@ -76,6 +76,9 @@ byte accounting. CI runs `cargo test --locked -p alacritty_terminal` (145 unit,
 The packaged dependency lockfiles remain provenance only. After building
 examples, `tools/measure-input-backlog.ps1` runs the headless release fixture;
 its counters are observations, with no hardware timing budget asserted.
+Probe output uses the runner's temporary directory with the workflow run ID
+and attempt. It stays outside cached `target`, so a restored cache cannot
+make a later probe fail its fresh-output-directory check.
 
 ## Validating workflow changes
 

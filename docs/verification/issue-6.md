@@ -116,6 +116,11 @@ already recorded overload.
 
 CI now runs the Alacritty tests/lints explicitly and the release ConPTY input
 probe for each renderer. No hardware-sensitive timing threshold is enforced.
+PR review found that putting probe output under cached `target` could restore
+an old run directory and make the probe reject a rerun. CI now writes to the
+runner's temporary directory, scoped by workflow run ID and attempt. Local
+validation retained a stale target output directory while a fresh temporary
+probe run succeeded; the cached directory was left untouched.
 
 ## Windows release observations
 
