@@ -63,6 +63,9 @@ both renderers. It rejects re-enabled Iced defaults/thread pool, Tokio full
 or unused I/O features, and a renderer dependency leaking into the other
 profile. CI also runs the harness unit tests and measurement-support tests;
 GUI/ConPTY measurements stay on the local reference machine.
+`tools/test-feature-profile-guard.ps1` supplies synthetic Cargo trees to verify
+that features on earlier package versions cannot be hidden by later entries,
+and that renderer dependencies leaking into the other profile are rejected.
 
 ## Validating workflow changes
 

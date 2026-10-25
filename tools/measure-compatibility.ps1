@@ -14,6 +14,7 @@ $ErrorActionPreference = 'Stop'
 Initialize-CompatibilityDiagnostics
 $Shell = $Shell.ToLowerInvariant()
 $Mode = $Mode.ToLowerInvariant()
+$Renderer = $Renderer.ToLowerInvariant()
 $exe = (Resolve-Path -LiteralPath $Executable).Path
 $rootOutput = [System.IO.Path]::GetFullPath($OutputDirectory)
 New-Item -ItemType Directory -Force $rootOutput | Out-Null

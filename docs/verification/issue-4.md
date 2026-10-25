@@ -143,6 +143,21 @@ exited 0 with observed close intervals of 215.42 ms (wgpu) and 12.63 ms
 
 ## Remaining constraints
 
+### PR review follow-up
+
+The review found a feature-guard gap: later Cargo tree entries could overwrite
+features on an earlier version of the same package. A synthetic tree containing
+an older Tokio with `full` followed by a clean newer version incorrectly passed
+before the fix. The guard now unions features across every version/entry and
+requests uncolored Cargo output. Four regression cases cover clean profiles,
+earlier Tokio/Iced features, and renderer dependency leakage; CI runs them.
+The collector also normalizes case-insensitive renderer arguments before
+forwarding them to Iced and recording metadata, matching shell/mode handling.
+These changes affect tooling only; application binaries and the resource
+measurements above remain unchanged.
+
+### Unpatched terminal behavior
+
 Final title markers remain intermittent, as in #3: wgpu cmd smoke saw both;
 the other three smoke runs saw neither. Terminal behavior is unpatched, and
 these markers are not an oracle for exact final output. No output-drain fix

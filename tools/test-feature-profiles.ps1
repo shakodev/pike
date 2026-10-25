@@ -4,12 +4,16 @@ $ErrorActionPreference = 'Stop'
 foreach ($renderer in @('wgpu', 'tiny-skia')) {
     $arguments = @('--locked', '--target', 'x86_64-pc-windows-msvc',
         '--no-default-features', '--features', "renderer-$renderer")
-    $tree = @(cargo tree @arguments --charset ascii -e normal,build --prefix none --format '{p}|{f}')
+    $tree = @(cargo tree @arguments --color never --charset ascii -e normal,build --prefix none --format '{p}|{f}')
     if ($LASTEXITCODE -ne 0) { throw "cargo tree failed for $renderer" }
     $features = @{}
     foreach ($line in $tree) {
         if ($line -match '^([\w-]+) v[^|]+\|([^ ]*)') {
-            $features[$Matches[1]] = @($Matches[2] -split ',' | Where-Object { $_ })
+            $package = $Matches[1]
+            $enabled = @($Matches[2] -split ',' | Where-Object { $_ })
+            # Different versions and repeated tree entries must all be checked.
+            $features[$package] = @(@($features[$package]) + $enabled |
+                Where-Object { $_ } | Sort-Object -Unique)
         }
     }
     foreach ($package in @('iced', 'iced_futures', 'iced_renderer', 'iced_term', 'tokio')) {
@@ -32,7 +36,7 @@ foreach ($renderer in @('wgpu', 'tiny-skia')) {
         $repository = (Get-Location).Path
         $tree | ForEach-Object { $_.Replace($repository, '<repository>') } |
             Set-Content (Join-Path $OutputDirectory "$renderer-resolved.txt") -Encoding UTF8
-        cargo tree @arguments --charset ascii -e features |
+        cargo tree @arguments --color never --charset ascii -e features |
             ForEach-Object { $_.Replace($repository, '<repository>') } |
             Set-Content (Join-Path $OutputDirectory "$renderer-features.txt") -Encoding UTF8
         if ($LASTEXITCODE -ne 0) { throw 'Could not save feature graph' }
