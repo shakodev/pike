@@ -1,0 +1,17 @@
+{
+    "WindowDetectedMs":  2598.1794,
+    "IdleWallSeconds":  60.652900100000004,
+    "IdleCpuSeconds":  0.109375,
+    "IdleOneCoreCpuPercent":  0.18032938213947003,
+    "PrivateBytesMinimum":  224444416,
+    "PrivateBytesMaximum":  224616448,
+    "WorkingSetBytesMinimum":  207437824,
+    "WorkingSetBytesMaximum":  207511552,
+    "ThreadsMinimum":  40,
+    "ThreadsMaximum":  45,
+    "HandlesMinimum":  592,
+    "HandlesMaximum":  597,
+    "AllSamplesResponding":  true,
+    "CloseMs":  229.40050000000002,
+    "ExitCode":  0
+}
