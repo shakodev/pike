@@ -1,0 +1,47 @@
+﻿[
+    {
+        "File":  "Cargo.lock",
+        "Bytes":  111083,
+        "Sha256":  "14D3F8C71AFDE00F8D322EBFB3D6A0A5A7A515DB6085B07AE778F6AC9835D963"
+    },
+    {
+        "File":  "src/executor.rs",
+        "Bytes":  6429,
+        "Sha256":  "DFAC1926C78B646CFA0B7D6F3445B460D5C20A6EF3B56965A0DE3CBEAE1A1C1C"
+    },
+    {
+        "File":  "vendor/iced_term/src/event_bridge.rs",
+        "Bytes":  7508,
+        "Sha256":  "311A5F629C057EE14B464D799E9F7786EE2086AE0E8B3E342FC8167C575266FE"
+    },
+    {
+        "File":  "vendor/iced_term/src/backend.rs",
+        "Bytes":  23598,
+        "Sha256":  "0C4198EF862DAC016D8CBFBFEB9DF5C6F0D89072C7A29AB9554823B05730F9F4"
+    },
+    {
+        "File":  "vendor/iced_term/src/terminal.rs",
+        "Bytes":  5871,
+        "Sha256":  "0DE6408E07DA35428FE36F5AA03D4E0E8D0F9B5829A698C10E275219EB1F5D6D"
+    },
+    {
+        "File":  "examples/compatibility/main.rs",
+        "Bytes":  15401,
+        "Sha256":  "C56FAC71DAC5C5ED28811ECEC28E0675EB10D14C189780EF8DD650373EE02EFC"
+    },
+    {
+        "File":  "pike.exe",
+        "Bytes":  10566656,
+        "Sha256":  "2E2289822C0ABF01A9C47E4FBB6A1504FD71F066FFC764F6475AE876046A996B"
+    },
+    {
+        "File":  "compatibility.exe",
+        "Bytes":  12648448,
+        "Sha256":  "0EE85FBC845FCBAB3724C17AF8C7B6B187FDBC7D14D4A5BA8E53690F425AC31E"
+    },
+    {
+        "File":  "pty_fixture.exe",
+        "Bytes":  146944,
+        "Sha256":  "EDE0AFC5937E856970D6F736AB3709AAA0A91F81C08D71C331D3D7C4F8BEE0AE"
+    }
+]

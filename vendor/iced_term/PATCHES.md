@@ -10,7 +10,7 @@
   manifest records the repository's earlier `Harzu/iced_term` name).
 - License: MIT, retained verbatim in [LICENSE](LICENSE).
 - All archive files are retained, including `Cargo.toml.orig` and the upstream
-  `Cargo.lock`. Only the normalized `Cargo.toml` differs, plus this ledger.
+  `Cargo.lock`. Changes to the normalized manifest and source are listed below.
   Pike's root `.gitattributes` disables line-ending conversion for this directory
   so Windows Git checkouts preserve archive bytes.
   The archive lockfile is provenance only: workspace builds/tests use Pike's
@@ -18,8 +18,7 @@
 
 ## R04 / issue #4 — configurable dependency features
 
-Only `Cargo.toml` changes. Terminal, event, input, rendering, PTY and lifecycle
-source code is byte-for-byte the published version.
+This patch changed only `Cargo.toml`. Subsequent source patches are listed below.
 
 - Iced: disable dependency defaults; preserve required `canvas`, `lazy`,
   `advanced`. Feature `iced-defaults` forwards `iced/default`.
@@ -37,5 +36,32 @@ cargo test --locked -p iced_term --lib --no-default-features --features iced/tin
 powershell -NoProfile -File tools/test-feature-profiles.ps1
 ```
 
-No upstream fixes are included in this patch. Later patches must record their
-source diff, reason, regression tests and any changed ownership/resource limits.
+## R05 / issue #5 — bounded event delivery
+
+- Add `src/event_bridge.rs`: 256 FIFO control slots, a 64 KiB aggregate
+  retained String-capacity budget, a 4 KiB UTF-8 title slot, and coalesced
+  redraw/mouse/cursor/bell state. Protocol requests retain FIFO order.
+- Reserve separate sticky error, child-exit, Exit and source-completion state.
+  On overload, reject subsequent ordinary events and report a redacted,
+  session-scoped error. Processing that error requests only that PTY's shutdown
+  and disables its writes/resizes. Lifecycle events remain deliverable.
+- `backend.rs`: replace `blocking_send` with bounded state mutation and a
+  Tokio Notify wake. The brief bridge mutex never covers terminal operations,
+  I/O or awaits, and no producer waits for UI queue capacity. The event-loop
+  proxy has a completion-on-drop marker; clones retained by Term do not.
+- `terminal.rs`: poll the bridge directly with a fused `unfold` stream; remove
+  both the 100-event input queue and the 1,000-event forwarding queue. EOF and
+  subscription cancellation end without a panic, forwarding task or busy loop.
+- Export `EventBridgeError` / `EventBridgeEvent` through `BackendCommand::EventBridge`
+  and return `Action::EventBridgeError` when handled. Source completion is not
+  joined/drained PTY shutdown acknowledgement (#7). Input admission is #6.
+- Reviewed [upstream PR 69](https://github.com/kemokempo/iced_term/pull/69/files),
+  commit `338e59f`: its `try_send` substitution still discards full-queue events.
+  This implementation keeps lifecycle state outside the bounded control FIFO.
+- No dependency or lockfile changes. Fifteen new regression tests (40 total)
+  cover overload/coalescing/payload accounting, protocol order, lock safety,
+  cancellation/EOF, session routing, and real Windows ConPTY flood/resize/close.
+
+Run both explicit vendor commands above; see
+[issue #5 verification](../../docs/verification/issue-5.md) for measurements
+and API/overload policy details.
