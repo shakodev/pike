@@ -30,9 +30,14 @@ The initial target is `x86_64-pc-windows-msvc`.
    selected Build Tools workloads and try an x64 Native Tools terminal.
 
 Commit `Cargo.lock` when intentionally updating dependencies. Use `--locked`
-for builds, tests, Clippy, and future CI so resolution cannot silently change.
+for builds, tests, Clippy, and CI so resolution cannot silently change.
 The pinned compiler is the verified build baseline, not a claim that the
 whole dependency graph supports Iced's minimum Rust version.
+
+[Windows CI](docs/ci.md) runs the same checks on pull requests and `main`,
+using the pinned toolchain and a cache keyed by toolchain and lockfile.
+That guide also explains how to add explicit regression steps for future
+dependency patches.
 
 ## Dependency baseline
 

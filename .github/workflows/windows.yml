@@ -1,0 +1,71 @@
+name: Windows CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    name: Rust checks (Windows MSVC)
+    runs-on: windows-2025
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      CARGO_TERM_COLOR: always
+      CARGO_INCREMENTAL: '0'
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Install and show pinned toolchain
+        run: rustup show
+
+      - name: Show compiler and Cargo versions
+        run: |
+          rustc --version --verbose
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo --version
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Cache Cargo dependencies and build artifacts
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            target
+          key: Windows-2025-${{ runner.arch }}-msvc-v1-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.lock') }}
+
+      - name: Clippy
+        run: cargo clippy --locked --all-targets -- -D warnings
+
+      - name: Test application
+        run: cargo test --locked
+
+      # App tests do not run a patched dependency's own regression tests.
+      # Add a named step per patch here, using --manifest-path and --locked;
+      # see docs/ci.md for the command and vendor lockfile requirements.
+
+      - name: Build release
+        run: cargo build --release --locked
+
+      - name: Verify dependency files are unchanged
+        run: git diff --exit-code -- Cargo.toml Cargo.lock rust-toolchain.toml
