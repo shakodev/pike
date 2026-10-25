@@ -121,6 +121,22 @@ PowerShell screenshots are also retained with its smoke trace.
 
 ## F01-F15 findings and follow-up
 
+### PR review corrections
+
+Review found that the collector could accept a completed smoke run without
+checking its intermediate phases, and that stderr was truncated only after
+an unbounded `ReadToEndAsync`. The collector now checks per-session readiness
+and exits, screenshot/swap ordering, changed positive dimensions, and the
+background-first exit/focus sequence. Diagnostics retain a bounded prefix
+while draining through a fixed buffer, initialized outside measured timing.
+
+`tools/test-compatibility-support.ps1` validates all retained traces, rejects
+seven negative trace mutations, and checks bounded capture with empty, short,
+and oversized input plus a real 1 MiB stderr producer. It runs in CI. Fresh
+two-session cmd and Windows PowerShell smoke runs passed the stricter checks.
+No Rust or fixture changes were needed; their measured binary fingerprints
+and all original baseline artifacts remain unchanged.
+
 The installed 0.8.0/0.25.1 sources were checked again. Source findings are
 distinguished from runtime observations and deliberately unverified cases.
 

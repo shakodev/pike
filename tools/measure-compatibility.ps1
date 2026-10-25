@@ -7,6 +7,9 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'compatibility-support.ps1')
+# Compile the tiny BCL-only reader before starting any measured stopwatch.
+Initialize-CompatibilityDiagnostics
 $Shell = $Shell.ToLowerInvariant()
 $Mode = $Mode.ToLowerInvariant()
 $exe = (Resolve-Path -LiteralPath 'target/release/examples/compatibility.exe').Path
@@ -33,7 +36,7 @@ $summaries = @(for ($run = 1; $run -le $totalRuns; $run++) {
     $appProcess.StartInfo = $startInfo
     $watch = [System.Diagnostics.Stopwatch]::StartNew()
     if (-not $appProcess.Start()) { throw 'Could not start compatibility harness.' }
-    $stderr = $appProcess.StandardError.ReadToEndAsync()
+    $stderr = Read-CompatibilityStderr -Reader $appProcess.StandardError
     try {
         $eventsPath = Join-Path $directory 'events.csv'
         do {
@@ -98,14 +101,7 @@ $summaries = @(for ($run = 1; $run -le $totalRuns; $run++) {
         $closeMs = $closeWatch.Elapsed.TotalMilliseconds
         if ($appProcess.ExitCode -ne 0) { throw "Harness exited with code $($appProcess.ExitCode)." }
         $events = @(Import-Csv -LiteralPath $eventsPath)
-        if (@($events | Where-Object event -eq 'exit').Count -ne $Sessions) { throw 'Missing originating session exit observations.' }
-        foreach ($sessionId in 1..$Sessions) {
-            $childExit = @($events | Where-Object { $_.event -eq 'child_exit' -and [int]$_.session -eq $sessionId })
-            if ($childExit.Count -ne 1 -or [int]$childExit[0].a -ne (40 + $sessionId)) { throw "Unexpected or missing controlled exit code for session $sessionId." }
-        }
-        if (@($events | Where-Object event -eq 'timeout').Count -gt 0) { throw 'Harness close timed out.' }
-        $finished = @($events | Where-Object event -eq 'finished')
-        if ($finished.Count -ne 1 -or $finished[0].a -ne '0' -or $finished[0].b -ne 'false') { throw 'Harness did not complete successfully.' }
+        Test-CompatibilityTrace -Events $events -Sessions $Sessions -Mode $Mode
         $liveFixtures = @($fixturePids | ForEach-Object { Get-Process -Id $_ -ErrorAction SilentlyContinue } | Where-Object ProcessName -eq 'pty_fixture')
         if ($liveFixtures.Count -gt 0) { throw 'Fixture process remained alive after harness exit.' }
         $summary = [ordered]@{
@@ -138,7 +134,6 @@ $summaries = @(for ($run = 1; $run -le $totalRuns; $run++) {
     } finally {
         if (-not $appProcess.HasExited) { $appProcess.Kill(); $appProcess.WaitForExit() }
         $errorText = $stderr.GetAwaiter().GetResult()
-        if ($errorText.Length -gt 4096) { $errorText = $errorText.Substring(0, 4096) }
         [System.IO.File]::WriteAllText((Join-Path $directory 'stderr.txt'), $errorText)
         $appProcess.Dispose()
     }

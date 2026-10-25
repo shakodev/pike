@@ -63,6 +63,9 @@ jobs:
       - name: Test compatibility examples
         run: cargo test --locked --examples
 
+      - name: Test measurement support
+        run: ./tools/test-compatibility-support.ps1
+
       # App tests do not run a patched dependency's own regression tests.
       # Add a named step per patch here, using --manifest-path and --locked;
       # see docs/ci.md for the command and vendor lockfile requirements.

@@ -11,6 +11,7 @@ From the repository root on Windows x64 MSVC:
 ```powershell
 cargo build --release --locked --examples
 cargo test --locked --examples
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/test-compatibility-support.ps1
 cargo run --release --locked --example compatibility -- --shell cmd --sessions 2 --mode manual --output target/compatibility/manual
 ```
 
@@ -73,7 +74,10 @@ so that field is not a shutdown-latency measurement. Smoke uses finite
 250 ms one-shot delays to separate rendered frames; idle mode has no timer
 or custom background worker. The script checks normal app exit, every
 originating session exit, responsiveness, timeout/error flags, and surviving
-fixture PIDs. It records missing final markers without claiming they passed:
+fixture PIDs. Smoke traces must also contain two screenshot observations,
+a swap between them for two sessions, changed positive dimensions for each
+session, and the expected background-first exit while session 1 is focused.
+It records missing final markers without claiming they passed:
 this is an unpatched baseline whose known defects are expected to remain.
 
 Smoke mode captures `before.ppm` / `after.ppm` through Iced's screenshot API
@@ -85,9 +89,12 @@ consume/reply to queries itself and contaminate the fixture's line input;
 that explicit probe is not part of the normal automated exit sequence.
 
 Results directories are overwritten on a rerun. Standard-error capture is
-for these synthetic runs only and the saved text is capped at 4 KiB. A failed
-scenario preserves its event trace and exits nonzero. Shared CI compiles the
-examples and runs their pure tests, without opening windows or launching PTYs.
+for these synthetic runs only. It retains a 4,096-character prefix while
+draining the remainder through a fixed 512-character buffer. The tiny BCL-only
+reader is initialized before any measured stopwatch starts. A failed scenario
+preserves its event trace and exits nonzero. Shared CI compiles the examples,
+runs their pure tests and measurement-support regressions, and checks a
+synthetic stderr producer without opening windows or launching PTYs.
 
 See [the recorded baseline](verification/issue-3.md) for measurements,
 screenshots, and the F01-F15 reproduction/unverified matrix.
