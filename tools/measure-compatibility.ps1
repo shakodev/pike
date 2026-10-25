@@ -3,6 +3,8 @@ param(
     [ValidateRange(1, 2)][int]$Sessions = 2,
     [ValidateSet('smoke', 'idle', 'startup')][string]$Mode = 'smoke',
     [ValidateRange(1, 100)][int]$Runs = 20,
+    [ValidateSet('wgpu', 'tiny-skia')][string]$Renderer = 'wgpu',
+    [string]$Executable = 'target/release/examples/compatibility.exe',
     [string]$OutputDirectory = 'target/compatibility/results'
 )
 
@@ -12,7 +14,8 @@ $ErrorActionPreference = 'Stop'
 Initialize-CompatibilityDiagnostics
 $Shell = $Shell.ToLowerInvariant()
 $Mode = $Mode.ToLowerInvariant()
-$exe = (Resolve-Path -LiteralPath 'target/release/examples/compatibility.exe').Path
+$Renderer = $Renderer.ToLowerInvariant()
+$exe = (Resolve-Path -LiteralPath $Executable).Path
 $rootOutput = [System.IO.Path]::GetFullPath($OutputDirectory)
 New-Item -ItemType Directory -Force $rootOutput | Out-Null
 if (-not (Get-Command "$Shell.exe" -ErrorAction SilentlyContinue)) {
@@ -31,7 +34,7 @@ $summaries = @(for ($run = 1; $run -le $totalRuns; $run++) {
     $startInfo.CreateNoWindow = $true
     $startInfo.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Hidden
     $startInfo.RedirectStandardError = $true
-    $startInfo.EnvironmentVariables['ICED_BACKEND'] = 'wgpu'
+    $startInfo.EnvironmentVariables['ICED_BACKEND'] = $Renderer
     $appProcess = New-Object System.Diagnostics.Process
     $appProcess.StartInfo = $startInfo
     $watch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -109,7 +112,7 @@ $summaries = @(for ($run = 1; $run -le $totalRuns; $run++) {
             Sessions = $Sessions
             Mode = $Mode
             Run = $run
-            Renderer = 'wgpu (ICED_BACKEND override); default compiled backend features'
+            Renderer = "$Renderer (ICED_BACKEND override); build features recorded separately"
             ReadyAndWindowMs = $readyMs
             CloseObservationMs = $closeMs
             FinalMarkers = @($events | Where-Object event -eq 'final').Count

@@ -1,0 +1,1049 @@
+﻿pike v0.1.0 (<repository>)
+|-- iced_term v0.8.0 (<repository>\vendor\iced_term)
+|   |-- iced_graphics v0.14.0
+|   |   |-- iced_core feature "default"
+|   |   |   `-- iced_core v0.14.0
+|   |   |       |-- bitflags feature "default"
+|   |   |       |   `-- bitflags v2.13.2
+|   |   |       |       `-- serde_core v1.0.229
+|   |   |       |-- bytes feature "default"
+|   |   |       |   |-- bytes v1.12.1
+|   |   |       |   `-- bytes feature "std"
+|   |   |       |       `-- bytes v1.12.1
+|   |   |       |-- glam feature "default"
+|   |   |       |   |-- glam v0.25.0
+|   |   |       |   `-- glam feature "std"
+|   |   |       |       `-- glam v0.25.0
+|   |   |       |-- lilt feature "default"
+|   |   |       |   `-- lilt v0.8.2
+|   |   |       |       `-- web-time feature "default"
+|   |   |       |           `-- web-time v1.1.0
+|   |   |       |-- web-time feature "default" (*)
+|   |   |       |-- log feature "default"
+|   |   |       |   `-- log v0.4.34
+|   |   |       |-- num-traits feature "default"
+|   |   |       |   |-- num-traits v0.2.19
+|   |   |       |   |   `-- libm feature "default"
+|   |   |       |   |       |-- libm v0.2.16
+|   |   |       |   |       `-- libm feature "arch"
+|   |   |       |   |           `-- libm v0.2.16
+|   |   |       |   |   [build-dependencies]
+|   |   |       |   |   `-- autocfg feature "default"
+|   |   |       |   |       `-- autocfg v1.5.1
+|   |   |       |   `-- num-traits feature "std"
+|   |   |       |       `-- num-traits v0.2.19 (*)
+|   |   |       |-- rustc-hash feature "default"
+|   |   |       |   |-- rustc-hash v2.1.3
+|   |   |       |   `-- rustc-hash feature "std"
+|   |   |       |       `-- rustc-hash v2.1.3
+|   |   |       |-- smol_str feature "default"
+|   |   |       |   |-- smol_str v0.2.2
+|   |   |       |   `-- smol_str feature "std"
+|   |   |       |       `-- smol_str v0.2.2
+|   |   |       `-- thiserror feature "default"
+|   |   |           |-- thiserror v2.0.21
+|   |   |           |   `-- thiserror-impl feature "default"
+|   |   |           |       `-- thiserror-impl v2.0.21 (proc-macro)
+|   |   |           |           |-- proc-macro2 feature "default"
+|   |   |           |           |   |-- proc-macro2 v1.0.107
+|   |   |           |           |   |   `-- unicode-ident feature "default"
+|   |   |           |           |   |       `-- unicode-ident v1.0.27
+|   |   |           |           |   `-- proc-macro2 feature "proc-macro"
+|   |   |           |           |       `-- proc-macro2 v1.0.107 (*)
+|   |   |           |           |-- quote feature "default"
+|   |   |           |           |   |-- quote v1.0.47
+|   |   |           |           |   |   `-- proc-macro2 v1.0.107 (*)
+|   |   |           |           |   `-- quote feature "proc-macro"
+|   |   |           |           |       |-- quote v1.0.47 (*)
+|   |   |           |           |       `-- proc-macro2 feature "proc-macro" (*)
+|   |   |           |           `-- syn feature "default"
+|   |   |           |               |-- syn v3.0.9
+|   |   |           |               |   |-- proc-macro2 v1.0.107 (*)
+|   |   |           |               |   |-- quote v1.0.47 (*)
+|   |   |           |               |   `-- unicode-ident feature "default" (*)
+|   |   |           |               |-- syn feature "clone-impls"
+|   |   |           |               |   `-- syn v3.0.9 (*)
+|   |   |           |               |-- syn feature "derive"
+|   |   |           |               |   `-- syn v3.0.9 (*)
+|   |   |           |               |-- syn feature "parsing"
+|   |   |           |               |   `-- syn v3.0.9 (*)
+|   |   |           |               |-- syn feature "printing"
+|   |   |           |               |   `-- syn v3.0.9 (*)
+|   |   |           |               `-- syn feature "proc-macro"
+|   |   |           |                   |-- syn v3.0.9 (*)
+|   |   |           |                   |-- proc-macro2 feature "proc-macro" (*)
+|   |   |           |                   `-- quote feature "proc-macro" (*)
+|   |   |           `-- thiserror feature "std"
+|   |   |               `-- thiserror v2.0.21 (*)
+|   |   |-- bitflags feature "default" (*)
+|   |   |-- log feature "default" (*)
+|   |   |-- rustc-hash feature "default" (*)
+|   |   |-- thiserror feature "default" (*)
+|   |   |-- iced_futures feature "default"
+|   |   |   `-- iced_futures v0.14.0
+|   |   |       |-- iced_core feature "default" (*)
+|   |   |       |-- log feature "default" (*)
+|   |   |       |-- rustc-hash feature "default" (*)
+|   |   |       |-- futures feature "async-await"
+|   |   |       |   |-- futures v0.3.34
+|   |   |       |   |   |-- futures-core v0.3.34
+|   |   |       |   |   |-- futures-io v0.3.34
+|   |   |       |   |   |-- futures-sink v0.3.34
+|   |   |       |   |   |-- futures-task v0.3.34
+|   |   |       |   |   |-- futures-channel feature "sink"
+|   |   |       |   |   |   |-- futures-channel v0.3.34
+|   |   |       |   |   |   |   |-- futures-core v0.3.34
+|   |   |       |   |   |   |   `-- futures-sink v0.3.34
+|   |   |       |   |   |   `-- futures-channel feature "futures-sink"
+|   |   |       |   |   |       `-- futures-channel v0.3.34 (*)
+|   |   |       |   |   `-- futures-util feature "sink"
+|   |   |       |   |       |-- futures-util v0.3.34
+|   |   |       |   |       |   |-- futures-core v0.3.34
+|   |   |       |   |       |   |-- futures-macro v0.3.34 (proc-macro)
+|   |   |       |   |       |   |   |-- proc-macro2 feature "default" (*)
+|   |   |       |   |       |   |   |-- quote feature "default" (*)
+|   |   |       |   |       |   |   |-- syn feature "default" (*)
+|   |   |       |   |       |   |   `-- syn feature "full"
+|   |   |       |   |       |   |       `-- syn v3.0.9 (*)
+|   |   |       |   |       |   |-- futures-sink v0.3.34
+|   |   |       |   |       |   |-- futures-task v0.3.34
+|   |   |       |   |       |   |-- slab v0.4.12
+|   |   |       |   |       |   |-- futures-channel feature "std"
+|   |   |       |   |       |   |   |-- futures-channel v0.3.34 (*)
+|   |   |       |   |       |   |   |-- futures-channel feature "alloc"
+|   |   |       |   |       |   |   |   |-- futures-channel v0.3.34 (*)
+|   |   |       |   |       |   |   |   `-- futures-core feature "alloc"
+|   |   |       |   |       |   |   |       `-- futures-core v0.3.34
+|   |   |       |   |       |   |   `-- futures-core feature "std"
+|   |   |       |   |       |   |       |-- futures-core v0.3.34
+|   |   |       |   |       |   |       `-- futures-core feature "alloc" (*)
+|   |   |       |   |       |   |-- futures-io feature "std"
+|   |   |       |   |       |   |   `-- futures-io v0.3.34
+|   |   |       |   |       |   |-- memchr feature "default"
+|   |   |       |   |       |   |   |-- memchr v2.8.3
+|   |   |       |   |       |   |   `-- memchr feature "std"
+|   |   |       |   |       |   |       |-- memchr v2.8.3
+|   |   |       |   |       |   |       `-- memchr feature "alloc"
+|   |   |       |   |       |   |           `-- memchr v2.8.3
+|   |   |       |   |       |   `-- pin-project-lite feature "default"
+|   |   |       |   |       |       `-- pin-project-lite v0.2.17
+|   |   |       |   |       `-- futures-util feature "futures-sink"
+|   |   |       |   |           `-- futures-util v0.3.34 (*)
+|   |   |       |   |-- futures-util feature "async-await"
+|   |   |       |   |   `-- futures-util v0.3.34 (*)
+|   |   |       |   `-- futures-util feature "async-await-macro"
+|   |   |       |       |-- futures-util v0.3.34 (*)
+|   |   |       |       |-- futures-util feature "async-await" (*)
+|   |   |       |       `-- futures-util feature "futures-macro"
+|   |   |       |           `-- futures-util v0.3.34 (*)
+|   |   |       |-- futures feature "std"
+|   |   |       |   |-- futures v0.3.34 (*)
+|   |   |       |   |-- futures feature "alloc"
+|   |   |       |   |   |-- futures v0.3.34 (*)
+|   |   |       |   |   |-- futures-channel feature "alloc" (*)
+|   |   |       |   |   |-- futures-core feature "alloc" (*)
+|   |   |       |   |   |-- futures-sink feature "alloc"
+|   |   |       |   |   |   `-- futures-sink v0.3.34
+|   |   |       |   |   |-- futures-task feature "alloc"
+|   |   |       |   |   |   `-- futures-task v0.3.34
+|   |   |       |   |   `-- futures-util feature "alloc"
+|   |   |       |   |       |-- futures-util v0.3.34 (*)
+|   |   |       |   |       |-- futures-core feature "alloc" (*)
+|   |   |       |   |       |-- futures-task feature "alloc" (*)
+|   |   |       |   |       `-- futures-util feature "slab"
+|   |   |       |   |           `-- futures-util v0.3.34 (*)
+|   |   |       |   |-- futures-core feature "std" (*)
+|   |   |       |   |-- futures-sink feature "std"
+|   |   |       |   |   |-- futures-sink v0.3.34
+|   |   |       |   |   `-- futures-sink feature "alloc" (*)
+|   |   |       |   |-- futures-io feature "std" (*)
+|   |   |       |   |-- futures-task feature "std"
+|   |   |       |   |   |-- futures-task v0.3.34
+|   |   |       |   |   `-- futures-task feature "alloc" (*)
+|   |   |       |   |-- futures-util feature "channel"
+|   |   |       |   |   |-- futures-util v0.3.34 (*)
+|   |   |       |   |   |-- futures-util feature "futures-channel"
+|   |   |       |   |   |   `-- futures-util v0.3.34 (*)
+|   |   |       |   |   `-- futures-util feature "std"
+|   |   |       |   |       |-- futures-util v0.3.34 (*)
+|   |   |       |   |       |-- futures-core feature "std" (*)
+|   |   |       |   |       |-- futures-task feature "std" (*)
+|   |   |       |   |       |-- futures-util feature "alloc" (*)
+|   |   |       |   |       |-- futures-util feature "slab" (*)
+|   |   |       |   |       `-- slab feature "std"
+|   |   |       |   |           `-- slab v0.4.12
+|   |   |       |   |-- futures-util feature "io"
+|   |   |       |   |   |-- futures-util v0.3.34 (*)
+|   |   |       |   |   |-- futures-util feature "futures-io"
+|   |   |       |   |   |   `-- futures-util v0.3.34 (*)
+|   |   |       |   |   |-- futures-util feature "memchr"
+|   |   |       |   |   |   `-- futures-util v0.3.34 (*)
+|   |   |       |   |   `-- futures-util feature "std" (*)
+|   |   |       |   `-- futures-util feature "std" (*)
+|   |   |       |-- tokio feature "default"
+|   |   |       |   `-- tokio v1.54.1
+|   |   |       |       `-- pin-project-lite feature "default" (*)
+|   |   |       |-- tokio feature "rt"
+|   |   |       |   `-- tokio v1.54.1 (*)
+|   |   |       |-- tokio feature "rt-multi-thread"
+|   |   |       |   |-- tokio v1.54.1 (*)
+|   |   |       |   `-- tokio feature "rt" (*)
+|   |   |       `-- tokio feature "time"
+|   |   |           `-- tokio v1.54.1 (*)
+|   |   |-- bytemuck feature "default"
+|   |   |   `-- bytemuck v1.25.2
+|   |   |       `-- bytemuck_derive feature "default"
+|   |   |           `-- bytemuck_derive v1.12.1 (proc-macro)
+|   |   |               |-- proc-macro2 feature "default" (*)
+|   |   |               |-- quote feature "default" (*)
+|   |   |               `-- syn feature "default" (*)
+|   |   |-- bytemuck feature "derive"
+|   |   |   |-- bytemuck v1.25.2 (*)
+|   |   |   `-- bytemuck feature "bytemuck_derive"
+|   |   |       `-- bytemuck v1.25.2 (*)
+|   |   |-- cosmic-text feature "default"
+|   |   |   |-- cosmic-text v0.15.0
+|   |   |   |   |-- fontdb v0.23.0
+|   |   |   |   |   |-- slotmap v1.1.1
+|   |   |   |   |   |   [build-dependencies]
+|   |   |   |   |   |   `-- version_check feature "default"
+|   |   |   |   |   |       `-- version_check v0.9.5
+|   |   |   |   |   |-- log feature "default" (*)
+|   |   |   |   |   |-- memmap2 feature "default"
+|   |   |   |   |   |   `-- memmap2 v0.9.12
+|   |   |   |   |   |-- tinyvec feature "alloc"
+|   |   |   |   |   |   `-- tinyvec v1.13.3
+|   |   |   |   |   |-- tinyvec feature "default"
+|   |   |   |   |   |   `-- tinyvec v1.13.3
+|   |   |   |   |   |-- ttf-parser feature "apple-layout"
+|   |   |   |   |   |   `-- ttf-parser v0.25.1
+|   |   |   |   |   |       `-- core_maths feature "default"
+|   |   |   |   |   |           `-- core_maths v0.1.1
+|   |   |   |   |   |               `-- libm feature "default" (*)
+|   |   |   |   |   |-- ttf-parser feature "glyph-names"
+|   |   |   |   |   |   `-- ttf-parser v0.25.1 (*)
+|   |   |   |   |   |-- ttf-parser feature "no-std-float"
+|   |   |   |   |   |   |-- ttf-parser v0.25.1 (*)
+|   |   |   |   |   |   `-- ttf-parser feature "core_maths"
+|   |   |   |   |   |       `-- ttf-parser v0.25.1 (*)
+|   |   |   |   |   |-- ttf-parser feature "opentype-layout"
+|   |   |   |   |   |   `-- ttf-parser v0.25.1 (*)
+|   |   |   |   |   `-- ttf-parser feature "variable-fonts"
+|   |   |   |   |       `-- ttf-parser v0.25.1 (*)
+|   |   |   |   |-- harfrust v0.3.2
+|   |   |   |   |   |-- bitflags feature "default" (*)
+|   |   |   |   |   |-- bytemuck feature "default" (*)
+|   |   |   |   |   |-- bytemuck feature "extern_crate_alloc"
+|   |   |   |   |   |   `-- bytemuck v1.25.2 (*)
+|   |   |   |   |   |-- core_maths feature "default" (*)
+|   |   |   |   |   |-- read-fonts feature "libm"
+|   |   |   |   |   |   `-- read-fonts v0.35.0
+|   |   |   |   |   |       |-- bytemuck feature "default" (*)
+|   |   |   |   |   |       |-- core_maths feature "default" (*)
+|   |   |   |   |   |       |-- font-types feature "bytemuck"
+|   |   |   |   |   |       |   `-- font-types v0.10.1
+|   |   |   |   |   |       |       |-- bytemuck feature "default" (*)
+|   |   |   |   |   |       |       |-- bytemuck feature "derive" (*)
+|   |   |   |   |   |       |       `-- bytemuck feature "min_const_generics"
+|   |   |   |   |   |       |           `-- bytemuck v1.25.2 (*)
+|   |   |   |   |   |       `-- font-types feature "default"
+|   |   |   |   |   |           `-- font-types v0.10.1 (*)
+|   |   |   |   |   `-- smallvec feature "default"
+|   |   |   |   |       `-- smallvec v1.16.4
+|   |   |   |   |-- linebender_resource_handle v0.1.1
+|   |   |   |   |-- rustc-hash v1.1.0
+|   |   |   |   |-- skrifa v0.37.0
+|   |   |   |   |   |-- read-fonts v0.35.0 (*)
+|   |   |   |   |   `-- bytemuck feature "default" (*)
+|   |   |   |   |-- smol_str v0.2.2
+|   |   |   |   |-- bitflags feature "default" (*)
+|   |   |   |   |-- log feature "default" (*)
+|   |   |   |   |-- rangemap feature "default"
+|   |   |   |   |   `-- rangemap v1.8.0
+|   |   |   |   |-- self_cell feature "default"
+|   |   |   |   |   `-- self_cell v1.3.0
+|   |   |   |   |-- swash feature "render"
+|   |   |   |   |   |-- swash v0.2.10
+|   |   |   |   |   |   |-- skrifa v0.44.0
+|   |   |   |   |   |   |   |-- read-fonts v0.41.0
+|   |   |   |   |   |   |   |   |-- bytemuck feature "default" (*)
+|   |   |   |   |   |   |   |   |-- font-types feature "bytemuck"
+|   |   |   |   |   |   |   |   |   `-- font-types v0.12.7
+|   |   |   |   |   |   |   |   |       |-- bytemuck feature "default" (*)
+|   |   |   |   |   |   |   |   |       |-- bytemuck feature "derive" (*)
+|   |   |   |   |   |   |   |   |       `-- bytemuck feature "min_const_generics" (*)
+|   |   |   |   |   |   |   |   |-- font-types feature "default"
+|   |   |   |   |   |   |   |   |   `-- font-types v0.12.7 (*)
+|   |   |   |   |   |   |   |   |-- once_cell feature "alloc"
+|   |   |   |   |   |   |   |   |   |-- once_cell v1.21.4
+|   |   |   |   |   |   |   |   |   `-- once_cell feature "race"
+|   |   |   |   |   |   |   |   |       `-- once_cell v1.21.4
+|   |   |   |   |   |   |   |   `-- once_cell feature "race" (*)
+|   |   |   |   |   |   |   `-- bytemuck feature "default" (*)
+|   |   |   |   |   |   |-- yazi v0.2.1
+|   |   |   |   |   |   `-- zeno v0.3.3
+|   |   |   |   |   |-- swash feature "scale"
+|   |   |   |   |   |   `-- swash v0.2.10 (*)
+|   |   |   |   |   |-- swash feature "zeno"
+|   |   |   |   |   |   `-- swash v0.2.10 (*)
+|   |   |   |   |   `-- zeno feature "eval"
+|   |   |   |   |       `-- zeno v0.3.3
+|   |   |   |   |-- swash feature "scale" (*)
+|   |   |   |   |-- sys-locale feature "default"
+|   |   |   |   |   `-- sys-locale v0.3.2
+|   |   |   |   |-- unicode-bidi feature "hardcoded-data"
+|   |   |   |   |   `-- unicode-bidi v0.3.18
+|   |   |   |   |-- unicode-linebreak feature "default"
+|   |   |   |   |   `-- unicode-linebreak v0.1.5
+|   |   |   |   |-- unicode-script feature "default"
+|   |   |   |   |   `-- unicode-script v0.5.8
+|   |   |   |   `-- unicode-segmentation feature "default"
+|   |   |   |       `-- unicode-segmentation v1.13.3
+|   |   |   |-- cosmic-text feature "fontconfig"
+|   |   |   |   |-- cosmic-text v0.15.0 (*)
+|   |   |   |   |-- cosmic-text feature "std"
+|   |   |   |   |   |-- cosmic-text v0.15.0 (*)
+|   |   |   |   |   |-- cosmic-text feature "sys-locale"
+|   |   |   |   |   |   `-- cosmic-text v0.15.0 (*)
+|   |   |   |   |   |-- fontdb feature "memmap"
+|   |   |   |   |   |   |-- fontdb v0.23.0 (*)
+|   |   |   |   |   |   |-- fontdb feature "fs"
+|   |   |   |   |   |   |   |-- fontdb v0.23.0 (*)
+|   |   |   |   |   |   |   `-- fontdb feature "std"
+|   |   |   |   |   |   |       |-- fontdb v0.23.0 (*)
+|   |   |   |   |   |   |       `-- ttf-parser feature "std"
+|   |   |   |   |   |   |           `-- ttf-parser v0.25.1 (*)
+|   |   |   |   |   |   `-- fontdb feature "memmap2"
+|   |   |   |   |   |       `-- fontdb v0.23.0 (*)
+|   |   |   |   |   |-- fontdb feature "std" (*)
+|   |   |   |   |   |-- harfrust feature "std"
+|   |   |   |   |   |   |-- harfrust v0.3.2 (*)
+|   |   |   |   |   |   `-- read-fonts feature "std"
+|   |   |   |   |   |       |-- read-fonts v0.35.0 (*)
+|   |   |   |   |   |       `-- font-types feature "std"
+|   |   |   |   |   |           `-- font-types v0.10.1 (*)
+|   |   |   |   |   |-- linebender_resource_handle feature "std"
+|   |   |   |   |   |   `-- linebender_resource_handle v0.1.1
+|   |   |   |   |   |-- skrifa feature "std"
+|   |   |   |   |   |   |-- skrifa v0.37.0 (*)
+|   |   |   |   |   |   `-- read-fonts feature "std" (*)
+|   |   |   |   |   |-- swash feature "std"
+|   |   |   |   |   |   |-- swash v0.2.10 (*)
+|   |   |   |   |   |   |-- skrifa feature "std"
+|   |   |   |   |   |   |   |-- skrifa v0.44.0 (*)
+|   |   |   |   |   |   |   `-- read-fonts feature "std"
+|   |   |   |   |   |   |       |-- read-fonts v0.41.0 (*)
+|   |   |   |   |   |   |       `-- font-types feature "std"
+|   |   |   |   |   |   |           `-- font-types v0.12.7 (*)
+|   |   |   |   |   |   |-- yazi feature "std"
+|   |   |   |   |   |   |   `-- yazi v0.2.1
+|   |   |   |   |   |   `-- zeno feature "std"
+|   |   |   |   |   |       `-- zeno v0.3.3
+|   |   |   |   |   `-- unicode-bidi feature "std"
+|   |   |   |   |       `-- unicode-bidi v0.3.18
+|   |   |   |   `-- fontdb feature "fontconfig"
+|   |   |   |       |-- fontdb v0.23.0 (*)
+|   |   |   |       |-- fontdb feature "fontconfig-parser"
+|   |   |   |       |   `-- fontdb v0.23.0 (*)
+|   |   |   |       `-- fontdb feature "fs" (*)
+|   |   |   |-- cosmic-text feature "std" (*)
+|   |   |   `-- cosmic-text feature "swash"
+|   |   |       `-- cosmic-text v0.15.0 (*)
+|   |   |-- unicode-segmentation feature "default" (*)
+|   |   |-- half feature "default"
+|   |   |   |-- half v2.7.1
+|   |   |   |   |-- cfg-if feature "default"
+|   |   |   |   |   `-- cfg-if v1.0.5
+|   |   |   |   |-- zerocopy feature "derive"
+|   |   |   |   |   |-- zerocopy v0.8.63
+|   |   |   |   |   |   `-- zerocopy-derive feature "default"
+|   |   |   |   |   |       `-- zerocopy-derive v0.8.63 (proc-macro)
+|   |   |   |   |   |           |-- proc-macro2 feature "default" (*)
+|   |   |   |   |   |           |-- quote feature "default" (*)
+|   |   |   |   |   |           |-- syn feature "default"
+|   |   |   |   |   |           |   |-- syn v2.0.119
+|   |   |   |   |   |           |   |   |-- proc-macro2 v1.0.107 (*)
+|   |   |   |   |   |           |   |   |-- quote v1.0.47 (*)
+|   |   |   |   |   |           |   |   `-- unicode-ident feature "default" (*)
+|   |   |   |   |   |           |   |-- syn feature "clone-impls"
+|   |   |   |   |   |           |   |   `-- syn v2.0.119 (*)
+|   |   |   |   |   |           |   |-- syn feature "derive"
+|   |   |   |   |   |           |   |   `-- syn v2.0.119 (*)
+|   |   |   |   |   |           |   |-- syn feature "parsing"
+|   |   |   |   |   |           |   |   `-- syn v2.0.119 (*)
+|   |   |   |   |   |           |   |-- syn feature "printing"
+|   |   |   |   |   |           |   |   `-- syn v2.0.119 (*)
+|   |   |   |   |   |           |   `-- syn feature "proc-macro"
+|   |   |   |   |   |           |       |-- syn v2.0.119 (*)
+|   |   |   |   |   |           |       |-- proc-macro2 feature "proc-macro" (*)
+|   |   |   |   |   |           |       `-- quote feature "proc-macro" (*)
+|   |   |   |   |   |           `-- syn feature "full"
+|   |   |   |   |   |               `-- syn v2.0.119 (*)
+|   |   |   |   |   `-- zerocopy feature "zerocopy-derive"
+|   |   |   |   |       `-- zerocopy v0.8.63 (*)
+|   |   |   |   `-- zerocopy feature "simd"
+|   |   |   |       `-- zerocopy v0.8.63 (*)
+|   |   |   `-- half feature "std"
+|   |   |       |-- half v2.7.1 (*)
+|   |   |       `-- half feature "alloc"
+|   |   |           `-- half v2.7.1 (*)
+|   |   |-- lyon_path feature "default"
+|   |   |   |-- lyon_path v1.0.19
+|   |   |   |   |-- lyon_geom v1.0.20
+|   |   |   |   |   |-- arrayvec v0.7.8
+|   |   |   |   |   |-- num-traits feature "libm"
+|   |   |   |   |   |   `-- num-traits v0.2.19 (*)
+|   |   |   |   |   `-- euclid feature "libm"
+|   |   |   |   |       |-- euclid v0.22.14
+|   |   |   |   |       |   `-- num-traits v0.2.19 (*)
+|   |   |   |   |       `-- num-traits feature "libm" (*)
+|   |   |   |   `-- num-traits feature "libm" (*)
+|   |   |   `-- lyon_path feature "std"
+|   |   |       |-- lyon_path v1.0.19 (*)
+|   |   |       |-- num-traits feature "std" (*)
+|   |   |       `-- lyon_geom feature "std"
+|   |   |           |-- lyon_geom v1.0.20 (*)
+|   |   |           |-- num-traits feature "std" (*)
+|   |   |           |-- arrayvec feature "std"
+|   |   |           |   `-- arrayvec v0.7.8
+|   |   |           `-- euclid feature "std"
+|   |   |               |-- euclid v0.22.14 (*)
+|   |   |               `-- num-traits feature "std" (*)
+|   |   `-- raw-window-handle feature "default"
+|   |       `-- raw-window-handle v0.6.2
+|   |-- iced feature "advanced"
+|   |   |-- iced v0.14.0
+|   |   |   |-- iced_winit v0.14.1
+|   |   |   |   |-- window_clipboard v0.5.1
+|   |   |   |   |   |-- thiserror feature "default" (*)
+|   |   |   |   |   |-- raw-window-handle feature "default" (*)
+|   |   |   |   |   |-- raw-window-handle feature "std"
+|   |   |   |   |   |   |-- raw-window-handle v0.6.2
+|   |   |   |   |   |   `-- raw-window-handle feature "alloc"
+|   |   |   |   |   |       `-- raw-window-handle v0.6.2
+|   |   |   |   |   |-- clipboard-win feature "default"
+|   |   |   |   |   |   `-- clipboard-win v5.4.3
+|   |   |   |   |   |       `-- error-code feature "default"
+|   |   |   |   |   |           `-- error-code v3.4.0
+|   |   |   |   |   `-- clipboard-win feature "std"
+|   |   |   |   |       |-- clipboard-win v5.4.3 (*)
+|   |   |   |   |       `-- error-code feature "std"
+|   |   |   |   |           `-- error-code v3.4.0
+|   |   |   |   |-- log feature "default" (*)
+|   |   |   |   |-- rustc-hash feature "default" (*)
+|   |   |   |   |-- thiserror feature "default" (*)
+|   |   |   |   |-- iced_debug feature "default"
+|   |   |   |   |   `-- iced_debug v0.14.0
+|   |   |   |   |       |-- iced_core feature "default" (*)
+|   |   |   |   |       |-- log feature "default" (*)
+|   |   |   |   |       `-- iced_futures feature "default" (*)
+|   |   |   |   |-- tracing feature "default"
+|   |   |   |   |   |-- tracing v0.1.44
+|   |   |   |   |   |   |-- tracing-core v0.1.36
+|   |   |   |   |   |   |   `-- once_cell feature "default"
+|   |   |   |   |   |   |       |-- once_cell v1.21.4
+|   |   |   |   |   |   |       `-- once_cell feature "std"
+|   |   |   |   |   |   |           |-- once_cell v1.21.4
+|   |   |   |   |   |   |           `-- once_cell feature "alloc" (*)
+|   |   |   |   |   |   |-- pin-project-lite feature "default" (*)
+|   |   |   |   |   |   `-- tracing-attributes feature "default"
+|   |   |   |   |   |       `-- tracing-attributes v0.1.31 (proc-macro)
+|   |   |   |   |   |           |-- proc-macro2 feature "default" (*)
+|   |   |   |   |   |           |-- quote feature "default" (*)
+|   |   |   |   |   |           |-- syn feature "clone-impls" (*)
+|   |   |   |   |   |           |-- syn feature "extra-traits"
+|   |   |   |   |   |           |   `-- syn v2.0.119 (*)
+|   |   |   |   |   |           |-- syn feature "full" (*)
+|   |   |   |   |   |           |-- syn feature "parsing" (*)
+|   |   |   |   |   |           |-- syn feature "printing" (*)
+|   |   |   |   |   |           |-- syn feature "proc-macro" (*)
+|   |   |   |   |   |           `-- syn feature "visit-mut"
+|   |   |   |   |   |               `-- syn v2.0.119 (*)
+|   |   |   |   |   |-- tracing feature "attributes"
+|   |   |   |   |   |   |-- tracing v0.1.44 (*)
+|   |   |   |   |   |   `-- tracing feature "tracing-attributes"
+|   |   |   |   |   |       `-- tracing v0.1.44 (*)
+|   |   |   |   |   `-- tracing feature "std"
+|   |   |   |   |       |-- tracing v0.1.44 (*)
+|   |   |   |   |       `-- tracing-core feature "std"
+|   |   |   |   |           |-- tracing-core v0.1.36 (*)
+|   |   |   |   |           `-- tracing-core feature "once_cell"
+|   |   |   |   |               `-- tracing-core v0.1.36 (*)
+|   |   |   |   |-- iced_program feature "default"
+|   |   |   |   |   `-- iced_program v0.14.0
+|   |   |   |   |       |-- iced_graphics feature "default"
+|   |   |   |   |       |   `-- iced_graphics v0.14.0 (*)
+|   |   |   |   |       `-- iced_runtime feature "default"
+|   |   |   |   |           `-- iced_runtime v0.14.0
+|   |   |   |   |               |-- iced_core feature "default" (*)
+|   |   |   |   |               |-- bytes feature "default" (*)
+|   |   |   |   |               |-- thiserror feature "default" (*)
+|   |   |   |   |               |-- iced_futures feature "default" (*)
+|   |   |   |   |               `-- raw-window-handle feature "default" (*)
+|   |   |   |   `-- winit feature "rwh_06"
+|   |   |   |       `-- winit v0.30.13
+|   |   |   |           |-- tracing v0.1.44 (*)
+|   |   |   |           |-- bitflags feature "default" (*)
+|   |   |   |           |-- smol_str feature "default" (*)
+|   |   |   |           |-- unicode-segmentation feature "default" (*)
+|   |   |   |           |-- raw-window-handle feature "default" (*)
+|   |   |   |           |-- raw-window-handle feature "std" (*)
+|   |   |   |           |-- cursor-icon feature "default"
+|   |   |   |           |   |-- cursor-icon v1.2.0
+|   |   |   |           |   `-- cursor-icon feature "std"
+|   |   |   |           |       |-- cursor-icon v1.2.0
+|   |   |   |           |       `-- cursor-icon feature "alloc"
+|   |   |   |           |           `-- cursor-icon v1.2.0
+|   |   |   |           |-- dpi feature "default"
+|   |   |   |           |   |-- dpi v0.1.2
+|   |   |   |           |   `-- dpi feature "std"
+|   |   |   |           |       `-- dpi v0.1.2
+|   |   |   |           |-- windows-sys feature "Win32_Devices_HumanInterfaceDevice"
+|   |   |   |           |   |-- windows-sys v0.52.0
+|   |   |   |           |   |   `-- windows-targets feature "default"
+|   |   |   |           |   |       `-- windows-targets v0.52.6
+|   |   |   |           |   |           `-- windows_x86_64_msvc feature "default"
+|   |   |   |           |   |               `-- windows_x86_64_msvc v0.52.6
+|   |   |   |           |   `-- windows-sys feature "Win32_Devices"
+|   |   |   |           |       |-- windows-sys v0.52.0 (*)
+|   |   |   |           |       `-- windows-sys feature "Win32"
+|   |   |   |           |           `-- windows-sys v0.52.0 (*)
+|   |   |   |           |-- windows-sys feature "Win32_Foundation"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32" (*)
+|   |   |   |           |-- windows-sys feature "Win32_Globalization"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32" (*)
+|   |   |   |           |-- windows-sys feature "Win32_Graphics_Dwm"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_Graphics"
+|   |   |   |           |       |-- windows-sys v0.52.0 (*)
+|   |   |   |           |       `-- windows-sys feature "Win32" (*)
+|   |   |   |           |-- windows-sys feature "Win32_Graphics_Gdi"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_Graphics" (*)
+|   |   |   |           |-- windows-sys feature "Win32_Media"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32" (*)
+|   |   |   |           |-- windows-sys feature "Win32_Security"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32" (*)
+|   |   |   |           |-- windows-sys feature "Win32_System_Com"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_System"
+|   |   |   |           |       |-- windows-sys v0.52.0 (*)
+|   |   |   |           |       `-- windows-sys feature "Win32" (*)
+|   |   |   |           |-- windows-sys feature "Win32_System_Com_StructuredStorage"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_System_Com" (*)
+|   |   |   |           |-- windows-sys feature "Win32_System_LibraryLoader"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_System" (*)
+|   |   |   |           |-- windows-sys feature "Win32_System_Ole"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_System" (*)
+|   |   |   |           |-- windows-sys feature "Win32_System_SystemInformation"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_System" (*)
+|   |   |   |           |-- windows-sys feature "Win32_System_SystemServices"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_System" (*)
+|   |   |   |           |-- windows-sys feature "Win32_System_Threading"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_System" (*)
+|   |   |   |           |-- windows-sys feature "Win32_System_WindowsProgramming"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_System" (*)
+|   |   |   |           |-- windows-sys feature "Win32_UI_Accessibility"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_UI"
+|   |   |   |           |       |-- windows-sys v0.52.0 (*)
+|   |   |   |           |       `-- windows-sys feature "Win32" (*)
+|   |   |   |           |-- windows-sys feature "Win32_UI_Controls"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_UI" (*)
+|   |   |   |           |-- windows-sys feature "Win32_UI_HiDpi"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_UI" (*)
+|   |   |   |           |-- windows-sys feature "Win32_UI_Input_Ime"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_UI_Input"
+|   |   |   |           |       |-- windows-sys v0.52.0 (*)
+|   |   |   |           |       `-- windows-sys feature "Win32_UI" (*)
+|   |   |   |           |-- windows-sys feature "Win32_UI_Input_KeyboardAndMouse"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_UI_Input" (*)
+|   |   |   |           |-- windows-sys feature "Win32_UI_Input_Pointer"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_UI_Input" (*)
+|   |   |   |           |-- windows-sys feature "Win32_UI_Input_Touch"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_UI_Input" (*)
+|   |   |   |           |-- windows-sys feature "Win32_UI_Shell"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_UI" (*)
+|   |   |   |           |-- windows-sys feature "Win32_UI_TextServices"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_UI" (*)
+|   |   |   |           |-- windows-sys feature "Win32_UI_WindowsAndMessaging"
+|   |   |   |           |   |-- windows-sys v0.52.0 (*)
+|   |   |   |           |   `-- windows-sys feature "Win32_UI" (*)
+|   |   |   |           `-- windows-sys feature "default"
+|   |   |   |               `-- windows-sys v0.52.0 (*)
+|   |   |   |           [build-dependencies]
+|   |   |   |           `-- cfg_aliases feature "default"
+|   |   |   |               `-- cfg_aliases v0.2.2
+|   |   |   |-- iced_core feature "default" (*)
+|   |   |   |-- thiserror feature "default" (*)
+|   |   |   |-- iced_debug feature "default" (*)
+|   |   |   |-- iced_futures feature "default" (*)
+|   |   |   |-- iced_renderer feature "default"
+|   |   |   |   `-- iced_renderer v0.14.0
+|   |   |   |       |-- iced_tiny_skia v0.14.1
+|   |   |   |       |   |-- softbuffer v0.4.8
+|   |   |   |       |   |   |-- tracing v0.1.44 (*)
+|   |   |   |       |   |   |-- raw-window-handle feature "default" (*)
+|   |   |   |       |   |   |-- raw-window-handle feature "std" (*)
+|   |   |   |       |   |   |-- windows-sys feature "Win32_Foundation"
+|   |   |   |       |   |   |   |-- windows-sys v0.61.2
+|   |   |   |       |   |   |   |   `-- windows-link v0.2.1
+|   |   |   |       |   |   |   `-- windows-sys feature "Win32"
+|   |   |   |       |   |   |       |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   |   |       `-- windows-sys feature "Win32_Foundation" (*)
+|   |   |   |       |   |   |-- windows-sys feature "Win32_Graphics_Gdi"
+|   |   |   |       |   |   |   |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   |   |   `-- windows-sys feature "Win32_Graphics"
+|   |   |   |       |   |   |       |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   |   |       `-- windows-sys feature "Win32" (*)
+|   |   |   |       |   |   |-- windows-sys feature "Win32_UI_Shell"
+|   |   |   |       |   |   |   |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   |   |   `-- windows-sys feature "Win32_UI"
+|   |   |   |       |   |   |       |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   |   |       `-- windows-sys feature "Win32" (*)
+|   |   |   |       |   |   |-- windows-sys feature "Win32_UI_WindowsAndMessaging"
+|   |   |   |       |   |   |   |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   |   |   `-- windows-sys feature "Win32_UI" (*)
+|   |   |   |       |   |   `-- windows-sys feature "default"
+|   |   |   |       |   |       `-- windows-sys v0.61.2 (*)
+|   |   |   |       |   |-- log feature "default" (*)
+|   |   |   |       |   |-- rustc-hash feature "default" (*)
+|   |   |   |       |   |-- iced_debug feature "default" (*)
+|   |   |   |       |   |-- iced_graphics feature "default" (*)
+|   |   |   |       |   |-- bytemuck feature "default" (*)
+|   |   |   |       |   |-- bytemuck feature "derive" (*)
+|   |   |   |       |   |-- cosmic-text feature "default" (*)
+|   |   |   |       |   |-- kurbo feature "default"
+|   |   |   |       |   |   |-- kurbo v0.10.4
+|   |   |   |       |   |   |   |-- arrayvec v0.7.8
+|   |   |   |       |   |   |   `-- smallvec feature "default" (*)
+|   |   |   |       |   |   `-- kurbo feature "std"
+|   |   |   |       |   |       `-- kurbo v0.10.4 (*)
+|   |   |   |       |   |-- tiny-skia feature "simd"
+|   |   |   |       |   |   `-- tiny-skia v0.11.4
+|   |   |   |       |   |       |-- arrayvec v0.7.8
+|   |   |   |       |   |       |-- tiny-skia-path v0.11.4
+|   |   |   |       |   |       |   |-- strict-num v0.1.1
+|   |   |   |       |   |       |   |-- bytemuck feature "default" (*)
+|   |   |   |       |   |       |   `-- arrayref feature "default"
+|   |   |   |       |   |       |       `-- arrayref v0.3.9
+|   |   |   |       |   |       |-- log feature "default" (*)
+|   |   |   |       |   |       |-- bytemuck feature "aarch64_simd"
+|   |   |   |       |   |       |   `-- bytemuck v1.25.2 (*)
+|   |   |   |       |   |       |-- bytemuck feature "default" (*)
+|   |   |   |       |   |       |-- cfg-if feature "default" (*)
+|   |   |   |       |   |       `-- arrayref feature "default" (*)
+|   |   |   |       |   `-- tiny-skia feature "std"
+|   |   |   |       |       |-- tiny-skia v0.11.4 (*)
+|   |   |   |       |       `-- tiny-skia-path feature "std"
+|   |   |   |       |           `-- tiny-skia-path v0.11.4 (*)
+|   |   |   |       |-- log feature "default" (*)
+|   |   |   |       |-- thiserror feature "default" (*)
+|   |   |   |       `-- iced_graphics feature "default" (*)
+|   |   |   |-- iced_runtime feature "default" (*)
+|   |   |   `-- iced_widget feature "default"
+|   |   |       `-- iced_widget v0.14.2
+|   |   |           |-- log feature "default" (*)
+|   |   |           |-- num-traits feature "default" (*)
+|   |   |           |-- rustc-hash feature "default" (*)
+|   |   |           |-- thiserror feature "default" (*)
+|   |   |           |-- iced_renderer feature "default" (*)
+|   |   |           |-- unicode-segmentation feature "default" (*)
+|   |   |           `-- ouroboros feature "default"
+|   |   |               |-- ouroboros v0.18.5
+|   |   |               |   |-- aliasable feature "default"
+|   |   |               |   |   |-- aliasable v0.1.3
+|   |   |               |   |   `-- aliasable feature "alloc"
+|   |   |               |   |       `-- aliasable v0.1.3
+|   |   |               |   |-- ouroboros_macro feature "default"
+|   |   |               |   |   `-- ouroboros_macro v0.18.5 (proc-macro)
+|   |   |               |   |       |-- proc-macro2 feature "default" (*)
+|   |   |               |   |       |-- quote feature "default" (*)
+|   |   |               |   |       |-- syn feature "default" (*)
+|   |   |               |   |       |-- syn feature "full" (*)
+|   |   |               |   |       |-- heck feature "default"
+|   |   |               |   |       |   `-- heck v0.4.1
+|   |   |               |   |       `-- proc-macro2-diagnostics feature "default"
+|   |   |               |   |           |-- proc-macro2-diagnostics v0.10.1
+|   |   |               |   |           |   |-- proc-macro2 feature "default" (*)
+|   |   |               |   |           |   |-- quote feature "default" (*)
+|   |   |               |   |           |   |-- syn feature "default" (*)
+|   |   |               |   |           |   `-- yansi feature "default"
+|   |   |               |   |           |       |-- yansi v1.0.1
+|   |   |               |   |           |       `-- yansi feature "std"
+|   |   |               |   |           |           |-- yansi v1.0.1
+|   |   |               |   |           |           `-- yansi feature "alloc"
+|   |   |               |   |           |               `-- yansi v1.0.1
+|   |   |               |   |           |   [build-dependencies]
+|   |   |               |   |           |   `-- version_check feature "default" (*)
+|   |   |               |   |           `-- proc-macro2-diagnostics feature "colors"
+|   |   |               |   |               |-- proc-macro2-diagnostics v0.10.1 (*)
+|   |   |               |   |               `-- proc-macro2-diagnostics feature "yansi"
+|   |   |               |   |                   `-- proc-macro2-diagnostics v0.10.1 (*)
+|   |   |               |   `-- static_assertions feature "default"
+|   |   |               |       `-- static_assertions v1.1.0
+|   |   |               `-- ouroboros feature "std"
+|   |   |                   |-- ouroboros v0.18.5 (*)
+|   |   |                   `-- ouroboros_macro feature "std"
+|   |   |                       `-- ouroboros_macro v0.18.5 (proc-macro) (*)
+|   |   |-- iced_core feature "advanced"
+|   |   |   `-- iced_core v0.14.0 (*)
+|   |   `-- iced_widget feature "advanced"
+|   |       `-- iced_widget v0.14.2 (*)
+|   |-- iced feature "canvas"
+|   |   |-- iced v0.14.0 (*)
+|   |   `-- iced_widget feature "canvas"
+|   |       |-- iced_widget v0.14.2 (*)
+|   |       `-- iced_renderer feature "geometry"
+|   |           |-- iced_renderer v0.14.0 (*)
+|   |           |-- iced_graphics feature "geometry"
+|   |           |   |-- iced_graphics v0.14.0 (*)
+|   |           |   `-- iced_graphics feature "lyon_path"
+|   |           |       `-- iced_graphics v0.14.0 (*)
+|   |           `-- iced_tiny_skia feature "geometry"
+|   |               |-- iced_tiny_skia v0.14.1 (*)
+|   |               `-- iced_graphics feature "geometry" (*)
+|   |-- iced feature "lazy"
+|   |   |-- iced v0.14.0 (*)
+|   |   `-- iced_widget feature "lazy"
+|   |       |-- iced_widget v0.14.2 (*)
+|   |       `-- iced_widget feature "ouroboros"
+|   |           `-- iced_widget v0.14.2 (*)
+|   |-- iced_core feature "default" (*)
+|   |-- tokio feature "sync"
+|   |   `-- tokio v1.54.1 (*)
+|   |-- alacritty_terminal feature "default"
+|   |   |-- alacritty_terminal v0.25.1
+|   |   |   |-- bitflags feature "default" (*)
+|   |   |   |-- log feature "default" (*)
+|   |   |   |-- base64 feature "default"
+|   |   |   |   |-- base64 v0.22.1
+|   |   |   |   `-- base64 feature "std"
+|   |   |   |       |-- base64 v0.22.1
+|   |   |   |       `-- base64 feature "alloc"
+|   |   |   |           `-- base64 v0.22.1
+|   |   |   |-- home feature "default"
+|   |   |   |   `-- home v0.5.12
+|   |   |   |       |-- windows-sys feature "Win32_Foundation" (*)
+|   |   |   |       |-- windows-sys feature "Win32_System_Com"
+|   |   |   |       |   |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   `-- windows-sys feature "Win32_System"
+|   |   |   |       |       |-- windows-sys v0.61.2 (*)
+|   |   |   |       |       `-- windows-sys feature "Win32" (*)
+|   |   |   |       |-- windows-sys feature "Win32_UI_Shell" (*)
+|   |   |   |       `-- windows-sys feature "default" (*)
+|   |   |   |-- libc feature "default"
+|   |   |   |   |-- libc v0.2.191
+|   |   |   |   `-- libc feature "std"
+|   |   |   |       `-- libc v0.2.191
+|   |   |   |-- miow feature "default"
+|   |   |   |   `-- miow v0.6.1
+|   |   |   |       |-- windows-sys feature "Win32_Foundation" (*)
+|   |   |   |       |-- windows-sys feature "Win32_Networking_WinSock"
+|   |   |   |       |   |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   `-- windows-sys feature "Win32_Networking"
+|   |   |   |       |       |-- windows-sys v0.61.2 (*)
+|   |   |   |       |       `-- windows-sys feature "Win32" (*)
+|   |   |   |       |-- windows-sys feature "Win32_Security"
+|   |   |   |       |   |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   `-- windows-sys feature "Win32" (*)
+|   |   |   |       |-- windows-sys feature "Win32_Storage_FileSystem"
+|   |   |   |       |   |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   `-- windows-sys feature "Win32_Storage"
+|   |   |   |       |       |-- windows-sys v0.61.2 (*)
+|   |   |   |       |       `-- windows-sys feature "Win32" (*)
+|   |   |   |       |-- windows-sys feature "Win32_System_IO"
+|   |   |   |       |   |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   `-- windows-sys feature "Win32_System" (*)
+|   |   |   |       |-- windows-sys feature "Win32_System_Pipes"
+|   |   |   |       |   |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   `-- windows-sys feature "Win32_System" (*)
+|   |   |   |       |-- windows-sys feature "Win32_System_Threading"
+|   |   |   |       |   |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   `-- windows-sys feature "Win32_System" (*)
+|   |   |   |       `-- windows-sys feature "default" (*)
+|   |   |   |-- parking_lot feature "default"
+|   |   |   |   `-- parking_lot v0.12.5
+|   |   |   |       |-- lock_api feature "default"
+|   |   |   |       |   |-- lock_api v0.4.14
+|   |   |   |       |   |   `-- scopeguard v1.2.0
+|   |   |   |       |   `-- lock_api feature "atomic_usize"
+|   |   |   |       |       `-- lock_api v0.4.14 (*)
+|   |   |   |       `-- parking_lot_core feature "default"
+|   |   |   |           `-- parking_lot_core v0.9.12
+|   |   |   |               |-- smallvec feature "default" (*)
+|   |   |   |               |-- cfg-if feature "default" (*)
+|   |   |   |               `-- windows-link feature "default"
+|   |   |   |                   `-- windows-link v0.2.1
+|   |   |   |-- piper feature "default"
+|   |   |   |   |-- piper v0.2.5
+|   |   |   |   |   |-- fastrand v2.5.0
+|   |   |   |   |   |-- futures-io feature "default"
+|   |   |   |   |   |   |-- futures-io v0.3.34
+|   |   |   |   |   |   `-- futures-io feature "std" (*)
+|   |   |   |   |   `-- atomic-waker feature "default"
+|   |   |   |   |       `-- atomic-waker v1.1.2
+|   |   |   |   `-- piper feature "std"
+|   |   |   |       |-- piper v0.2.5 (*)
+|   |   |   |       |-- piper feature "futures-io"
+|   |   |   |       |   `-- piper v0.2.5 (*)
+|   |   |   |       `-- fastrand feature "std"
+|   |   |   |           |-- fastrand v2.5.0
+|   |   |   |           `-- fastrand feature "alloc"
+|   |   |   |               `-- fastrand v2.5.0
+|   |   |   |-- polling feature "default"
+|   |   |   |   `-- polling v3.11.0
+|   |   |   |       |-- pin-project-lite feature "default" (*)
+|   |   |   |       |-- cfg-if feature "default" (*)
+|   |   |   |       |-- windows-sys feature "Wdk_Foundation"
+|   |   |   |       |   |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   `-- windows-sys feature "Wdk"
+|   |   |   |       |       |-- windows-sys v0.61.2 (*)
+|   |   |   |       |       `-- windows-sys feature "Win32_Foundation" (*)
+|   |   |   |       |-- windows-sys feature "Wdk_Storage_FileSystem"
+|   |   |   |       |   |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   `-- windows-sys feature "Wdk_Storage"
+|   |   |   |       |       |-- windows-sys v0.61.2 (*)
+|   |   |   |       |       `-- windows-sys feature "Wdk" (*)
+|   |   |   |       |-- windows-sys feature "Win32_Foundation" (*)
+|   |   |   |       |-- windows-sys feature "Win32_Networking_WinSock" (*)
+|   |   |   |       |-- windows-sys feature "Win32_Security" (*)
+|   |   |   |       |-- windows-sys feature "Win32_Storage_FileSystem" (*)
+|   |   |   |       |-- windows-sys feature "Win32_System_IO" (*)
+|   |   |   |       |-- windows-sys feature "Win32_System_LibraryLoader"
+|   |   |   |       |   |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   `-- windows-sys feature "Win32_System" (*)
+|   |   |   |       |-- windows-sys feature "Win32_System_Threading" (*)
+|   |   |   |       |-- windows-sys feature "Win32_System_WindowsProgramming"
+|   |   |   |       |   |-- windows-sys v0.61.2 (*)
+|   |   |   |       |   `-- windows-sys feature "Win32_System" (*)
+|   |   |   |       |-- windows-sys feature "default" (*)
+|   |   |   |       `-- concurrent-queue feature "default"
+|   |   |   |           |-- concurrent-queue v2.5.0
+|   |   |   |           |   `-- crossbeam-utils v0.8.23
+|   |   |   |           `-- concurrent-queue feature "std"
+|   |   |   |               `-- concurrent-queue v2.5.0 (*)
+|   |   |   |-- regex-automata feature "default"
+|   |   |   |   |-- regex-automata v0.4.18
+|   |   |   |   |   |-- aho-corasick v1.1.5
+|   |   |   |   |   |   `-- memchr v2.8.3
+|   |   |   |   |   |-- memchr v2.8.3
+|   |   |   |   |   `-- regex-syntax v0.8.11
+|   |   |   |   |-- regex-automata feature "dfa"
+|   |   |   |   |   |-- regex-automata v0.4.18 (*)
+|   |   |   |   |   |-- regex-automata feature "dfa-build"
+|   |   |   |   |   |   |-- regex-automata v0.4.18 (*)
+|   |   |   |   |   |   |-- regex-automata feature "dfa-search"
+|   |   |   |   |   |   |   `-- regex-automata v0.4.18 (*)
+|   |   |   |   |   |   `-- regex-automata feature "nfa-thompson"
+|   |   |   |   |   |       |-- regex-automata v0.4.18 (*)
+|   |   |   |   |   |       `-- regex-automata feature "alloc"
+|   |   |   |   |   |           `-- regex-automata v0.4.18 (*)
+|   |   |   |   |   |-- regex-automata feature "dfa-onepass"
+|   |   |   |   |   |   |-- regex-automata v0.4.18 (*)
+|   |   |   |   |   |   `-- regex-automata feature "nfa-thompson" (*)
+|   |   |   |   |   `-- regex-automata feature "dfa-search" (*)
+|   |   |   |   |-- regex-automata feature "hybrid"
+|   |   |   |   |   |-- regex-automata v0.4.18 (*)
+|   |   |   |   |   |-- regex-automata feature "alloc" (*)
+|   |   |   |   |   `-- regex-automata feature "nfa-thompson" (*)
+|   |   |   |   |-- regex-automata feature "meta"
+|   |   |   |   |   |-- regex-automata v0.4.18 (*)
+|   |   |   |   |   |-- regex-automata feature "nfa-pikevm"
+|   |   |   |   |   |   |-- regex-automata v0.4.18 (*)
+|   |   |   |   |   |   `-- regex-automata feature "nfa-thompson" (*)
+|   |   |   |   |   `-- regex-automata feature "syntax"
+|   |   |   |   |       |-- regex-automata v0.4.18 (*)
+|   |   |   |   |       `-- regex-automata feature "alloc" (*)
+|   |   |   |   |-- regex-automata feature "nfa"
+|   |   |   |   |   |-- regex-automata v0.4.18 (*)
+|   |   |   |   |   |-- regex-automata feature "nfa-backtrack"
+|   |   |   |   |   |   |-- regex-automata v0.4.18 (*)
+|   |   |   |   |   |   `-- regex-automata feature "nfa-thompson" (*)
+|   |   |   |   |   |-- regex-automata feature "nfa-pikevm" (*)
+|   |   |   |   |   `-- regex-automata feature "nfa-thompson" (*)
+|   |   |   |   |-- regex-automata feature "perf"
+|   |   |   |   |   |-- regex-automata v0.4.18 (*)
+|   |   |   |   |   |-- regex-automata feature "perf-inline"
+|   |   |   |   |   |   `-- regex-automata v0.4.18 (*)
+|   |   |   |   |   `-- regex-automata feature "perf-literal"
+|   |   |   |   |       |-- regex-automata v0.4.18 (*)
+|   |   |   |   |       |-- regex-automata feature "perf-literal-multisubstring"
+|   |   |   |   |       |   `-- regex-automata v0.4.18 (*)
+|   |   |   |   |       `-- regex-automata feature "perf-literal-substring"
+|   |   |   |   |           |-- regex-automata v0.4.18 (*)
+|   |   |   |   |           `-- aho-corasick feature "perf-literal"
+|   |   |   |   |               `-- aho-corasick v1.1.5 (*)
+|   |   |   |   |-- regex-automata feature "std"
+|   |   |   |   |   |-- regex-automata v0.4.18 (*)
+|   |   |   |   |   |-- memchr feature "std" (*)
+|   |   |   |   |   |-- regex-automata feature "alloc" (*)
+|   |   |   |   |   |-- aho-corasick feature "std"
+|   |   |   |   |   |   |-- aho-corasick v1.1.5 (*)
+|   |   |   |   |   |   `-- memchr feature "std" (*)
+|   |   |   |   |   `-- regex-syntax feature "std"
+|   |   |   |   |       `-- regex-syntax v0.8.11
+|   |   |   |   |-- regex-automata feature "syntax" (*)
+|   |   |   |   `-- regex-automata feature "unicode"
+|   |   |   |       |-- regex-automata v0.4.18 (*)
+|   |   |   |       |-- regex-automata feature "unicode-age"
+|   |   |   |       |   |-- regex-automata v0.4.18 (*)
+|   |   |   |       |   `-- regex-syntax feature "unicode-age"
+|   |   |   |       |       `-- regex-syntax v0.8.11
+|   |   |   |       |-- regex-automata feature "unicode-bool"
+|   |   |   |       |   |-- regex-automata v0.4.18 (*)
+|   |   |   |       |   `-- regex-syntax feature "unicode-bool"
+|   |   |   |       |       `-- regex-syntax v0.8.11
+|   |   |   |       |-- regex-automata feature "unicode-case"
+|   |   |   |       |   |-- regex-automata v0.4.18 (*)
+|   |   |   |       |   `-- regex-syntax feature "unicode-case"
+|   |   |   |       |       `-- regex-syntax v0.8.11
+|   |   |   |       |-- regex-automata feature "unicode-gencat"
+|   |   |   |       |   |-- regex-automata v0.4.18 (*)
+|   |   |   |       |   `-- regex-syntax feature "unicode-gencat"
+|   |   |   |       |       `-- regex-syntax v0.8.11
+|   |   |   |       |-- regex-automata feature "unicode-perl"
+|   |   |   |       |   |-- regex-automata v0.4.18 (*)
+|   |   |   |       |   `-- regex-syntax feature "unicode-perl"
+|   |   |   |       |       `-- regex-syntax v0.8.11
+|   |   |   |       |-- regex-automata feature "unicode-script"
+|   |   |   |       |   |-- regex-automata v0.4.18 (*)
+|   |   |   |       |   `-- regex-syntax feature "unicode-script"
+|   |   |   |       |       `-- regex-syntax v0.8.11
+|   |   |   |       |-- regex-automata feature "unicode-segment"
+|   |   |   |       |   |-- regex-automata v0.4.18 (*)
+|   |   |   |       |   `-- regex-syntax feature "unicode-segment"
+|   |   |   |       |       `-- regex-syntax v0.8.11
+|   |   |   |       |-- regex-automata feature "unicode-word-boundary"
+|   |   |   |       |   `-- regex-automata v0.4.18 (*)
+|   |   |   |       `-- regex-syntax feature "unicode"
+|   |   |   |           |-- regex-syntax v0.8.11
+|   |   |   |           |-- regex-syntax feature "unicode-age" (*)
+|   |   |   |           |-- regex-syntax feature "unicode-bool" (*)
+|   |   |   |           |-- regex-syntax feature "unicode-case" (*)
+|   |   |   |           |-- regex-syntax feature "unicode-gencat" (*)
+|   |   |   |           |-- regex-syntax feature "unicode-perl" (*)
+|   |   |   |           |-- regex-syntax feature "unicode-script" (*)
+|   |   |   |           `-- regex-syntax feature "unicode-segment" (*)
+|   |   |   |-- serde feature "default"
+|   |   |   |   |-- serde v1.0.229
+|   |   |   |   |   |-- serde_core feature "result"
+|   |   |   |   |   |   `-- serde_core v1.0.229
+|   |   |   |   |   `-- serde_derive feature "default"
+|   |   |   |   |       `-- serde_derive v1.0.229 (proc-macro)
+|   |   |   |   |           |-- proc-macro2 feature "proc-macro" (*)
+|   |   |   |   |           |-- quote feature "proc-macro" (*)
+|   |   |   |   |           |-- syn feature "clone-impls" (*)
+|   |   |   |   |           |-- syn feature "derive" (*)
+|   |   |   |   |           |-- syn feature "parsing" (*)
+|   |   |   |   |           |-- syn feature "printing" (*)
+|   |   |   |   |           `-- syn feature "proc-macro" (*)
+|   |   |   |   `-- serde feature "std"
+|   |   |   |       |-- serde v1.0.229 (*)
+|   |   |   |       `-- serde_core feature "std"
+|   |   |   |           `-- serde_core v1.0.229
+|   |   |   |-- serde feature "derive"
+|   |   |   |   |-- serde v1.0.229 (*)
+|   |   |   |   `-- serde feature "serde_derive"
+|   |   |   |       `-- serde v1.0.229 (*)
+|   |   |   |-- serde feature "rc"
+|   |   |   |   |-- serde v1.0.229 (*)
+|   |   |   |   `-- serde_core feature "rc"
+|   |   |   |       `-- serde_core v1.0.229
+|   |   |   |-- unicode-width feature "default"
+|   |   |   |   |-- unicode-width v0.2.2
+|   |   |   |   `-- unicode-width feature "cjk"
+|   |   |   |       `-- unicode-width v0.2.2
+|   |   |   |-- vte feature "ansi"
+|   |   |   |   |-- vte v0.15.0
+|   |   |   |   |   |-- arrayvec v0.7.8
+|   |   |   |   |   |-- bitflags v2.13.2 (*)
+|   |   |   |   |   |-- cursor-icon v1.2.0
+|   |   |   |   |   |-- memchr v2.8.3
+|   |   |   |   |   |-- log feature "default" (*)
+|   |   |   |   |   |-- serde feature "default" (*)
+|   |   |   |   |   `-- serde feature "derive" (*)
+|   |   |   |   |-- vte feature "bitflags"
+|   |   |   |   |   `-- vte v0.15.0 (*)
+|   |   |   |   |-- vte feature "cursor-icon"
+|   |   |   |   |   `-- vte v0.15.0 (*)
+|   |   |   |   `-- vte feature "log"
+|   |   |   |       `-- vte v0.15.0 (*)
+|   |   |   |-- vte feature "std"
+|   |   |   |   |-- vte v0.15.0 (*)
+|   |   |   |   `-- memchr feature "std" (*)
+|   |   |   |-- windows-sys feature "Win32_Foundation"
+|   |   |   |   |-- windows-sys v0.59.0
+|   |   |   |   |   `-- windows-targets feature "default" (*)
+|   |   |   |   `-- windows-sys feature "Win32"
+|   |   |   |       |-- windows-sys v0.59.0 (*)
+|   |   |   |       `-- windows-sys feature "Win32_Foundation" (*)
+|   |   |   |-- windows-sys feature "Win32_Security"
+|   |   |   |   |-- windows-sys v0.59.0 (*)
+|   |   |   |   `-- windows-sys feature "Win32" (*)
+|   |   |   |-- windows-sys feature "Win32_System_Console"
+|   |   |   |   |-- windows-sys v0.59.0 (*)
+|   |   |   |   `-- windows-sys feature "Win32_System"
+|   |   |   |       |-- windows-sys v0.59.0 (*)
+|   |   |   |       `-- windows-sys feature "Win32" (*)
+|   |   |   |-- windows-sys feature "Win32_System_LibraryLoader"
+|   |   |   |   |-- windows-sys v0.59.0 (*)
+|   |   |   |   `-- windows-sys feature "Win32_System" (*)
+|   |   |   |-- windows-sys feature "Win32_System_Threading"
+|   |   |   |   |-- windows-sys v0.59.0 (*)
+|   |   |   |   `-- windows-sys feature "Win32_System" (*)
+|   |   |   |-- windows-sys feature "Win32_System_WindowsProgramming"
+|   |   |   |   |-- windows-sys v0.59.0 (*)
+|   |   |   |   `-- windows-sys feature "Win32_System" (*)
+|   |   |   `-- windows-sys feature "default"
+|   |   |       `-- windows-sys v0.59.0 (*)
+|   |   `-- alacritty_terminal feature "serde"
+|   |       |-- alacritty_terminal v0.25.1 (*)
+|   |       |-- bitflags feature "serde"
+|   |       |   |-- bitflags v2.13.2 (*)
+|   |       |   `-- bitflags feature "serde_core"
+|   |       |       `-- bitflags v2.13.2 (*)
+|   |       `-- vte feature "serde"
+|   |           `-- vte v0.15.0 (*)
+|   |-- anyhow feature "default"
+|   |   |-- anyhow v1.0.104
+|   |   `-- anyhow feature "std"
+|   |       `-- anyhow v1.0.104
+|   `-- open feature "default"
+|       `-- open v5.4.5
+|-- iced feature "crisp"
+|   |-- iced v0.14.0 (*)
+|   |-- iced_core feature "crisp"
+|   |   `-- iced_core v0.14.0 (*)
+|   `-- iced_widget feature "crisp"
+|       `-- iced_widget v0.14.2 (*)
+|-- iced feature "tokio"
+|   |-- iced v0.14.0 (*)
+|   `-- iced_futures feature "tokio"
+|       `-- iced_futures v0.14.0 (*)
+|-- tokio feature "rt-multi-thread" (*)
+|-- tokio feature "sync" (*)
+`-- tokio feature "time" (*)
+[dev-dependencies]
+|-- windows-sys feature "Win32_Foundation" (*)
+|-- windows-sys feature "Win32_System_Console" (*)
+`-- windows-sys feature "default" (*)

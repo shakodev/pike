@@ -7,6 +7,7 @@ use iced::{Element, Fill};
 
 fn main() -> iced::Result {
     iced::application(|| (), update, view)
+        .executor::<pike::executor::SharedExecutor>()
         .title("Pike")
         .window_size((960.0, 640.0))
         .run()

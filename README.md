@@ -40,19 +40,37 @@ That guide also explains how to add explicit regression steps for future
 dependency patches.
 
 The [compatibility harness](docs/compatibility.md) opens one or two synthetic
-ConPTY sessions for developer checks and release measurements. It is separate
-from the application and preserves the unpatched dependency baseline.
+ConPTY sessions for developer checks and release measurements. Its original
+unpatched measurements remain in `docs/baselines/issue-3`.
 
 ## Dependency baseline
 
-Direct requirements are exactly `iced = "=0.14.0"` and
-`iced_term = "=0.8.0"`. Transitive versions and checksums are fixed by
+Direct requirements are exactly Iced 0.14.0, iced_term 0.8.0 and Tokio 1.54.1.
+Transitive versions and checksums are fixed by
 `Cargo.lock`; those dependencies' own manifests still use compatible ranges.
 See the [dependency audit](docs/dependencies/README.md) for resolved versions,
 compiler requirements, enabled features, and duplicate trees, and the
 [Windows verification record](docs/verification/issue-1.md) for measured results.
 
-This baseline keeps the published dependencies unchanged. iced_term enables
-Iced's default renderers and Tokio's `full` feature. Feature pruning and the
-shared executor belong to [issue #4](https://github.com/shakodev/pike/issues/4);
-the current build is not the final lightweight configuration.
+iced_term is vendored through `[patch.crates-io]`; its [patch ledger](vendor/iced_term/PATCHES.md)
+records the exact archive checksum, revision, MIT license, and manifest-only
+changes. Pike disables its compatibility defaults. Both the app and harness
+use one shared Tokio executor with one async worker, at most two blocking
+workers, and timers. No Tokio I/O driver or per-pane runtime is needed.
+Blocking task admission and session teardown must be bounded by their callers;
+the executor's worker limit does not bound queued tasks.
+
+The default build uses wgpu only for comparison with issue #3. Build the
+software renderer separately (the final renderer choice belongs to issue #38):
+
+```powershell
+cargo build --release --locked --no-default-features --features renderer-tiny-skia
+cargo build --release --locked --examples --no-default-features --features renderer-tiny-skia
+powershell -NoProfile -File tools/test-feature-profiles.ps1
+```
+
+Use exactly one renderer feature per comparison. `--all-features` intentionally
+combines both renderers, and vendor defaults opt back into upstream features;
+neither represents a lean profile. CI verifies each renderer and explicitly
+runs the vendored crate's tests. See [issue #4 verification](docs/verification/issue-4.md)
+for feature graphs and Windows resource measurements.

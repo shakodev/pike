@@ -1,5 +1,9 @@
 # Locked dependency audit
 
+This is the historical issue #1 audit. For the current manifest-only vendor
+patch, renderer isolation and shared runtime, see the [patch ledger](../../vendor/iced_term/PATCHES.md),
+[issue #4 graphs](issue-4/) and [verification](../verification/issue-4.md).
+
 Baseline for issue #1, resolved on 2026-10-25 with Cargo/Rust 1.97.1 for
 `x86_64-pc-windows-msvc`. No vendored sources, patches, or additional direct
 dependencies are used.

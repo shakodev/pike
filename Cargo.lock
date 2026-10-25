@@ -1280,6 +1280,7 @@ dependencies = [
  "iced_core",
  "log",
  "rustc-hash 2.1.3",
+ "tokio",
  "wasm-bindgen-futures",
  "wasmtimer",
 ]
@@ -1343,8 +1344,6 @@ dependencies = [
 [[package]]
 name = "iced_term"
 version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1e287970417db55e0b395a966f061f10c7d3b03fd146d0b8806678d8c063103"
 dependencies = [
  "alacritty_terminal",
  "anyhow",
@@ -2367,6 +2366,7 @@ version = "0.1.0"
 dependencies = [
  "iced",
  "iced_term",
+ "tokio",
  "windows-sys 0.59.0",
 ]
 

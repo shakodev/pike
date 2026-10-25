@@ -1,0 +1,420 @@
+﻿pike v0.1.0 (<repository>)|renderer-wgpu
+iced v0.14.0|advanced,canvas,crisp,lazy,tokio,wgpu,wgpu-bare
+iced_core v0.14.0|advanced,crisp
+bitflags v2.13.2|serde,serde_core
+serde_core v1.0.229|rc,result,std
+bytes v1.12.1|default,std
+glam v0.25.0|default,std
+lilt v0.8.2|
+web-time v1.1.0|
+log v0.4.34|
+num-traits v0.2.19|default,libm,std
+libm v0.2.16|arch,default
+autocfg v1.5.1|
+rustc-hash v2.1.3|default,std
+smol_str v0.2.2|default,std
+thiserror v2.0.21|default,std
+thiserror-impl v2.0.21 (proc-macro)|
+proc-macro2 v1.0.107|default,proc-macro
+unicode-ident v1.0.27|
+quote v1.0.47|default,proc-macro
+proc-macro2 v1.0.107|default,proc-macro (*)
+syn v3.0.9|clone-impls,default,derive,full,parsing,printing,proc-macro
+proc-macro2 v1.0.107|default,proc-macro (*)
+quote v1.0.47|default,proc-macro (*)
+unicode-ident v1.0.27|
+web-time v1.1.0|
+iced_debug v0.14.0|
+iced_core v0.14.0|advanced,crisp (*)
+iced_futures v0.14.0|tokio
+futures v0.3.34|alloc,async-await,std
+futures-channel v0.3.34|alloc,futures-sink,sink,std
+futures-core v0.3.34|alloc,std
+futures-sink v0.3.34|alloc,std
+futures-core v0.3.34|alloc,std
+futures-io v0.3.34|default,std
+futures-sink v0.3.34|alloc,std
+futures-task v0.3.34|alloc,std
+futures-util v0.3.34|alloc,async-await,async-await-macro,channel,futures-channel,futures-io,futures-macro,futures-sink,io,memchr,sink,slab,std
+futures-channel v0.3.34|alloc,futures-sink,sink,std (*)
+futures-core v0.3.34|alloc,std
+futures-io v0.3.34|default,std
+futures-macro v0.3.34 (proc-macro)|
+proc-macro2 v1.0.107|default,proc-macro (*)
+quote v1.0.47|default,proc-macro (*)
+syn v3.0.9|clone-impls,default,derive,full,parsing,printing,proc-macro (*)
+futures-sink v0.3.34|alloc,std
+futures-task v0.3.34|alloc,std
+memchr v2.8.3|alloc,default,std
+pin-project-lite v0.2.17|
+slab v0.4.12|std
+iced_core v0.14.0|advanced,crisp (*)
+log v0.4.34|
+rustc-hash v2.1.3|default,std
+tokio v1.54.1|default,rt,rt-multi-thread,sync,time
+pin-project-lite v0.2.17|
+log v0.4.34|
+iced_futures v0.14.0|tokio (*)
+iced_renderer v0.14.0|geometry,iced_wgpu,wgpu,wgpu-bare
+iced_graphics v0.14.0|geometry,lyon_path
+bitflags v2.13.2|serde,serde_core (*)
+bytemuck v1.25.2|bytemuck_derive,derive,extern_crate_alloc,min_const_generics
+bytemuck_derive v1.12.1 (proc-macro)|
+proc-macro2 v1.0.107|default,proc-macro (*)
+quote v1.0.47|default,proc-macro (*)
+syn v3.0.9|clone-impls,default,derive,full,parsing,printing,proc-macro (*)
+cosmic-text v0.15.0|default,fontconfig,std,swash,sys-locale
+bitflags v2.13.2|serde,serde_core (*)
+fontdb v0.23.0|fontconfig,fontconfig-parser,fs,memmap,memmap2,std
+log v0.4.34|
+memmap2 v0.9.12|
+slotmap v1.1.1|
+version_check v0.9.5|
+tinyvec v1.13.3|alloc,default
+ttf-parser v0.25.1|apple-layout,core_maths,glyph-names,no-std-float,opentype-layout,std,variable-fonts
+core_maths v0.1.1|
+libm v0.2.16|arch,default
+harfrust v0.3.2|std
+bitflags v2.13.2|serde,serde_core (*)
+bytemuck v1.25.2|bytemuck_derive,derive,extern_crate_alloc,min_const_generics (*)
+core_maths v0.1.1| (*)
+read-fonts v0.35.0|libm,std
+bytemuck v1.25.2|bytemuck_derive,derive,extern_crate_alloc,min_const_generics (*)
+core_maths v0.1.1| (*)
+font-types v0.10.1|bytemuck,std
+bytemuck v1.25.2|bytemuck_derive,derive,extern_crate_alloc,min_const_generics (*)
+smallvec v1.16.4|union
+linebender_resource_handle v0.1.1|std
+log v0.4.34|
+rangemap v1.8.0|
+rustc-hash v1.1.0|
+self_cell v1.3.0|
+skrifa v0.37.0|std
+bytemuck v1.25.2|bytemuck_derive,derive,extern_crate_alloc,min_const_generics (*)
+read-fonts v0.35.0|libm,std (*)
+smol_str v0.2.2|default,std
+swash v0.2.10|render,scale,std
+skrifa v0.44.0|std
+bytemuck v1.25.2|bytemuck_derive,derive,extern_crate_alloc,min_const_generics (*)
+read-fonts v0.41.0|std
+bytemuck v1.25.2|bytemuck_derive,derive,extern_crate_alloc,min_const_generics (*)
+font-types v0.12.7|bytemuck,std
+bytemuck v1.25.2|bytemuck_derive,derive,extern_crate_alloc,min_const_generics (*)
+once_cell v1.21.4|alloc,default,race,std
+yazi v0.2.1|std
+zeno v0.3.3|eval,std
+sys-locale v0.3.2|
+unicode-bidi v0.3.18|hardcoded-data,std
+unicode-linebreak v0.1.5|
+unicode-script v0.5.8|
+unicode-segmentation v1.13.3|
+half v2.7.1|alloc,default,num-traits,std
+cfg-if v1.0.5|
+num-traits v0.2.19|default,libm,std (*)
+zerocopy v0.8.63|derive,simd,zerocopy-derive
+zerocopy-derive v0.8.63 (proc-macro)|
+proc-macro2 v1.0.107|default,proc-macro (*)
+quote v1.0.47|default,proc-macro (*)
+syn v2.0.119|clone-impls,default,derive,extra-traits,full,parsing,printing,proc-macro,visit-mut
+proc-macro2 v1.0.107|default,proc-macro (*)
+quote v1.0.47|default,proc-macro (*)
+unicode-ident v1.0.27|
+iced_core v0.14.0|advanced,crisp (*)
+iced_futures v0.14.0|tokio (*)
+log v0.4.34|
+lyon_path v1.0.19|default,std
+lyon_geom v1.0.20|std
+arrayvec v0.7.8|std
+euclid v0.22.14|default,libm,std
+num-traits v0.2.19|default,libm,std (*)
+num-traits v0.2.19|default,libm,std (*)
+num-traits v0.2.19|default,libm,std (*)
+raw-window-handle v0.6.2|alloc,std
+rustc-hash v2.1.3|default,std
+thiserror v2.0.21|default,std (*)
+unicode-segmentation v1.13.3|
+iced_wgpu v0.14.0|default,geometry,lyon
+bitflags v2.13.2|serde,serde_core (*)
+bytemuck v1.25.2|bytemuck_derive,derive,extern_crate_alloc,min_const_generics (*)
+cryoglyph v0.1.0|
+cosmic-text v0.15.0|default,fontconfig,std,swash,sys-locale (*)
+etagere v0.2.15|
+euclid v0.22.14|default,libm,std (*)
+svg_fmt v0.4.5|
+lru v0.16.4|
+rustc-hash v2.1.3|default,std
+wgpu v27.0.1|default,dx12,gles,metal,parking_lot,std,vulkan,web,webgpu,wgsl
+arrayvec v0.7.8|std
+bitflags v2.13.2|serde,serde_core (*)
+cfg-if v1.0.5|
+document-features v0.2.12 (proc-macro)|default
+litrs v1.0.1|
+hashbrown v0.16.1|default-hasher,inline-more
+foldhash v0.2.0|
+log v0.4.34|
+parking_lot v0.12.5|default
+lock_api v0.4.14|atomic_usize,default
+scopeguard v1.2.0|
+parking_lot_core v0.9.12|
+cfg-if v1.0.5|
+smallvec v1.16.4|union
+windows-link v0.2.1|
+profiling v1.0.18|
+raw-window-handle v0.6.2|alloc,std
+smallvec v1.16.4|union
+static_assertions v1.1.0|
+wgpu-core v27.0.3|default,dx12,gles,metal,portable-atomic,raw-window-handle,renderdoc,std,vulkan,wgpu-core-deps-windows-linux-android,wgsl
+arrayvec v0.7.8|std
+bit-set v0.8.0|
+bit-vec v0.8.0|
+bit-vec v0.8.0|
+bitflags v2.13.2|serde,serde_core (*)
+bytemuck v1.25.2|bytemuck_derive,derive,extern_crate_alloc,min_const_generics (*)
+document-features v0.2.12 (proc-macro)|default (*)
+hashbrown v0.16.1|default-hasher,inline-more (*)
+indexmap v2.14.2|
+equivalent v1.0.3|
+hashbrown v0.17.1|
+log v0.4.34|
+naga v27.0.3|default,glsl-out,hlsl-out,spv-out,wgsl-in
+arrayvec v0.7.8|std
+bit-set v0.8.0| (*)
+bitflags v2.13.2|serde,serde_core (*)
+cfg-if v1.0.5|
+codespan-reporting v0.12.0|
+unicode-width v0.2.2|cjk,default
+half v2.7.1|alloc,default,num-traits,std (*)
+hashbrown v0.16.1|default-hasher,inline-more (*)
+hexf-parse v0.2.1|
+indexmap v2.14.2| (*)
+libm v0.2.16|arch,default
+log v0.4.34|
+num-traits v0.2.19|default,libm,std (*)
+once_cell v1.21.4|alloc,default,race,std
+rustc-hash v1.1.0|
+spirv v0.3.0+sdk-1.3.268.0|
+bitflags v2.13.2|serde,serde_core (*)
+thiserror v2.0.21|default,std (*)
+unicode-ident v1.0.27|
+cfg_aliases v0.2.2|
+once_cell v1.21.4|alloc,default,race,std
+parking_lot v0.12.5|default (*)
+profiling v1.0.18|
+raw-window-handle v0.6.2|alloc,std
+rustc-hash v1.1.0|
+smallvec v1.16.4|union
+thiserror v2.0.21|default,std (*)
+wgpu-core-deps-windows-linux-android v27.0.0|dx12,gles,renderdoc,vulkan
+wgpu-hal v27.0.4|dx12,gles,gpu-allocator,portable-atomic,renderdoc,vulkan
+arrayvec v0.7.8|std
+ash v0.38.0+1.3.281|debug,default,libloading,loaded,std
+libloading v0.8.9|
+windows-link v0.2.1|
+bit-set v0.8.0| (*)
+bitflags v2.13.2|serde,serde_core (*)
+bytemuck v1.25.2|bytemuck_derive,derive,extern_crate_alloc,min_const_generics (*)
+cfg-if v1.0.5|
+glow v0.16.0|
+glutin_wgl_sys v0.6.1|
+gl_generator v0.14.0|
+khronos_api v3.1.0|
+log v0.4.34|
+xml-rs v0.8.29|
+gpu-alloc v0.6.2|default,std
+bitflags v2.13.2|serde,serde_core (*)
+gpu-alloc-types v0.3.1|
+bitflags v2.13.2|serde,serde_core (*)
+gpu-allocator v0.27.0|d3d12
+log v0.4.34|
+presser v0.3.1|default,std
+thiserror v1.0.69|
+thiserror-impl v1.0.69 (proc-macro)|
+proc-macro2 v1.0.107|default,proc-macro (*)
+quote v1.0.47|default,proc-macro (*)
+syn v2.0.119|clone-impls,default,derive,extra-traits,full,parsing,printing,proc-macro,visit-mut (*)
+windows v0.58.0|Win32,Win32_Foundation,Win32_Graphics,Win32_Graphics_Direct3D,Win32_Graphics_Direct3D12,Win32_Graphics_Direct3D_Dxc,Win32_Graphics_Direct3D_Fxc,Win32_Graphics_DirectComposition,Win32_Graphics_Dxgi,Win32_Graphics_Dxgi_Common,Win32_Graphics_Gdi,Win32_Graphics_OpenGL,Win32_Security,Win32_System,Win32_System_Diagnostics,Win32_System_Diagnostics_Debug,Win32_System_Kernel,Win32_System_LibraryLoader,Win32_System_Performance,Win32_System_Threading,Win32_UI,Win32_UI_WindowsAndMessaging,default,std
+windows-core v0.58.0|default,std
+windows-implement v0.58.0 (proc-macro)|
+proc-macro2 v1.0.107|default,proc-macro (*)
+quote v1.0.47|default,proc-macro (*)
+syn v2.0.119|clone-impls,default,derive,extra-traits,full,parsing,printing,proc-macro,visit-mut (*)
+windows-interface v0.58.0 (proc-macro)|
+proc-macro2 v1.0.107|default,proc-macro (*)
+quote v1.0.47|default,proc-macro (*)
+syn v2.0.119|clone-impls,default,derive,extra-traits,full,parsing,printing,proc-macro,visit-mut (*)
+windows-result v0.2.0|default,std
+windows-targets v0.52.6|
+windows_x86_64_msvc v0.52.6|
+windows-strings v0.1.0|default,std
+windows-result v0.2.0|default,std (*)
+windows-targets v0.52.6| (*)
+windows-targets v0.52.6| (*)
+windows-targets v0.52.6| (*)
+gpu-descriptor v0.3.2|default,std
+bitflags v2.13.2|serde,serde_core (*)
+gpu-descriptor-types v0.2.0|
+bitflags v2.13.2|serde,serde_core (*)
+hashbrown v0.15.5|default-hasher
+foldhash v0.1.5|
+hashbrown v0.16.1|default-hasher,inline-more (*)
+khronos-egl v6.0.0|1_0,1_1,1_2,1_3,1_4,1_5,default,dynamic,libloading
+libc v0.2.191|default,std
+libloading v0.8.9| (*)
+libloading v0.8.9| (*)
+log v0.4.34|
+naga v27.0.3|default,glsl-out,hlsl-out,spv-out,wgsl-in (*)
+once_cell v1.21.4|alloc,default,race,std
+ordered-float v5.5.0|
+num-traits v0.2.19|default,libm,std (*)
+parking_lot v0.12.5|default (*)
+profiling v1.0.18|
+range-alloc v0.1.5|
+raw-window-handle v0.6.2|alloc,std
+renderdoc-sys v1.1.0|
+smallvec v1.16.4|union
+thiserror v2.0.21|default,std (*)
+wgpu-types v27.0.1|std,thiserror,web
+bitflags v2.13.2|serde,serde_core (*)
+bytemuck v1.25.2|bytemuck_derive,derive,extern_crate_alloc,min_const_generics (*)
+log v0.4.34|
+thiserror v2.0.21|default,std (*)
+windows v0.58.0|Win32,Win32_Foundation,Win32_Graphics,Win32_Graphics_Direct3D,Win32_Graphics_Direct3D12,Win32_Graphics_Direct3D_Dxc,Win32_Graphics_Direct3D_Fxc,Win32_Graphics_DirectComposition,Win32_Graphics_Dxgi,Win32_Graphics_Dxgi_Common,Win32_Graphics_Gdi,Win32_Graphics_OpenGL,Win32_Security,Win32_System,Win32_System_Diagnostics,Win32_System_Diagnostics_Debug,Win32_System_Kernel,Win32_System_LibraryLoader,Win32_System_Performance,Win32_System_Threading,Win32_UI,Win32_UI_WindowsAndMessaging,default,std (*)
+windows-core v0.58.0|default,std (*)
+cfg_aliases v0.2.2|
+wgpu-hal v27.0.4|dx12,gles,gpu-allocator,portable-atomic,renderdoc,vulkan (*)
+wgpu-types v27.0.1|std,thiserror,web (*)
+cfg_aliases v0.2.2|
+wgpu-hal v27.0.4|dx12,gles,gpu-allocator,portable-atomic,renderdoc,vulkan (*)
+wgpu-types v27.0.1|std,thiserror,web (*)
+cfg_aliases v0.2.2|
+futures v0.3.34|alloc,async-await,std (*)
+glam v0.25.0|default,std
+guillotiere v0.6.2|
+euclid v0.22.14|default,libm,std (*)
+svg_fmt v0.4.5|
+iced_debug v0.14.0| (*)
+iced_graphics v0.14.0|geometry,lyon_path (*)
+log v0.4.34|
+lyon v1.0.19|
+lyon_algorithms v1.0.22|default,std
+lyon_path v1.0.19|default,std (*)
+num-traits v0.2.19|default,libm,std (*)
+lyon_tessellation v1.0.23|default,std
+float_next_after v1.0.0|
+lyon_path v1.0.19|default,std (*)
+num-traits v0.2.19|default,libm,std (*)
+rustc-hash v2.1.3|default,std
+thiserror v2.0.21|default,std (*)
+wgpu v27.0.1|default,dx12,gles,metal,parking_lot,std,vulkan,web,webgpu,wgsl (*)
+log v0.4.34|
+thiserror v2.0.21|default,std (*)
+iced_runtime v0.14.0|
+bytes v1.12.1|default,std
+iced_core v0.14.0|advanced,crisp (*)
+iced_futures v0.14.0|tokio (*)
+raw-window-handle v0.6.2|alloc,std
+thiserror v2.0.21|default,std (*)
+iced_widget v0.14.2|advanced,canvas,crisp,lazy,ouroboros,wgpu
+iced_renderer v0.14.0|geometry,iced_wgpu,wgpu,wgpu-bare (*)
+log v0.4.34|
+num-traits v0.2.19|default,libm,std (*)
+ouroboros v0.18.5|default,std
+aliasable v0.1.3|alloc,default
+ouroboros_macro v0.18.5 (proc-macro)|std
+heck v0.4.1|default
+proc-macro2 v1.0.107|default,proc-macro (*)
+proc-macro2-diagnostics v0.10.1|colors,default,yansi
+proc-macro2 v1.0.107|default,proc-macro (*)
+quote v1.0.47|default,proc-macro (*)
+syn v2.0.119|clone-impls,default,derive,extra-traits,full,parsing,printing,proc-macro,visit-mut (*)
+yansi v1.0.1|alloc,default,std
+version_check v0.9.5|
+quote v1.0.47|default,proc-macro (*)
+syn v2.0.119|clone-impls,default,derive,extra-traits,full,parsing,printing,proc-macro,visit-mut (*)
+static_assertions v1.1.0|
+rustc-hash v2.1.3|default,std
+thiserror v2.0.21|default,std (*)
+unicode-segmentation v1.13.3|
+iced_winit v0.14.1|
+iced_debug v0.14.0| (*)
+iced_program v0.14.0|
+iced_graphics v0.14.0|geometry,lyon_path (*)
+iced_runtime v0.14.0| (*)
+log v0.4.34|
+rustc-hash v2.1.3|default,std
+thiserror v2.0.21|default,std (*)
+tracing v0.1.44|attributes,default,std,tracing-attributes
+pin-project-lite v0.2.17|
+tracing-attributes v0.1.31 (proc-macro)|
+proc-macro2 v1.0.107|default,proc-macro (*)
+quote v1.0.47|default,proc-macro (*)
+syn v2.0.119|clone-impls,default,derive,extra-traits,full,parsing,printing,proc-macro,visit-mut (*)
+tracing-core v0.1.36|once_cell,std
+once_cell v1.21.4|alloc,default,race,std
+window_clipboard v0.5.1|
+clipboard-win v5.4.3|std
+error-code v3.4.0|std
+raw-window-handle v0.6.2|alloc,std
+thiserror v2.0.21|default,std (*)
+winit v0.30.13|rwh_06
+bitflags v2.13.2|serde,serde_core (*)
+cursor-icon v1.2.0|alloc,default,std
+dpi v0.1.2|default,std
+raw-window-handle v0.6.2|alloc,std
+smol_str v0.2.2|default,std
+tracing v0.1.44|attributes,default,std,tracing-attributes (*)
+unicode-segmentation v1.13.3|
+windows-sys v0.52.0|Win32,Win32_Devices,Win32_Devices_HumanInterfaceDevice,Win32_Foundation,Win32_Globalization,Win32_Graphics,Win32_Graphics_Dwm,Win32_Graphics_Gdi,Win32_Media,Win32_Security,Win32_System,Win32_System_Com,Win32_System_Com_StructuredStorage,Win32_System_LibraryLoader,Win32_System_Ole,Win32_System_SystemInformation,Win32_System_SystemServices,Win32_System_Threading,Win32_System_WindowsProgramming,Win32_UI,Win32_UI_Accessibility,Win32_UI_Controls,Win32_UI_HiDpi,Win32_UI_Input,Win32_UI_Input_Ime,Win32_UI_Input_KeyboardAndMouse,Win32_UI_Input_Pointer,Win32_UI_Input_Touch,Win32_UI_Shell,Win32_UI_TextServices,Win32_UI_WindowsAndMessaging,default
+windows-targets v0.52.6| (*)
+cfg_aliases v0.2.2|
+thiserror v2.0.21|default,std (*)
+iced_term v0.8.0 (<repository>\vendor\iced_term)|
+alacritty_terminal v0.25.1|default,serde
+base64 v0.22.1|alloc,default,std
+bitflags v2.13.2|serde,serde_core (*)
+home v0.5.12|
+windows-sys v0.61.2|Wdk,Wdk_Foundation,Wdk_Storage,Wdk_Storage_FileSystem,Win32,Win32_Foundation,Win32_Networking,Win32_Networking_WinSock,Win32_Security,Win32_Storage,Win32_Storage_FileSystem,Win32_System,Win32_System_Com,Win32_System_IO,Win32_System_LibraryLoader,Win32_System_Pipes,Win32_System_Threading,Win32_System_WindowsProgramming,Win32_UI,Win32_UI_Shell,default
+windows-link v0.2.1|
+libc v0.2.191|default,std
+log v0.4.34|
+miow v0.6.1|
+windows-sys v0.61.2|Wdk,Wdk_Foundation,Wdk_Storage,Wdk_Storage_FileSystem,Win32,Win32_Foundation,Win32_Networking,Win32_Networking_WinSock,Win32_Security,Win32_Storage,Win32_Storage_FileSystem,Win32_System,Win32_System_Com,Win32_System_IO,Win32_System_LibraryLoader,Win32_System_Pipes,Win32_System_Threading,Win32_System_WindowsProgramming,Win32_UI,Win32_UI_Shell,default (*)
+parking_lot v0.12.5|default (*)
+piper v0.2.5|default,futures-io,std
+atomic-waker v1.1.2|
+fastrand v2.5.0|alloc,std
+futures-io v0.3.34|default,std
+polling v3.11.0|
+cfg-if v1.0.5|
+concurrent-queue v2.5.0|default,std
+crossbeam-utils v0.8.23|
+pin-project-lite v0.2.17|
+windows-sys v0.61.2|Wdk,Wdk_Foundation,Wdk_Storage,Wdk_Storage_FileSystem,Win32,Win32_Foundation,Win32_Networking,Win32_Networking_WinSock,Win32_Security,Win32_Storage,Win32_Storage_FileSystem,Win32_System,Win32_System_Com,Win32_System_IO,Win32_System_LibraryLoader,Win32_System_Pipes,Win32_System_Threading,Win32_System_WindowsProgramming,Win32_UI,Win32_UI_Shell,default (*)
+regex-automata v0.4.18|alloc,default,dfa,dfa-build,dfa-onepass,dfa-search,hybrid,meta,nfa,nfa-backtrack,nfa-pikevm,nfa-thompson,perf,perf-inline,perf-literal,perf-literal-multisubstring,perf-literal-substring,std,syntax,unicode,unicode-age,unicode-bool,unicode-case,unicode-gencat,unicode-perl,unicode-script,unicode-segment,unicode-word-boundary
+aho-corasick v1.1.5|perf-literal,std
+memchr v2.8.3|alloc,default,std
+memchr v2.8.3|alloc,default,std
+regex-syntax v0.8.11|std,unicode,unicode-age,unicode-bool,unicode-case,unicode-gencat,unicode-perl,unicode-script,unicode-segment
+serde v1.0.229|default,derive,rc,serde_derive,std
+serde_core v1.0.229|rc,result,std
+serde_derive v1.0.229 (proc-macro)|default
+proc-macro2 v1.0.107|default,proc-macro (*)
+quote v1.0.47|default,proc-macro (*)
+syn v3.0.9|clone-impls,default,derive,full,parsing,printing,proc-macro (*)
+unicode-width v0.2.2|cjk,default
+vte v0.15.0|ansi,bitflags,cursor-icon,log,serde,std
+arrayvec v0.7.8|std
+bitflags v2.13.2|serde,serde_core (*)
+cursor-icon v1.2.0|alloc,default,std
+log v0.4.34|
+memchr v2.8.3|alloc,default,std
+serde v1.0.229|default,derive,rc,serde_derive,std (*)
+windows-sys v0.59.0|Win32,Win32_Foundation,Win32_Security,Win32_System,Win32_System_Console,Win32_System_LibraryLoader,Win32_System_Threading,Win32_System_WindowsProgramming,default
+windows-targets v0.52.6| (*)
+anyhow v1.0.104|default,std
+iced v0.14.0|advanced,canvas,crisp,lazy,tokio,wgpu,wgpu-bare (*)
+iced_core v0.14.0|advanced,crisp (*)
+iced_graphics v0.14.0|geometry,lyon_path (*)
+open v5.4.5|
+tokio v1.54.1|default,rt,rt-multi-thread,sync,time (*)
+tokio v1.54.1|default,rt,rt-multi-thread,sync,time (*)

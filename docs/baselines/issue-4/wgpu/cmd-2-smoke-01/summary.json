@@ -1,0 +1,15 @@
+﻿{
+    "Shell":  "cmd",
+    "Sessions":  2,
+    "Mode":  "smoke",
+    "Run":  1,
+    "Renderer":  "wgpu (ICED_BACKEND override); build features recorded separately",
+    "ReadyAndWindowMs":  1187.5769,
+    "CloseObservationMs":  1906.2085000000002,
+    "FinalMarkers":  2,
+    "ChildExitCodes":  [
+                           42,
+                           41
+                       ],
+    "ExitCode":  0
+}

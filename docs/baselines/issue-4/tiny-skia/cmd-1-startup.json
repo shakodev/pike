@@ -1,0 +1,282 @@
+﻿[
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  1,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  202.0378,
+        "CloseObservationMs":  260.315,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  2,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  162.0966,
+        "CloseObservationMs":  210.5927,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  3,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  140.59900000000002,
+        "CloseObservationMs":  153.3468,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  4,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  193.4922,
+        "CloseObservationMs":  119.37190000000001,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  5,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  163.6586,
+        "CloseObservationMs":  162.299,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  6,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  187.72820000000002,
+        "CloseObservationMs":  89.7706,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  7,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  137.7288,
+        "CloseObservationMs":  174.9505,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  8,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  147.0974,
+        "CloseObservationMs":  162.81900000000002,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  9,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  141.74120000000002,
+        "CloseObservationMs":  153.073,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  10,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  155.6706,
+        "CloseObservationMs":  120.91770000000001,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  11,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  154.023,
+        "CloseObservationMs":  179.28830000000002,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  12,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  163.8733,
+        "CloseObservationMs":  173.15390000000002,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  13,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  135.76940000000002,
+        "CloseObservationMs":  161.93280000000001,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  14,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  152.5987,
+        "CloseObservationMs":  140.6611,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  15,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  160.44920000000002,
+        "CloseObservationMs":  179.5225,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  16,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  144.1646,
+        "CloseObservationMs":  128.2165,
+        "FinalMarkers":  0,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  17,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  172.6292,
+        "CloseObservationMs":  159.57330000000002,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  18,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  161.0533,
+        "CloseObservationMs":  222.9778,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  19,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  142.8073,
+        "CloseObservationMs":  165.9285,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    },
+    {
+        "Shell":  "cmd",
+        "Sessions":  1,
+        "Mode":  "startup",
+        "Run":  20,
+        "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+        "ReadyAndWindowMs":  155.80610000000001,
+        "CloseObservationMs":  165.81820000000002,
+        "FinalMarkers":  1,
+        "ChildExitCodes":  [
+                               41
+                           ],
+        "ExitCode":  0
+    }
+]

@@ -1,0 +1,14 @@
+﻿[
+    {
+        "Renderer":  "wgpu",
+        "WindowDetectedMs":  1816.9471,
+        "CloseMs":  215.4203,
+        "ExitCode":  0
+    },
+    {
+        "Renderer":  "tiny-skia",
+        "WindowDetectedMs":  286.13730000000004,
+        "CloseMs":  12.6258,
+        "ExitCode":  0
+    }
+]
