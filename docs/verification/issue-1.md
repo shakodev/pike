@@ -62,6 +62,11 @@ a normal window-close request and waits up to 10 seconds for exit. Test
 polling runs externally; none is added to the application. The script
 overwrites the two raw observation files when re-run.
 
+To preserve those historical files during a review, pass
+`-OutputDirectory target/pr-47-review`. The helper saves diagnostics and then
+fails if the process exits with a nonzero code or any observation reports
+an unresponsive window; those outcomes cannot silently pass the smoke check.
+
 Raw data: [idle CSV](issue-1-idle.csv), [smoke summary](issue-1-smoke.json).
 
 | Observation | Measured result |
@@ -84,6 +89,23 @@ Tested executable SHA-256:
 The initial smoke attempt encountered a console window before the Iced
 window. Release builds now select the Windows GUI subsystem, and all Rust
 checks and the release smoke were repeated after that change.
+
+## PR review verification
+
+The review found that the original helper recorded bad exit/responsiveness
+outcomes without failing. It now rejects both after saving the diagnostics.
+Controlled PowerShell process doubles verified a successful observation,
+rejection of exit code 7, and rejection of an unresponsive window, including
+diagnostic retention and disposal of the process wrapper in all three cases.
+The real release window then passed a fresh 61-sample observation and normal
+close with exit code 0; review output was saved separately under
+`target/pr-47-review`, preserving the original raw measurements above.
+
+Formatting, Clippy with denied warnings, locked tests, and the locked release
+build passed again. Both dependency-tree attachments were reproduced and
+matched exactly after path normalization. Cargo.lock and the release
+executable retain their recorded SHA-256 values. No Rust source or dependency
+changes were needed during review.
 
 ## Limits and follow-up
 

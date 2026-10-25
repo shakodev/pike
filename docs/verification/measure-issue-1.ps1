@@ -1,6 +1,9 @@
+param(
+    [string]$OutputDirectory = 'docs/verification'
+)
+
 $ErrorActionPreference = 'Stop'
 $exe = (Resolve-Path 'target/release/pike.exe').Path
-$outputDirectory = 'docs/verification'
 New-Item -ItemType Directory -Force $outputDirectory | Out-Null
 $launchWatch = [System.Diagnostics.Stopwatch]::StartNew()
 $appProcess = Start-Process -FilePath $exe -PassThru -WindowStyle Hidden
@@ -35,7 +38,7 @@ try {
     if (-not $appProcess.CloseMainWindow()) { throw 'Window close request failed.' }
     if (-not $appProcess.WaitForExit(10000)) { throw 'Pike failed to exit within 10 seconds.' }
     $appProcess.WaitForExit()
-    [pscustomobject]@{
+    $summary = [pscustomobject]@{
         WindowDetectedMs = $windowDetectedMs
         IdleWallSeconds = $last.Seconds - $first.Seconds
         IdleCpuSeconds = $last.CpuSeconds - $first.CpuSeconds
@@ -51,8 +54,11 @@ try {
         AllSamplesResponding = @($samples | Where-Object { -not $_.Responding }).Count -eq 0
         CloseMs = $closeWatch.Elapsed.TotalMilliseconds
         ExitCode = $appProcess.ExitCode
-    } | ConvertTo-Json | Set-Content "$outputDirectory/issue-1-smoke.json" -Encoding UTF8
+    }
+    $summary | ConvertTo-Json | Set-Content "$outputDirectory/issue-1-smoke.json" -Encoding UTF8
     Get-Content "$outputDirectory/issue-1-smoke.json"
+    if ($summary.ExitCode -ne 0) { throw "Pike exited with code $($summary.ExitCode)." }
+    if (-not $summary.AllSamplesResponding) { throw 'Pike was unresponsive during the idle observation.' }
 } finally {
     if (-not $appProcess.HasExited) { Stop-Process -Id $appProcess.Id }
     $appProcess.Dispose()
