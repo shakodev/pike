@@ -153,6 +153,14 @@ impl App {
                     return Task::none();
                 }
                 match &command {
+                    BackendCommand::EventBridge(iced_term::EventBridgeEvent::Error(error)) => {
+                        self.note("bridge_error", id, format!("{error:?}"), 0);
+                        self.error =
+                            Some(format!("Session {id}: event delivery stopped ({error:?})"));
+                    }
+                    BackendCommand::EventBridge(iced_term::EventBridgeEvent::Completed) => {
+                        self.note("bridge_completed", id, 0, 0);
+                    }
                     BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::Title(title)) => {
                         if let Some(marker) = route_marker(&mut self.states, id, title) {
                             match marker {
@@ -202,7 +210,7 @@ impl App {
                     .map(|term| term.handle(Command::ProxyToBackend(command)));
                 if action == Some(iced_term::actions::Action::Shutdown) {
                     self.note("exit", id, self.focused, self.states[&id].final_seen);
-                    self.terminals.remove(&id); // Cancel this session's broken upstream EOF stream.
+                    self.terminals.remove(&id);
                     if self.terminals.is_empty() {
                         return self.finish();
                     }

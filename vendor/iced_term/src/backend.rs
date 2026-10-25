@@ -1,4 +1,5 @@
 use crate::actions::Action;
+use crate::event_bridge::{EventBridgeEvent, Sender};
 use crate::settings::BackendSettings;
 use alacritty_terminal::event::{
     Event, EventListener, Notify, OnResize, WindowSize,
@@ -20,7 +21,6 @@ use std::cmp::min;
 use std::io::Result;
 use std::ops::{Index, RangeInclusive};
 use std::sync::Arc;
-use tokio::sync::mpsc;
 
 const URL_REGEX: &str = r#"(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file://|git://|ssh:|ftp://)[^\u{0000}-\u{001F}\u{007F}-\u{009F}<>"\s{-}\^⟨⟩`]+"#;
 
@@ -34,6 +34,7 @@ pub enum Command {
     ProcessLink(LinkAction, Point),
     MouseReport(MouseButton, Modifiers, Point, bool),
     ProcessAlacrittyEvent(Event),
+    EventBridge(EventBridgeEvent),
 }
 
 #[derive(Debug, Clone)]
@@ -137,12 +138,13 @@ pub struct Backend {
     notifier: Notifier,
     last_content: RenderableContent,
     pub(crate) url_regex: RegexSearch,
+    event_bridge_failed: bool,
 }
 
 impl Backend {
     pub fn new(
         id: u64,
-        pty_event_proxy_sender: mpsc::Sender<Event>,
+        pty_event_proxy_sender: Sender,
         settings: BackendSettings,
     ) -> Result<Self> {
         let pty_config = tty::Options {
@@ -156,7 +158,7 @@ impl Backend {
         let terminal_size = TerminalSize::default();
         let pty = tty::new(&pty_config, terminal_size.into(), id)?;
 
-        let event_proxy = EventProxy(pty_event_proxy_sender);
+        let event_proxy = EventProxy(pty_event_proxy_sender.complete_on_drop());
 
         let mut term = Term::new(config, &terminal_size, event_proxy.clone());
 
@@ -186,14 +188,38 @@ impl Backend {
             notifier,
             last_content: initial_content,
             url_regex: RegexSearch::new(URL_REGEX).expect("invalid url regexp"),
+            event_bridge_failed: false,
         })
     }
 
     pub fn handle(&mut self, cmd: Command) -> Action {
+        if let Command::EventBridge(event) = cmd {
+            return match event {
+                EventBridgeEvent::Error(error) => {
+                    self.event_bridge_failed = true;
+                    let _ = self.notifier.0.send(Msg::Shutdown);
+                    Action::EventBridgeError(error)
+                },
+                EventBridgeEvent::Completed => Action::Ignore,
+            };
+        }
+        if self.event_bridge_failed
+            && !matches!(
+                cmd,
+                Command::ProcessAlacrittyEvent(
+                    Event::Exit | Event::ChildExit(_)
+                )
+            )
+        {
+            return Action::Ignore;
+        }
         let mut action = Action::default();
         let term = self.term.clone();
         let mut term = term.lock();
         match cmd {
+            Command::EventBridge(_) => {
+                unreachable!("handled before terminal lock")
+            },
             Command::ProcessAlacrittyEvent(event) => {
                 match event {
                     Event::Exit => {
@@ -576,10 +602,150 @@ impl Drop for Backend {
 }
 
 #[derive(Clone)]
-pub struct EventProxy(mpsc::Sender<Event>);
+pub struct EventProxy(pub(crate) Sender);
 
 impl EventListener for EventProxy {
     fn send_event(&self, event: Event) {
-        let _ = self.0.blocking_send(event);
+        self.0.send(event);
+    }
+}
+
+#[cfg(all(test, windows))]
+mod event_bridge_tests {
+    use super::*;
+    use crate::event_bridge::{self, Delivery, EventBridgeError};
+    use std::time::Duration;
+
+    #[test]
+    fn windows_conpty_exit_reaches_a_stalled_consumer_after_flood_and_resize() {
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_time()
+            .build()
+            .unwrap();
+        let (sender, receiver) = event_bridge::channel();
+        let mut backend = Backend::new(
+            5001,
+            sender,
+            BackendSettings {
+                program: "cmd.exe".into(),
+                args: vec!["/D".into(), "/Q".into()],
+                ..BackendSettings::default()
+            },
+        )
+        .unwrap();
+        // Real ConPTY output while the UI side performs no receives. Resize and
+        // close must acquire the same terminal mutex the parser uses.
+        backend.handle(Command::Write(
+            b"for /L %i in (1,1,2000) do @echo synthetic\r".to_vec(),
+        ));
+        for width in [640.0, 800.0, 960.0] {
+            backend.handle(Command::Resize(
+                Some(Size::new(width, 480.0)),
+                Some(Size::new(8.0, 16.0)),
+            ));
+        }
+        backend.handle(Command::Write(b"exit /b 37\r".to_vec()));
+        let mut exit = false;
+        let mut child_exit = false;
+        runtime.block_on(async {
+            tokio::time::timeout(Duration::from_secs(10), async {
+                while let Some(delivery) = receiver.recv().await {
+                    match delivery {
+                        Delivery::Terminal(Event::Exit) => exit = true,
+                        Delivery::Terminal(Event::ChildExit(37)) => {
+                            child_exit = true
+                        },
+                        Delivery::Bridge(EventBridgeEvent::Error(error)) => {
+                            panic!("unexpected scoped error: {error:?}")
+                        },
+                        _ => {},
+                    }
+                }
+            })
+            .await
+            .expect("ConPTY event source must terminate");
+        });
+        assert!(exit && child_exit);
+    }
+
+    #[test]
+    fn windows_overload_closes_only_its_backend_and_keeps_exit_deliverable() {
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_time()
+            .build()
+            .unwrap();
+        let (sender, receiver) = event_bridge::channel();
+        let mut backend = Backend::new(
+            5002,
+            sender.clone(),
+            BackendSettings {
+                program: "cmd.exe".into(),
+                args: vec!["/D".into(), "/Q".into()],
+                ..BackendSettings::default()
+            },
+        )
+        .unwrap();
+        let (healthy_sender, healthy_receiver) = event_bridge::channel();
+        let mut healthy = Backend::new(
+            5003,
+            healthy_sender,
+            BackendSettings {
+                program: "cmd.exe".into(),
+                args: vec!["/D".into(), "/Q".into()],
+                ..BackendSettings::default()
+            },
+        )
+        .unwrap();
+        for _ in 0..1000 {
+            sender.send(Event::PtyWrite("synthetic".into()));
+        }
+        // Route only the scoped error, as an app would. Avoid forwarding test
+        // replies to the shell; input byte admission is separate issue #6.
+        runtime.block_on(async {
+            tokio::time::timeout(Duration::from_secs(10), async {
+                while let Some(delivery) = receiver.recv().await {
+                    if let Delivery::Bridge(EventBridgeEvent::Error(error)) =
+                        delivery
+                    {
+                        assert_eq!(error, EventBridgeError::ControlOverflow);
+                        assert_eq!(
+                            backend.handle(Command::EventBridge(
+                                EventBridgeEvent::Error(error)
+                            )),
+                            Action::EventBridgeError(error)
+                        );
+                    }
+                }
+            })
+            .await
+            .expect("overloaded backend must stop producing events");
+        });
+        assert!(backend.event_bridge_failed);
+        // A second real session remains usable after the first was stopped.
+        healthy
+            .handle(Command::Write(b"echo synthetic\rexit /b 38\r".to_vec()));
+        let mut healthy_exit = false;
+        runtime.block_on(async {
+            tokio::time::timeout(Duration::from_secs(10), async {
+                while let Some(delivery) = healthy_receiver.recv().await {
+                    match delivery {
+                        Delivery::Terminal(Event::ChildExit(38)) => {
+                            healthy_exit = true
+                        },
+                        Delivery::Bridge(EventBridgeEvent::Error(error)) => {
+                            panic!("healthy session: {error:?}")
+                        },
+                        _ => {},
+                    }
+                }
+            })
+            .await
+            .expect("other session must remain responsive");
+        });
+        assert!(healthy_exit);
+        assert_eq!(
+            backend.handle(Command::ProcessAlacrittyEvent(Event::Exit)),
+            Action::Shutdown
+        );
     }
 }

@@ -1,19 +1,17 @@
 use crate::actions::Action;
 use crate::backend;
 use crate::bindings::{Binding, BindingAction, BindingsLayout, InputKind};
+use crate::event_bridge::{self, Delivery, Receiver};
 use crate::font::TermFont;
 use crate::settings::{FontSettings, Settings, ThemeSettings};
 use crate::theme::{ColorPalette, Theme};
-use crate::AlacrittyEvent;
 use iced::futures::stream::BoxStream;
-use iced::futures::{SinkExt, StreamExt};
+use iced::futures::{stream, StreamExt};
 use iced::widget::canvas::Cache;
 use iced::Subscription;
 use std::hash::{Hash, Hasher};
 use std::io::Result;
 use std::sync::Arc;
-use tokio::sync::mpsc::{self, Receiver};
-use tokio::sync::Mutex;
 
 #[derive(Debug, Clone)]
 pub enum Event {
@@ -36,12 +34,12 @@ pub struct Terminal {
     pub(crate) cache: Cache,
     pub(crate) bindings: BindingsLayout,
     pub(crate) backend: backend::Backend,
-    backend_event_rx: Arc<Mutex<Receiver<AlacrittyEvent>>>,
+    backend_event_rx: Arc<Receiver>,
 }
 
 impl Terminal {
     pub fn new(id: u64, settings: Settings) -> Result<Self> {
-        let (backend_event_tx, backend_event_rx) = mpsc::channel(100);
+        let (backend_event_tx, backend_event_rx) = event_bridge::channel();
         let theme = Theme::new(settings.theme);
         let font = TermFont::new(settings.font);
 
@@ -57,7 +55,7 @@ impl Terminal {
                 backend_event_tx,
                 settings.backend,
             )?,
-            backend_event_rx: Arc::new(Mutex::new(backend_event_rx)),
+            backend_event_rx,
         })
     }
 
@@ -116,7 +114,7 @@ impl Terminal {
 #[derive(Clone)]
 struct TerminalSubscriptionData {
     id: u64,
-    event_receiver: Arc<Mutex<Receiver<AlacrittyEvent>>>,
+    event_receiver: Arc<Receiver>,
 }
 
 impl Hash for TerminalSubscriptionData {
@@ -128,32 +126,72 @@ impl Hash for TerminalSubscriptionData {
 fn terminal_subscription_stream(
     data: &TerminalSubscriptionData,
 ) -> BoxStream<'static, Event> {
-    let id = data.id;
-    let event_receiver = data.event_receiver.clone();
-    iced::stream::channel(1000, async move |mut output| {
-        let mut shutdown = false;
-        loop {
-            let mut event_receiver = event_receiver.lock().await;
-            match event_receiver.recv().await {
-                Some(event) => {
-                    if let AlacrittyEvent::Exit = event {
-                        shutdown = true
-                    };
-
-                    output
-                        .send(Event::BackendCall(id, backend::Command::ProcessAlacrittyEvent(event)))
-                        .await
-                        .unwrap_or_else(|_| {
-                            panic!("iced_term stream {}: sending BackendEventReceived event is failed", id)
-                        });
-                },
-                None => {
-                    if !shutdown {
-                        panic!("iced_term stream {}: terminal event channel closed unexpected", id);
-                    }
-                },
-            }
-        }
+    stream::unfold(data.clone(), |data| async move {
+        let command = match data.event_receiver.recv().await? {
+            Delivery::Terminal(event) => {
+                backend::Command::ProcessAlacrittyEvent(event)
+            },
+            Delivery::Bridge(event) => backend::Command::EventBridge(event),
+        };
+        Some((Event::BackendCall(data.id, command), data))
     })
+    .fuse()
     .boxed()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{AlacrittyEvent, EventBridgeEvent};
+    use iced::futures::FutureExt;
+
+    #[test]
+    fn subscription_cancellation_preserves_events_and_session_routing() {
+        let (sender, receiver) = event_bridge::channel();
+        let data = TerminalSubscriptionData {
+            id: 42,
+            event_receiver: receiver,
+        };
+        let mut stream = terminal_subscription_stream(&data);
+        assert!(stream.next().now_or_never().is_none());
+        drop(stream);
+        sender.send(AlacrittyEvent::PtyWrite("reply".into()));
+        let mut stream = terminal_subscription_stream(&data);
+        assert!(
+            matches!(stream.next().now_or_never(), Some(Some(Event::BackendCall(42, backend::Command::ProcessAlacrittyEvent(AlacrittyEvent::PtyWrite(s))))) if s == "reply")
+        );
+        drop(stream);
+        // Closing the final output consumer makes later producer sends harmless.
+        drop(data);
+        sender.send(AlacrittyEvent::Wakeup);
+    }
+
+    #[test]
+    fn subscription_delivers_exit_and_completion_then_is_fused() {
+        let (sender, receiver) = event_bridge::channel();
+        let data = TerminalSubscriptionData {
+            id: 7,
+            event_receiver: receiver,
+        };
+        let mut stream = terminal_subscription_stream(&data);
+        sender.send(AlacrittyEvent::Exit);
+        drop(sender);
+        assert!(matches!(
+            stream.next().now_or_never(),
+            Some(Some(Event::BackendCall(
+                7,
+                backend::Command::ProcessAlacrittyEvent(AlacrittyEvent::Exit)
+            )))
+        ));
+        assert!(matches!(
+            stream.next().now_or_never(),
+            Some(Some(Event::BackendCall(
+                7,
+                backend::Command::EventBridge(EventBridgeEvent::Completed)
+            )))
+        ));
+        for _ in 0..10 {
+            assert!(stream.next().now_or_never().unwrap().is_none());
+        }
+    }
 }
