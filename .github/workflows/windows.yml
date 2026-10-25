@@ -60,12 +60,18 @@ jobs:
       - name: Test application
         run: cargo test --locked
 
+      - name: Test compatibility examples
+        run: cargo test --locked --examples
+
       # App tests do not run a patched dependency's own regression tests.
       # Add a named step per patch here, using --manifest-path and --locked;
       # see docs/ci.md for the command and vendor lockfile requirements.
 
       - name: Build release
         run: cargo build --release --locked
+
+      - name: Build compatibility examples
+        run: cargo build --release --locked --examples
 
       - name: Verify dependency files are unchanged
         run: git diff --exit-code -- Cargo.toml Cargo.lock rust-toolchain.toml

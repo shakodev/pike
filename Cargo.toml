@@ -8,3 +8,7 @@ description = "A lightweight, Windows-first terminal multiplexer"
 [dependencies]
 iced = "=0.14.0"
 iced_term = "=0.8.0"
+
+[target.'cfg(windows)'.dev-dependencies]
+# Console-size observation in the deterministic child fixture, not another PTY.
+windows-sys = { version = "=0.59.0", features = ["Win32_Foundation", "Win32_System_Console"] }

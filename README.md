@@ -39,6 +39,10 @@ using the pinned toolchain and a cache keyed by toolchain and lockfile.
 That guide also explains how to add explicit regression steps for future
 dependency patches.
 
+The [compatibility harness](docs/compatibility.md) opens one or two synthetic
+ConPTY sessions for developer checks and release measurements. It is separate
+from the application and preserves the unpatched dependency baseline.
+
 ## Dependency baseline
 
 Direct requirements are exactly `iced = "=0.14.0"` and
