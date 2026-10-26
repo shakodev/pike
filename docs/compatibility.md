@@ -8,6 +8,8 @@ behavior was unchanged at that stage. Issue #11 adds validated history limits
 and viewport-only snapshots; [its verification](verification/issue-11.md)
 records current history profiles and the remaining byte-bound limitations.
 No second PTY implementation is used.
+Issue #12 [caches font metrics and deduplicates resize work](verification/issue-12.md),
+including native size-fixture checks and explicit per-session work counters.
 
 ## Renderer and executor comparisons
 

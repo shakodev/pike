@@ -194,3 +194,36 @@ and API/overload policy details.
   when the adapter exposes equivalent validated history and visibility-aware
   viewport snapshots upstream. See [Windows verification and residual byte
   limits](../../docs/verification/issue-11.md) for commands and measurements.
+
+## R12 / issue #12 — cache font metrics and deduplicate resize work
+
+- `font.rs` caches one advanced-shaped measurement by font family, size and
+  relative line height; repeated settings and ordinary events never reshape.
+  `FontSettings.scale_factor` remains line height, not DPI. Invalid values
+  retain valid settings; finite extremes bound shaping to size 1–256 and
+  relative height 0.1–8. Iced's layout already uses logical coordinates.
+- `geometry.rs` separates last usable layout, cached fractional cell metrics
+  and applied terminal size. Geometry/selection/rendering use the same floats;
+  integer conversion stays at the native boundary. Reject invalid/sub-cell
+  layouts without replacing the last usable one, preserve new fonts across
+  tiny layouts, and cap viewport allocation at 512×512 cells. Initial synthetic
+  bounds use f64 products to preserve initial dimensions exactly.
+- `backend.rs` reflows only for changed rows/columns. Windows native resize
+  comparison uses ConPTY's rows/columns; Unix additionally compares rounded
+  pixel metadata. Preserve R11's deferred EOF-drain reflow and closed-PTY rule.
+- Separate snapshot/render dirty state. Output/selection/geometry/history/final
+  completion capture a visible viewport; title/bell/protocol/input-at-bottom
+  and no-ops do not. Theme/hover changes repaint without snapshotting. Hidden
+  events stay snapshot/cache free; activation and explicit refresh retain their
+  contracts. Explicit final refresh now invalidates its render cache too.
+- `terminal.rs` exposes metadata-only `WorkStats` for measurements, notifier
+  calls, grid resizes and explicit cache clears. No background sampler, timer,
+  task, polling, unsafe code or extra allocation per ordinary event is added.
+  Widget layout commands no longer carry a possibly stale font measurement.
+- Eleven new regressions plus an opt-in native size/flood release probe verify
+  counters, fractional/invalid/extreme dimensions, four logical scale values,
+  font changes and hidden work. See [Windows evidence and remaining physical
+  DPI/minimize validation](../../docs/verification/issue-12.md).
+- No dependencies, lockfile, feature, renderer default or Alacritty changes.
+  Remove when upstream offers equivalent cached logical metrics, validated
+  geometry and mutation-specific presentation invalidation.

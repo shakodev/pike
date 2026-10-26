@@ -1,5 +1,6 @@
 use crate::actions::Action;
 use crate::event_bridge::{EventBridgeEvent, Sender};
+use crate::geometry::{same_pty_size, Geometry, TerminalSize};
 use crate::settings::{BackendSettings, HistoryLimit};
 use crate::snapshot::{RenderableContent, SnapshotStats};
 use alacritty_terminal::event::{Event, EventListener, OnResize, WindowSize};
@@ -78,65 +79,15 @@ pub enum LinkAction {
     Open,
 }
 
-#[derive(Clone, Copy, Debug)]
-pub struct TerminalSize {
-    pub cell_width: u16,
-    pub cell_height: u16,
-    num_cols: u16,
-    num_lines: u16,
-    layout_width: f32,
-    layout_height: f32,
-}
-
-impl Default for TerminalSize {
-    fn default() -> Self {
-        Self {
-            cell_width: 1,
-            cell_height: 1,
-            num_cols: 80,
-            num_lines: 50,
-            layout_width: 80.0,
-            layout_height: 50.0,
-        }
-    }
-}
-
-impl Dimensions for TerminalSize {
-    fn total_lines(&self) -> usize {
-        self.screen_lines()
-    }
-
-    fn columns(&self) -> usize {
-        self.num_cols as usize
-    }
-
-    fn last_column(&self) -> Column {
-        Column(self.num_cols as usize - 1)
-    }
-
-    fn bottommost_line(&self) -> Line {
-        Line(self.num_lines as i32 - 1)
-    }
-
-    fn screen_lines(&self) -> usize {
-        self.num_lines as usize
-    }
-}
-
-impl From<TerminalSize> for WindowSize {
-    fn from(size: TerminalSize) -> Self {
-        Self {
-            num_lines: size.num_lines,
-            num_cols: size.num_cols,
-            cell_width: size.cell_width,
-            cell_height: size.cell_height,
-        }
-    }
-}
-
 pub struct Backend {
     term: Arc<FairMutex<Term<EventProxy>>>,
     size: TerminalSize,
+    geometry: Geometry,
+    last_pty_size: WindowSize,
+    pty_resizes: u64,
+    grid_resizes: u64,
+    snapshot_dirty: bool,
+    render_dirty: bool,
     notifier: Notifier,
     last_content: RenderableContent,
     pub(crate) url_regex: RegexSearch,
@@ -216,6 +167,12 @@ impl Backend {
         Ok(Self {
             term: term.clone(),
             size: terminal_size,
+            geometry: Geometry::default(),
+            last_pty_size: terminal_size.into(),
+            pty_resizes: 0,
+            grid_resizes: 0,
+            snapshot_dirty: true,
+            render_dirty: false,
             notifier,
             last_content: RenderableContent::default(),
             url_regex: RegexSearch::new(URL_REGEX).expect("invalid url regexp"),
@@ -246,6 +203,7 @@ impl Backend {
                 },
                 EventBridgeEvent::Completed => Action::Ignore,
                 EventBridgeEvent::BackendCompleted(completion) => {
+                    self.snapshot_dirty = true;
                     Action::BackendCompleted(completion)
                 },
             };
@@ -282,6 +240,7 @@ impl Backend {
                     Event::Exit => {
                         // Exit describes the model, not resource completion.
                         action = Action::Shutdown;
+                        self.snapshot_dirty = true;
                     },
                     Event::Title(title) => {
                         action = Action::ChangeTitle(title);
@@ -289,13 +248,20 @@ impl Backend {
                     Event::PtyWrite(pty) => {
                         action = self.write(pty.as_bytes());
                     },
+                    Event::Wakeup
+                    | Event::MouseCursorDirty
+                    | Event::CursorBlinkingChange => {
+                        self.snapshot_dirty = true;
+                    },
                     _ => {},
                 };
             },
             Command::Write(input) => {
                 action = self.write(&input);
-                if action == Action::Ignore {
+                if action == Action::Ignore && term.grid().display_offset() != 0
+                {
                     term.scroll_display(Scroll::Bottom);
+                    self.snapshot_dirty = true;
                 }
             },
             Command::Scroll(delta) => {
@@ -305,21 +271,29 @@ impl Backend {
                 self.resize(&mut term, layout_size, font_measure);
             },
             Command::SetHistoryLimit(limit) => {
-                term.set_options(term::Config {
-                    scrolling_history: limit.lines(),
-                    ..Default::default()
-                });
-                self.history_limit = limit;
-                self.last_content.hovered_hyperlink = None;
+                if self.history_limit != limit {
+                    term.set_options(term::Config {
+                        scrolling_history: limit.lines(),
+                        ..Default::default()
+                    });
+                    self.history_limit = limit;
+                    self.last_content.hovered_hyperlink = None;
+                    self.snapshot_dirty = true;
+                }
             },
             Command::SelectStart(selection_type, (x, y)) => {
                 self.start_selection(&mut term, selection_type, x, y);
+                self.snapshot_dirty = true;
             },
             Command::SelectUpdate((x, y)) => {
                 self.update_selection(&mut term, x, y);
+                self.snapshot_dirty = true;
             },
             Command::ProcessLink(link_action, point) => {
+                let before = self.last_content.hovered_hyperlink.clone();
                 self.process_link_action(&term, link_action, point);
+                self.render_dirty |=
+                    before != self.last_content.hovered_hyperlink;
             },
             Command::MouseReport(button, modifiers, point, pressed) => {
                 action = self.process_mouse_report(
@@ -517,18 +491,18 @@ impl Backend {
         terminal_size: &TerminalSize,
         display_offset: usize,
     ) -> Point {
-        let col = (x as usize) / (terminal_size.cell_width as usize);
+        let col = (x / terminal_size.cell_width).floor().max(0.0) as usize;
         let col = min(Column(col), Column(terminal_size.num_cols as usize - 1));
 
-        let line = (y as usize) / (terminal_size.cell_height as usize);
+        let line = (y / terminal_size.cell_height).floor().max(0.0) as usize;
         let line = min(line, terminal_size.num_lines as usize - 1);
 
         viewport_to_point(display_offset, Point::new(line, col))
     }
 
     fn selection_side(&self, x: f32) -> Side {
-        let cell_x = x as usize % self.size.cell_width as usize;
-        let half_cell_width = (self.size.cell_width as f32 / 2.0) as usize;
+        let cell_x = x.rem_euclid(self.size.cell_width);
+        let half_cell_width = self.size.cell_width / 2.0;
 
         if cell_x > half_cell_width {
             Side::Right
@@ -543,40 +517,40 @@ impl Backend {
         layout_size: Option<Size<f32>>,
         font_measure: Option<Size<f32>>,
     ) {
-        if let Some(size) = layout_size {
-            self.size.layout_height = size.height;
-            self.size.layout_width = size.width;
-        };
-
-        if let Some(size) = font_measure {
-            self.size.cell_height = (size.height as u16).max(1);
-            self.size.cell_width = (size.width as u16).max(1);
+        if layout_size.is_none()
+            && font_measure.is_none()
+            && !self.deferred_resize
+        {
+            return;
         }
-
-        let lines = (self.size.layout_height / self.size.cell_height as f32)
-            .floor() as u16;
-        let cols = (self.size.layout_width / self.size.cell_width as f32)
-            .floor() as u16;
-        if lines > 0 && cols > 0 {
-            let closed = self.notifier.0.input_status().closed;
-            // Do not change parsing geometry during an in-flight EOF drain.
-            // Keep the newest layout pixels above for refresh after completion.
-            if closed && self.shutdown.completion().is_none() {
-                self.deferred_resize = true;
-                return;
-            }
-            self.deferred_resize = false;
-            self.size.num_lines = lines;
-            self.size.num_cols = cols;
-            // An exited model still reflows for its viewport. Its native PTY
-            // remains disposed and must never receive another resize.
-            if !closed {
-                self.notifier.on_resize(self.size.into());
-            }
+        let Some(next) = self.geometry.update(layout_size, font_measure) else {
+            return;
+        };
+        let closed = self.notifier.0.input_status().closed;
+        // Preserve parsing geometry until the EOF drain has completed.
+        if closed && self.shutdown.completion().is_none() {
+            self.deferred_resize = true;
+            return;
+        }
+        self.deferred_resize = false;
+        let native = WindowSize::from(next);
+        if !closed && !same_pty_size(self.last_pty_size, native) {
+            self.notifier.on_resize(native);
+            self.last_pty_size = native;
+            self.pty_resizes = self.pty_resizes.saturating_add(1);
+        }
+        if self.size.num_cols != next.num_cols
+            || self.size.num_lines != next.num_lines
+        {
             terminal.resize(TermSize::new(
-                self.size.num_cols as usize,
-                self.size.num_lines as usize,
+                next.num_cols as usize,
+                next.num_lines as usize,
             ));
+            self.grid_resizes = self.grid_resizes.saturating_add(1);
+        }
+        if self.size != next {
+            self.size = next;
+            self.snapshot_dirty = true;
         }
     }
 
@@ -633,7 +607,10 @@ impl Backend {
 
                 return self.write(&content);
             } else {
+                let before = terminal.grid().display_offset();
                 terminal.grid_mut().scroll_display(scroll);
+                self.snapshot_dirty |=
+                    before != terminal.grid().display_offset();
             }
         }
         Action::Ignore
@@ -655,8 +632,26 @@ impl Backend {
         self.internal_sync(&mut term);
     }
 
+    pub(crate) fn sync_if_dirty(&mut self) {
+        if self.snapshot_dirty
+            || (self.deferred_resize && self.shutdown.completion().is_some())
+        {
+            self.sync();
+        }
+    }
+
+    pub(crate) fn take_render_dirty(&mut self) -> bool {
+        std::mem::take(&mut self.render_dirty)
+    }
+
+    pub(crate) fn resize_counts(&self) -> (u64, u64) {
+        (self.pty_resizes, self.grid_resizes)
+    }
+
     fn internal_sync(&mut self, terminal: &mut Term<EventProxy>) {
         self.last_content.capture(terminal, self.size);
+        self.snapshot_dirty = false;
+        self.render_dirty = true;
         self.snapshots = self.snapshots.saturating_add(1);
         self.cells_copied = self
             .cells_copied
@@ -671,12 +666,9 @@ impl Backend {
     /// count. There is no real pane layout yet, and a hidden child can already
     /// have exited before UI attachment. Do not reflow or notify the PTY here.
     pub(crate) fn initialize_font(&mut self, measure: Size<f32>) {
-        self.size.cell_width = (measure.width as u16).max(1);
-        self.size.cell_height = (measure.height as u16).max(1);
-        self.size.layout_width =
-            self.size.num_cols as f32 * self.size.cell_width as f32;
-        self.size.layout_height =
-            self.size.num_lines as f32 * self.size.cell_height as f32;
+        self.size.cell_width = measure.width;
+        self.size.cell_height = measure.height;
+        self.geometry.initialize(measure, self.size);
     }
 
     pub(crate) fn set_visible(&mut self, visible: bool) {

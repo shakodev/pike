@@ -1,0 +1,13 @@
+ms,event,session,a,b
+40.124,spawned,1,0,0
+77.300,layout,1,944,531.60004
+77.678,layout,1,944,531.60004
+85.973,ready,1,9036,0
+92.942,size,1,115,29
+71775.709,final,1,0,0
+71775.806,child_exit,1,41,0
+71775.897,bridge_completed,1,0,0
+71775.912,backend_completed,1,ChildExit,true
+71775.957,exit,1,1,true
+71776.706,counts,1,59,2
+71776.731,finished,0,0,false

@@ -78,10 +78,9 @@ impl<'a> TerminalView<'a> {
         let layout_size = layout.bounds().size();
         if state.size != layout_size {
             state.size = layout_size;
-            let cmd = Command::Resize(
-                Some(layout_size),
-                Some(self.term.font.measure),
-            );
+            // Font settings update cached backend metrics independently. Do not
+            // queue a captured (and potentially stale) font alongside layout.
+            let cmd = Command::Resize(Some(layout_size), None);
             shell.publish(Event::BackendCall(self.term.id, cmd));
         }
     }
@@ -438,8 +437,8 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         let state = tree.state.downcast_ref::<TerminalViewState>();
         let content = self.term.backend.renderable_content();
         let term_size = content.terminal_size;
-        let cell_width = term_size.cell_width as f32;
-        let cell_height = term_size.cell_height as f32;
+        let cell_width = term_size.cell_width;
+        let cell_height = term_size.cell_height;
         let font_size = self.term.font.size;
         let font_scale_factor = self.term.font.scale_factor;
         let layout_offset_x = layout.position().x;

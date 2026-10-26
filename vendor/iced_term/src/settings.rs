@@ -93,6 +93,7 @@ impl TryFrom<usize> for HistoryLimit {
 #[derive(Debug, Clone)]
 pub struct FontSettings {
     pub size: f32,
+    /// Relative line height (not Windows DPI or Iced's window scale factor).
     pub scale_factor: f32,
     pub font_type: Font,
 }
