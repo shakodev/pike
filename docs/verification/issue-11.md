@@ -101,6 +101,19 @@ The reviewed release's 61-sample idle run spans 61.48 seconds, with no measured
 CPU-counter advance, 12.28–12.40 MiB private bytes and 9–13 threads. Every sampled
 window responds; the synthetic child exits with 41 and cleanup completes.
 
+Main subsequently advanced to `2b54452` (PR #59, independent workspace/session
+state). Integrating it conflicted only where two tests had been inserted at the
+same location in `src/launch/tests.rs`; both the reserved-launch module and hidden
+attachment regression are retained. The automatic production merge preserves
+`attach_hidden` on the existing shared handoff gate and the new identity types.
+Formatting, all-target application/adapter Clippy, tests and release builds pass
+again for both renderers: 39 library tests, two application tests, two compile-fail
+doctests, five example tests and 59 adapter tests. Opt-in startup/history probes
+remain ignored in ordinary suites. Final integration evidence, source hashes and
+an additional release idle observation are under `review/integration/`.
+That integrated release records 61 responsive samples over 61.49 seconds, no
+CPU-counter advance, 12.27–12.39 MiB private bytes and successful child cleanup.
+
 The native hidden-flood test consumes all backend events through source/backend
 completion while snapshot counts stay unchanged. Activation adds exactly one
 snapshot and exposes the final marker. Tests also assert that repeated hide/show

@@ -1,10 +1,14 @@
 use super::*;
 use crate::executor::SharedExecutor;
 use iced::Executor;
+use std::sync::atomic::Ordering;
 use std::sync::mpsc;
 use std::time::Duration;
 
 const DEADLINE: Duration = Duration::from_secs(10);
+
+#[path = "reserved_tests.rs"]
+mod reserved;
 
 #[test]
 fn hidden_attachment_has_no_snapshot_until_activation_and_retains_normal_ownership() {
@@ -167,6 +171,30 @@ fn retry_uses_fresh_request_and_session_ids_after_failure() {
 }
 
 #[test]
+fn launch_and_pure_state_share_the_process_identity_allocator() {
+    let mut model = crate::workspace::Model::default();
+    let (_, crate::session::Effect::Spawn(before)) = model.create_tab().unwrap() else {
+        panic!("expected reservation");
+    };
+    let executor = SharedExecutor::new().unwrap();
+    let mut pool = LaunchPool::default();
+    let launch = executor
+        .enter(|| pool.start_with(|_| Err(io::Error::other("synthetic failure"))))
+        .unwrap();
+    let session: crate::identity::SessionId = launch.session;
+    let request: crate::identity::RequestId = launch.request;
+    assert!(session.get() > before.session.get());
+    assert!(request.get() > before.request.get());
+    assert!(executor.block_on(launch.receive()).is_err());
+    executor.block_on(pool.shutdown());
+    let (_, crate::session::Effect::Spawn(after)) = model.create_tab().unwrap() else {
+        panic!("expected reservation");
+    };
+    assert!(after.session.get() > session.get());
+    assert!(after.request.get() > request.get());
+}
+
+#[test]
 fn panicked_launch_reports_failure_and_drains_its_permits() {
     let executor = SharedExecutor::new().unwrap();
     let mut pool = LaunchPool::default();
@@ -216,8 +244,8 @@ fn fixture_settings() -> BackendSettings {
     }
 }
 
-fn wait(executor: &SharedExecutor, future: impl Future<Output = ()>) {
-    executor.block_on(async { tokio::time::timeout(DEADLINE, future).await.unwrap() });
+fn wait<T>(executor: &SharedExecutor, future: impl Future<Output = T>) -> T {
+    executor.block_on(async { tokio::time::timeout(DEADLINE, future).await.unwrap() })
 }
 
 #[test]

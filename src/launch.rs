@@ -3,26 +3,14 @@ use std::future::Future;
 use std::io;
 use std::num::NonZeroU16;
 use std::sync::Arc;
-use std::sync::atomic::{AtomicU64, Ordering};
+
+use crate::identity::{LaunchToken, Reservation};
+pub use crate::identity::{RequestId, SessionId};
 
 use iced::futures::future::{self, Either};
 use iced_term::settings::{BackendSettings, FontSettings, ThemeSettings};
 use iced_term::{PreparedTerminal, Terminal};
 use tokio::sync::{Semaphore, oneshot, watch};
-
-static NEXT_ID: AtomicU64 = AtomicU64::new(1);
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct RequestId(u64);
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct SessionId(u64);
-
-impl SessionId {
-    pub fn get(self) -> u64 {
-        self.0
-    }
-}
 
 #[derive(Clone, Copy, Debug)]
 pub struct LaunchLimits {
@@ -152,6 +140,13 @@ pub struct PreparedSession {
 }
 
 impl PreparedSession {
+    /// Observe disposal when rejecting this result without attaching it. Save
+    /// this handle before dropping the prepared owner, then await cleanup off
+    /// the update thread before acknowledging the model's Closing entry.
+    pub fn shutdown_handle(&self) -> iced_term::ShutdownHandle {
+        self.prepared.shutdown_handle()
+    }
+
     pub fn attach(self, font: FontSettings, theme: ThemeSettings) -> Result<Terminal, LaunchError> {
         self.attach_with(move |prepared| prepared.attach(font, theme))
     }
@@ -230,8 +225,31 @@ impl LaunchPool {
         self.start_with(move |id| PreparedTerminal::new(id.get(), settings))
     }
 
+    /// Consume a model-issued token without allocating replacement IDs. Like
+    /// start(), admission is bounded and never queues work on rejection.
+    /// The token is spent even on error: report spawn_failed for its saved
+    /// reservation, then reserve fresh IDs for a retry. Claim and submit in
+    /// the same update; an abandoned token must be reported as canceled.
+    pub fn start_reserved(
+        &mut self,
+        token: LaunchToken,
+        settings: BackendSettings,
+    ) -> Result<LaunchRequest, LaunchError> {
+        self.start_job(Some(token), move |id| {
+            PreparedTerminal::new(id.get(), settings)
+        })
+    }
+
     fn start_with(
         &mut self,
+        prepare: impl FnOnce(SessionId) -> io::Result<PreparedTerminal> + Send + 'static,
+    ) -> Result<LaunchRequest, LaunchError> {
+        self.start_job(None, prepare)
+    }
+
+    fn start_job(
+        &mut self,
+        token: Option<LaunchToken>,
         prepare: impl FnOnce(SessionId) -> io::Result<PreparedTerminal> + Send + 'static,
     ) -> Result<LaunchRequest, LaunchError> {
         if self.closed {
@@ -249,11 +267,13 @@ impl LaunchPool {
             .clone()
             .try_acquire_owned()
             .map_err(|_| LaunchError::SessionLimit)?;
-        let id = NEXT_ID
-            .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1))
-            .map_err(|_| LaunchError::IdsExhausted)?;
-        let request_id = RequestId(id);
-        let session_id = SessionId(id);
+        let Reservation {
+            request: request_id,
+            session: session_id,
+        } = match token {
+            Some(token) => token.reservation(),
+            None => Reservation::allocate().map_err(|_| LaunchError::IdsExhausted)?,
+        };
         let (cancel, mut canceled) = watch::channel(Handoff::Pending);
         let handoff = CancelLaunch(cancel.clone());
         let check_cancel = canceled.clone();
