@@ -1,0 +1,28 @@
+{
+    "RecordedAtUtc":  "2026-10-26T20:13:51.5952174Z",
+    "ReviewedHead":  "94869fe4506bb1680013f23ae5e35198c108f735",
+    "BaseCommit":  "dc50610e0f3bc6c47087cc52bb8cca78017f576f",
+    "Host":  "Same native Windows host and pinned runtime as ../provenance.json",
+    "SourceSha256":  {
+                         "Cargo.toml":  "B6BB7BD45AFA69A3FEEAFD6FDF4248E9E0E1D0D798BAAA95D3B8711A40CA274D",
+                         "Cargo.lock":  "DAD5A9D0F8993ECB3A11AECDA263AD6C39B2F3FDBC6BA301284E75E756A49A31",
+                         "vendor/iced_term/src/backend.rs":  "47DF52E25B392E70E599400A3E73DD4EF629BB00DFF21A5A63B069E033AB36A5",
+                         "vendor/iced_term/src/settings.rs":  "95027C78ECBF9D19457BE3C081C00120F8E7B68D1F61A626F401A8A35CFF569E",
+                         "vendor/iced_term/src/snapshot.rs":  "3B18F96DEB3C576352A04EEC4F795018358452E319E4CAF634EC9AEB8C7F6F37",
+                         "vendor/iced_term/src/snapshot/profile.rs":  "C8C819A317C376CA1FB0A1F07CE1B6177A7BE6BD0F3983160CD23774DAD9E54A",
+                         "vendor/iced_term/src/snapshot/tests.rs":  "FF5F4CC50D70EB1A30D9A238C17FCA9CEFC00897C80A0B93FD35DB3E3D70DC03",
+                         "vendor/iced_term/src/backend/history_tests.rs":  "4EE55C3B9A7EA3D791B3BE7687A54B883AABFAFC8517B77FC4E3A60461BE0A25",
+                         "vendor/iced_term/src/terminal.rs":  "2E4203C41DEAF045EF1DD32032280135C5359283D690FC05D4AA3BD346241332",
+                         "vendor/iced_term/src/view.rs":  "AD1482221E0BDD97B18D527F6BF66F7BAFA6B68FD916C3204B04E2B3C5ADB4A6",
+                         "vendor/iced_term/src/lifecycle_tests.rs":  "E261FF9931C109CF975BD96F244108F8FEA6C76B1D077CA83C129C10114E4089",
+                         "vendor/iced_term/src/lib.rs":  "DB50D3325E84525210A42DA0DF1BE6A0EB1C096615857A1D37D4C2A279116197",
+                         "examples/compatibility/main.rs":  "F97D79FF014487971283175585643284B7B349056822A86B8C8A908418A21438",
+                         "examples/pty_fixture.rs":  "1DB744E40F9C1CDBD4C2FFED40DE00D6897845526870477E27412E32C7469100",
+                         "tools/measure-history.ps1":  "0778F58DD1BE647BC2BD88997EF5ED5544B5A4CEDECB40A4BE9657B44EFBB9B5",
+                         "src/launch.rs":  "B76EE2F03AAE385BC5F86A7F43365E2C640BAFEE56028BB281A48A399C1B935D",
+                         "src/launch/tests.rs":  "36F1FB0C5D72D149F908C9C0FA962CC75F9CB42BC6A26116D46D3DFFED7550B6"
+                     },
+    "GuiExecutableSha256":  "2D424DF9EABC2A59E32E15A0DB0C382A93B275FB2D1370934C61FBAAAE37195B",
+    "Profile":  "release; renderer-tiny-skia; app/examples rebuilt after deferred-resize fix",
+    "Scope":  "Original history and smoke artifacts are preserved; this review repeats native regressions and release idle measurement only."
+}

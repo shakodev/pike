@@ -1,0 +1,19 @@
+﻿{
+    "Formatting":  "passed: cargo fmt --all -- --check",
+    "ApplicationClippy":  "passed: --locked --all-targets -- -D warnings for default wgpu and explicit tiny-skia",
+    "ApplicationTestsPerProfile":  "19 library + 2 app passed; one opt-in startup probe ignored",
+    "ExampleTestsPerProfile":  "5 passed",
+    "AdapterClippy":  "passed: --locked -p iced_term --all-targets with each renderer/tokio and -D warnings",
+    "AdapterTestsPerProfile":  "58 passed; one opt-in history profile ignored",
+    "ReleaseBuilds":  "app and all examples passed for wgpu and tiny-skia",
+    "HistoryProfile":  "eight optimized emulator/snapshot cases passed, 100 copies each; raw phases and process data retained",
+    "NativeHiddenFlood":  "passed: initially-hidden attachment starts at zero snapshots, remains at zero through native completion, activates once, and reflows the completed model to its first real layout without PTY notification",
+    "NativeGuiTrace":  "cmd and PowerShell 2-session trace checks and fixture cleanup passed",
+    "NativeGuiVisual":  "equal-size swap defect reproduced both before and after R11; not claimed fixed (issue #13)",
+    "Idle":  "tiny-skia cmd, 61 samples over 61.54 seconds, 0.00% measured one-core CPU, 12.48 MiB maximum private bytes",
+    "FeatureIsolation":  "passed",
+    "FeatureGuard":  "passed",
+    "MeasurementSupport":  "passed",
+    "GitHubActionsUsed":  false,
+    "TransientVerificationFailure":  "One overlapping build/test run timed out in two existing ConPTY checks; isolated reruns and full non-overlapping runs passed; deadlines unchanged."
+}

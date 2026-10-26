@@ -1,0 +1,2 @@
+mode,history_limit,retained_history,columns,rows,combining_per_cell,iterations,logical_cells_per_snapshot,p50_us,p95_us,viewport_allocation_reused
+viewport,0,0,120,30,0,100,3600,35.700,35.800,true

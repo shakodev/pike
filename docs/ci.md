@@ -43,7 +43,7 @@ integration/release tasks.
 Application `cargo test` does **not** run dependency test suites. iced_term is
 now an explicit workspace member; `default-members = ["."]` keeps the app's
 normal commands from enabling vendor compatibility defaults. CI explicitly
-runs all 41 vendor unit tests for each lean profile:
+runs the vendor unit tests, including history/viewport regressions, for each lean profile:
 
 ```yaml
 - name: Test vendored iced_term explicitly

@@ -1,0 +1,70 @@
+﻿{
+    "RecordedAtUtc":  "2026-10-26T19:55:22.3436006Z",
+    "BaseCommit":  "dc50610e0f3bc6c47087cc52bb8cca78017f576f",
+    "OS":  "Microsoft Windows 11 Pro",
+    "Build":  "26200",
+    "CPU":  "AMD Ryzen 5 2600X Six-Core Processor",
+    "LogicalCores":  12,
+    "RAMBytes":  17095331840,
+    "GPU":  [
+                "NVIDIA GeForce RTX 2070"
+            ],
+    "Compiler":  [
+                     "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+                     "binary: rustc",
+                     "commit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452",
+                     "commit-date: 2026-07-14",
+                     "host: x86_64-pc-windows-msvc",
+                     "release: 1.97.1",
+                     "LLVM version: 22.1.6"
+                 ],
+    "Cargo":  "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "PowerShell":  "5.1.26100.9711",
+    "Geometry":  "120 columns by 30 rows; history profile is headless emulator only",
+    "Profile":  "release, iced/tiny-skia,iced/tokio explicit adapter test build",
+    "NativeRuntime":  {
+                          "package":  "Microsoft.Windows.Console.ConPTY",
+                          "version":  "1.25.260930003",
+                          "url":  "https://api.nuget.org/v3-flatcontainer/microsoft.windows.console.conpty/1.25.260930003/microsoft.windows.console.conpty.1.25.260930003.nupkg",
+                          "sha256":  "02b07b349af66d801159bdf9e440d4a1ce78bb951f37fc8609731665afdae7ee",
+                          "architecture":  "x64",
+                          "license":  "MIT",
+                          "upstream_release":  "https://github.com/microsoft/terminal/releases/tag/v1.25.2733.0",
+                          "files":  [
+                                        {
+                                            "entry":  "runtimes/win-x64/native/conpty.dll",
+                                            "name":  "conpty.dll",
+                                            "sha256":  "feeef341d891643c62d30b6b07800bc70f0bc148f44cb8c3bee84aa557ae805a",
+                                            "bytes":  119608
+                                        },
+                                        {
+                                            "entry":  "build/native/runtimes/x64/OpenConsole.exe",
+                                            "name":  "OpenConsole.exe",
+                                            "sha256":  "3d66b23d0a71bb8eed2b77edc8b9df9bf54ce6c8fb74c863a30e760997f80586",
+                                            "bytes":  1089376
+                                        }
+                                    ]
+                      },
+    "GuiExecutableSha256":  "EACB9D80F8346E7C1CAE3858D0E74353BC8C6B4AC15083F2083240D4AB9A98AF",
+    "SourceSha256":  {
+                         "Cargo.toml":  "B6BB7BD45AFA69A3FEEAFD6FDF4248E9E0E1D0D798BAAA95D3B8711A40CA274D",
+                         "Cargo.lock":  "DAD5A9D0F8993ECB3A11AECDA263AD6C39B2F3FDBC6BA301284E75E756A49A31",
+                         "vendor/iced_term/src/backend.rs":  "352F4EA321AD8481380E38D782D544F778975E013F24A851BD80C6BB37D4E3AF",
+                         "vendor/iced_term/src/settings.rs":  "95027C78ECBF9D19457BE3C081C00120F8E7B68D1F61A626F401A8A35CFF569E",
+                         "vendor/iced_term/src/snapshot.rs":  "3B18F96DEB3C576352A04EEC4F795018358452E319E4CAF634EC9AEB8C7F6F37",
+                         "vendor/iced_term/src/snapshot/profile.rs":  "C8C819A317C376CA1FB0A1F07CE1B6177A7BE6BD0F3983160CD23774DAD9E54A",
+                         "vendor/iced_term/src/snapshot/tests.rs":  "FF5F4CC50D70EB1A30D9A238C17FCA9CEFC00897C80A0B93FD35DB3E3D70DC03",
+                         "vendor/iced_term/src/backend/history_tests.rs":  "BCE841871BE80917B599C35FAFD337E4ACF646800BDD4D38708C41E4BB794681",
+                         "vendor/iced_term/src/terminal.rs":  "2E4203C41DEAF045EF1DD32032280135C5359283D690FC05D4AA3BD346241332",
+                         "vendor/iced_term/src/view.rs":  "AD1482221E0BDD97B18D527F6BF66F7BAFA6B68FD916C3204B04E2B3C5ADB4A6",
+                         "vendor/iced_term/src/lifecycle_tests.rs":  "E261FF9931C109CF975BD96F244108F8FEA6C76B1D077CA83C129C10114E4089",
+                         "vendor/iced_term/src/lib.rs":  "DB50D3325E84525210A42DA0DF1BE6A0EB1C096615857A1D37D4C2A279116197",
+                         "examples/compatibility/main.rs":  "F97D79FF014487971283175585643284B7B349056822A86B8C8A908418A21438",
+                         "examples/pty_fixture.rs":  "1DB744E40F9C1CDBD4C2FFED40DE00D6897845526870477E27412E32C7469100",
+                         "tools/measure-history.ps1":  "0778F58DD1BE647BC2BD88997EF5ED5544B5A4CEDECB40A4BE9657B44EFBB9B5",
+                         "src/launch.rs":  "B76EE2F03AAE385BC5F86A7F43365E2C640BAFEE56028BB281A48A399C1B935D",
+                         "src/launch/tests.rs":  "36F1FB0C5D72D149F908C9C0FA962CC75F9CB42BC6A26116D46D3DFFED7550B6"
+                     },
+    "BaselineSmokeCommit":  "8bc77f88088c851d1caef5891411fc3dabe1dd3e",
+    "BaselineAdapter":  "Verified identical to dc50610 for vendor/iced_term, SharedExecutor and compatibility/fixture sources"
+}

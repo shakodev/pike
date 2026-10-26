@@ -5,6 +5,86 @@ use std::time::{Duration, Instant};
 
 const DEADLINE: Duration = Duration::from_secs(5);
 
+#[test]
+fn hidden_font_change_updates_geometry_without_building_a_viewport() {
+    let runtime = runtime();
+    let mut terminal = terminal(11002, false);
+    terminal.handle(Command::ProxyToBackend(BackendCommand::Resize(
+        Some(iced_core::Size::new(960.0, 540.0)),
+        None,
+    )));
+    terminal.set_visible(false);
+    let before = terminal.snapshot_stats();
+    terminal.handle(Command::ChangeFont(settings::FontSettings {
+        size: 28.0,
+        ..Default::default()
+    }));
+    let after = terminal.snapshot_stats();
+    assert_eq!(after.snapshots, before.snapshots);
+    assert_eq!(after.viewport_cells, 0);
+    assert!(after.columns < before.columns);
+    assert!(after.screen_lines < before.screen_lines);
+    terminal.set_visible(true);
+    assert_eq!(terminal.snapshot_stats().snapshots, before.snapshots + 1);
+    let handle = terminal.shutdown_handle();
+    drop(terminal);
+    runtime.block_on(async {
+        tokio::time::timeout(DEADLINE, handle.wait()).await.unwrap();
+    });
+}
+
+#[test]
+fn hidden_native_output_keeps_history_and_reactivates_the_exited_buffer_once() {
+    let runtime = runtime();
+    let mut terminal = prepare_terminal(11001, true)
+        .attach_hidden(Default::default(), Default::default());
+    let before = terminal.snapshot_stats().snapshots;
+    assert_eq!(before, 0);
+    let recipe = into_recipes(terminal.subscription()).pop().unwrap();
+    let mut events = recipe.stream(stream::empty().boxed());
+    runtime.block_on(async {
+        tokio::time::timeout(DEADLINE, async {
+            while let Some(Event::BackendCall(_, command)) = events.next().await
+            {
+                terminal.handle(Command::ProxyToBackend(command));
+            }
+        })
+        .await
+        .unwrap();
+    });
+    terminal.refresh();
+    assert_eq!(terminal.snapshot_stats().snapshots, before);
+    assert_eq!(terminal.snapshot_stats().history_lines, 2000);
+    assert!(terminal.final_content().is_none());
+    terminal.set_visible(true);
+    assert_eq!(terminal.snapshot_stats().snapshots, before + 1);
+    let old_rows = terminal.snapshot_stats().screen_lines;
+    // First real pane layout arrives after this hidden session has exited.
+    // Reflow the retained model, never a disposed PTY, so its newest text can
+    // actually fit the visible pane instead of staying below its bottom edge.
+    terminal.handle(Command::ProxyToBackend(BackendCommand::Resize(
+        Some(iced_core::Size::new(960.0, 540.0)),
+        None,
+    )));
+    assert!(terminal.snapshot_stats().screen_lines < old_rows);
+    assert!(terminal.input_status().closed);
+    let text: String = terminal
+        .renderable_content()
+        .unwrap()
+        .viewport
+        .display_iter()
+        .map(|cell| cell.c)
+        .collect();
+    assert!(text.contains("PIKE_FINAL_7"));
+    assert!(
+        terminal
+            .shutdown_handle()
+            .completion()
+            .unwrap()
+            .output_drained
+    );
+}
+
 fn runtime() -> tokio::runtime::Runtime {
     tokio::runtime::Builder::new_current_thread()
         .enable_time()
@@ -13,6 +93,10 @@ fn runtime() -> tokio::runtime::Runtime {
 }
 
 fn terminal(id: u64, natural: bool) -> Terminal {
+    prepare_terminal(id, natural).attach(Default::default(), Default::default())
+}
+
+fn prepare_terminal(id: u64, natural: bool) -> PreparedTerminal {
     #[cfg(windows)]
     let (program, args) = if natural {
         ("cmd.exe", vec!["/D", "/Q", "/C", "(for /L %i in (1,1,3000) do @echo 012345678901234567890123456789012345678901234567890123456789) & echo PIKE_FINAL_7 & exit /b 37"])
@@ -31,16 +115,13 @@ fn terminal(id: u64, natural: bool) -> Terminal {
             vec!["-c", "while :; do printf 'synthetic\n'; done"],
         )
     };
-    Terminal::new(
+    PreparedTerminal::new(
         id,
-        settings::Settings {
-            backend: settings::BackendSettings {
-                #[cfg(windows)]
-                escape_args: false,
-                program: program.into(),
-                args: args.into_iter().map(str::to_owned).collect(),
-                ..Default::default()
-            },
+        settings::BackendSettings {
+            #[cfg(windows)]
+            escape_args: false,
+            program: program.into(),
+            args: args.into_iter().map(str::to_owned).collect(),
             ..Default::default()
         },
     )
@@ -63,12 +144,12 @@ fn natural_exit_drains_multiple_chunks_and_retains_the_final_read_only_model() {
     let final_text: String = terminal
         .final_content()
         .unwrap()
-        .grid
+        .viewport
         .display_iter()
         .map(|cell| cell.c)
         .collect();
     assert!(final_text.contains("PIKE_FINAL_7"));
-    // Resize/input after completion cannot erase the retained final grid.
+    // Undersized resize/input after completion cannot erase the retained grid.
     terminal.backend.handle(BackendCommand::Resize(
         Some(iced_core::Size::new(1.0, 1.0)),
         None,
@@ -82,7 +163,7 @@ fn natural_exit_drains_multiple_chunks_and_retains_the_final_read_only_model() {
     let after: String = terminal
         .final_content()
         .unwrap()
-        .grid
+        .viewport
         .display_iter()
         .map(|cell| cell.c)
         .collect();

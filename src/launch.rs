@@ -151,6 +151,16 @@ impl PreparedSession {
         self.attach_with(move |prepared| prepared.attach(font, theme))
     }
 
+    /// Attach a background session without producing an initial viewport.
+    /// Admission, cancellation and handoff ownership are identical to attach.
+    pub fn attach_hidden(
+        self,
+        font: FontSettings,
+        theme: ThemeSettings,
+    ) -> Result<Terminal, LaunchError> {
+        self.attach_with(move |prepared| prepared.attach_hidden(font, theme))
+    }
+
     fn attach_with(
         self,
         attach: impl FnOnce(PreparedTerminal) -> Terminal,
