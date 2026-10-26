@@ -27,7 +27,8 @@ type WritePipe = UnblockedWriter<AnonWrite>;
 pub struct Pty {
     // XXX: Backend is required to be the first field, to ensure correct drop order. Dropping
     // `conout` before `backend` will cause a deadlock (with Conpty).
-    backend: Backend,
+    backend: Option<Backend>,
+    close_worker: Option<std::thread::JoinHandle<()>>,
     conout: ReadPipe,
     conin: WritePipe,
     child_watcher: ChildExitWatcher,
@@ -44,7 +45,13 @@ impl Pty {
         conin: impl Into<WritePipe>,
         child_watcher: ChildExitWatcher,
     ) -> Self {
-        Self { backend: backend.into(), conout: conout.into(), conin: conin.into(), child_watcher }
+        Self {
+            backend: Some(backend.into()),
+            close_worker: None,
+            conout: conout.into(),
+            conin: conin.into(),
+            child_watcher,
+        }
     }
 
     pub fn child_watcher(&self) -> &ChildExitWatcher {
@@ -114,6 +121,14 @@ impl EventedReadWrite for Pty {
 }
 
 impl EventedPty for Pty {
+    fn begin_shutdown(&mut self) -> io::Result<()> {
+        if let Some(backend) = self.backend.take() {
+            self.close_worker =
+                Some(crate::thread::spawn_named("ConPTY close", move || drop(backend)));
+        }
+        Ok(())
+    }
+
     fn next_child_event(&mut self) -> Option<ChildEvent> {
         match self.child_watcher.event_rx().try_recv() {
             Ok(ev) => Some(ev),
@@ -125,7 +140,22 @@ impl EventedPty for Pty {
 
 impl OnResize for Pty {
     fn on_resize(&mut self, window_size: WindowSize) {
-        self.backend.on_resize(window_size)
+        if let Some(backend) = self.backend.as_mut() {
+            backend.on_resize(window_size);
+        }
+    }
+}
+
+impl Drop for Pty {
+    fn drop(&mut self) {
+        // This runs on the disposing PTY worker, including explicit close and
+        // unwind. Drain/discard unread output to avoid full-pipe close deadlock.
+        let _ = self.begin_shutdown();
+        self.conout.drain_and_join();
+        if let Some(worker) = self.close_worker.take() {
+            let _ = worker.join();
+        }
+        self.conin.close_and_join();
     }
 }
 

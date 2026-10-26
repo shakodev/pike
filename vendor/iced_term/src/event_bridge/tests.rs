@@ -310,3 +310,28 @@ fn notifications_wake_a_waiting_consumer_without_a_timer() {
     observed.recv_timeout(Duration::from_secs(5)).unwrap();
     task.join().unwrap();
 }
+
+#[test]
+fn stream_end_waits_for_distinct_sticky_backend_completion() {
+    let (sender, receiver) = channel();
+    sender.expect_backend();
+    sender.expect_close();
+    let source = sender.clone().complete_on_drop();
+    drop(source);
+    assert!(matches!(
+        receiver.recv().now_or_never(),
+        Some(Some(Delivery::Bridge(EventBridgeEvent::Completed)))
+    ));
+    assert!(receiver.recv().now_or_never().is_none());
+    let completion = crate::BackendCompletion {
+        reason: crate::ExitReason::Requested,
+        exit_code: None,
+        output_drained: false,
+    };
+    sender.backend_completed(completion);
+    sender.backend_completed(completion);
+    assert!(
+        matches!(receiver.recv().now_or_never(), Some(Some(Delivery::Bridge(EventBridgeEvent::BackendCompleted(result)))) if result == completion)
+    );
+    assert!(matches!(receiver.recv().now_or_never(), Some(None)));
+}

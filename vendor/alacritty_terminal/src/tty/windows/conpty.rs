@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 use std::ffi::OsStr;
 use std::io::{Error, Result};
 use std::os::windows::ffi::OsStrExt;
-use std::os::windows::io::IntoRawHandle;
+use std::os::windows::io::AsRawHandle;
 use std::{mem, ptr};
 
 use windows_sys::core::{HRESULT, PWSTR};
@@ -122,8 +122,8 @@ pub fn new(config: &Options, window_size: WindowSize) -> Result<Pty> {
     let result = unsafe {
         (api.create)(
             window_size.into(),
-            conin_pty_handle.into_raw_handle() as HANDLE,
-            conout_pty_handle.into_raw_handle() as HANDLE,
+            conin_pty_handle.as_raw_handle() as HANDLE,
+            conout_pty_handle.as_raw_handle() as HANDLE,
             0,
             &mut pty_handle as *mut _,
         )
@@ -233,6 +233,12 @@ pub fn new(config: &Options, window_size: WindowSize) -> Result<Pty> {
             return Err(Error::last_os_error());
         }
     }
+
+    // ConPTY keeps its own copies. Retaining these parent ends prevents EOF
+    // detection and would leave the output reader/cleanup pending forever.
+    // https://learn.microsoft.com/en-us/windows/console/creating-a-pseudoconsole-session
+    drop(conin_pty_handle);
+    drop(conout_pty_handle);
 
     let conin = UnblockedWriter::new(conin, PIPE_CAPACITY);
     let conout = UnblockedReader::new(conout, PIPE_CAPACITY);

@@ -2,7 +2,7 @@ use crate::actions::Action;
 use crate::event_bridge::{EventBridgeEvent, Sender};
 use crate::settings::BackendSettings;
 use alacritty_terminal::event::{Event, EventListener, OnResize, WindowSize};
-use alacritty_terminal::event_loop::{EventLoop, Msg, Notifier};
+use alacritty_terminal::event_loop::{EventLoop, Notifier};
 use alacritty_terminal::grid::{Dimensions, Scroll};
 use alacritty_terminal::index::{Column, Direction, Line, Point, Side};
 use alacritty_terminal::selection::{Selection, SelectionRange, SelectionType};
@@ -139,7 +139,7 @@ pub struct Backend {
     last_content: RenderableContent,
     pub(crate) url_regex: RegexSearch,
     event_bridge_failed: bool,
-    event_proxy: EventProxy,
+    shutdown: crate::ShutdownHandle,
 }
 
 impl Backend {
@@ -152,7 +152,9 @@ impl Backend {
             shell: Some(tty::Shell::new(settings.program, settings.args)),
             working_directory: settings.working_directory,
             env: settings.env,
-            ..tty::Options::default()
+            drain_on_exit: true,
+            #[cfg(windows)]
+            escape_args: false,
         };
 
         let config = term::Config::default();
@@ -176,13 +178,27 @@ impl Backend {
 
         let term = Arc::new(FairMutex::new(term));
 
-        let source_proxy = event_proxy.clone();
+        let completion_proxy = event_proxy.clone();
+        completion_proxy.0.expect_backend();
         let pty_event_loop =
-            EventLoop::new(term.clone(), event_proxy, pty, false, false)?;
+            EventLoop::new(term.clone(), event_proxy, pty, true, false)?;
 
         let notifier = Notifier(pty_event_loop.channel());
 
-        let _ = pty_event_loop.spawn();
+        let (completed, completion) = tokio::sync::watch::channel(None);
+        let shutdown = crate::ShutdownHandle::new(
+            notifier.0.clone(),
+            completion_proxy.0.clone(),
+            completion,
+        );
+        let stopped_proxy = completion_proxy.clone();
+        pty_event_loop.spawn_disposing(
+            move || stopped_proxy.0.complete_source(),
+            move |result| {
+                completed.send_replace(Some(result));
+                completion_proxy.0.backend_completed(result);
+            },
+        );
 
         Ok(Self {
             term: term.clone(),
@@ -191,7 +207,7 @@ impl Backend {
             last_content: initial_content,
             url_regex: RegexSearch::new(URL_REGEX).expect("invalid url regexp"),
             event_bridge_failed: false,
-            event_proxy: source_proxy,
+            shutdown,
         })
     }
 
@@ -211,6 +227,10 @@ impl Backend {
                     Action::EventBridgeError(error)
                 },
                 EventBridgeEvent::Completed => Action::Ignore,
+                EventBridgeEvent::BackendCompleted(completion) => {
+                    self.sync();
+                    Action::BackendCompleted(completion)
+                },
             };
         }
         if self.event_bridge_failed
@@ -243,6 +263,7 @@ impl Backend {
             Command::ProcessAlacrittyEvent(event) => {
                 match event {
                     Event::Exit => {
+                        // Exit describes the model, not resource completion.
                         action = Action::Shutdown;
                     },
                     Event::Title(title) => {
@@ -484,6 +505,9 @@ impl Backend {
         layout_size: Option<Size<f32>>,
         font_measure: Option<Size<f32>>,
     ) {
+        if self.notifier.0.input_status().closed {
+            return;
+        }
         if let Some(size) = layout_size {
             self.size.layout_height = size.height;
             self.size.layout_width = size.width;
@@ -517,8 +541,11 @@ impl Backend {
     }
 
     fn request_shutdown(&self) {
-        self.event_proxy.0.expect_close();
-        let _ = self.notifier.0.send(Msg::Shutdown);
+        self.shutdown.request_close();
+    }
+
+    pub(crate) fn shutdown_handle(&self) -> crate::ShutdownHandle {
+        self.shutdown.clone()
     }
 
     pub(crate) fn input_status(&self) -> crate::InputStatus {

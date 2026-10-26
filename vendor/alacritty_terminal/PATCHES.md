@@ -66,3 +66,35 @@ The Windows suite contains 145 unit tests (134 upstream plus 11 new), 45
 upstream terminal-reference fixtures and one doctest. Run the root renderer
 checks and ConPTY probe described in
 [issue #6 verification](../../docs/verification/issue-6.md) as well.
+
+## R07 / issue #7 — dispose off thread and drain natural exits
+
+- Factor the existing event-loop body into `run`. `spawn` retains upstream
+  ownership semantics; new `spawn_disposing` invokes source-stop notification,
+  drops parser/returned backend state on the PTY worker, then publishes one
+  redacted completion. Its detached JoinHandle contains only (). Catch unwind
+  to report worker panics after resource destruction; register/poll/reregister
+  and I/O failures also produce a reason without requiring terminal Exit.
+- Senders hold a Weak poller reference so retained model/completion handles
+  cannot keep the backend's OS polling handle alive after disposal. Explicit
+  shutdown is distinguished from actual-writer failure with shared atomic state.
+- Natural exit drains every parser chunk to EOF, including pending Windows
+  pipe data. Parse each successful read before a later read can fail. The drain
+  has a one-second deadline and reports TimedOut without claiming EOF. OS
+  destruction can remain pending longer; no false completion is emitted.
+- Add a default `EventedPty::begin_shutdown` hook. ConPTY closes in one transient
+  worker while the existing reader/parser continue draining. PTY destruction
+  drains/discards unread output and joins that close worker plus the two existing
+  pipe workers. There is no additional worker or timer during normal operation.
+  `UnblockedReader::read` distinguishes WouldBlock from EOF (its compatibility
+  `try_read` remains unchanged). Close-on-full-pipe cleanup never waits on UI.
+- Keep the two parent ConPTY pipe ends under RAII and drop them after successful
+  CreateProcess. Their previous `into_raw_handle` leaks prevented EOF forever;
+  this narrow prerequisite is required for joined reader cleanup. The remaining
+  Windows handle/failure-path audit, callback ownership and detached-descendant
+  policy stay in issue #8. See Microsoft's
+  [creation guide](https://learn.microsoft.com/en-us/windows/console/creating-a-pseudoconsole-session)
+  and [close contract](https://learn.microsoft.com/en-us/windows/console/closepseudoconsole).
+- Make the Windows-only writer completion helper cfg-specific and simplify the
+  Unix passwd fallback to satisfy the pinned compiler's existing Clippy lints
+  on the macOS verification host. Shell fallback behavior is preserved.

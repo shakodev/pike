@@ -216,7 +216,10 @@ impl App {
                     self.note("input_rejected", id, error, 0);
                     self.error = Some(format!("Session {id}: {error}"));
                 }
-                if action == Some(iced_term::actions::Action::Shutdown) {
+                if matches!(
+                    action,
+                    Some(iced_term::actions::Action::BackendCompleted(_))
+                ) {
                     self.note("exit", id, self.focused, self.states[&id].final_seen);
                     self.terminals.remove(&id);
                     if self.terminals.is_empty() {

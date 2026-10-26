@@ -48,6 +48,7 @@ pub struct UnblockedReader<R> {
 
     /// We logically own the reader, but we don't actually use it.
     _reader: PhantomData<R>,
+    worker: Option<thread::JoinHandle<()>>,
 }
 
 impl<R: Read + Send + 'static> UnblockedReader<R> {
@@ -61,7 +62,7 @@ impl<R: Read + Send + 'static> UnblockedReader<R> {
         });
 
         // Spawn the reader thread.
-        spawn_named("alacritty-tty-reader-thread", move || {
+        let worker = spawn_named("alacritty-tty-reader-thread", move || {
             let waker = Waker::from(Arc::new(ThreadWaker(thread::current())));
             let mut context = Context::from_waker(&waker);
 
@@ -98,7 +99,13 @@ impl<R: Read + Send + 'static> UnblockedReader<R> {
             }
         });
 
-        Self { interest, pipe: reader, first_register: true, _reader: PhantomData }
+        Self {
+            interest,
+            pipe: reader,
+            first_register: true,
+            _reader: PhantomData,
+            worker: Some(worker),
+        }
     }
 
     /// Register interest in the reader.
@@ -130,9 +137,32 @@ impl<R: Read + Send + 'static> UnblockedReader<R> {
     }
 }
 
+impl<R> UnblockedReader<R> {
+    /// Cleanup-only: keep the OS reader moving while ClosePseudoConsole waits.
+    pub fn drain_and_join(&mut self) {
+        let waker = Waker::from(Arc::new(ThreadWaker(thread::current())));
+        let mut context = Context::from_waker(&waker);
+        let mut buf = [0; 8192];
+        loop {
+            match self.pipe.poll_drain_bytes(&mut context, &mut buf) {
+                Poll::Ready(0) => break,
+                Poll::Ready(_) => (),
+                Poll::Pending => thread::park(),
+            }
+        }
+        if let Some(worker) = self.worker.take() {
+            let _ = worker.join();
+        }
+    }
+}
+
 impl<R: Read + Send + 'static> Read for UnblockedReader<R> {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        Ok(self.try_read(buf))
+        let waker = Waker::from(self.interest.clone());
+        match self.pipe.poll_drain_bytes(&mut Context::from_waker(&waker), buf) {
+            Poll::Pending => Err(io::ErrorKind::WouldBlock.into()),
+            Poll::Ready(n) => Ok(n),
+        }
     }
 }
 
@@ -148,6 +178,7 @@ pub struct UnblockedWriter<W> {
 
     /// We logically own the writer, but we don't actually use it.
     _reader: PhantomData<W>,
+    worker: Option<thread::JoinHandle<()>>,
 }
 
 impl<W: Write + Send + 'static> UnblockedWriter<W> {
@@ -165,7 +196,7 @@ impl<W: Write + Send + 'static> UnblockedWriter<W> {
         let completion = WriterCompletion { progress: written.clone(), interest: interest.clone() };
 
         // Spawn the writer thread.
-        spawn_named("alacritty-tty-writer-thread", move || {
+        let worker = spawn_named("alacritty-tty-writer-thread", move || {
             let _completion = completion;
             let mut sink = CountingWriter { sink: &mut sink, written: writer_counter };
             let waker = Waker::from(Arc::new(ThreadWaker(thread::current())));
@@ -204,7 +235,7 @@ impl<W: Write + Send + 'static> UnblockedWriter<W> {
             }
         });
 
-        Self { interest, pipe: writer, written, _reader: PhantomData }
+        Self { interest, pipe: writer, written, _reader: PhantomData, worker: Some(worker) }
     }
 
     pub fn writer_progress(&self) -> Arc<WriterProgress> {
@@ -235,6 +266,18 @@ impl<W: Write + Send + 'static> UnblockedWriter<W> {
         match self.pipe.poll_fill_bytes(&mut Context::from_waker(&waker), buf) {
             Poll::Pending => 0,
             Poll::Ready(n) => n,
+        }
+    }
+}
+
+impl<W> UnblockedWriter<W> {
+    pub fn close_and_join(&mut self) {
+        // Close piper before joining a parked writer. The ConPTY has already
+        // closed, so any in-progress OS write is released too.
+        let (_, closed) = pipe(1);
+        drop(std::mem::replace(&mut self.pipe, closed));
+        if let Some(worker) = self.worker.take() {
+            let _ = worker.join();
         }
     }
 }

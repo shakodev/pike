@@ -1,0 +1,124 @@
+use super::*;
+use crate::term::test::TermSize;
+use crate::tty::{ChildEvent, EventedPty, EventedReadWrite};
+use std::sync::mpsc;
+use std::thread::ThreadId;
+
+#[derive(Clone)]
+struct Listener;
+impl EventListener for Listener {
+    fn send_event(&self, _: Event) {}
+}
+
+struct FailedPty {
+    reader: io::Cursor<Vec<u8>>,
+    writer: io::Sink,
+    dropping: mpsc::Sender<ThreadId>,
+    release: mpsc::Receiver<()>,
+    panic: bool,
+}
+impl Drop for FailedPty {
+    fn drop(&mut self) {
+        self.dropping.send(std::thread::current().id()).unwrap();
+        self.release.recv_timeout(Duration::from_secs(5)).unwrap();
+    }
+}
+impl event::OnResize for FailedPty {
+    fn on_resize(&mut self, _: WindowSize) {}
+}
+impl EventedReadWrite for FailedPty {
+    type Reader = io::Cursor<Vec<u8>>;
+    type Writer = io::Sink;
+    unsafe fn register(
+        &mut self,
+        _: &Arc<polling::Poller>,
+        _: PollingEvent,
+        _: PollMode,
+    ) -> io::Result<()> {
+        assert!(!self.panic, "synthetic worker panic");
+        Err(ErrorKind::BrokenPipe.into())
+    }
+    fn reregister(
+        &mut self,
+        _: &Arc<polling::Poller>,
+        _: PollingEvent,
+        _: PollMode,
+    ) -> io::Result<()> {
+        Ok(())
+    }
+    fn deregister(&mut self, _: &Arc<polling::Poller>) -> io::Result<()> {
+        Ok(())
+    }
+    fn reader(&mut self) -> &mut Self::Reader {
+        &mut self.reader
+    }
+    fn writer(&mut self) -> &mut Self::Writer {
+        &mut self.writer
+    }
+}
+impl EventedPty for FailedPty {
+    fn next_child_event(&mut self) -> Option<ChildEvent> {
+        None
+    }
+}
+
+#[test]
+fn io_failure_and_unwind_complete_only_after_backend_disposal_on_worker() {
+    for panic in [false, true] {
+        let (dropping, dropped) = mpsc::channel();
+        let (release, gate) = mpsc::channel();
+        let terminal = Arc::new(FairMutex::new(Term::new(
+            Default::default(),
+            &TermSize::new(80, 24),
+            Listener,
+        )));
+        let pty = FailedPty {
+            reader: io::Cursor::new(Vec::new()),
+            writer: io::sink(),
+            dropping,
+            release: gate,
+            panic,
+        };
+        let event_loop = EventLoop::new(terminal, Listener, pty, true, false).unwrap();
+        let sender = event_loop.channel();
+        let (complete, completed) = mpsc::channel();
+        event_loop.spawn_disposing(|| (), move |result| complete.send(result).unwrap());
+        let worker = dropped.recv_timeout(Duration::from_secs(5)).unwrap();
+        assert_ne!(worker, std::thread::current().id());
+        assert!(matches!(completed.try_recv(), Err(mpsc::TryRecvError::Empty)));
+        release.send(()).unwrap();
+        let result = completed.recv_timeout(Duration::from_secs(5)).unwrap();
+        assert_eq!(
+            result.reason,
+            if panic { ExitReason::Panicked } else { ExitReason::IoError(ErrorKind::BrokenPipe) }
+        );
+        assert_eq!(result.exit_code, None);
+        assert!(!result.output_drained);
+        assert!(sender.input_status().closed);
+        assert!(matches!(completed.try_recv(), Err(mpsc::TryRecvError::Disconnected)));
+    }
+}
+
+#[test]
+fn drain_reads_past_one_parser_chunk_to_eof() {
+    let (dropping, _dropped) = mpsc::channel();
+    let (release, gate) = mpsc::channel();
+    let terminal =
+        Arc::new(FairMutex::new(Term::new(Default::default(), &TermSize::new(80, 24), Listener)));
+    let mut bytes = b"synthetic\r\n".repeat(20_000);
+    bytes.extend_from_slice(b"PIKE_FINAL_7\r\n");
+    let pty = FailedPty {
+        reader: io::Cursor::new(bytes),
+        writer: io::sink(),
+        dropping,
+        release: gate,
+        panic: false,
+    };
+    let mut event_loop = EventLoop::new(terminal.clone(), Listener, pty, true, false).unwrap();
+    let mut state = State::default();
+    let mut buf = vec![0; READ_BUFFER_SIZE];
+    event_loop.drain_output::<io::Sink>(&mut state, &mut buf, None).unwrap();
+    let text: String = terminal.lock().grid().display_iter().map(|cell| cell.c).collect();
+    assert!(text.contains("PIKE_FINAL_7"));
+    release.send(()).unwrap();
+}

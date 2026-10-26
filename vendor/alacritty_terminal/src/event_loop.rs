@@ -5,10 +5,11 @@ use std::fmt::{self, Display, Formatter};
 use std::fs::File;
 use std::io::{self, ErrorKind, Read, Write};
 use std::num::NonZeroUsize;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{self, Receiver, Sender, TryRecvError};
 use std::sync::Arc;
 use std::thread::JoinHandle;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use log::error;
 use polling::{Event as PollingEvent, Events, PollMode};
@@ -39,6 +40,31 @@ pub enum Msg {
     Resize(WindowSize),
 }
 
+/// Why the I/O loop stopped. Payloads contain no terminal text.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ExitReason {
+    Requested,
+    ChildExit,
+    IoError(ErrorKind),
+    Panicked,
+}
+
+/// Published only after the disposing worker has dropped the PTY and parser.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Completion {
+    pub reason: ExitReason,
+    pub exit_code: Option<i32>,
+    /// True only when natural-exit draining reached EOF.
+    pub output_drained: bool,
+}
+
+#[derive(PartialEq)]
+enum ReadStatus {
+    Pending,
+    More,
+    Eof,
+}
+
 /// The main event loop.
 ///
 /// Handles all the PTY I/O and runs the PTY parser which updates terminal
@@ -54,6 +80,7 @@ pub struct EventLoop<T: tty::EventedPty, U: EventListener> {
     ref_test: bool,
     input: InputQueue,
     count_writes: bool,
+    shutdown_requested: Arc<AtomicBool>,
 }
 
 impl<T, U> EventLoop<T, U>
@@ -85,14 +112,16 @@ where
             ref_test,
             input,
             count_writes,
+            shutdown_requested: Arc::new(AtomicBool::new(false)),
         })
     }
 
     pub fn channel(&self) -> EventLoopSender {
         EventLoopSender {
             sender: self.tx.clone(),
-            poller: self.poll.clone(),
+            poller: Arc::downgrade(&self.poll),
             input: self.input.clone(),
+            shutdown_requested: self.shutdown_requested.clone(),
         }
     }
 
@@ -120,68 +149,39 @@ where
         state: &mut State,
         buf: &mut [u8],
         mut writer: Option<&mut X>,
-    ) -> io::Result<()>
+    ) -> io::Result<ReadStatus>
     where
         X: Write,
     {
-        let mut unprocessed = 0;
         let mut processed = 0;
-
-        // Reserve the next terminal lock for PTY reading.
-        let _terminal_lease = Some(self.terminal.lease());
-        let mut terminal = None;
-
         loop {
-            // Read from the PTY.
-            match self.pty.reader().read(&mut buf[unprocessed..]) {
-                // This is received on Windows/macOS when no more data is readable from the PTY.
-                Ok(0) if unprocessed == 0 => break,
-                Ok(got) => unprocessed += got,
-                Err(err) => match err.kind() {
-                    ErrorKind::Interrupted | ErrorKind::WouldBlock => {
-                        // Go back to mio if we're caught up on parsing and the PTY would block.
-                        if unprocessed == 0 {
-                            break;
-                        }
-                    },
-                    _ => return Err(err),
-                },
-            }
-
-            // Attempt to lock the terminal.
-            let terminal = match &mut terminal {
-                Some(terminal) => terminal,
-                None => terminal.insert(match self.terminal.try_lock_unfair() {
-                    // Force block if we are at the buffer size limit.
-                    None if unprocessed >= READ_BUFFER_SIZE => self.terminal.lock_unfair(),
-                    None => continue,
-                    Some(terminal) => terminal,
-                }),
+            let count = match self.pty.reader().read(&mut buf[..MAX_LOCKED_READ]) {
+                Ok(0) => return Ok(ReadStatus::Eof),
+                Ok(count) => count,
+                Err(err) if err.kind() == ErrorKind::Interrupted => continue,
+                Err(err) if err.kind() == ErrorKind::WouldBlock => return Ok(ReadStatus::Pending),
+                // Linux reports PTY hangup as EIO rather than EOF.
+                #[cfg(target_os = "linux")]
+                Err(err) if err.raw_os_error() == Some(libc::EIO) => return Ok(ReadStatus::Eof),
+                Err(err) => return Err(err),
             };
-
-            // Write a copy of the bytes to the ref test file.
             if let Some(writer) = &mut writer {
-                writer.write_all(&buf[..unprocessed]).unwrap();
+                writer.write_all(&buf[..count])?;
             }
-
-            // Parse the incoming bytes.
-            state.parser.advance(&mut **terminal, &buf[..unprocessed]);
-
-            processed += unprocessed;
-            unprocessed = 0;
-
-            // Assure we're not blocking the terminal too long unnecessarily.
+            // Parse each successful read before another read can fail. Keep the
+            // lock bounded to one chunk and never retain unparsed trailing data.
+            {
+                let mut terminal = self.terminal.lock();
+                state.parser.advance(&mut *terminal, &buf[..count]);
+            }
+            processed += count;
+            if state.parser.sync_bytes_count() < count {
+                self.event_proxy.send_event(Event::Wakeup);
+            }
             if processed >= MAX_LOCKED_READ {
-                break;
+                return Ok(ReadStatus::More);
             }
         }
-
-        // Queue terminal redraw unless all processed bytes were synchronized.
-        if state.parser.sync_bytes_count() < processed && processed > 0 {
-            self.event_proxy.send_event(Event::Wakeup);
-        }
-
-        Ok(())
     }
 
     #[inline]
@@ -222,128 +222,187 @@ where
         Ok(())
     }
 
-    pub fn spawn(mut self) -> JoinHandle<(Self, State)> {
+    /// Compatibility entry point: ownership of returned backend state belongs
+    /// to the caller. UI adapters should use `spawn_disposing` instead.
+    pub fn spawn(self) -> JoinHandle<(Self, State)> {
         thread::spawn_named("PTY reader", move || {
-            let mut state = State::default();
-            let mut buf = [0u8; READ_BUFFER_SIZE];
+            let (event_loop, state, _) = self.run();
+            (event_loop, state)
+        })
+    }
 
-            let poll_opts = PollMode::Level;
-            let mut interest = PollingEvent::readable(0);
+    /// Run and dispose on the existing PTY worker. The handle retains only (),
+    /// never completed EventLoop/PTY state. No UI join or extra waiting worker.
+    pub fn spawn_disposing(
+        self,
+        stopped: impl FnOnce() + Send + 'static,
+        complete: impl FnOnce(Completion) + Send + 'static,
+    ) {
+        drop(thread::spawn_named("PTY reader", move || {
+            let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(move || {
+                let (event_loop, state, completion) = self.run();
+                stopped();
+                drop(state);
+                drop(event_loop);
+                completion
+            }));
+            complete(result.unwrap_or(Completion {
+                reason: ExitReason::Panicked,
+                exit_code: None,
+                output_drained: false,
+            }));
+        }));
+    }
 
-            // Register TTY through EventedRW interface.
-            if let Err(err) = unsafe { self.pty.register(&self.poll, interest, poll_opts) } {
-                error!("Event loop registration error: {err}");
-                return (self, state);
+    fn run(mut self) -> (Self, State, Completion) {
+        let mut state = State::default();
+        let mut buf = [0u8; READ_BUFFER_SIZE];
+        let mut completion =
+            Completion { reason: ExitReason::Requested, exit_code: None, output_drained: false };
+        let poll_opts = PollMode::Level;
+        let mut interest = PollingEvent::readable(0);
+
+        // SAFETY: self owns the PTY until after deregistration below.
+        if let Err(err) = unsafe { self.pty.register(&self.poll, interest, poll_opts) } {
+            completion.reason = ExitReason::IoError(err.kind());
+            let _ = self.pty.deregister(&self.poll);
+            return (self, state, completion);
+        }
+        let mut events = Events::with_capacity(NonZeroUsize::new(1024).unwrap());
+        let mut pipe = if self.ref_test {
+            Some(File::create("./alacritty.recording").expect("create alacritty recording"))
+        } else {
+            None
+        };
+
+        'event_loop: loop {
+            if self.input.is_closed() {
+                if !self.shutdown_requested.load(Ordering::Acquire) {
+                    completion.reason = ExitReason::IoError(ErrorKind::BrokenPipe);
+                }
+                break;
             }
-
-            let mut events = Events::with_capacity(NonZeroUsize::new(1024).unwrap());
-
-            let mut pipe = if self.ref_test {
-                Some(File::create("./alacritty.recording").expect("create alacritty recording"))
-            } else {
-                None
-            };
-
-            'event_loop: loop {
-                // Wakeup the event loop when a synchronized update timeout was reached.
-                let handler = state.parser.sync_timeout();
-                let timeout =
-                    handler.sync_timeout().map(|st| st.saturating_duration_since(Instant::now()));
-
-                events.clear();
-                if let Err(err) = self.poll.wait(&mut events, timeout) {
-                    match err.kind() {
-                        ErrorKind::Interrupted => continue,
-                        _ => {
-                            error!("Event loop polling error: {err}");
-                            break 'event_loop;
-                        },
-                    }
-                }
-
-                if self.input.is_closed() {
-                    break;
-                }
-
-                // Handle synchronized update timeout.
-                if events.is_empty() && self.rx.peek().is_none() && self.input.is_empty() {
-                    state.parser.stop_sync(&mut *self.terminal.lock());
-                    self.event_proxy.send_event(Event::Wakeup);
+            let handler = state.parser.sync_timeout();
+            let timeout =
+                handler.sync_timeout().map(|st| st.saturating_duration_since(Instant::now()));
+            events.clear();
+            if let Err(err) = self.poll.wait(&mut events, timeout) {
+                if err.kind() == ErrorKind::Interrupted {
                     continue;
                 }
-
-                // Handle channel events, if there are any.
-                if !self.drain_recv_channel() {
-                    break;
-                }
-
-                for event in events.iter() {
-                    match event.key {
-                        tty::PTY_CHILD_EVENT_TOKEN => {
-                            if let Some(tty::ChildEvent::Exited(code)) = self.pty.next_child_event()
-                            {
-                                if let Some(code) = code {
-                                    self.event_proxy.send_event(Event::ChildExit(code));
+                completion.reason = ExitReason::IoError(err.kind());
+                break;
+            }
+            if self.input.is_closed() {
+                continue;
+            }
+            if events.is_empty() && self.rx.peek().is_none() && self.input.is_empty() {
+                state.parser.stop_sync(&mut *self.terminal.lock());
+                self.event_proxy.send_event(Event::Wakeup);
+                continue;
+            }
+            if !self.drain_recv_channel() {
+                break;
+            }
+            for event in events.iter() {
+                match event.key {
+                    tty::PTY_CHILD_EVENT_TOKEN => {
+                        if let Some(tty::ChildEvent::Exited(code)) = self.pty.next_child_event() {
+                            completion.reason = ExitReason::ChildExit;
+                            completion.exit_code = code;
+                            if let Some(code) = code {
+                                self.event_proxy.send_event(Event::ChildExit(code));
+                            }
+                            if self.drain_on_exit {
+                                // Closing ConPTY must run concurrently with draining its
+                                // output. Other PTYs need no special close preparation.
+                                let drained = self.pty.begin_shutdown().and_then(|()| {
+                                    self.drain_output(&mut state, &mut buf, pipe.as_mut())
+                                });
+                                match drained {
+                                    Ok(()) => completion.output_drained = true,
+                                    Err(err) => completion.reason = ExitReason::IoError(err.kind()),
                                 }
-                                if self.drain_on_exit {
-                                    let _ = self.pty_read(&mut state, &mut buf, pipe.as_mut());
-                                }
-                                self.terminal.lock().exit();
-                                self.event_proxy.send_event(Event::Wakeup);
+                            }
+                            state.parser.stop_sync(&mut *self.terminal.lock());
+                            self.terminal.lock().exit();
+                            self.event_proxy.send_event(Event::Wakeup);
+                            break 'event_loop;
+                        }
+                    },
+                    tty::PTY_READ_WRITE_TOKEN => {
+                        if event.is_interrupt() {
+                            continue;
+                        }
+                        if event.readable {
+                            if let Err(err) = self.pty_read(&mut state, &mut buf, pipe.as_mut()) {
+                                error!("Error reading from PTY in event loop: {err}");
+                                completion.reason = ExitReason::IoError(err.kind());
                                 break 'event_loop;
                             }
-                        },
-
-                        tty::PTY_READ_WRITE_TOKEN => {
-                            if event.is_interrupt() {
-                                // Don't try to do I/O on a dead PTY.
-                                continue;
+                        }
+                        if event.writable {
+                            if let Err(err) = self.pty_write(&mut state) {
+                                error!("Error writing to PTY in event loop: {err}");
+                                completion.reason = ExitReason::IoError(err.kind());
+                                break 'event_loop;
                             }
-
-                            if event.readable {
-                                if let Err(err) = self.pty_read(&mut state, &mut buf, pipe.as_mut())
-                                {
-                                    // On Linux, a `read` on the master side of a PTY can fail
-                                    // with `EIO` if the client side hangs up.  In that case,
-                                    // just loop back round for the inevitable `Exited` event.
-                                    // This sucks, but checking the process is either racy or
-                                    // blocking.
-                                    #[cfg(target_os = "linux")]
-                                    if err.raw_os_error() == Some(libc::EIO) {
-                                        continue;
-                                    }
-
-                                    error!("Error reading from PTY in event loop: {err}");
-                                    break 'event_loop;
-                                }
-                            }
-
-                            if event.writable {
-                                if let Err(err) = self.pty_write(&mut state) {
-                                    error!("Error writing to PTY in event loop: {err}");
-                                    break 'event_loop;
-                                }
-                            }
-                        },
-                        _ => (),
-                    }
-                }
-
-                // Register write interest if necessary.
-                let needs_write = state.needs_write(&self.input);
-                if needs_write != interest.writable {
-                    interest.writable = needs_write;
-
-                    // Re-register with new interest.
-                    self.pty.reregister(&self.poll, interest, poll_opts).unwrap();
+                        }
+                    },
+                    _ => (),
                 }
             }
+            let needs_write = state.needs_write(&self.input);
+            if needs_write != interest.writable {
+                interest.writable = needs_write;
+                if let Err(err) = self.pty.reregister(&self.poll, interest, poll_opts) {
+                    completion.reason = ExitReason::IoError(err.kind());
+                    break;
+                }
+            }
+        }
+        if completion.reason == ExitReason::Requested
+            && !self.shutdown_requested.load(Ordering::Acquire)
+        {
+            completion.reason = ExitReason::IoError(ErrorKind::BrokenPipe);
+        }
+        self.input.close();
+        let _ = self.pty.deregister(&self.poll);
+        (self, state, completion)
+    }
 
-            // The evented instances are not dropped here so deregister them explicitly.
-            let _ = self.pty.deregister(&self.poll);
-
-            (self, state)
-        })
+    fn drain_output<X: Write>(
+        &mut self,
+        state: &mut State,
+        buf: &mut [u8],
+        mut pipe: Option<&mut X>,
+    ) -> io::Result<()> {
+        // A misbehaving descendant must not keep the parser running forever.
+        // Destruction may still block in the OS; completion then stays pending.
+        let deadline = Instant::now() + Duration::from_secs(1);
+        let mut events = Events::new();
+        self.pty.reregister(&self.poll, PollingEvent::readable(0), PollMode::Level)?;
+        loop {
+            if Instant::now() >= deadline {
+                return Err(ErrorKind::TimedOut.into());
+            }
+            match self.pty_read(state, buf, pipe.as_deref_mut())? {
+                ReadStatus::Eof => return Ok(()),
+                ReadStatus::More => continue,
+                ReadStatus::Pending => {
+                    events.clear();
+                    match self
+                        .poll
+                        .wait(&mut events, Some(deadline.saturating_duration_since(Instant::now())))
+                    {
+                        Err(err) if err.kind() == ErrorKind::Interrupted => (),
+                        result => {
+                            result?;
+                        },
+                    }
+                },
+            }
+        }
     }
 }
 
@@ -415,8 +474,9 @@ impl std::error::Error for EventLoopSendError {
 #[derive(Clone)]
 pub struct EventLoopSender {
     sender: Sender<Msg>,
-    poller: Arc<polling::Poller>,
+    poller: std::sync::Weak<polling::Poller>,
     input: InputQueue,
+    shutdown_requested: Arc<AtomicBool>,
 }
 
 impl EventLoopSender {
@@ -424,8 +484,12 @@ impl EventLoopSender {
         match msg {
             Msg::Input(input) => return self.send_input(&input).map_err(EventLoopSendError::Input),
             Msg::Shutdown => {
+                self.shutdown_requested.store(true, Ordering::Release);
                 self.input.close();
-                return self.poller.notify().map_err(EventLoopSendError::Io);
+                return self
+                    .poller
+                    .upgrade()
+                    .map_or(Ok(()), |poller| poller.notify().map_err(EventLoopSendError::Io));
             },
             Msg::Resize(_) if self.input.is_closed() => {
                 return Err(EventLoopSendError::Input(InputError::Closed));
@@ -433,13 +497,19 @@ impl EventLoopSender {
             Msg::Resize(_) => {},
         }
         self.sender.send(msg).map_err(EventLoopSendError::Send)?;
-        self.poller.notify().map_err(EventLoopSendError::Io)
+        self.poller
+            .upgrade()
+            .ok_or(EventLoopSendError::Input(InputError::Closed))?
+            .notify()
+            .map_err(EventLoopSendError::Io)
     }
 
     /// Atomically accept the entire input, or reject it before copying/queueing
     /// any bytes. Chunking preserves byte order, including split UTF-8 scalars.
     pub fn send_input(&self, bytes: &[u8]) -> Result<(), InputError> {
-        self.input.send(bytes, || self.poller.notify())
+        self.input.send(bytes, || {
+            self.poller.upgrade().ok_or_else(|| io::Error::from(ErrorKind::BrokenPipe))?.notify()
+        })
     }
 
     /// Advisory preflight; send_input repeats this check atomically at admission.
@@ -545,3 +615,6 @@ impl<T> PeekableReceiver<T> {
 
 #[cfg(test)]
 mod input_tests;
+
+#[cfg(test)]
+mod lifecycle_tests;

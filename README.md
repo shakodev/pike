@@ -57,7 +57,8 @@ records the exact archive checksum, revision, MIT license, and local patches.
 Alacritty 0.25.1 is also vendored for bounded input through its actual Windows
 writer, retaining its Apache-2.0 license and [patch ledger](vendor/alacritty_terminal/PATCHES.md).
 See [input verification](docs/verification/issue-6.md) for limits, tests and
-Windows resource observations. Pike disables iced_term's compatibility defaults. Both the app and harness
+Windows resource observations. [Shutdown verification](docs/verification/issue-7.md)
+documents explicit backend completion and retained final output. Pike disables iced_term's compatibility defaults. Both the app and harness
 use one shared Tokio executor with one async worker, at most two blocking
 workers, and timers. No Tokio I/O driver or per-pane runtime is needed.
 Blocking task admission and session teardown must be bounded by their callers;

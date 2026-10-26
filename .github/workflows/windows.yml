@@ -93,5 +93,8 @@ jobs:
       - name: Check bounded input with Windows ConPTY
         run: ./tools/measure-input-backlog.ps1 -OutputDirectory "${{ runner.temp }}/pike-input-backlog-${{ github.run_id }}-${{ github.run_attempt }}"
 
+      - name: Check shutdown completion with Windows ConPTY
+        run: ./tools/measure-shutdown-lifecycle.ps1 -OutputDirectory "${{ runner.temp }}/pike-shutdown-${{ matrix.renderer }}-${{ github.run_id }}-${{ github.run_attempt }}"
+
       - name: Verify dependency files are unchanged
         run: git diff --exit-code -- Cargo.toml Cargo.lock rust-toolchain.toml vendor/iced_term/Cargo.toml vendor/iced_term/Cargo.lock vendor/alacritty_terminal/Cargo.toml vendor/alacritty_terminal/Cargo.lock

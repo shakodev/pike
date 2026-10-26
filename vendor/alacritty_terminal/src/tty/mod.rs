@@ -95,6 +95,12 @@ pub enum ChildEvent {
 /// notified if the PTY child process does something we care about (other than writing to the TTY).
 /// In particular, this allows for race-free child exit notification on UNIX (cf. `SIGCHLD`).
 pub trait EventedPty: EventedReadWrite {
+    /// Start closing the backend while the caller continues draining output.
+    /// Any close workers must be joined by destruction, off the UI thread.
+    fn begin_shutdown(&mut self) -> io::Result<()> {
+        Ok(())
+    }
+
     /// Tries to retrieve an event.
     ///
     /// Returns `Some(event)` on success, or `None` if there are no events to retrieve.

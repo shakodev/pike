@@ -87,3 +87,29 @@ and API/overload policy details.
   [its ledger](../alacritty_terminal/PATCHES.md). The 41 iced_term regressions
   run under both renderers, including expected-close/error retention; the new
   bounded-input and writer-failure tests live with the dependency implementation.
+
+## R07 / issue #7 — explicit backend completion and final output
+
+- `Terminal::{request_close,shutdown_handle,final_content}` expose idempotent,
+  nonblocking close, cancellation-safe completion observation, and the retained
+  read-only terminal model. Cloned handles share one request flag and one sticky
+  `BackendCompletion` (reason, optional child code, EOF-drain flag).
+- The existing PTY worker now disposes its parser/EventLoop/PTY itself; no
+  completed JoinHandle retains backend state and no UI thread joins a worker.
+  Source completion (`EventBridgeEvent::Completed`) precedes backend disposal;
+  `BackendCompleted` and `Action::BackendCompleted` acknowledge disposal. The
+  compatibility harness waits for the latter before removing a session.
+- The bounded bridge reserves a separate sticky backend-completion slot and
+  stays open until it is delivered. Completion observation also uses one Tokio
+  watch value, independent of event-subscription lifetime, with no polling task.
+  Canceling a subscription keeps its owned Terminal alive; dropping that owner
+  requests close even when a subscription recipe/handle remains elsewhere.
+- Natural exit enables the existing Alacritty parser's EOF drain before Exit;
+  completed sessions reject input and ignore geometry changes. `final_content`
+  can refresh the retained model without consuming subscription events.
+- `Action::Shutdown` still describes terminal Exit, not released resources.
+  Callers must use backend completion for resource/lifecycle decisions. A wait
+  timeout never acknowledges cleanup. Async startup remains issue #10.
+- No dependency, feature, lockfile, or second PTY changes. See the
+  [Alacritty ledger](../alacritty_terminal/PATCHES.md) for worker/ConPTY details,
+  and [verification](../../docs/verification/issue-7.md) for measured limits.
