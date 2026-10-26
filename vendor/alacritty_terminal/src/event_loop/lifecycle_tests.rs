@@ -186,11 +186,19 @@ fn socket_pair() -> (std::net::TcpStream, std::net::TcpStream) {
 struct EofReader {
     stream: std::net::TcpStream,
     reads: Arc<std::sync::atomic::AtomicUsize>,
+    error_after_bytes: Option<usize>,
 }
 impl Read for EofReader {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         self.reads.fetch_add(1, Ordering::Relaxed);
-        self.stream.read(buf)
+        if self.error_after_bytes == Some(0) {
+            return Err(ErrorKind::BrokenPipe.into());
+        }
+        let count = self.stream.read(buf)?;
+        if let Some(remaining) = &mut self.error_after_bytes {
+            *remaining = remaining.saturating_sub(count);
+        }
+        Ok(count)
     }
 }
 
@@ -289,7 +297,7 @@ fn eof_disables_io_but_preserves_later_child_exit_and_explicit_close() {
         let reads = Arc::new(std::sync::atomic::AtomicUsize::new(0));
         let (exhausted, eof) = mpsc::channel();
         let pty = EofPty {
-            reader: EofReader { stream, reads: reads.clone() },
+            reader: EofReader { stream, reads: reads.clone(), error_after_bytes: None },
             writer: io::sink(),
             child,
             registered: false,
@@ -332,4 +340,36 @@ fn eof_disables_io_but_preserves_later_child_exit_and_explicit_close() {
         assert_eq!(completion.exit_code, if close { None } else { Some(37) });
         assert_eq!(completion.output_drained, !close);
     }
+}
+
+#[test]
+fn io_failure_flushes_already_read_synchronized_output_without_exit() {
+    let (stream, mut output) = socket_pair();
+    let (child, _exit) = socket_pair();
+    let (exhausted, _eof) = mpsc::channel();
+    let pty = EofPty {
+        reader: EofReader {
+            stream,
+            reads: Arc::new(std::sync::atomic::AtomicUsize::new(0)),
+            error_after_bytes: Some(b"\x1b[?2026hPIKE_SYNC_FINAL".len()),
+        },
+        writer: io::sink(),
+        child,
+        registered: false,
+        exhausted: Some(exhausted),
+        metadata: None,
+    };
+    let terminal =
+        Arc::new(FairMutex::new(Term::new(Default::default(), &TermSize::new(80, 24), Listener)));
+    let mut event_loop = EventLoop::new(terminal.clone(), Listener, pty, true, false).unwrap();
+    event_loop.pty.metadata = Some(event_loop.tx.clone());
+    output.write_all(b"\x1b[?2026hPIKE_SYNC_FINAL").unwrap();
+    let (complete, result) = mpsc::channel();
+    event_loop.spawn_disposing(|| (), move |value| complete.send(value).unwrap());
+    let completion = result.recv_timeout(Duration::from_secs(5)).unwrap();
+    assert_eq!(completion.reason, ExitReason::IoError(ErrorKind::BrokenPipe));
+    assert_eq!(completion.exit_code, None);
+    assert!(!completion.output_drained);
+    let text: String = terminal.lock().grid().display_iter().map(|cell| cell.c).collect();
+    assert!(text.contains("PIKE_SYNC_FINAL"));
 }

@@ -404,6 +404,13 @@ where
             completion.reason = ExitReason::IoError(ErrorKind::BrokenPipe);
         }
         self.input.close();
+        // Successful reads can still be buffered by synchronized updates when
+        // a later read/write fails or close is requested. Preserve those bytes
+        // in the retained model before dropping the parser, even without Exit.
+        if state.parser.sync_timeout().sync_timeout().is_some() {
+            state.parser.stop_sync(&mut *self.terminal.lock());
+            self.event_proxy.send_event(Event::Wakeup);
+        }
         let _ = self.pty.deregister(&self.poll);
         (self, state, completion)
     }

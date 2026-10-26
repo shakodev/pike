@@ -159,6 +159,10 @@ ensures a final marker alone cannot hide failed backend completion.
 
 The original Windows measurements above remain tied to their recorded source
 commit; the review changes are validated by the PR's subsequent Windows matrix.
-The added coverage brings the explicit Alacritty suite to 145 macOS / 152
+The added coverage brings the explicit Alacritty suite to 146 macOS / 153
 Windows unit tests, plus the existing 45 references and one doctest. Examples
 now run five focused tests; adapter counts remain 44 macOS / 46 Windows.
+
+An I/O error or explicit close also flushes an active synchronized-update buffer
+before parser destruction. A separate read-then-broken-pipe regression verifies
+that already-read output remains in the model without a terminal Exit event.

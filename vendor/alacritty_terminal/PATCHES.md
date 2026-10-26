@@ -123,3 +123,7 @@ checks and ConPTY probe described in
 - A portable two-socket fixture verifies one EOF read, delayed child exit/code,
   ignored queued metadata and explicit close after EOF. It models readiness,
   not another PTY. Windows also tests an injected reader panic.
+
+- Flush active synchronized updates on I/O failure or explicit close before
+  dropping the parser. Already-read output is retained even without Exit; a
+  read-then-broken-pipe regression verifies the synchronized final sentinel.
