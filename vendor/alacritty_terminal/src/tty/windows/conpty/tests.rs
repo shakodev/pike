@@ -7,15 +7,17 @@ use std::path::Path;
 use std::time::Duration;
 use std::time::Instant;
 
-use windows_sys::Win32::Foundation::{HANDLE, INVALID_HANDLE_VALUE};
+use windows_sys::Win32::Foundation::{FILETIME, HANDLE, INVALID_HANDLE_VALUE};
 use windows_sys::Win32::System::Diagnostics::ToolHelp::{
     CreateToolhelp32Snapshot, Thread32First, Thread32Next, TH32CS_SNAPTHREAD, THREADENTRY32,
 };
 use windows_sys::Win32::System::ProcessStatus::{GetProcessMemoryInfo, PROCESS_MEMORY_COUNTERS_EX};
-use windows_sys::Win32::System::Threading::{GetCurrentProcess, GetProcessHandleCount};
+use windows_sys::Win32::System::Threading::{
+    GetCurrentProcess, GetProcessHandleCount, GetProcessTimes,
+};
 
 use super::*;
-use crate::tty::{EventedReadWrite, Shell};
+use crate::tty::{ChildEvent, EventedPty, EventedReadWrite, Shell};
 
 thread_local! {
     pub(super) static FAILURE: Cell<Option<Failure>> = const { Cell::new(None) };
@@ -45,6 +47,7 @@ struct Sample {
     handles: u32,
     private: usize,
     threads: usize,
+    cpu_ticks: u64,
 }
 
 fn sample() -> Sample {
@@ -74,7 +77,22 @@ fn sample() -> Sample {
             threads += usize::from(entry.th32OwnerProcessID == std::process::id());
             more = Thread32Next(snapshot.as_raw_handle() as HANDLE, &mut entry);
         }
-        Sample { handles, private: memory.PrivateUsage, threads }
+        let mut creation: FILETIME = mem::zeroed();
+        let mut exit: FILETIME = mem::zeroed();
+        let mut kernel: FILETIME = mem::zeroed();
+        let mut user: FILETIME = mem::zeroed();
+        assert_ne!(
+            GetProcessTimes(GetCurrentProcess(), &mut creation, &mut exit, &mut kernel, &mut user),
+            0
+        );
+        let ticks =
+            |time: FILETIME| (u64::from(time.dwHighDateTime) << 32) | u64::from(time.dwLowDateTime);
+        Sample {
+            handles,
+            private: memory.PrivateUsage,
+            threads,
+            cpu_ticks: ticks(kernel) + ticks(user),
+        }
     }
 }
 
@@ -156,6 +174,7 @@ fn resource_cycles() {
             drop(injected(point, || new(&config, SIZE)));
         }
         let before = sample();
+        let measurement = Instant::now();
         for cycle in 0..=100 {
             let start = Instant::now();
             if cycle != 0 {
@@ -173,6 +192,11 @@ fn resource_cycles() {
             );
         }
         let after = sample();
+        println!(
+            "cpu,{mode},{:.3},{:.3}",
+            (after.cpu_ticks - before.cpu_ticks) as f64 / 10000.0,
+            measurement.elapsed().as_secs_f64() * 1000.0
+        );
         println!(
             "delta,{mode},{},{},{}",
             i64::from(after.handles) - i64::from(before.handles),
@@ -232,7 +256,8 @@ fn attached_fixture() {
     let directory = Path::new(&directory);
     let depth: u32 = std::env::var("PIKE_AUDIT_DEPTH").unwrap().parse().unwrap();
     let mut children = Vec::new();
-    if depth < 2 {
+    let mode = std::env::var("PIKE_AUDIT_MODE").unwrap();
+    if depth < 2 && mode != "natural" {
         children.push(
             std::process::Command::new(std::env::current_exe().unwrap())
                 .args(["--ignored", "--exact", FIXTURE, "--nocapture"])
@@ -242,7 +267,18 @@ fn attached_fixture() {
         );
     }
     std::fs::write(directory.join(format!("{depth}.pid")), std::process::id().to_string()).unwrap();
-    if std::env::var("PIKE_AUDIT_MODE").unwrap() != "attached" {
+    if mode == "natural" {
+        let mut stdout = std::io::stdout().lock();
+        stdout
+            .write_all(
+                &b"012345678901234567890123456789012345678901234567890123456789\r\n".repeat(3000),
+            )
+            .unwrap();
+        stdout.write_all(b"\r\nPIKE_FINAL_8\r\n").unwrap();
+        stdout.flush().unwrap();
+        std::process::exit(37);
+    }
+    if mode != "attached" {
         let block = [b'x'; 8192];
         loop {
             std::io::stdout().write_all(&block).unwrap();
@@ -251,6 +287,53 @@ fn attached_fixture() {
     loop {
         std::thread::park();
     }
+}
+
+#[test]
+#[ignore = "isolated natural output drain; explicitly invoked by CI"]
+fn natural_output_drain() {
+    let directory = std::env::temp_dir().join(format!("pike-drain-{}", std::process::id()));
+    std::fs::create_dir(&directory).unwrap();
+    let mut config = Options {
+        shell: Some(Shell::new(
+            std::env::current_exe().unwrap().to_str().unwrap().into(),
+            vec!["--ignored".into(), "--exact".into(), FIXTURE.into(), "--nocapture".into()],
+        )),
+        escape_args: true,
+        ..Options::default()
+    };
+    config.env.insert("PIKE_AUDIT_DIRECTORY".into(), directory.to_str().unwrap().into());
+    config.env.insert("PIKE_AUDIT_DEPTH".into(), "0".into());
+    config.env.insert("PIKE_AUDIT_MODE".into(), "natural".into());
+    let start = Instant::now();
+    let mut pty = new(&config, SIZE).unwrap();
+    let mut output = Vec::new();
+    let mut buffer = [0; 8192];
+    let mut exited = false;
+    let mut eof = false;
+    while !eof || !exited {
+        assert!(start.elapsed() < Duration::from_secs(5), "natural drain deadline");
+        if let Some(event) = pty.next_child_event() {
+            assert_eq!(event, ChildEvent::Exited(Some(37)));
+            assert!(!exited, "duplicate child notification");
+            exited = true;
+            pty.begin_shutdown().unwrap();
+        }
+        match pty.reader().read(&mut buffer) {
+            Ok(0) => eof = true,
+            Ok(count) => output.extend_from_slice(&buffer[..count]),
+            Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                std::thread::sleep(Duration::from_millis(1));
+            },
+            Err(error) => panic!("synthetic output read failed: {error}"),
+        }
+        assert!(output.len() < 512 * 1024, "fixture exceeded its synthetic output bound");
+    }
+    assert!(output.len() > 180_000);
+    assert!(output.windows(b"PIKE_FINAL_8".len()).any(|window| window == b"PIKE_FINAL_8"));
+    drop(pty);
+    println!("drain,natural,37,{:.3}", start.elapsed().as_secs_f64() * 1000.0);
+    std::fs::remove_dir_all(directory).unwrap();
 }
 
 #[test]

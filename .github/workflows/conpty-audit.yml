@@ -48,6 +48,11 @@ jobs:
         run: |
           cargo test --locked -p alacritty_terminal 2>&1 | Tee-Object target/audit/tests.txt
           exit $LASTEXITCODE
+      - name: Verify natural output drain
+        if: ${{ !cancelled() }}
+        run: |
+          cargo test --release --locked -p alacritty_terminal tty::windows::conpty::tests::natural_output_drain -- --ignored --exact --nocapture --test-threads=1 2>&1 | Tee-Object target/audit/natural-drain.txt
+          exit $LASTEXITCODE
       - name: Retain synthetic measurements
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
