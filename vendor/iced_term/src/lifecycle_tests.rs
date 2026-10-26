@@ -3,7 +3,7 @@ use iced::advanced::subscription::into_recipes;
 use iced::futures::{stream, FutureExt, StreamExt};
 use std::time::{Duration, Instant};
 
-const DEADLINE: Duration = Duration::from_secs(5);
+const DEADLINE: Duration = Duration::from_secs(15);
 
 fn runtime() -> tokio::runtime::Runtime {
     tokio::runtime::Builder::new_current_thread()

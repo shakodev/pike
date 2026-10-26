@@ -150,12 +150,23 @@ impl Drop for Pty {
     fn drop(&mut self) {
         // This runs on the disposing PTY worker, including explicit close and
         // unwind. Drain/discard unread output to avoid full-pipe close deadlock.
+        trace_cleanup("dispose-start");
         let _ = self.begin_shutdown();
         self.conout.drain_and_join();
+        trace_cleanup("reader-joined");
         if let Some(worker) = self.close_worker.take() {
             let _ = worker.join();
         }
+        trace_cleanup("close-joined");
         self.conin.close_and_join();
+        trace_cleanup("writer-joined");
+    }
+}
+
+// Opt-in metadata only, checked only during cleanup (never the I/O hot path).
+fn trace_cleanup(stage: &str) {
+    if std::env::var_os("PIKE_TRACE_CLEANUP").is_some() {
+        eprintln!("pike-cleanup {:?} {stage}", std::thread::current().id());
     }
 }
 

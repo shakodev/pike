@@ -76,7 +76,9 @@ jobs:
         run: ./tools/test-compatibility-support.ps1
 
       - name: Test vendored iced_term explicitly
-        run: cargo test --locked -p iced_term --lib --no-default-features --features iced/${{ matrix.renderer }},iced/tokio
+        env:
+          PIKE_TRACE_CLEANUP: '1'
+        run: cargo test --locked -p iced_term --lib --no-default-features --features iced/${{ matrix.renderer }},iced/tokio -- --nocapture
 
       - name: Test vendored Alacritty explicitly
         run: cargo test --locked -p alacritty_terminal
