@@ -95,6 +95,8 @@ impl App {
                     backend: iced_term::settings::BackendSettings {
                         program,
                         args,
+                        #[cfg(windows)]
+                        escape_args: options.shell != "cmd",
                         working_directory: Some(std::env::current_dir()?),
                         ..Default::default()
                     },

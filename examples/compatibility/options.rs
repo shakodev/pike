@@ -54,8 +54,7 @@ pub fn launch(shell: &str, fixture: &Path, id: u64) -> io::Result<(String, Vec<S
     let path = fixture
         .to_str()
         .ok_or_else(|| io::Error::other("fixture path must be Unicode"))?;
-    // Upstream passes raw Windows arguments. Scope this launcher to controlled
-    // fixture paths; general executable/argument quoting is roadmap issue #9.
+    // These are shell scripts, with cmd and PowerShell syntax kept separate.
     if path.contains(['%', '"', '\r', '\n']) {
         return Err(io::Error::other(
             "unsupported character in controlled fixture path",
@@ -81,10 +80,7 @@ pub fn launch(shell: &str, fixture: &Path, id: u64) -> io::Result<(String, Vec<S
                 "-NoProfile".into(),
                 "-NonInteractive".into(),
                 "-Command".into(),
-                format!(
-                    "\"& '{}' {id}; exit $LASTEXITCODE\"",
-                    path.replace('\'', "''")
-                ),
+                format!("& '{}' {id}; exit $LASTEXITCODE", path.replace('\'', "''")),
             ],
         ))
     }
@@ -99,7 +95,7 @@ mod tests {
         let (_, args) = launch("powershell", path, 2).unwrap();
         assert_eq!(
             args.last().unwrap(),
-            "\"& 'C:/fixture folder/it''s-child.exe' 2; exit $LASTEXITCODE\""
+            "& 'C:/fixture folder/it''s-child.exe' 2; exit $LASTEXITCODE"
         );
         let (_, args) = launch("cmd", Path::new("C:/fixture folder/child.exe"), 1).unwrap();
         assert_eq!(

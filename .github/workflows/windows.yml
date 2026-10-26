@@ -104,6 +104,14 @@ jobs:
       - name: Build compatibility examples
         run: cargo build --release --locked --examples --no-default-features --features renderer-${{ matrix.renderer }}
 
+      - name: Check Windows launch arguments, shells, cwd and environment
+        run: |
+          $timer = [Diagnostics.Stopwatch]::StartNew()
+          & ./target/release/examples/launch_validation.exe
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $timer.Stop()
+          Write-Host "Complete synthetic launch suite: $($timer.Elapsed.TotalMilliseconds) ms"
+
       - name: Check bounded input with Windows ConPTY
         run: ./tools/measure-input-backlog.ps1 -OutputDirectory "${{ runner.temp }}/pike-input-backlog-${{ github.run_id }}-${{ github.run_attempt }}"
 

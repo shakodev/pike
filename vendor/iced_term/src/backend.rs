@@ -148,13 +148,26 @@ impl Backend {
         pty_event_proxy_sender: Sender,
         settings: BackendSettings,
     ) -> Result<Self> {
+        #[cfg(windows)]
+        let shell = if settings.program.is_empty() {
+            if !settings.args.is_empty() {
+                return Err(
+                    alacritty_terminal::tty::LaunchError::InvalidProgram.into(),
+                );
+            }
+            None
+        } else {
+            Some(tty::Shell::new(settings.program, settings.args))
+        };
+        #[cfg(not(windows))]
+        let shell = Some(tty::Shell::new(settings.program, settings.args));
         let pty_config = tty::Options {
-            shell: Some(tty::Shell::new(settings.program, settings.args)),
+            shell,
             working_directory: settings.working_directory,
             env: settings.env,
             drain_on_exit: true,
             #[cfg(windows)]
-            escape_args: false,
+            escape_args: settings.escape_args,
         };
 
         let config = term::Config::default();

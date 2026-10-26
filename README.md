@@ -78,6 +78,9 @@ writer, retaining its Apache-2.0 license and [patch ledger](vendor/alacritty_ter
 See [input verification](docs/verification/issue-6.md) for limits, tests and
 Windows resource observations. [Shutdown verification](docs/verification/issue-7.md)
 documents explicit backend completion and retained final output.
+The [Windows launch contract and checks](docs/verification/issue-9.md) cover
+executable/argument encoding, automatic shell selection, cwd validation and
+independent inherited environment overrides.
 The [Windows ownership audit](docs/verification/issue-8.md) records startup
 cleanup repairs and release resource measurements. The [pinned native runtime](docs/dependencies/conpty/README.md)
 avoids the Server 2022 inbox ConPTY leak tracked in #55.

@@ -1,8 +1,5 @@
 use log::{info, warn};
-use std::collections::{HashMap, HashSet};
-use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Result};
-use std::os::windows::ffi::OsStrExt;
 use std::os::windows::io::{AsRawHandle, FromRawHandle, OwnedHandle};
 use std::path::Path;
 use std::sync::Arc;
@@ -27,7 +24,7 @@ use windows_sys::Win32::System::Threading::{
 use crate::event::{OnResize, WindowSize};
 use crate::tty::windows::blocking::{UnblockedReader, UnblockedWriter};
 use crate::tty::windows::child::ChildExitWatcher;
-use crate::tty::windows::{cmdline, win32_string, Pty};
+use crate::tty::windows::{win32_string, Pty};
 use crate::tty::Options;
 
 const PIPE_CAPACITY: usize = crate::event_loop::READ_BUFFER_SIZE;
@@ -252,6 +249,7 @@ fn hresult(result: HRESULT) -> Result<()> {
 }
 
 pub fn new(config: &Options, window_size: WindowSize) -> Result<Pty> {
+    let mut launch = super::launch::Prepared::new(config)?;
     let api = ConptyApi::new()?;
     let mut pty_handle = 0;
     fault(Failure::OutputPipe)?;
@@ -304,13 +302,10 @@ pub fn new(config: &Options, window_size: WindowSize) -> Result<Pty> {
     startup_info_ex.lpAttributeList = attributes.as_mut_ptr();
 
     // CreateProcessW may modify its command line; use genuinely mutable storage.
-    let mut cmdline = win32_string(&cmdline(config));
-    let cwd = config.working_directory.as_ref().map(win32_string);
     // No shell code or descendant may run while fallible setup can still
     // reject the session. Startup rollback then owns only a suspended root.
     let mut creation_flags = EXTENDED_STARTUPINFO_PRESENT | CREATE_SUSPENDED;
-    let custom_env_block = convert_custom_env(&config.env);
-    let environment = match &custom_env_block {
+    let environment = match &launch.environment {
         Some(block) => {
             creation_flags |= CREATE_UNICODE_ENVIRONMENT;
             block.as_ptr() as *mut std::ffi::c_void
@@ -323,20 +318,23 @@ pub fn new(config: &Options, window_size: WindowSize) -> Result<Pty> {
     // the initialized attribute list and HPCON remain live for the entire call.
     if unsafe {
         CreateProcessW(
-            ptr::null(),
-            cmdline.as_mut_ptr(),
+            launch.program.as_ptr(),
+            launch.command.as_mut_ptr(),
             ptr::null(),
             ptr::null(),
             0,
             creation_flags,
             environment,
-            cwd.as_ref().map_or(ptr::null(), |s| s.as_ptr()),
+            launch.directory.as_ptr(),
             &startup_info_ex.StartupInfo,
             &mut proc_info,
         )
     } == 0
     {
-        return Err(Error::last_os_error());
+        return Err(super::LaunchError::ProcessCreation {
+            code: Error::last_os_error().raw_os_error(),
+        }
+        .into());
     }
     // SAFETY: successful CreateProcessW transfers these two distinct handles.
     // Keep the primary thread suspended through wait/pipe-worker setup and
@@ -362,63 +360,6 @@ pub fn new(config: &Options, window_size: WindowSize) -> Result<Pty> {
         return Err(Error::last_os_error());
     }
     Ok(pty)
-}
-
-// Windows environment variables are case-insensitive, and the caller is responsible for
-// deduplicating environment variables, so do that here while converting.
-//
-// https://learn.microsoft.com/en-us/previous-versions/troubleshoot/windows/win32/createprocess-cannot-eliminate-duplicate-variables#environment-variables
-fn convert_custom_env(custom_env: &HashMap<String, String>) -> Option<Vec<u16>> {
-    // Windows inherits parent's env when no `lpEnvironment` parameter is specified.
-    if custom_env.is_empty() {
-        return None;
-    }
-
-    let mut converted_block = Vec::new();
-    let mut all_env_keys = HashSet::new();
-    for (custom_key, custom_value) in custom_env {
-        let custom_key_os = OsStr::new(custom_key);
-        if all_env_keys.insert(custom_key_os.to_ascii_uppercase()) {
-            add_windows_env_key_value_to_block(
-                &mut converted_block,
-                custom_key_os,
-                OsStr::new(&custom_value),
-            );
-        } else {
-            warn!(
-                "Omitting environment variable pair with duplicate key: \
-                 '{custom_key}'"
-            );
-        }
-    }
-
-    // Pull the current process environment after, to avoid overwriting the user provided one.
-    for (inherited_key, inherited_value) in std::env::vars_os() {
-        if all_env_keys.insert(inherited_key.to_ascii_uppercase()) {
-            add_windows_env_key_value_to_block(
-                &mut converted_block,
-                &inherited_key,
-                &inherited_value,
-            );
-        }
-    }
-
-    converted_block.push(0);
-    Some(converted_block)
-}
-
-// According to the `lpEnvironment` parameter description:
-// https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessa#parameters
-//
-// > An environment block consists of a null-terminated block of null-terminated strings. Each
-// string is in the following form:
-// >
-// > name=value\0
-fn add_windows_env_key_value_to_block(block: &mut Vec<u16>, key: &OsStr, value: &OsStr) {
-    block.extend(key.encode_wide());
-    block.push('=' as u16);
-    block.extend(value.encode_wide());
-    block.push(0);
 }
 
 impl OnResize for Conpty {
