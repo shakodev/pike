@@ -120,3 +120,34 @@ close interactively there. No Windows performance or leak claim is made.
 The PR commit carries `[skip ci]` to prevent both existing pull_request workflows
 from running, per [GitHub's documented skip behavior](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/skip-workflow-runs).
 No workflows are changed or dispatched. Required skipped checks may remain pending.
+
+## PR review corrections
+
+Review found that cancellation could arrive after the initial eligibility check
+while UI font attachment was in progress. The worker could then close the PTY
+while `attach` still returned success. Pending / Attached / Canceled now share
+one watch value: `send_if_modified` commits cancellation or attachment under the
+same short lock. Cancellation winning during font attachment returns Canceled
+and disposes the newly attached owner; attachment winning makes later startup
+cancellation harmless. No UI operation runs under the watch lock. The separate
+oneshot still bounds prepared owners until attachment or discard.
+
+Review also found ignored adapter error actions in the new application wiring.
+Input rejection, event bridge failure and unexpected backend completion now
+produce a visible metadata-only notice, retaining the terminal model for final
+output and allowing explicit Close/Open recovery.
+
+Three focused regressions cover cancellation during attachment, cancellation
+after committed attachment, and visible adapter errors without losing the model.
+The revised code passes formatting, all-target application Clippy, 18 library
+tests and 2 app tests with both renderers, 5 example tests, 46 explicit adapter
+tests and adapter Clippy. Windows MSVC cross-target all-target Clippy and the
+release app build also pass. The ignored release probe was run explicitly and
+[its review observations](../baselines/issue-10/review-release.txt) retain the
+two-admitted/thirty-rejected bound and acknowledged cleanup in all three bursts.
+The original resource observations above remain associated with their source
+hashes. No new idle-memory or Windows performance claim is made.
+
+The user confirmed that no Windows host is available. Native Windows execution
+and interactive GUI profiling remain unavailable under the no-Actions constraint;
+this review does not claim that cross-target checks execute ConPTY.

@@ -74,12 +74,36 @@ impl std::fmt::Display for LaunchError {
 
 impl std::error::Error for LaunchError {}
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Handoff {
+    Pending,
+    Attached,
+    Canceled,
+}
+
 #[derive(Clone)]
-pub struct CancelLaunch(watch::Sender<bool>);
+pub struct CancelLaunch(watch::Sender<Handoff>);
 
 impl CancelLaunch {
+    /// Cancel only pending startup; a committed UI attachment owns its session.
     pub fn cancel(&self) {
-        self.0.send_replace(true);
+        self.0.send_if_modified(|state| {
+            if *state != Handoff::Pending {
+                return false;
+            }
+            *state = Handoff::Canceled;
+            true
+        });
+    }
+
+    fn attach(&self) -> bool {
+        self.0.send_if_modified(|state| {
+            if *state != Handoff::Pending {
+                return false;
+            }
+            *state = Handoff::Attached;
+            true
+        })
     }
 }
 
@@ -123,19 +147,31 @@ pub struct PreparedSession {
     pub session: SessionId,
     prepared: PreparedTerminal,
     attached: oneshot::Sender<()>,
-    canceled: watch::Receiver<bool>,
+    handoff: CancelLaunch,
     shutdown: watch::Receiver<bool>,
 }
 
 impl PreparedSession {
     pub fn attach(self, font: FontSettings, theme: ThemeSettings) -> Result<Terminal, LaunchError> {
-        if *self.canceled.borrow()
+        self.attach_with(move |prepared| prepared.attach(font, theme))
+    }
+
+    fn attach_with(
+        self,
+        attach: impl FnOnce(PreparedTerminal) -> Terminal,
+    ) -> Result<Terminal, LaunchError> {
+        if *self.handoff.0.borrow() == Handoff::Canceled
             || *self.shutdown.borrow()
             || self.shutdown.has_changed().is_err()
         {
             return Err(LaunchError::Canceled);
         }
-        let terminal = self.prepared.attach(font, theme);
+        let terminal = attach(self.prepared);
+        // Cancellation can arrive while fonts are measured. Commit the handoff
+        // under the same short watch lock as cancel; exactly one can win.
+        if !self.handoff.attach() {
+            return Err(LaunchError::Canceled);
+        }
         let _ = self.attached.send(());
         Ok(terminal)
     }
@@ -208,7 +244,8 @@ impl LaunchPool {
             .map_err(|_| LaunchError::IdsExhausted)?;
         let request_id = RequestId(id);
         let session_id = SessionId(id);
-        let (cancel, mut canceled) = watch::channel(false);
+        let (cancel, mut canceled) = watch::channel(Handoff::Pending);
+        let handoff = CancelLaunch(cancel.clone());
         let check_cancel = canceled.clone();
         let mut shutdown = self.shutdown.subscribe();
         let check_shutdown = shutdown.clone();
@@ -216,7 +253,7 @@ impl LaunchPool {
         runtime.spawn(async move {
             // Admission happened before either async or blocking work was queued.
             let result = tokio::task::spawn_blocking(move || {
-                if *check_cancel.borrow()
+                if *check_cancel.borrow() == Handoff::Canceled
                     || *check_shutdown.borrow()
                     || check_shutdown.has_changed().is_err()
                 {
@@ -230,7 +267,10 @@ impl LaunchPool {
                 Ok(prepared) => {
                     let handle = prepared.shutdown_handle();
                     let (attached, mut attached_rx) = oneshot::channel();
-                    if *canceled.borrow() || *shutdown.borrow() || send.is_closed() {
+                    if *canceled.borrow() == Handoff::Canceled
+                        || *shutdown.borrow()
+                        || send.is_closed()
+                    {
                         drop(prepared);
                         let _ = send.send(Err(LaunchError::Canceled));
                     } else {
@@ -240,7 +280,7 @@ impl LaunchPool {
                             session: session_id,
                             prepared,
                             attached,
-                            canceled: canceled.clone(),
+                            handoff,
                             shutdown: shutdown.clone(),
                         })));
                         let interrupted = async {
@@ -316,8 +356,12 @@ async fn stop(receiver: &mut watch::Receiver<bool>) {
     let _ = receiver.wait_for(|stopped| *stopped).await;
 }
 
-async fn cancellation(receiver: &mut watch::Receiver<bool>) {
-    if receiver.wait_for(|stopped| *stopped).await.is_err() {
+async fn cancellation(receiver: &mut watch::Receiver<Handoff>) {
+    if receiver
+        .wait_for(|state| *state == Handoff::Canceled)
+        .await
+        .is_err()
+    {
         // A successful receive disarms its Drop guard. Only explicit cancellation
         // should close an owner that has already been handed to the UI.
         std::future::pending::<()>().await;

@@ -438,3 +438,45 @@ fn measure_32_requested_launches() {
         );
     }
 }
+
+#[test]
+fn cancellation_during_ui_attachment_cannot_return_a_closing_terminal() {
+    let executor = SharedExecutor::new().unwrap();
+    let mut pool = LaunchPool::default();
+    let request = executor.enter(|| pool.start(fixture_settings())).unwrap();
+    let cancel = request.cancellation();
+    let ready = executor.block_on(request.receive()).unwrap();
+    let handle = ready.prepared.shutdown_handle();
+    let result = ready.attach_with(|prepared| {
+        let terminal = prepared.attach(Default::default(), Default::default());
+        // Deterministically place cancellation between the initial eligibility
+        // check and committing the UI handoff, without timing assumptions.
+        cancel.cancel();
+        terminal
+    });
+    assert!(matches!(result, Err(LaunchError::Canceled)));
+    wait(&executor, pool.shutdown());
+    assert_eq!(
+        handle.completion().unwrap().reason,
+        iced_term::ExitReason::Requested
+    );
+}
+
+#[test]
+fn committed_ui_attachment_wins_over_later_startup_cancellation() {
+    let executor = SharedExecutor::new().unwrap();
+    let mut pool = LaunchPool::default();
+    let request = executor.enter(|| pool.start(fixture_settings())).unwrap();
+    let cancel = request.cancellation();
+    let ready = executor.block_on(request.receive()).unwrap();
+    let terminal = ready
+        .attach(Default::default(), Default::default())
+        .unwrap();
+    cancel.cancel();
+    assert!(*cancel.0.borrow() == Handoff::Attached);
+    let job = executor.block_on(pool.jobs.acquire()).unwrap();
+    drop(job);
+    assert!(terminal.shutdown_handle().completion().is_none());
+    drop(terminal);
+    wait(&executor, pool.shutdown());
+}

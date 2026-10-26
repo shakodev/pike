@@ -2,6 +2,7 @@
 
 use iced::widget::{button, column, container, row, text};
 use iced::{Element, Fill, Subscription, Task};
+use iced_term::actions::Action;
 use iced_term::{Command, Event, Terminal, TerminalView};
 use pike::launch::{CancelLaunch, LaunchError, LaunchPool, PreparedSession, RequestId, SessionId};
 
@@ -20,6 +21,7 @@ struct App {
     launches: LaunchPool,
     target: Target,
     exiting: bool,
+    notice: Option<String>,
 }
 
 #[derive(Default)]
@@ -67,6 +69,7 @@ impl App {
         match self.launches.start(Default::default()) {
             Ok(launch) => {
                 let request = launch.request;
+                self.notice = None;
                 let session = launch.session;
                 self.target = Target::Starting {
                     request,
@@ -91,6 +94,7 @@ impl App {
         // Dropping Running requests close; pool admission stays held until the
         // PTY worker acknowledges disposal. No UI thread joins or blocking I/O.
         self.target = Target::Closed;
+        self.notice = None;
     }
 
     fn update(&mut self, message: Message) -> Task<Message> {
@@ -121,7 +125,27 @@ impl App {
                 if let Target::Running(terminal) = &mut self.target
                     && terminal.id == id
                 {
-                    terminal.handle(Command::ProxyToBackend(command));
+                    match terminal.handle(Command::ProxyToBackend(command)) {
+                        Action::InputRejected(error) => {
+                            self.notice = Some(format!("Input was not sent: {error}"));
+                        }
+                        Action::EventBridgeError(_) => {
+                            self.notice = Some(
+                                "Terminal output stopped. Close and reopen the terminal.".into(),
+                            );
+                        }
+                        Action::BackendCompleted(completion)
+                            if matches!(
+                                completion.reason,
+                                iced_term::ExitReason::IoError(_) | iced_term::ExitReason::Panicked
+                            ) =>
+                        {
+                            self.notice = Some(
+                                "The terminal stopped unexpectedly. Close and reopen it.".into(),
+                            );
+                        }
+                        _ => {}
+                    }
                 }
             }
             Message::CloseWindow if !self.exiting => {
@@ -172,7 +196,11 @@ impl App {
         ]
         .spacing(12)
         .into();
-        container(column![controls.map(Message::Control), status].spacing(12))
+        let mut content = column![controls.map(Message::Control), status].spacing(12);
+        if let Some(notice) = &self.notice {
+            content = content.push(text(notice));
+        }
+        container(content)
             .padding(12)
             .width(Fill)
             .height(Fill)
@@ -235,6 +263,48 @@ mod tests {
         );
         drop(retry);
         app.close_target();
+        executor.block_on(async {
+            tokio::time::timeout(Duration::from_secs(10), app.launches.shutdown())
+                .await
+                .unwrap();
+        });
+    }
+
+    #[test]
+    fn terminal_errors_are_visible_and_preserve_the_terminal_model() {
+        let executor = SharedExecutor::new().unwrap();
+        let mut app = App::default();
+        let launch = starting(&mut app, &executor);
+        let ids = (launch.request, launch.session);
+        let ready = executor.block_on(launch.receive()).unwrap();
+        drop(app.update(Message::Launched(ids.0, ids.1, Ok(ready))));
+        let id = ids.1.get();
+        drop(app.update(Message::Terminal(Event::BackendCall(
+            id,
+            iced_term::BackendCommand::InputRejected(iced_term::InputError::Full {
+                requested: 1024,
+                available: 0,
+            }),
+        ))));
+        assert!(
+            app.notice
+                .as_deref()
+                .unwrap()
+                .starts_with("Input was not sent:")
+        );
+        drop(app.update(Message::Terminal(Event::BackendCall(
+            id,
+            iced_term::BackendCommand::EventBridge(iced_term::EventBridgeEvent::Error(
+                iced_term::EventBridgeError::ControlOverflow,
+            )),
+        ))));
+        assert!(
+            app.notice
+                .as_deref()
+                .unwrap()
+                .starts_with("Terminal output stopped.")
+        );
+        assert!(matches!(app.target, Target::Running(_)));
         executor.block_on(async {
             tokio::time::timeout(Duration::from_secs(10), app.launches.shutdown())
                 .await
