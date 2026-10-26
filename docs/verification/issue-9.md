@@ -9,6 +9,8 @@ is unavailable in this macOS checkout, nearby project folders and Git history.
 `BackendSettings` on Windows uses an empty program/no args for automatic shell
 selection: PowerShell 7 (session PATH, then ProgramFiles/PowerShell/7), system
 Windows PowerShell, system cmd. WSL requires an explicit `wsl.exe` program.
+Resolved executables retain conventional absolute path syntax for legacy hosts;
+resolution does not add canonicalize's verbatim prefix.
 An explicit program is an **unquoted** executable path or name; invalid settings
 return errors rather than selecting another shell. Relative paths resolve from
 session cwd. Bare names search the session PATH then System32, without implicit
@@ -72,7 +74,7 @@ vendored crates' all-target Clippy; 4 application tests, 5 example tests,
 and 1 doctest. Two Alacritty tests initially hit sandbox-denied polling syscalls;
 rerunning the explicit dependency suites outside the sandbox passed in full.
 Windows MSVC cross-target all-target Clippy and Alacritty test type checking
-also pass. Native Windows CI results will be added after the PR run.
+also pass. Native Windows CI results are recorded below.
 Windows execution requires a Windows host; cross-target type checking alone is
 not execution evidence. No RAM, idle CPU or startup-percentile claim is made.
 The CI stopwatch covers the complete synthetic suite, including shell startup,
@@ -81,3 +83,62 @@ fixture I/O and teardown, rather than isolated application startup latency.
 API references checked against pinned sources and official documentation:
 [CreateProcessW](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessw),
 [CompareStringOrdinal](https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringordinal).
+
+
+## Native Windows resource audit
+
+[ConPTY resource run 40335067319](https://github.com/shakodev/pike/actions/runs/40335067319)
+passes on source `c738687`, on both Server 2022 and Server 2025. Each cohort
+runs 100 measured repetitions after 10 warmups in each of 14 scenarios: missing
+executable, invalid cwd, close, and 11 injected startup failures. Every scenario
+ends with zero handle and thread growth. Endpoint private-byte deltas range
+from -159,744 to +212,992 bytes on Server 2022, and -81,920 to +172,032 on Server 2025;
+these are individual allocator observations, not a retained-memory budget.
+
+[Compact resource/CPU results](../baselines/issue-9/resources.csv) retain every
+scenario's endpoint delta and host CPU/wall measurements, with OS metadata in
+the same folder. For 100 close cycles the measured host CPU/wall times are
+1156.250/2087.839 ms (2022) and 1015.625/1722.682 ms (2025). The existing sampler
+enumerates system threads and reports CSV each cycle; these times include
+expensive diagnostics and cannot establish application startup or idle CPU.
+The audit also passes attached-tree/flood shutdown, natural output drain,
+164 reported backend tests (5 opt-in probes ignored by the normal suite),
+45 reference tests and one doctest on each cohort. The opt-in resource,
+attached-tree and natural-drain probes are run explicitly in separate steps.
+
+
+## Native Windows renderer matrix and acceptance
+
+[Windows run 40335067341](https://github.com/shakodev/pike/actions/runs/40335067341)
+passes on source `c738687` for both wgpu and tiny-skia. Each job passes formatting,
+feature isolation, runtime checks, application/vendor Clippy, 4 app tests,
+5 example tests, 46 adapter tests, 164 reported backend tests, 45 reference
+tests and one doctest, plus release app/examples builds, packaging, bounded
+input, shutdown integration and dependency-file cleanliness.
+
+The release launch suite reports every check as PASS, with no PowerShell 7 skip:
+
+- Executable path with spaces/Unicode and all native argument edge cases
+  round-trip byte-for-byte without an extra shell.
+- cmd raw scripts, Windows PowerShell and PowerShell 7 command semantics all
+  execute independently with the expected output and exit codes.
+- Invalid explicit shell/cwd return typed private errors; two simultaneously
+  live sessions retain independent cwd/environment and preserve parent settings.
+- Automatic shell selection starts and acknowledges cleanup successfully.
+
+Complete-suite elapsed observations are 2068.6187 ms (wgpu) and 2128.4358 ms
+(tiny-skia). These include several shell startups, filesystem fixture work
+and teardown; they are not renderer benchmarks or startup percentiles.
+
+Native verification caught a legacy PowerShell failure when resolved program
+paths acquired the extended-length prefix from canonicalize. Conventional
+absolute executable paths fix that failure while preserving explicit
+lpApplicationName selection. The preparation regression asserts that normal
+bare-name resolution does not introduce the prefix. Rust documents this
+[canonicalize compatibility concern](https://doc.rust-lang.org/std/fs/fn.canonicalize.html).
+
+WSL distribution execution, interactive GUI behavior and reference-machine idle
+RAM/CPU measurements remain outside this launch fixture. No WSL distribution,
+extra PTY implementation, dependency package or persistent runtime task is added.
+The final evidence commit changes only documentation and synthetic measurements;
+all production and fixture source matches the verified revision above.

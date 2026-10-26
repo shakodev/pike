@@ -224,3 +224,9 @@ checks and ConPTY probe described in
   cover preparation, native argv round trips, two live sessions, private
   diagnostics, cmd, Windows PowerShell and installed PowerShell 7. See
   [verification](../../docs/verification/issue-9.md) for commands/results.
+
+- Keep resolved executable paths in conventional absolute form using
+  `std::path::absolute`. Avoid canonicalize's automatic verbatim prefix, which
+  broke the legacy Windows PowerShell release fixture; assert that bare-name
+  resolution does not add it. The explicit application-name argument still
+  prevents command-line executable ambiguity.
