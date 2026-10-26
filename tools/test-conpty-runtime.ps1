@@ -27,6 +27,28 @@ try {
         $rejected = $true
     }
     if (-not $rejected -or (Test-Path (Join-Path $scratch 'rejected'))) { throw 'Corrupt archive was deployed' }
+    # A user-provided executable must match the native runtime architecture.
+    # Use a controlled ARM64 PE header; ordinary release CI packages real x64 Pike.
+    $armExecutable = Join-Path $scratch 'arm64.exe'
+    $header = New-Object byte[] 512
+    [BitConverter]::GetBytes([uint16]0x5A4D).CopyTo($header, 0)
+    [BitConverter]::GetBytes([uint32]128).CopyTo($header, 0x3C)
+    [BitConverter]::GetBytes([uint32]0x00004550).CopyTo($header, 128)
+    [BitConverter]::GetBytes([uint16]0xAA64).CopyTo($header, 132)
+    [IO.File]::WriteAllBytes($armExecutable, $header)
+    foreach ($invalidExecutable in @($armExecutable, $corrupt, (Join-Path $destination 'conpty.dll'))) {
+        $rejected = $false
+        $packageDirectory = Join-Path $scratch ([Guid]::NewGuid().ToString())
+        try {
+            & "$PSScriptRoot/package-windows.ps1" -Executable $invalidExecutable -OutputDirectory $packageDirectory -TargetDirectory $TargetDirectory | Out-Null
+        } catch {
+            if ($_.Exception.Message -notmatch 'Expected an x64 Windows executable') { throw }
+            $rejected = $true
+        }
+        if (-not $rejected -or (Test-Path $packageDirectory) -or (Test-Path ($packageDirectory + '.zip'))) {
+            throw 'Invalid executable reached release packaging'
+        }
+    }
 } finally {
     Remove-Item -LiteralPath $scratch -Recurse -Force
 }

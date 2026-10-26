@@ -56,7 +56,7 @@ pub struct ChildExitWatcher {
     wait_handle: AtomicPtr<c_void>,
     event_rx: mpsc::Receiver<ChildEvent>,
     interest: Arc<Mutex<Option<Interest>>>,
-    sender: Option<Box<ChildExitSender>>,
+    sender: Option<Arc<ChildExitSender>>,
     pid: Option<NonZeroU32>,
 }
 
@@ -66,7 +66,7 @@ impl ChildExitWatcher {
 
         let mut wait_handle: HANDLE = ptr::null_mut();
         let interest = Arc::new(Mutex::new(None));
-        let mut sender_ref = Box::new(ChildExitSender {
+        let sender_ref = Arc::new(ChildExitSender {
             sender: event_tx,
             interest: interest.clone(),
             child_handle: child_handle.clone(),
@@ -74,14 +74,16 @@ impl ChildExitWatcher {
         });
 
         super::conpty::fault(super::conpty::Failure::Wait)?;
-        // SAFETY: the boxed context stays stable through registration and is
-        // reclaimed only after a synchronous unregister. Failure drops it here.
+        // SAFETY: Arc::as_ptr permits shared access even if the owning Arc moves
+        // after Windows starts the callback during registration. No Box-derived
+        // unique reference is retained across that move. The owner is released
+        // only after synchronous unregister; registration failure drops it here.
         let success = unsafe {
             RegisterWaitForSingleObject(
                 &mut wait_handle,
                 child_handle.as_raw_handle() as HANDLE,
                 Some(child_exit_callback),
-                (&mut *sender_ref as *mut ChildExitSender).cast(),
+                Arc::as_ptr(&sender_ref).cast(),
                 INFINITE,
                 WT_EXECUTEINWAITTHREAD | WT_EXECUTEONLYONCE,
             )
@@ -156,7 +158,7 @@ impl Drop for ChildExitWatcher {
             // this exceptional path is logged without any terminal payload.
             log::error!("child wait unregister failed: {}", Error::last_os_error());
             if let Some(sender) = self.sender.take() {
-                let _ = Box::into_raw(sender);
+                let _ = Arc::into_raw(sender);
             }
         }
     }

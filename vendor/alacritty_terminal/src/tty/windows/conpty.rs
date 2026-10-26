@@ -17,10 +17,11 @@ use windows_sys::Win32::System::LibraryLoader::{
 };
 
 use windows_sys::Win32::System::Threading::{
-    CreateProcessW, DeleteProcThreadAttributeList, InitializeProcThreadAttributeList,
-    TerminateProcess, UpdateProcThreadAttribute, WaitForSingleObject, CREATE_UNICODE_ENVIRONMENT,
-    EXTENDED_STARTUPINFO_PRESENT, INFINITE, LPPROC_THREAD_ATTRIBUTE_LIST, PROCESS_INFORMATION,
-    PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, STARTF_USESTDHANDLES, STARTUPINFOEXW,
+    CreateProcessW, DeleteProcThreadAttributeList, InitializeProcThreadAttributeList, ResumeThread,
+    TerminateProcess, UpdateProcThreadAttribute, WaitForSingleObject, CREATE_SUSPENDED,
+    CREATE_UNICODE_ENVIRONMENT, EXTENDED_STARTUPINFO_PRESENT, INFINITE,
+    LPPROC_THREAD_ATTRIBUTE_LIST, PROCESS_INFORMATION, PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE,
+    STARTF_USESTDHANDLES, STARTUPINFOEXW,
 };
 
 use crate::event::{OnResize, WindowSize};
@@ -51,7 +52,7 @@ struct Library(HMODULE);
 
 impl Drop for Library {
     fn drop(&mut self) {
-        // SAFETY: this wrapper owns exactly one successful LoadLibraryW reference.
+        // SAFETY: this wrapper owns exactly one successful LoadLibraryExW reference.
         unsafe {
             FreeLibrary(self.0);
         }
@@ -225,6 +226,7 @@ pub(super) enum Failure {
     ReaderWorker,
     WriterWorker,
     CloseWorker,
+    Resume,
 }
 
 pub(super) fn fault(point: Failure) -> Result<()> {
@@ -304,7 +306,9 @@ pub fn new(config: &Options, window_size: WindowSize) -> Result<Pty> {
     // CreateProcessW may modify its command line; use genuinely mutable storage.
     let mut cmdline = win32_string(&cmdline(config));
     let cwd = config.working_directory.as_ref().map(win32_string);
-    let mut creation_flags = EXTENDED_STARTUPINFO_PRESENT;
+    // No shell code or descendant may run while fallible setup can still
+    // reject the session. Startup rollback then owns only a suspended root.
+    let mut creation_flags = EXTENDED_STARTUPINFO_PRESENT | CREATE_SUSPENDED;
     let custom_env_block = convert_custom_env(&config.env);
     let environment = match &custom_env_block {
         Some(block) => {
@@ -335,11 +339,10 @@ pub fn new(config: &Options, window_size: WindowSize) -> Result<Pty> {
         return Err(Error::last_os_error());
     }
     // SAFETY: successful CreateProcessW transfers these two distinct handles.
-    // The primary thread is never used. Keep the process alive through wait
-    // registration and startup rollback, then transfer it to the watcher.
+    // Keep the primary thread suspended through wait/pipe-worker setup and
+    // retain its handle for resume. Startup rollback retains the process.
     let process = unsafe { Arc::new(OwnedHandle::from_raw_handle(proc_info.hProcess)) };
     let thread = unsafe { OwnedHandle::from_raw_handle(proc_info.hThread) };
-    drop(thread);
     startup.process = Some(process.clone());
     let child_watcher = ChildExitWatcher::new(process)?;
     drop(attributes);
@@ -349,7 +352,16 @@ pub fn new(config: &Options, window_size: WindowSize) -> Result<Pty> {
     let conin = startup.writer.take().unwrap();
     let backend = startup.backend.take().unwrap();
     startup.process.take();
-    Ok(Pty::new(backend, conout, conin, child_watcher))
+    let pty = Pty::new(backend, conout, conin, child_watcher);
+    // From here any resume failure disposes a fully owned PTY with concurrent
+    // output draining, rather than closing a live client's raw pipe too early.
+    fault(Failure::Resume)?;
+    // SAFETY: we own this newly created thread's handle with SUSPEND_RESUME
+    // access. Its only suspend count was set by CREATE_SUSPENDED above.
+    if unsafe { ResumeThread(thread.as_raw_handle() as HANDLE) } == u32::MAX {
+        return Err(Error::last_os_error());
+    }
+    Ok(pty)
 }
 
 // Windows environment variables are case-insensitive, and the caller is responsible for

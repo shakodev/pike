@@ -161,6 +161,7 @@ fn resource_cycles() {
             Failure::Wait,
             Failure::ReaderWorker,
             Failure::WriterWorker,
+            Failure::Resume,
         ]
         .map(|point| (format!("injected-{point:?}"), Some(point))),
     );
@@ -415,7 +416,7 @@ fn failed_startup_never_executes_the_child() {
     let directory = std::env::temp_dir().join(format!("pike-startup-gate-{}", std::process::id()));
     std::fs::create_dir(&directory).unwrap();
     let mut executed = Vec::new();
-    for point in [Failure::Wait, Failure::WriterWorker, Failure::ReaderWorker] {
+    for point in [Failure::Wait, Failure::WriterWorker, Failure::ReaderWorker, Failure::Resume] {
         let marker = directory.join(format!("{point:?}.marker"));
         let config = Options {
             shell: Some(Shell::new(
