@@ -161,3 +161,63 @@ fn preparation_quotes_argv0_and_only_raw_mode_preserves_shell_syntax() {
     assert!(String::from_utf16_lossy(&Prepared::new(&config).unwrap().command)
         .ends_with(" /c echo a & echo b\0"));
 }
+
+#[test]
+fn drive_relative_paths_cannot_escape_session_resolution() {
+    error(
+        Options {
+            shell: Some(Shell::new(r"C:PRIVATE_SENTINEL.exe".into(), vec![])),
+            ..Options::default()
+        },
+        LaunchError::InvalidProgram,
+    );
+    error(
+        Options {
+            shell: Some(Shell::new("PRIVATE_SENTINEL.exe".into(), vec![])),
+            env: [("PATH".into(), r"C:PRIVATE_SENTINEL".into())].into(),
+            ..Options::default()
+        },
+        LaunchError::InvalidEnvironment,
+    );
+    let parent = std::env::current_dir().unwrap();
+    let Some(Component::Prefix(prefix)) = parent.components().next() else {
+        panic!("Windows current directory must have a prefix");
+    };
+    if matches!(prefix.kind(), std::path::Prefix::Disk(_)) {
+        let mut relative = prefix.as_os_str().to_owned();
+        relative.push(".");
+        let config = Options {
+            shell: Some(Shell::new(
+                std::env::current_exe().unwrap().to_str().unwrap().into(),
+                vec![],
+            )),
+            working_directory: Some(relative.into()),
+            ..Options::default()
+        };
+        let prepared = Prepared::new(&config).unwrap();
+        let actual =
+            PathBuf::from(OsString::from_wide(&prepared.directory[..prepared.directory.len() - 1]));
+        assert!(actual.is_absolute());
+        assert_eq!(actual, std::path::absolute(&parent).unwrap());
+    }
+}
+
+#[test]
+fn plain_relative_programs_and_path_entries_use_the_session_directory() {
+    let directory =
+        std::env::temp_dir().join(format!("pike-relative-launch-{}", std::process::id()));
+    std::fs::create_dir(&directory).unwrap();
+    struct Cleanup(PathBuf);
+    impl Drop for Cleanup {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.0);
+        }
+    }
+    let _cleanup = Cleanup(directory.clone());
+    let program = directory.join("fixture.exe");
+    std::fs::write(&program, []).unwrap();
+    let env = environment(&[("PATH".into(), ".".into())].into(), std::iter::empty()).unwrap();
+    let expected = std::path::absolute(program).unwrap();
+    assert_eq!(resolve(r".\fixture.exe", &directory, &env).unwrap(), Some(expected.clone()));
+    assert_eq!(resolve("fixture.exe", &directory, &env).unwrap(), Some(expected));
+}

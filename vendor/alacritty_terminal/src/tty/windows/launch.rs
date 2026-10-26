@@ -5,7 +5,7 @@ use std::ffi::OsString;
 use std::fmt;
 use std::io::{self, ErrorKind};
 use std::os::windows::ffi::{OsStrExt, OsStringExt};
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
 use windows_sys::Win32::Globalization::CompareStringOrdinal;
 use windows_sys::Win32::System::SystemInformation::GetSystemDirectoryW;
@@ -79,7 +79,14 @@ impl Prepared {
         let parent = std::env::current_dir().map_err(|_| LaunchError::InvalidDirectory)?;
         let directory =
             config.working_directory.as_ref().map_or_else(|| parent.clone(), |p| parent.join(p));
-        if directory.as_os_str().encode_wide().any(|c| c == 0) || !directory.is_dir() {
+        if directory.as_os_str().encode_wide().any(|c| c == 0) {
+            return Err(LaunchError::InvalidDirectory.into());
+        }
+        // Capture even drive-relative cwd once as a full path before resolution
+        // or CreateProcess. Do not pass per-drive ambient state to the child.
+        let directory =
+            std::path::absolute(directory).map_err(|_| LaunchError::InvalidDirectory)?;
+        if !directory.is_dir() {
             return Err(LaunchError::InvalidDirectory.into());
         }
         let env = environment(&config.env, std::env::vars_os())?;
@@ -217,6 +224,9 @@ fn resolve(program: &str, cwd: &Path, env: &Environment) -> io::Result<Option<Pa
         return Err(LaunchError::InvalidProgram.into());
     }
     let mut path = PathBuf::from(program);
+    if drive_relative(&path) {
+        return Err(LaunchError::InvalidProgram.into());
+    }
     if path.extension().is_none() {
         path.set_extension("exe");
     }
@@ -231,6 +241,9 @@ fn resolve(program: &str, cwd: &Path, env: &Environment) -> io::Result<Option<Pa
     // Never implicitly search the current directory or wrap via cmd.exe.
     if let Some(search) = value(env, "PATH") {
         for dir in std::env::split_paths(&search).filter(|p| !p.as_os_str().is_empty()) {
+            if drive_relative(&dir) {
+                return Err(LaunchError::InvalidEnvironment.into());
+            }
             let candidate = cwd.join(dir).join(&path);
             if let Some(found) = executable(candidate) {
                 return Ok(Some(found));
@@ -238,6 +251,12 @@ fn resolve(program: &str, cwd: &Path, env: &Environment) -> io::Result<Option<Pa
         }
     }
     Ok(executable(system_directory()?.join(path)))
+}
+
+// C:folder discards the base on join and uses the parent's per-drive cwd.
+// Require an unambiguous path when resolving an executable inside a session.
+fn drive_relative(path: &Path) -> bool {
+    !path.has_root() && matches!(path.components().next(), Some(Component::Prefix(_)))
 }
 
 // Keep conventional absolute paths for hosts such as Windows PowerShell/.NET
@@ -253,6 +272,9 @@ fn default_shell(cwd: &Path, env: &Environment) -> io::Result<Option<PathBuf>> {
     }
     if let Some(program_files) = value(env, "ProgramFiles") {
         let candidate = PathBuf::from(program_files).join("PowerShell/7/pwsh.exe");
+        if drive_relative(&candidate) {
+            return Err(LaunchError::InvalidEnvironment.into());
+        }
         if let Some(found) = executable(cwd.join(candidate)) {
             return Ok(Some(found));
         }

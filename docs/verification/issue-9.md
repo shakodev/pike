@@ -13,7 +13,8 @@ Resolved executables retain conventional absolute path syntax for legacy hosts;
 resolution does not add canonicalize's verbatim prefix.
 An explicit program is an **unquoted** executable path or name; invalid settings
 return errors rather than selecting another shell. Relative paths resolve from
-session cwd. Bare names search the session PATH then System32, without implicit
+session cwd; drive-relative executable/search paths such as `C:tools` are rejected.
+Configured cwd is captured as a full path before launch. Bare names search the session PATH then System32, without implicit
 cwd search. Extensionless executables gain .exe; batch scripts require an
 explicit interpreter. This policy does not modify process-wide settings.
 
@@ -142,3 +143,22 @@ RAM/CPU measurements remain outside this launch fixture. No WSL distribution,
 extra PTY implementation, dependency package or persistent runtime task is added.
 The final evidence commit changes only documentation and synthetic measurements;
 all production and fixture source matches the verified revision above.
+
+
+## PR review — capture cwd and reject ambiguous drive-relative lookup
+
+Review found that joining a drive-relative executable or PATH directory such
+as `C:tools` discards the session base and uses the parent's hidden per-drive
+cwd instead. Executable lookup now rejects that ambiguous syntax with private
+InvalidProgram/InvalidEnvironment errors, including ProgramFiles fallback.
+Plain relative paths continue to resolve against the session directory.
+Configured cwd is captured with std::path::absolute before validation and
+CreateProcess so even a drive-relative cwd is passed as one full path.
+
+Two native regressions cover drive-relative rejection/full cwd capture and
+ordinary relative executable/PATH resolution. The release fixture launches
+one live child with a drive-relative cwd and verifies its directory alongside
+the other independent session. Automatic-shell cleanup now also asserts a
+Requested completion, so an unrelated backend failure cannot pass that check.
+The historical measurements above remain associated with their recorded source;
+review verification is recorded after the updated native matrix completes.

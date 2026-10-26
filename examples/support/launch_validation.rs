@@ -53,8 +53,29 @@ pub fn run() -> io::Result<()> {
     .collect();
     let mut sessions = Vec::new();
     for id in 0..2 {
-        let cwd = directory.join(format!("session {id}"));
-        fs::create_dir(&cwd)?;
+        let cwd = if id == 0 {
+            let cwd = directory.join("session 0");
+            fs::create_dir(&cwd)?;
+            cwd
+        } else {
+            parent_cwd.clone()
+        };
+        // Launch one live fixture from a drive-relative cwd, which preparation
+        // must capture as a full path before passing it to CreateProcess.
+        let requested_cwd = if id == 1 {
+            match cwd.components().next() {
+                Some(std::path::Component::Prefix(prefix))
+                    if matches!(prefix.kind(), std::path::Prefix::Disk(_)) =>
+                {
+                    let mut path = prefix.as_os_str().to_owned();
+                    path.push(".");
+                    PathBuf::from(path)
+                }
+                _ => cwd.clone(),
+            }
+        } else {
+            cwd.clone()
+        };
         let output = directory.join(format!("result-{id}"));
         let value = format!("synthetic-{id}");
         let mut args = vec!["--fixture".into(), string(&output)?];
@@ -62,7 +83,7 @@ pub fn run() -> io::Result<()> {
         let settings = BackendSettings {
             program: string(&executable)?,
             args,
-            working_directory: Some(cwd.clone()),
+            working_directory: Some(requested_cwd),
             env: [
                 (ENV_KEY.to_ascii_lowercase(), value.clone()),
                 ("PIKE_EMPTY".into(), "".into()),
@@ -236,9 +257,13 @@ pub fn run() -> io::Result<()> {
     let automatic = Terminal::new(202, Settings::default())?;
     automatic.request_close();
     let handle = automatic.shutdown_handle();
-    runtime
+    let completion = runtime
         .block_on(async { tokio::time::timeout(TIMEOUT, handle.wait()).await })
         .map_err(|_| io::Error::other("default shell cleanup deadline"))?;
+    ensure(
+        completion.reason == ExitReason::Requested,
+        "default shell close completion",
+    )?;
     println!("PASS: automatic shell startup and cleanup");
     Ok(())
 }

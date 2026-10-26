@@ -20,6 +20,7 @@ pub struct Settings {
 pub struct BackendSettings {
     /// Unquoted executable path/name. Empty on Windows selects PowerShell 7,
     /// Windows PowerShell, then cmd. WSL requires an explicit program.
+    /// Windows drive-relative executable paths (C:tool.exe) are rejected.
     pub program: String,
     /// Individual unquoted arguments, unless `escape_args` is explicitly false.
     pub args: Vec<String>,

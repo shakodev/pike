@@ -230,3 +230,14 @@ checks and ConPTY probe described in
   broke the legacy Windows PowerShell release fixture; assert that bare-name
   resolution does not add it. The explicit application-name argument still
   prevents command-line executable ambiguity.
+
+
+## R09 PR review — remove ambient drive state from executable lookup
+
+- Normalize cwd to a full path once before validation/launch. Reject
+  drive-relative executable, PATH and ProgramFiles lookup paths rather than
+  using the parent's per-drive cwd after PathBuf::join discards the session base.
+  Ordinary relative paths retain session-relative resolution.
+- Add two native preparation regressions; the release fixture now covers a
+  drive-relative cwd in one of its two live sessions and verifies the default
+  shell's explicit close completion reason. No new dependencies or idle work.
