@@ -127,3 +127,29 @@ checks and ConPTY probe described in
 - Flush active synchronized updates on I/O failure or explicit close before
   dropping the parser. Already-read output is retained even without Exit; a
   read-then-broken-pipe regression verifies the synchronized final sentinel.
+
+## R08 / issue #8 — Windows ownership and startup failure audit
+
+- Wrap HPCON immediately, close all startup error paths with safe output/console
+  ordering, and adopt both CreateProcess handles into Rust ownership. Close the
+  unused primary-thread handle immediately and retain the process until callback
+  join and backend completion.
+- Own initialized attribute lists in aligned storage and call
+  DeleteProcThreadAttributeList before freeing them on success and failure.
+- Watchers own stable callback state, reclaim failed registrations and unfired
+  callbacks, synchronously unregister/join before releasing the process, and wake
+  the poller when exit preceded registration. Cover in-flight callback teardown.
+- Return ConPTY HRESULT and pipe-worker creation errors; failed resize preserves
+  the session. Retain backend ownership if close-thread creation fails and use
+  the existing reader to release the output pipe during synchronous disposal.
+- Own optional DLL references across their function-pointer use and free on
+  partial export lookup or final backend destruction. Remove environment values
+  from duplicate-variable diagnostics and pass mutable storage to CreateProcess.
+- Add isolated release resource, SDK-control, natural-drain and attached-tree
+  fixtures. Test-only SDK memory/thread counters use existing windows-sys 0.59;
+  no runtime dependencies, versions, or lockfiles change.
+- The application fixes have zero linear handle growth on Server 2025/26100.
+  Server 2022/20348 still leaks one handle per bare SDK console cycle, reproduced
+  independently of Pike. Full acceptance remains blocked by #55; the strict
+  legacy-cohort CI check intentionally fails. No opaque HPCON access or second
+  PTY is introduced. See [audit and measurements](../../docs/verification/issue-8.md).

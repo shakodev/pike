@@ -1,0 +1,14 @@
+kind,mode,host_cpu_ms,wall_ms_including_diagnostics
+cpu,missing-executable,1312.500,1374.142
+cpu,invalid-cwd,1390.625,1430.372
+cpu,close,1421.875,1965.530
+cpu,injected-OutputPipe,1109.375,1133.988
+cpu,injected-InputPipe,1140.625,1171.394
+cpu,injected-Console,1062.500,1112.346
+cpu,injected-AttributeSize,1328.125,1353.218
+cpu,injected-AttributeInit,1312.500,1337.317
+cpu,injected-AttributeUpdate,1281.250,1340.171
+cpu,injected-Process,1312.500,1364.774
+cpu,injected-Wait,1578.125,1610.371
+cpu,injected-ReaderWorker,1406.250,1530.976
+cpu,injected-WriterWorker,1296.875,1499.356
