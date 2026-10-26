@@ -225,21 +225,26 @@ fn resolve(program: &str, cwd: &Path, env: &Environment) -> io::Result<Option<Pa
         return Err(LaunchError::InvalidProgram.into());
     }
     if path.components().count() > 1 || path.is_absolute() {
-        return Ok(std::fs::canonicalize(cwd.join(path)).ok().filter(|p| p.is_file()));
+        return Ok(executable(cwd.join(path)));
     }
     // Bare names search explicit session PATH, then the OS system directory.
     // Never implicitly search the current directory or wrap via cmd.exe.
     if let Some(search) = value(env, "PATH") {
         for dir in std::env::split_paths(&search).filter(|p| !p.as_os_str().is_empty()) {
             let candidate = cwd.join(dir).join(&path);
-            if let Ok(found) = std::fs::canonicalize(candidate) {
-                if found.is_file() {
-                    return Ok(Some(found));
-                }
+            if let Some(found) = executable(candidate) {
+                return Ok(Some(found));
             }
         }
     }
-    Ok(std::fs::canonicalize(system_directory()?.join(path)).ok().filter(|p| p.is_file()))
+    Ok(executable(system_directory()?.join(path)))
+}
+
+// Keep conventional absolute paths for hosts such as Windows PowerShell/.NET
+// Framework that cannot use the verbatim paths produced by canonicalize.
+// CreateProcess receives the full path separately, so no search is deferred.
+fn executable(path: PathBuf) -> Option<PathBuf> {
+    path.is_file().then(|| std::path::absolute(path).ok()).flatten()
 }
 
 fn default_shell(cwd: &Path, env: &Environment) -> io::Result<Option<PathBuf>> {
@@ -248,8 +253,8 @@ fn default_shell(cwd: &Path, env: &Environment) -> io::Result<Option<PathBuf>> {
     }
     if let Some(program_files) = value(env, "ProgramFiles") {
         let candidate = PathBuf::from(program_files).join("PowerShell/7/pwsh.exe");
-        if candidate.is_file() {
-            return Ok(Some(candidate));
+        if let Some(found) = executable(cwd.join(candidate)) {
+            return Ok(Some(found));
         }
     }
     let system = system_directory()?;

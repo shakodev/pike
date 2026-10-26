@@ -304,12 +304,16 @@ fn finish(runtime: &tokio::runtime::Runtime, terminal: &Terminal, code: i32) -> 
     let result = runtime
         .block_on(async { tokio::time::timeout(TIMEOUT, handle.wait()).await })
         .map_err(|_| io::Error::other("fixture completion deadline"))?;
-    ensure(
-        result.reason == ExitReason::ChildExit
-            && result.exit_code == Some(code)
-            && result.output_drained,
-        "natural exit and complete cleanup",
-    )
+    if result.reason != ExitReason::ChildExit
+        || result.exit_code != Some(code)
+        || !result.output_drained
+    {
+        return Err(io::Error::other(format!(
+            "fixture completion: reason={:?}, code={:?}, drained={}",
+            result.reason, result.exit_code, result.output_drained
+        )));
+    }
+    Ok(())
 }
 
 fn ensure(condition: bool, label: &str) -> io::Result<()> {

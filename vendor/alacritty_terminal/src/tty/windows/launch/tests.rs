@@ -154,6 +154,7 @@ fn preparation_quotes_argv0_and_only_raw_mode_preserves_shell_syntax() {
     };
     let prepared = Prepared::new(&config).unwrap();
     assert_eq!(prepared.command[0], b'"' as u16);
+    assert!(!String::from_utf16_lossy(&prepared.program).starts_with(r"\\?\"));
     assert!(prepared.environment.is_none());
     assert!(String::from_utf16_lossy(&prepared.command).ends_with(" /c \"echo a & echo b\"\0"));
     config.escape_args = false;
