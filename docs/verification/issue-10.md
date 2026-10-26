@@ -1,9 +1,10 @@
 # Issue #10 — bounded asynchronous terminal startup
 
-Dependencies #7, #8 and #9 are closed and merged on starting main `081ec9c`.
-Read AGENTS.md and issue #10 (no comments). The referenced uncommitted PLAN.md
-is absent from this checkout and nearby Documents/Downloads folders. The issue
-explicitly declares its body self-contained, so implementation follows that scope.
+Implementation merged in PR #57. Dependencies #7, #8 and #9 are closed and
+merged. The remaining native Windows verification is recorded in
+[Windows completion](issue-10-windows.md), including a reproducible Iced GUI
+probe, native ConPTY tests, 32-request bursts and release resource measurements.
+The original macOS implementation/review evidence is retained below.
 
 ## Ownership and limits
 
@@ -108,14 +109,11 @@ These include the test harness, timers and synthetic sessions, not a running
 GUI or an idle-terminal budget. [Provenance and source hashes](../baselines/issue-10/provenance.json)
 identify this single observation; it is not a percentile or a sustained-load test.
 
-This is a synthetic dispatch/cleanup measurement, **not an Iced render/input
-latency measurement**. Native Windows ConPTY execution, actual GUI stalls,
-Windows handle/thread recovery and idle release RAM/CPU profiling remain
-unverified: the available host is macOS and the user explicitly prohibited
-GitHub Actions. Windows MSVC cross-target Clippy provides type checking only.
-The tests and probe are ready for a Windows host; run the commands above and
-exercise Close during Starting, Retry, typing, resize, copy/paste and window
-close interactively there. No Windows performance or leak claim is made.
+This original macOS probe measures synthetic dispatch/cleanup, **not Iced
+render/input latency**. At implementation time no Windows host was available;
+MSVC cross-target Clippy provided type checking only. The subsequent native
+[Windows completion](issue-10-windows.md) supplies the missing execution and
+measurement evidence without using GitHub Actions.
 
 The PR commit carries `[skip ci]` to prevent both existing pull_request workflows
 from running, per [GitHub's documented skip behavior](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/skip-workflow-runs).
@@ -148,6 +146,7 @@ two-admitted/thirty-rejected bound and acknowledged cleanup in all three bursts.
 The original resource observations above remain associated with their source
 hashes. No new idle-memory or Windows performance claim is made.
 
-The user confirmed that no Windows host is available. Native Windows execution
-and interactive GUI profiling remain unavailable under the no-Actions constraint;
-this review does not claim that cross-target checks execute ConPTY.
+The review above ran before a Windows host became available. Native execution
+and GUI responsiveness measurements are now recorded in
+[Windows completion](issue-10-windows.md). Cross-target checks are still not
+represented as native execution. The no-Actions constraint remains in effect.

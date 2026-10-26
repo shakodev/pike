@@ -1,0 +1,27 @@
+﻿{
+    "Shell":  "cmd",
+    "Sessions":  1,
+    "Mode":  "idle",
+    "Run":  1,
+    "Renderer":  "wgpu (ICED_BACKEND override); build features recorded separately",
+    "ReadyAndWindowMs":  1333.5077,
+    "CloseObservationMs":  224.5004,
+    "FinalMarkers":  1,
+    "ChildExitCodes":  [
+                           41
+                       ],
+    "ExitCode":  0,
+    "IdleWallSeconds":  61.2509432,
+    "IdleOneCoreCpuPercent":  0.025509811251363718,
+    "ChildrenOneCoreCpuPercent":  0,
+    "PrivateBytesMinimum":  220491776,
+    "PrivateBytesMaximum":  220663808,
+    "WorkingSetBytesMinimum":  171831296,
+    "WorkingSetBytesMaximum":  171909120,
+    "ThreadsMinimum":  33,
+    "ThreadsMaximum":  38,
+    "HandlesMinimum":  638,
+    "HandlesMaximum":  643,
+    "ChildrenPrivateBytesMinimum":  7491584,
+    "ChildrenPrivateBytesMaximum":  10784768
+}

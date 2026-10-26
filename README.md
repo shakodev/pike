@@ -80,7 +80,7 @@ See [input verification](docs/verification/issue-6.md) for limits, tests and
 Windows resource observations. [Shutdown verification](docs/verification/issue-7.md)
 documents explicit backend completion and retained final output.
 [Startup verification](docs/verification/issue-10.md) covers bounded asynchronous
-preparation, cancellation, retry routing and pending native Windows validation.
+preparation, cancellation, retry routing and native Windows release measurements.
 The [Windows launch contract and checks](docs/verification/issue-9.md) cover
 executable/argument encoding, automatic shell selection, cwd validation and
 independent inherited environment overrides.

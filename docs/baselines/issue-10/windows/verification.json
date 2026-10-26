@@ -1,0 +1,20 @@
+﻿{
+    "NativeTarget":  "x86_64-pc-windows-msvc",
+    "Formatting":  "passed: cargo fmt --all -- --check",
+    "Profiles":  [
+                     "renderer-wgpu (default)",
+                     "renderer-tiny-skia (--no-default-features)"
+                 ],
+    "ApplicationClippy":  "passed: cargo clippy --locked --all-targets -- -D warnings, for both profiles",
+    "ApplicationTestsPerProfile":  "18 library + 2 application passed; one opt-in timing test ignored by ordinary cargo test",
+    "ExampleTestsPerProfile":  "5 compatibility + 14 pool source tests passed; one opt-in timing test ignored",
+    "AdapterTestsPerProfile":  "48 native iced_term library tests passed",
+    "ReleaseBuilds":  "application and all examples passed for both profiles",
+    "OptInReleaseSurrogates":  "passed natively for both profiles; raw output in *-surrogate.txt",
+    "NativeGuiProbe":  "three bursts per scenario per renderer; 18 bursts total; all assertions passed",
+    "IdleProfiles":  "61 external samples over more than 60 seconds per renderer, no unresponsive windows or surviving fixtures",
+    "FeatureProfiles":  "passed",
+    "FeatureGuard":  "passed",
+    "MeasurementSupport":  "passed",
+    "GitHubActionsUsed":  false
+}

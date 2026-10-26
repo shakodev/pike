@@ -220,7 +220,9 @@ impl LaunchPool {
         self.start_with(move |id| PreparedTerminal::new(id.get(), settings))
     }
 
-    fn start_with(
+    // Crate visibility also lets the opt-in example compile this exact source
+    // with a gated synthetic preparer, without exposing an injection API.
+    pub(crate) fn start_with(
         &mut self,
         prepare: impl FnOnce(SessionId) -> io::Result<PreparedTerminal> + Send + 'static,
     ) -> Result<LaunchRequest, LaunchError> {
@@ -369,4 +371,5 @@ async fn cancellation(receiver: &mut watch::Receiver<Handoff>) {
 }
 
 #[cfg(test)]
+#[path = "launch/tests.rs"]
 mod tests;

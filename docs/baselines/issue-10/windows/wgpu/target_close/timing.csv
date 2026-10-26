@@ -1,0 +1,4 @@
+cycle,scenario,requested,admitted,rejected,max_dispatch_us,updates,max_update_gap_ms,recovery_ms,backends
+0,target_close,32,2,30,9.200,112,8.090,62.406,2
+1,target_close,32,2,30,20.700,111,6.397,54.472,2
+2,target_close,32,2,30,20.100,112,7.255,56.793,2
