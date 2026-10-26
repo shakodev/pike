@@ -80,7 +80,9 @@ After `cargo build --release --locked`, run:
 ./tools/package-windows.ps1
 ```
 
-This packages the already-built executable as `pike.exe` with `conpty.dll`,
+This first checks that the input is an x64 PE32+ executable, rejecting DLLs,
+other architectures and non-PE files before creating output. It then packages
+the already-built executable as `pike.exe` with `conpty.dll`,
 `OpenConsole.exe`, `conpty-runtime.json` and `ConPTY-LICENSE.txt`, in a fresh
 folder and ZIP. It reuses the same verification step and prints the ZIP's
 SHA-256. Custom executable, target-root and output paths are parameters.

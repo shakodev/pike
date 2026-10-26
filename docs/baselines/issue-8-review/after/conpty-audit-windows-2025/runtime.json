@@ -1,0 +1,14 @@
+{
+  "Package": "Microsoft.Windows.Console.ConPTY",
+  "Version": "1.25.260930003",
+  "PackageSHA256": "02b07b349af66d801159bdf9e440d4a1ce78bb951f37fc8609731665afdae7ee",
+  "NativeBytes": 1208984.0,
+  "Destinations": [
+    "D:\\a\\pike\\pike\\target\\debug",
+    "D:\\a\\pike\\pike\\target\\debug\\deps",
+    "D:\\a\\pike\\pike\\target\\debug\\examples",
+    "D:\\a\\pike\\pike\\target\\release",
+    "D:\\a\\pike\\pike\\target\\release\\deps",
+    "D:\\a\\pike\\pike\\target\\release\\examples"
+  ]
+}

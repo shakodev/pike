@@ -177,3 +177,21 @@ checks and ConPTY probe described in
   across all 13 measured scenarios. Bare inbox controls remain separate evidence
   of the OS defect. [Issue #55 verification](../../docs/verification/issue-55.md)
   retains measurements, the regression/fix, and validation limitations.
+
+
+## R08 PR review — gate execution and stabilize FFI ownership
+
+- Create the root process suspended and retain its primary-thread handle until
+  wait registration and both pipe workers are owned. Resume only after the PTY
+  owns normal teardown. Any earlier failure terminates a suspended process;
+  resume failure uses full PTY disposal. Failed startup cannot execute shell
+  commands or spawn descendants before returning an error.
+- Store callback context in Arc and derive its FFI pointer with Arc::as_ptr,
+  preserving shared access when the owner moves after registration. Avoid
+  Box's unique-owner aliasing guarantees while Windows may run the callback.
+  Blocking unregister still precedes releasing context/process ownership.
+- A delayed synthetic side-effect regression reproduced the startup race on
+  both Windows cohorts before this fix. Add resume-failure injection to the
+  strict release resource series; no runtime dependency or extra worker.
+- The x64 packaging script rejects another architecture, DLL or non-PE input
+  before creating output. See [review record](../../docs/verification/issue-8-review.md).

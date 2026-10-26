@@ -1,0 +1,12 @@
+{
+  "before": {
+    "commit": "94767253889d9cbaf9fa4610ba0ef83449320b1e",
+    "run": "https://github.com/shakodev/pike/actions/runs/40320092406"
+  },
+  "after": {
+    "commit": "4c2c751bc672f76e7362f6a223e84b093d4e383c",
+    "audit_run": "https://github.com/shakodev/pike/actions/runs/40320678860",
+    "renderer_run": "https://github.com/shakodev/pike/actions/runs/40320678764"
+  },
+  "note": "Synthetic before/after review regression and isolated active release measurements. CSV values unchanged; text line endings normalized to LF, trailing blank lines removed. CPU includes diagnostic sampling; excludes GUI idle and whole-tree counters."
+}
