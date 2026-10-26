@@ -31,6 +31,7 @@ fn starting(model: &mut Model, effect: Effect) {
     let Effect::Spawn(ids) = effect else {
         panic!("spawn expected");
     };
+    let _token = model.claim_launch(ids).unwrap();
     black_box(model.spawn_succeeded(ids));
 }
 
@@ -73,17 +74,20 @@ fn main() {
             .splits()
             .next()
             .unwrap();
-        measure("focus_zoom_resize", count, || {
+        assert_eq!(moved.tab, a.tab);
+        measure("zoom_focus_other_resize", count, || {
             model.focus(a).unwrap();
             model.zoom(a).unwrap();
+            model.focus(moved).unwrap();
             model.resize(a.tab, split, 0.6).unwrap();
             black_box(model.workspace().active());
         });
-        measure("split_close_ack", count, || {
+        measure("split_claim_close_ack", count, || {
             let (target, effect) = model.split(a, Axis::Vertical).unwrap();
             let Effect::Spawn(ids) = effect else {
                 panic!("spawn expected");
             };
+            let _token = model.claim_launch(ids).unwrap();
             assert_eq!(model.close_pane(target).unwrap(), Some(Effect::Close(ids)));
             assert!(model.closed(ids.session));
         });

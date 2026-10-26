@@ -5,7 +5,7 @@ use std::num::NonZeroU16;
 use iced::widget::pane_grid::{Axis, Split};
 
 pub use crate::identity::TabId;
-use crate::identity::{Reservation, SessionId};
+use crate::identity::{LaunchToken, Reservation, SessionId};
 use crate::layout::{PaneState, PaneTarget, TabState, contains_split};
 use crate::session::{Effect, Failure, SessionRegistry, SpawnDisposition};
 
@@ -158,9 +158,15 @@ impl Model {
         Ok(())
     }
 
+    /// Selecting a hidden pane restores the full layout. Refocusing the
+    /// maximized pane preserves zoom, including when activating another tab.
     pub fn focus(&mut self, target: PaneTarget) -> Result<(), Error> {
         self.validate(target)?;
-        self.workspace.tabs.get_mut(&target.tab).unwrap().focused = target.pane;
+        let tab = self.workspace.tabs.get_mut(&target.tab).unwrap();
+        if tab.grid.maximized().is_some_and(|pane| pane != target.pane) {
+            tab.grid.restore();
+        }
+        tab.focused = target.pane;
         self.workspace.active = Some(target.tab);
         Ok(())
     }
@@ -222,6 +228,8 @@ impl Model {
         Ok(())
     }
 
+    /// Zoom always focuses its pane within the target tab. A background tab
+    /// stays in the background until explicitly activated or focused.
     pub fn zoom(&mut self, target: PaneTarget) -> Result<(), Error> {
         self.validate(target)?;
         let tab = self.workspace.tabs.get_mut(&target.tab).unwrap();
@@ -253,6 +261,24 @@ impl Model {
         Ok(effects)
     }
 
+    /// Claim a Spawn effect once, immediately before calling start_reserved on
+    /// the update thread. None rejects stale, mismatched and replayed effects.
+    /// Ignore replays; their original owner still reports the launch outcome.
+    /// If the token is abandoned or admission fails, report spawn_failed with
+    /// these IDs; retries require a new reservation, never a second claim.
+    pub fn claim_launch(&mut self, reservation: Reservation) -> Option<LaunchToken> {
+        self.sessions.claim_launch(reservation)
+    }
+
+    /// Check before attaching a prepared result. Attach and then commit with
+    /// spawn_succeeded in the same update; report attachment errors as failure.
+    pub fn accepts_spawn(&self, reservation: Reservation) -> bool {
+        self.sessions.accepts_spawn(reservation)
+    }
+
+    /// Commit a successful attachment, or classify an already-rejected
+    /// prepared success as Dispose without attaching it. Check accepts_spawn
+    /// first so an attachment error can report failure while still Starting.
     pub fn spawn_succeeded(&mut self, reservation: Reservation) -> SpawnDisposition {
         self.sessions.spawn_succeeded(reservation)
     }

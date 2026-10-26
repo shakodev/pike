@@ -61,6 +61,11 @@ fn invariants(model: &Model) {
         assert!(tree.contains(&tab.focused()));
         if let Some(pane) = tab.grid().maximized() {
             assert!(tree.contains(&pane));
+            assert_eq!(
+                pane,
+                tab.focused(),
+                "focus must remain visible while zoomed"
+            );
         }
         for (_, pane) in tab.grid().iter() {
             assert!(
@@ -82,6 +87,161 @@ fn invariants(model: &Model) {
         );
     }
     assert!(model.sessions().len() <= usize::from(model.limit.get()));
+}
+
+#[test]
+fn focus_hidden_pane_restores_layout_and_refocusing_visible_pane_preserves_zoom() {
+    let mut model = Model::default();
+    let (a, _) = model.create_tab().unwrap();
+    let (b, _) = model.split(a, Axis::Vertical).unwrap();
+    model.zoom(a).unwrap();
+    invariants(&model);
+    model.focus(a).unwrap();
+    let tab = model.workspace.tab(a.tab).unwrap();
+    assert_eq!(tab.grid().maximized(), Some(a.pane));
+    assert_eq!(tab.focused(), a.pane);
+    invariants(&model);
+    let sessions: Vec<_> = model
+        .sessions
+        .iter()
+        .map(|(id, entry)| (id, entry.lifecycle()))
+        .collect();
+    model.focus(b).unwrap();
+    let tab = model.workspace.tab(a.tab).unwrap();
+    assert_eq!(tab.grid().maximized(), None);
+    assert_eq!(tab.focused(), b.pane);
+    assert_eq!(
+        sessions,
+        model
+            .sessions
+            .iter()
+            .map(|(id, entry)| (id, entry.lifecycle()))
+            .collect::<Vec<_>>()
+    );
+    invariants(&model);
+}
+
+#[test]
+fn zoom_nonfocused_pane_synchronizes_focus_when_maximizing_switching_and_restoring() {
+    let mut model = Model::default();
+    let (a, _) = model.create_tab().unwrap();
+    let (b, _) = model.split(a, Axis::Vertical).unwrap();
+    model.focus(a).unwrap();
+    model.zoom(b).unwrap();
+    let tab = model.workspace.tab(a.tab).unwrap();
+    assert_eq!(tab.focused(), b.pane);
+    assert_eq!(tab.grid().maximized(), Some(b.pane));
+    invariants(&model);
+    model.zoom(a).unwrap();
+    let tab = model.workspace.tab(a.tab).unwrap();
+    assert_eq!(tab.focused(), a.pane);
+    assert_eq!(tab.grid().maximized(), Some(a.pane));
+    invariants(&model);
+    model.zoom(a).unwrap();
+    let tab = model.workspace.tab(a.tab).unwrap();
+    assert_eq!(tab.focused(), a.pane);
+    assert_eq!(tab.grid().maximized(), None);
+    invariants(&model);
+}
+
+#[test]
+fn background_zoom_activation_and_focus_keep_the_selected_pane_visible() {
+    let mut model = Model::default();
+    let (a, _) = model.create_tab().unwrap();
+    let (b, _) = model.split(a, Axis::Vertical).unwrap();
+    let (foreground, _) = model.create_tab().unwrap();
+    model.zoom(a).unwrap();
+    assert_eq!(model.workspace.active(), Some(foreground.tab));
+    assert_eq!(model.workspace.tab(a.tab).unwrap().focused(), a.pane);
+    invariants(&model);
+    model.activate(a.tab).unwrap();
+    assert_eq!(
+        model.workspace.tab(a.tab).unwrap().grid().maximized(),
+        Some(a.pane)
+    );
+    invariants(&model);
+    model.activate(foreground.tab).unwrap();
+    model.focus(b).unwrap();
+    assert_eq!(model.workspace.active(), Some(b.tab));
+    let tab = model.workspace.tab(b.tab).unwrap();
+    assert_eq!(tab.focused(), b.pane);
+    assert_eq!(tab.grid().maximized(), None);
+    invariants(&model);
+    model.zoom(b).unwrap();
+    model.activate(foreground.tab).unwrap();
+    model.focus(b).unwrap();
+    assert_eq!(model.workspace.active(), Some(b.tab));
+    assert_eq!(
+        model.workspace.tab(b.tab).unwrap().grid().maximized(),
+        Some(b.pane)
+    );
+    invariants(&model);
+}
+
+#[test]
+fn split_move_swap_and_remove_while_zoomed_preserve_visible_focus() {
+    let mut model = Model::default();
+    let (a, effect) = model.create_tab().unwrap();
+    let a_ids = reservation(effect);
+    let (b, _) = model.split(a, Axis::Vertical).unwrap();
+    model.zoom(a).unwrap();
+    let (c, _) = model.split(b, Axis::Horizontal).unwrap();
+    let tab = model.workspace.tab(a.tab).unwrap();
+    assert_eq!(tab.focused(), c.pane);
+    assert_eq!(tab.grid().maximized(), None);
+    invariants(&model);
+    model.zoom(a).unwrap();
+    model.swap(a, b).unwrap();
+    assert_eq!(
+        model.workspace.tab(a.tab).unwrap().grid().maximized(),
+        Some(a.pane)
+    );
+    invariants(&model);
+    model.move_to_tab(a, b, Axis::Vertical).unwrap(); // Same-tab positional swap.
+    assert_eq!(model.workspace.tab(a.tab).unwrap().focused(), a.pane);
+    invariants(&model);
+
+    let (destination, _) = model.create_tab().unwrap();
+    model.zoom(destination).unwrap();
+    let sessions: Vec<_> = model
+        .sessions
+        .iter()
+        .map(|(id, entry)| (id, entry.lifecycle()))
+        .collect();
+    let moved_b = model.move_to_tab(b, destination, Axis::Vertical).unwrap();
+    assert_eq!(
+        model.workspace.tab(a.tab).unwrap().grid().maximized(),
+        Some(a.pane)
+    );
+    let tab = model.workspace.tab(destination.tab).unwrap();
+    assert_eq!(tab.focused(), moved_b.pane);
+    assert_eq!(tab.grid().maximized(), None);
+    invariants(&model);
+
+    model.zoom(destination).unwrap();
+    let moved_a = model.move_to_tab(a, destination, Axis::Horizontal).unwrap();
+    let source = model.workspace.tab(c.tab).unwrap();
+    assert_eq!(source.focused(), c.pane);
+    assert_eq!(source.grid().maximized(), None);
+    let destination = model.workspace.tab(moved_a.tab).unwrap();
+    assert_eq!(destination.focused(), moved_a.pane);
+    assert_eq!(destination.grid().maximized(), None);
+    assert_eq!(
+        sessions,
+        model
+            .sessions
+            .iter()
+            .map(|(id, entry)| (id, entry.lifecycle()))
+            .collect::<Vec<_>>()
+    );
+    invariants(&model);
+    model.zoom(moved_a).unwrap();
+    assert_eq!(model.close_pane(moved_a), Ok(Some(Effect::Close(a_ids))));
+    assert_eq!(
+        model.workspace.tab(moved_a.tab).unwrap().grid().maximized(),
+        None
+    );
+    invariants(&model);
 }
 
 #[test]
@@ -299,6 +459,8 @@ fn layout_overflow_does_not_orphan_a_session_or_remove_move_source() {
     let (source, _) = model.create_tab().unwrap();
     let (mut destination, _) = model.create_tab().unwrap();
     destination.pane = exhaust_layout(model.workspace.tabs.get_mut(&destination.tab).unwrap());
+    model.zoom(source).unwrap();
+    model.zoom(destination).unwrap();
     assert_eq!(
         model.split(destination, Axis::Vertical),
         Err(Error::LayoutExhausted)
@@ -330,6 +492,31 @@ fn closing_background_tab_does_not_change_active_tab_and_closes_exact_sessions()
 }
 
 #[test]
+fn launch_claim_follows_session_across_moves_and_cannot_be_reissued() {
+    let mut model = Model::default();
+    let (source, effect) = model.create_tab().unwrap();
+    let ids = reservation(effect);
+    let (destination, _) = model.create_tab().unwrap();
+    let moved = model
+        .move_to_tab(source, destination, Axis::Vertical)
+        .unwrap();
+    let token = model.claim_launch(ids).unwrap();
+    assert_eq!(token.reservation(), ids);
+    assert!(model.claim_launch(ids).is_none());
+    assert!(model.accepts_spawn(ids));
+    invariants(&model);
+    model.swap(moved, destination).unwrap();
+    assert!(model.claim_launch(ids).is_none());
+    assert!(model.accepts_spawn(ids));
+    invariants(&model);
+    model.close_pane(moved).unwrap();
+    assert!(!model.accepts_spawn(ids));
+    assert!(model.claim_launch(ids).is_none());
+    assert!(model.spawn_failed(ids, Failure::Canceled));
+    invariants(&model);
+}
+
+#[test]
 fn deterministic_generated_transactions_preserve_invariants_after_every_step() {
     for seed in 1..=32_u64 {
         let mut model = Model::new(NonZeroU16::new(16).unwrap());
@@ -338,6 +525,7 @@ fn deterministic_generated_transactions_preserve_invariants_after_every_step() {
         let mut handles = Vec::new();
         let mut issued = BTreeSet::new();
         let mut closed = BTreeSet::new();
+        let mut claimed = BTreeSet::new();
         let mut last_id = 0;
         for _ in 0..2048 {
             random = random
@@ -418,6 +606,16 @@ fn deterministic_generated_transactions_preserve_invariants_after_every_step() {
                             ..ids
                         };
                         model.spawn_succeeded(malformed);
+                    }
+                }
+                (15, _) => {
+                    if let Some(ids) = ids
+                        && let Some(_token) = model.claim_launch(ids)
+                    {
+                        assert!(claimed.insert(ids.session));
+                        assert!(model.claim_launch(ids).is_none());
+                        // Simulate an adapter abandoning the claimed token.
+                        assert!(model.spawn_failed(ids, Failure::Canceled));
                     }
                 }
                 _ => {}

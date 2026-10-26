@@ -23,6 +23,37 @@ pub struct Reservation {
     pub request: RequestId,
 }
 
+/// Single-use authority to launch an existing reservation. Issued only by
+/// `Model::claim_launch`; copying the reservation cannot recreate this token.
+/// Dropping an unused token requires reporting cancellation to the model.
+///
+/// Tokens cannot be cloned:
+/// ```compile_fail
+/// fn duplicate(token: pike::identity::LaunchToken) {
+///     let _ = token.clone();
+/// }
+/// ```
+/// Nor can they be submitted twice, even if the first submission is rejected:
+/// ```compile_fail
+/// fn replay(pool: &mut pike::launch::LaunchPool, token: pike::identity::LaunchToken) {
+///     let _ = pool.start_reserved(token, Default::default());
+///     let _ = pool.start_reserved(token, Default::default());
+/// }
+/// ```
+#[derive(Debug)]
+#[must_use = "submit this token once or report cancellation to its model"]
+pub struct LaunchToken(Reservation);
+
+impl LaunchToken {
+    pub(crate) fn new(reservation: Reservation) -> Self {
+        Self(reservation)
+    }
+
+    pub fn reservation(&self) -> Reservation {
+        self.0
+    }
+}
+
 impl Reservation {
     pub(crate) fn allocate() -> Result<Self, IdsExhausted> {
         let id = allocate(&NEXT_ID)?;

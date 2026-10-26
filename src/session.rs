@@ -1,7 +1,7 @@
 //! Pure lifecycle registry. Backend owners live outside this module.
 use std::collections::BTreeMap;
 
-pub use crate::identity::{RequestId, Reservation, SessionId};
+pub use crate::identity::{LaunchToken, RequestId, Reservation, SessionId};
 
 /// Bounded, redacted failure metadata; never a command or terminal transcript.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -25,6 +25,7 @@ pub enum Lifecycle {
 pub struct SessionEntry {
     pub(crate) reservation: Reservation,
     pub(crate) lifecycle: Lifecycle,
+    launch_claimed: bool,
 }
 
 impl SessionEntry {
@@ -81,9 +82,28 @@ impl SessionRegistry {
             SessionEntry {
                 reservation,
                 lifecycle: Lifecycle::Starting,
+                launch_claimed: false,
             },
         );
         debug_assert!(previous.is_none());
+    }
+
+    pub(crate) fn accepts_spawn(&self, reservation: Reservation) -> bool {
+        self.get(reservation.session).is_some_and(|entry| {
+            entry.reservation == reservation && entry.lifecycle == Lifecycle::Starting
+        })
+    }
+
+    pub(crate) fn claim_launch(&mut self, reservation: Reservation) -> Option<LaunchToken> {
+        if !self.accepts_spawn(reservation) {
+            return None;
+        }
+        let entry = self.entries.get_mut(&reservation.session)?;
+        if entry.launch_claimed {
+            return None;
+        }
+        entry.launch_claimed = true;
+        Some(LaunchToken::new(reservation))
     }
 
     /// Commit only a matching live reservation. Caller must dispose every

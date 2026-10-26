@@ -7,6 +7,9 @@ use std::time::Duration;
 
 const DEADLINE: Duration = Duration::from_secs(10);
 
+#[path = "reserved_tests.rs"]
+mod reserved;
+
 fn limits(jobs: u16, sessions: u16) -> LaunchLimits {
     LaunchLimits {
         jobs: NonZeroU16::new(jobs).unwrap(),
@@ -221,8 +224,8 @@ fn fixture_settings() -> BackendSettings {
     }
 }
 
-fn wait(executor: &SharedExecutor, future: impl Future<Output = ()>) {
-    executor.block_on(async { tokio::time::timeout(DEADLINE, future).await.unwrap() });
+fn wait<T>(executor: &SharedExecutor, future: impl Future<Output = T>) -> T {
+    executor.block_on(async { tokio::time::timeout(DEADLINE, future).await.unwrap() })
 }
 
 #[test]
