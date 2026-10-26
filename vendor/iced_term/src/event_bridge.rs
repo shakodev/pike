@@ -25,6 +25,8 @@ pub enum EventBridgeEvent {
     Error(EventBridgeError),
     /// Event production ended, not a joined/drained PTY shutdown acknowledgement.
     Completed,
+    /// PTY/parser destruction and owned worker joins have finished.
+    BackendCompleted(crate::BackendCompletion),
 }
 
 pub(crate) enum Delivery {
@@ -49,6 +51,9 @@ struct State {
     completed: bool,
     close_requested: bool,
     completion_delivered: bool,
+    backend_expected: bool,
+    backend_completion: Option<crate::BackendCompletion>,
+    backend_delivered: bool,
     producers: usize,
     receiver_closed: bool,
 }
@@ -87,6 +92,14 @@ impl State {
         } else if self.completed && !self.completion_delivered {
             self.completion_delivered = true;
             return Some(Delivery::Bridge(EventBridgeEvent::Completed));
+        } else if self.completed && !self.backend_delivered {
+            if let Some(completion) = self.backend_completion {
+                self.backend_delivered = true;
+                return Some(Delivery::Bridge(
+                    EventBridgeEvent::BackendCompleted(completion),
+                ));
+            }
+            return None;
         } else {
             return None;
         };
@@ -137,6 +150,25 @@ impl Clone for Sender {
 }
 
 impl Sender {
+    pub(crate) fn complete_source(&self) {
+        self.shared.lock().finish();
+        self.shared.ready.notify_one();
+    }
+
+    pub(crate) fn expect_backend(&self) {
+        self.shared.lock().backend_expected = true;
+    }
+
+    pub(crate) fn backend_completed(
+        &self,
+        completion: crate::BackendCompletion,
+    ) {
+        let mut state = self.shared.lock();
+        state.backend_completion.get_or_insert(completion);
+        drop(state);
+        self.shared.ready.notify_one();
+    }
+
     pub(crate) fn expect_close(&self) {
         self.shared.lock().close_requested = true;
     }
@@ -221,7 +253,9 @@ impl Receiver {
                 if let Some(delivery) = state.pop() {
                     return Some(delivery);
                 }
-                if state.completed {
+                if state.completed
+                    && (!state.backend_expected || state.backend_delivered)
+                {
                     return None;
                 }
             }

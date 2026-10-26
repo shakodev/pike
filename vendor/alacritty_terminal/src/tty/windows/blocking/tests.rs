@@ -75,3 +75,63 @@ fn buffered_and_blocked_bytes_are_not_acknowledged_and_failure_closes_admission(
     assert_eq!(queue.status().cancelled_bytes, chunk.len());
     assert_eq!(queue.preflight(1), Err(crate::input::InputError::Closed));
 }
+
+#[test]
+fn reader_distinguishes_pending_from_eof_and_cleanup_drains_a_full_pipe() {
+    let (entered, waiting) = mpsc::channel();
+    let (release, gate) = mpsc::channel();
+    struct GatedReader {
+        entered: mpsc::Sender<()>,
+        release: mpsc::Receiver<()>,
+        bytes: io::Cursor<Vec<u8>>,
+    }
+    impl Read for GatedReader {
+        fn read(&mut self, bytes: &mut [u8]) -> io::Result<usize> {
+            if self.bytes.position() == 0 {
+                self.entered.send(()).unwrap();
+                self.release.recv_timeout(Duration::from_secs(5)).unwrap();
+            }
+            self.bytes.read(bytes)
+        }
+    }
+    let source = GatedReader { entered, release: gate, bytes: io::Cursor::new(vec![b'x'; 4096]) };
+    let mut reader = UnblockedReader::new(source, 16);
+    waiting.recv_timeout(Duration::from_secs(5)).unwrap();
+    assert_eq!(reader.read(&mut [0; 1]).unwrap_err().kind(), io::ErrorKind::WouldBlock);
+    release.send(()).unwrap();
+    reader.drain_and_join();
+    assert!(reader.worker.is_none());
+    assert_eq!(reader.read(&mut [0; 1]).unwrap(), 0);
+}
+
+#[test]
+fn read_failure_is_distinguished_from_normal_broken_pipe_eof() {
+    struct FailedReader(io::ErrorKind);
+    impl Read for FailedReader {
+        fn read(&mut self, _: &mut [u8]) -> io::Result<usize> {
+            Err(self.0.into())
+        }
+    }
+    for kind in [io::ErrorKind::BrokenPipe, io::ErrorKind::Other] {
+        let mut reader = UnblockedReader::new(FailedReader(kind), 16);
+        reader.drain_and_join();
+        if kind == io::ErrorKind::BrokenPipe {
+            assert_eq!(reader.read(&mut [0; 1]).unwrap(), 0);
+        } else {
+            assert_eq!(reader.read(&mut [0; 1]).unwrap_err().kind(), kind);
+        }
+    }
+}
+
+#[test]
+fn reader_panic_is_not_reported_as_a_clean_eof() {
+    struct PanickingReader;
+    impl Read for PanickingReader {
+        fn read(&mut self, _: &mut [u8]) -> io::Result<usize> {
+            panic!("synthetic reader panic");
+        }
+    }
+    let mut reader = UnblockedReader::new(PanickingReader, 16);
+    reader.drain_and_join();
+    assert_eq!(reader.read(&mut [0; 1]).unwrap_err().kind(), io::ErrorKind::Other);
+}

@@ -27,7 +27,8 @@ type WritePipe = UnblockedWriter<AnonWrite>;
 pub struct Pty {
     // XXX: Backend is required to be the first field, to ensure correct drop order. Dropping
     // `conout` before `backend` will cause a deadlock (with Conpty).
-    backend: Backend,
+    backend: Option<Backend>,
+    close_worker: Option<std::thread::JoinHandle<()>>,
     conout: ReadPipe,
     conin: WritePipe,
     child_watcher: ChildExitWatcher,
@@ -44,7 +45,13 @@ impl Pty {
         conin: impl Into<WritePipe>,
         child_watcher: ChildExitWatcher,
     ) -> Self {
-        Self { backend: backend.into(), conout: conout.into(), conin: conin.into(), child_watcher }
+        Self {
+            backend: Some(backend.into()),
+            close_worker: None,
+            conout: conout.into(),
+            conin: conin.into(),
+            child_watcher,
+        }
     }
 
     pub fn child_watcher(&self) -> &ChildExitWatcher {
@@ -114,6 +121,23 @@ impl EventedReadWrite for Pty {
 }
 
 impl EventedPty for Pty {
+    fn deregister_io(&mut self, _: &Arc<Poller>) -> io::Result<()> {
+        self.conin.deregister();
+        self.conout.deregister();
+        Ok(())
+    }
+
+    fn begin_shutdown(&mut self) -> io::Result<()> {
+        if let Some(backend) = self.backend.take() {
+            self.close_worker = Some(crate::thread::spawn_named("ConPTY close", move || {
+                trace_cleanup("close-start");
+                drop(backend);
+                trace_cleanup("close-return");
+            }));
+        }
+        Ok(())
+    }
+
     fn next_child_event(&mut self) -> Option<ChildEvent> {
         match self.child_watcher.event_rx().try_recv() {
             Ok(ev) => Some(ev),
@@ -125,7 +149,61 @@ impl EventedPty for Pty {
 
 impl OnResize for Pty {
     fn on_resize(&mut self, window_size: WindowSize) {
-        self.backend.on_resize(window_size)
+        if let Some(backend) = self.backend.as_mut() {
+            backend.on_resize(window_size);
+        }
+    }
+}
+
+impl Drop for Pty {
+    fn drop(&mut self) {
+        // This runs on the disposing PTY worker, including explicit close and
+        // unwind. Drain/discard unread output to avoid full-pipe close deadlock.
+        trace_cleanup("dispose-start");
+        if self.backend.is_some() {
+            // Explicit cancellation can race the client's console attachment.
+            // ClosePseudoConsole alone can then return while its output pipe
+            // remains open indefinitely. Disposal cancels the owned root child;
+            // natural exits already called begin_shutdown and keep their drain.
+            // SAFETY: the watcher owns this process handle throughout PTY drop.
+            let terminated = unsafe {
+                windows_sys::Win32::System::Threading::TerminateProcess(
+                    self.child_watcher.raw_handle(),
+                    1,
+                )
+            };
+            if terminated == 0 {
+                trace_cleanup("child-already-exited-or-termination-failed");
+            } else {
+                trace_cleanup("child-termination-requested");
+            }
+        }
+        let _ = self.begin_shutdown();
+        self.conout.drain_and_join();
+        trace_cleanup("reader-joined");
+        if let Some(worker) = self.close_worker.take() {
+            let _ = worker.join();
+        }
+        trace_cleanup("close-joined");
+        self.conin.close_and_join();
+        trace_cleanup("writer-joined");
+        // TerminateProcess is asynchronous. Completion must also wait for the
+        // owned root process, using its existing handle, on this cleanup worker.
+        // SAFETY: the watcher still owns the handle; no UI thread waits here.
+        unsafe {
+            windows_sys::Win32::System::Threading::WaitForSingleObject(
+                self.child_watcher.raw_handle(),
+                windows_sys::Win32::System::Threading::INFINITE,
+            );
+        }
+        trace_cleanup("child-exited");
+    }
+}
+
+// Opt-in metadata only, checked only during cleanup (never the I/O hot path).
+fn trace_cleanup(stage: &str) {
+    if std::env::var_os("PIKE_TRACE_CLEANUP").is_some() {
+        eprintln!("pike-cleanup {:?} {stage}", std::thread::current().id());
     }
 }
 

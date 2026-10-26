@@ -1,0 +1,10 @@
+{
+  "source_commit": "a87905a01bb9c5b56f275438716092e74348e154",
+  "run": "https://github.com/shakodev/pike/actions/runs/40297043809",
+  "toolchain": "Rust 1.97.1, Windows x64 MSVC",
+  "runner": "windows-2025",
+  "date_utc": "2026-10-26",
+  "measurement": "headless active backend lifecycle; one run of 30 sessions per renderer; no renderer device/window initialization",
+  "extraction": "Raw samples.csv and summary.json output from Check shutdown completion with Windows ConPTY in the workflow log. Process CSV remains runner-local.",
+  "after_baseline": "Subsequent guard disposes PTYs off thread if poller preparation fails; successful backend paths are unchanged."
+}

@@ -48,6 +48,8 @@ pub struct UnblockedReader<R> {
 
     /// We logically own the reader, but we don't actually use it.
     _reader: PhantomData<R>,
+    worker: Option<thread::JoinHandle<()>>,
+    error: Arc<Mutex<Option<io::ErrorKind>>>,
 }
 
 impl<R: Read + Send + 'static> UnblockedReader<R> {
@@ -60,8 +62,12 @@ impl<R: Read + Send + 'static> UnblockedReader<R> {
             end: PipeEnd::Reader,
         });
 
+        let error = Arc::new(Mutex::new(None));
+        let source_error = error.clone();
+
         // Spawn the reader thread.
-        spawn_named("alacritty-tty-reader-thread", move || {
+        let worker = spawn_named("alacritty-tty-reader-thread", move || {
+            let _completion = ReaderCompletion(source_error.clone());
             let waker = Waker::from(Arc::new(ThreadWaker(thread::current())));
             let mut context = Context::from_waker(&waker);
 
@@ -85,6 +91,11 @@ impl<R: Read + Send + 'static> UnblockedReader<R> {
                     },
 
                     Poll::Ready(Err(e)) => {
+                        // BrokenPipe is normal ConPTY EOF. Other read failures
+                        // must reach the I/O loop, not masquerade as a clean drain.
+                        if e.kind() != io::ErrorKind::BrokenPipe {
+                            *source_error.lock().unwrap() = Some(e.kind());
+                        }
                         log::error!("error writing to pipe: {}", e);
                         return;
                     },
@@ -98,7 +109,14 @@ impl<R: Read + Send + 'static> UnblockedReader<R> {
             }
         });
 
-        Self { interest, pipe: reader, first_register: true, _reader: PhantomData }
+        Self {
+            interest,
+            pipe: reader,
+            first_register: true,
+            _reader: PhantomData,
+            worker: Some(worker),
+            error,
+        }
     }
 
     /// Register interest in the reader.
@@ -130,9 +148,36 @@ impl<R: Read + Send + 'static> UnblockedReader<R> {
     }
 }
 
+impl<R> UnblockedReader<R> {
+    /// Cleanup-only: keep the OS reader moving while ClosePseudoConsole waits.
+    pub fn drain_and_join(&mut self) {
+        let waker = Waker::from(Arc::new(ThreadWaker(thread::current())));
+        let mut context = Context::from_waker(&waker);
+        let mut buf = [0; 8192];
+        loop {
+            match self.pipe.poll_drain_bytes(&mut context, &mut buf) {
+                Poll::Ready(0) => break,
+                Poll::Ready(_) => (),
+                Poll::Pending => thread::park(),
+            }
+        }
+        if let Some(worker) = self.worker.take() {
+            let _ = worker.join();
+        }
+    }
+}
+
 impl<R: Read + Send + 'static> Read for UnblockedReader<R> {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        Ok(self.try_read(buf))
+        let waker = Waker::from(self.interest.clone());
+        match self.pipe.poll_drain_bytes(&mut Context::from_waker(&waker), buf) {
+            Poll::Pending => Err(io::ErrorKind::WouldBlock.into()),
+            Poll::Ready(0) => match *self.error.lock().unwrap() {
+                Some(kind) => Err(kind.into()),
+                None => Ok(0),
+            },
+            Poll::Ready(n) => Ok(n),
+        }
     }
 }
 
@@ -148,6 +193,7 @@ pub struct UnblockedWriter<W> {
 
     /// We logically own the writer, but we don't actually use it.
     _reader: PhantomData<W>,
+    worker: Option<thread::JoinHandle<()>>,
 }
 
 impl<W: Write + Send + 'static> UnblockedWriter<W> {
@@ -165,7 +211,7 @@ impl<W: Write + Send + 'static> UnblockedWriter<W> {
         let completion = WriterCompletion { progress: written.clone(), interest: interest.clone() };
 
         // Spawn the writer thread.
-        spawn_named("alacritty-tty-writer-thread", move || {
+        let worker = spawn_named("alacritty-tty-writer-thread", move || {
             let _completion = completion;
             let mut sink = CountingWriter { sink: &mut sink, written: writer_counter };
             let waker = Waker::from(Arc::new(ThreadWaker(thread::current())));
@@ -204,7 +250,7 @@ impl<W: Write + Send + 'static> UnblockedWriter<W> {
             }
         });
 
-        Self { interest, pipe: writer, written, _reader: PhantomData }
+        Self { interest, pipe: writer, written, _reader: PhantomData, worker: Some(worker) }
     }
 
     pub fn writer_progress(&self) -> Arc<WriterProgress> {
@@ -239,6 +285,18 @@ impl<W: Write + Send + 'static> UnblockedWriter<W> {
     }
 }
 
+impl<W> UnblockedWriter<W> {
+    pub fn close_and_join(&mut self) {
+        // Close piper before joining a parked writer. The ConPTY has already
+        // closed, so any in-progress OS write is released too.
+        let (_, closed) = pipe(1);
+        drop(std::mem::replace(&mut self.pipe, closed));
+        if let Some(worker) = self.worker.take() {
+            let _ = worker.join();
+        }
+    }
+}
+
 impl<W: Write + Send + 'static> Write for UnblockedWriter<W> {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         if self.pipe.is_closed() {
@@ -254,6 +312,17 @@ impl<W: Write + Send + 'static> Write for UnblockedWriter<W> {
 }
 
 struct ThreadWaker(thread::Thread);
+
+// Publish an abnormal source end before piper closes and wakes its reader.
+// Otherwise a source panic would be indistinguishable from a clean EOF.
+struct ReaderCompletion(Arc<Mutex<Option<io::ErrorKind>>>);
+impl Drop for ReaderCompletion {
+    fn drop(&mut self) {
+        if thread::panicking() {
+            *self.0.lock().unwrap_or_else(|error| error.into_inner()) = Some(io::ErrorKind::Other);
+        }
+    }
+}
 
 struct WriterCompletion {
     progress: Arc<WriterProgress>,

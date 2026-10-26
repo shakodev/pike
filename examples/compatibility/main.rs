@@ -162,6 +162,21 @@ impl App {
                         self.error =
                             Some(format!("Session {id}: event delivery stopped ({error:?})"));
                     }
+                    BackendCommand::EventBridge(iced_term::EventBridgeEvent::BackendCompleted(
+                        result,
+                    )) => {
+                        self.note(
+                            "backend_completed",
+                            id,
+                            format!("{:?}", result.reason),
+                            result.output_drained,
+                        );
+                        if let Some(error) = completion_error(*result) {
+                            self.error.get_or_insert_with(|| {
+                                format!("Session {id}: {error} ({:?})", result.reason)
+                            });
+                        }
+                    }
                     BackendCommand::EventBridge(iced_term::EventBridgeEvent::Completed) => {
                         self.note("bridge_completed", id, 0, 0);
                     }
@@ -216,7 +231,10 @@ impl App {
                     self.note("input_rejected", id, error, 0);
                     self.error = Some(format!("Session {id}: {error}"));
                 }
-                if action == Some(iced_term::actions::Action::Shutdown) {
+                if matches!(
+                    action,
+                    Some(iced_term::actions::Action::BackendCompleted(_))
+                ) {
                     self.note("exit", id, self.focused, self.states[&id].final_seen);
                     self.terminals.remove(&id);
                     if self.terminals.is_empty() {
@@ -401,4 +419,45 @@ fn later(message: Message) -> Task<Message> {
         async move { tokio::time::sleep(duration).await },
         move |()| message.clone(),
     )
+}
+
+// The controlled compatibility fixtures are expected to exit naturally and
+// drain. A terminal Exit event alone cannot establish a successful backend end.
+fn completion_error(result: iced_term::BackendCompletion) -> Option<&'static str> {
+    match result.reason {
+        iced_term::ExitReason::ChildExit if result.output_drained => None,
+        iced_term::ExitReason::ChildExit => Some("final output was not drained"),
+        iced_term::ExitReason::Requested => Some("unexpected backend cancellation"),
+        iced_term::ExitReason::IoError(_) => Some("backend I/O or drain failed"),
+        iced_term::ExitReason::Panicked => Some("backend worker panicked"),
+    }
+}
+
+#[cfg(test)]
+mod lifecycle_tests {
+    use super::*;
+
+    #[test]
+    fn backend_errors_and_incomplete_drains_cannot_report_harness_success() {
+        let natural = iced_term::BackendCompletion {
+            reason: iced_term::ExitReason::ChildExit,
+            exit_code: Some(37),
+            output_drained: true,
+        };
+        assert!(completion_error(natural).is_none());
+        assert!(
+            completion_error(iced_term::BackendCompletion {
+                output_drained: false,
+                ..natural
+            })
+            .is_some()
+        );
+        for reason in [
+            iced_term::ExitReason::IoError(std::io::ErrorKind::TimedOut),
+            iced_term::ExitReason::Panicked,
+            iced_term::ExitReason::Requested,
+        ] {
+            assert!(completion_error(iced_term::BackendCompletion { reason, ..natural }).is_some());
+        }
+    }
 }

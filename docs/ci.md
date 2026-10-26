@@ -90,3 +90,11 @@ final branch must pass all checks with the temporary violation removed.
 
 Local equivalents are documented in the [build instructions](../README.md).
 CI implementation evidence is recorded in [issue #2 verification](verification/issue-2.md).
+
+
+The shutdown lifecycle release probe also runs for each renderer:
+`tools/measure-shutdown-lifecycle.ps1`. It verifies repeated close, final-output
+retention and completion after canceled consumers/owners, reports latency and
+external process counters, and checks owned fixture PIDs disappear. It uses a
+fresh runner-temporary directory. See [issue #7](verification/issue-7.md) for the
+source-completion/backend-completion distinction and measurement limits.

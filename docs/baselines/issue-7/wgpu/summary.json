@@ -1,0 +1,12 @@
+{
+  "OS": "Microsoft Windows NT 10.0.26100.0",
+  "CpuSeconds": 0.484375,
+  "WallSeconds": 1.4383539,
+  "SampleCount": 43,
+  "MaximumSampledPrivateBytes": 15151104.0,
+  "MaximumSampledWorkingSetBytes": 17870848.0,
+  "MaximumSampledThreads": 8.0,
+  "MaximumSampledHandles": 162.0,
+  "CooperativeTargetMisses": 0,
+  "ExecutableSha256": "0E58D2605E2A1EE3C2E779EF0B64397FC4F8DA571B34EFDFEB1363A23BD2D644"
+}

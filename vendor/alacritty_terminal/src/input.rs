@@ -20,6 +20,7 @@ impl WriterProgress {
         self.written.fetch_add(bytes, Ordering::Release);
     }
 
+    #[cfg(windows)]
     pub(crate) fn finish(&self) {
         self.closed.store(true, Ordering::Release);
     }

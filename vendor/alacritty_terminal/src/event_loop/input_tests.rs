@@ -4,10 +4,12 @@ use crate::input::INPUT_BYTE_LIMIT;
 #[test]
 fn legacy_input_and_priority_cancel_never_enqueue_payload_messages() {
     let (sender, receiver) = mpsc::channel();
+    let poller = Arc::new(polling::Poller::new().unwrap());
     let channel = EventLoopSender {
         sender,
-        poller: Arc::new(polling::Poller::new().unwrap()),
+        poller: Arc::downgrade(&poller),
         input: InputQueue::new(Arc::new(WriterProgress::default())),
+        shutdown_requested: Arc::new(AtomicBool::new(false)),
     };
     channel.send(Msg::Input(Cow::Owned(vec![1; INPUT_BYTE_LIMIT]))).unwrap();
     assert_eq!(channel.input_status().outstanding_bytes, INPUT_BYTE_LIMIT);

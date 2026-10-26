@@ -66,3 +66,64 @@ The Windows suite contains 145 unit tests (134 upstream plus 11 new), 45
 upstream terminal-reference fixtures and one doctest. Run the root renderer
 checks and ConPTY probe described in
 [issue #6 verification](../../docs/verification/issue-6.md) as well.
+
+## R07 / issue #7 — dispose off thread and drain natural exits
+
+- Factor the existing event-loop body into `run`. `spawn` retains upstream
+  ownership semantics; new `spawn_disposing` invokes source-stop notification,
+  drops parser/returned backend state on the PTY worker, then publishes one
+  redacted completion. Its detached JoinHandle contains only (). Catch unwind
+  to report worker panics after resource destruction; register/poll/reregister
+  and I/O failures also produce a reason without requiring terminal Exit.
+- Senders hold a Weak poller reference so retained model/completion handles
+  cannot keep the backend's OS polling handle alive after disposal. Explicit
+  shutdown is distinguished from actual-writer failure with shared atomic state.
+- Natural exit drains every parser chunk to EOF, including pending Windows
+  pipe data. Parse each successful read before a later read can fail. The drain
+  has a one-second deadline and reports TimedOut without claiming EOF. OS
+  destruction can remain pending longer; no false completion is emitted.
+- Add a default `EventedPty::begin_shutdown` hook. ConPTY closes in one transient
+  worker while the existing reader/parser continue draining. PTY destruction
+  drains/discards unread output and joins that close worker plus the two existing
+  pipe workers. There is no additional worker or timer during normal operation.
+  `UnblockedReader::read` distinguishes WouldBlock from EOF (its compatibility
+  `try_read` remains unchanged). Close-on-full-pipe cleanup never waits on UI.
+- Keep the two parent ConPTY pipe ends under RAII and drop them after successful
+  CreateProcess. Their previous `into_raw_handle` leaks prevented EOF forever;
+  this narrow prerequisite is required for joined reader cleanup. The remaining
+  Windows handle/failure-path audit, callback ownership and detached-descendant
+  policy stay in issue #8. See Microsoft's
+  [creation guide](https://learn.microsoft.com/en-us/windows/console/creating-a-pseudoconsole-session)
+  and [close contract](https://learn.microsoft.com/en-us/windows/console/closepseudoconsole).
+- Make the Windows-only writer completion helper cfg-specific and simplify the
+  Unix passwd fallback to satisfy the pinned compiler's existing Clippy lints
+  on the macOS verification host. Shell fallback behavior is preserved.
+
+- Windows CI reproduced an indefinitely pending output reader when explicit
+  close raced console attachment, even though ClosePseudoConsole returned.
+  Explicit disposal now terminates the existing owned root process first and
+  waits for its exit off thread. Natural EOF-draining exits retain their own
+  path. This is cancellation, not a graceful child-shutdown guarantee. An
+  opt-in `PIKE_TRACE_CLEANUP` trace records only worker stages/thread IDs.
+- On poller preparation failure, move the already-created PTY to a transient
+  disposal worker rather than invoking its blocking destructor on the UI.
+
+## R07 review fixes
+
+- On EOF/hangup, close input and remove exhausted PTY I/O from the poller while
+  retaining the child-exit watcher and shutdown wake. This prevents repeated
+  level-triggered EOF wakes and preserves a delayed child code. Queued resizes
+  are ignored after EOF, and explicit close still wakes the remaining wait.
+  `EventedPty::deregister_io` has platform implementations and an explicit
+  Unsupported default for other implementations. Unix teardown remains
+  idempotent after the I/O registration has already been removed.
+- A Windows reader completion guard marks source unwind as an I/O error before
+  the piper writer drops. A panicked reader can no longer masquerade as a clean
+  EOF and set `output_drained=true`. No production polling or dependency changes.
+- A portable two-socket fixture verifies one EOF read, delayed child exit/code,
+  ignored queued metadata and explicit close after EOF. It models readiness,
+  not another PTY. Windows also tests an injected reader panic.
+
+- Flush active synchronized updates on I/O failure or explicit close before
+  dropping the parser. Already-read output is retained even without Exit; a
+  read-then-broken-pipe regression verifies the synchronized final sentinel.

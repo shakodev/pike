@@ -63,6 +63,23 @@ impl Terminal {
         &self.widget_id
     }
 
+    /// Completion survives subscription cancellation and Terminal destruction.
+    pub fn shutdown_handle(&self) -> crate::ShutdownHandle {
+        self.backend.shutdown_handle()
+    }
+
+    pub fn request_close(&self) -> bool {
+        self.backend.shutdown_handle().request_close()
+    }
+
+    /// Refresh the retained read-only model after backend completion, even when
+    /// no event subscription was active. No terminal contents are logged.
+    pub fn final_content(&mut self) -> Option<&crate::RenderableContent> {
+        self.backend.shutdown_handle().completion()?;
+        self.backend.sync();
+        Some(self.backend.renderable_content())
+    }
+
     pub fn input_status(&self) -> crate::InputStatus {
         self.backend.input_status()
     }
