@@ -135,3 +135,28 @@ fn reader_panic_is_not_reported_as_a_clean_eof() {
     reader.drain_and_join();
     assert_eq!(reader.read(&mut [0; 1]).unwrap_err().kind(), io::ErrorKind::Other);
 }
+
+#[test]
+fn emergency_reader_drain_reaches_eof_without_consuming_piper() {
+    let (done, observed) = mpsc::channel();
+    struct ObserveEof {
+        bytes: io::Cursor<Vec<u8>>,
+        done: mpsc::Sender<()>,
+    }
+    impl Read for ObserveEof {
+        fn read(&mut self, bytes: &mut [u8]) -> io::Result<usize> {
+            let count = self.bytes.read(bytes)?;
+            if count == 0 {
+                self.done.send(()).unwrap();
+            }
+            Ok(count)
+        }
+    }
+    let mut reader =
+        UnblockedReader::new(ObserveEof { bytes: io::Cursor::new(vec![b'x'; 65536]), done }, 16)
+            .unwrap();
+    reader.drain_without_buffering();
+    // No consumer drains piper until after EOF: direct servicing must bypass it.
+    observed.recv_timeout(Duration::from_secs(5)).unwrap();
+    reader.drain_and_join();
+}

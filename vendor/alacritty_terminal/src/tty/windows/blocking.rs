@@ -3,6 +3,7 @@
 use crate::input::WriterProgress;
 use std::io::prelude::*;
 use std::marker::PhantomData;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll, Wake, Waker};
 use std::{io, thread};
@@ -16,6 +17,8 @@ use super::conpty::{fault, Failure};
 struct Registration {
     interest: Mutex<Option<Interest>>,
     end: PipeEnd,
+    // Reader-only emergency close mode; reuse this allocation for control.
+    drain_directly: AtomicBool,
 }
 
 #[derive(Copy, Clone)]
@@ -61,10 +64,12 @@ impl<R: Read + Send + 'static> UnblockedReader<R> {
         let interest = Arc::new(Registration {
             interest: Mutex::<Option<Interest>>::new(None),
             end: PipeEnd::Reader,
+            drain_directly: AtomicBool::new(false),
         });
 
         let error = Arc::new(Mutex::new(None));
         let source_error = error.clone();
+        let cleanup = interest.clone();
 
         // Spawn the reader thread.
         let worker =
@@ -103,8 +108,19 @@ impl<R: Read + Send + 'static> UnblockedReader<R> {
                         },
 
                         Poll::Pending => {
-                            // We are now waiting on the other end to advance. Park the
-                            // thread until they do.
+                            // If a close thread cannot start, keep serving the OS
+                            // output pipe on this existing reader. Closing the
+                            // source early can make OpenConsole exit before it
+                            // sends close events to attached descendants.
+                            if cleanup.drain_directly.load(Ordering::Acquire) {
+                                if let Err(error) = io::copy(&mut source, &mut io::sink()) {
+                                    if error.kind() != io::ErrorKind::BrokenPipe {
+                                        *source_error.lock().unwrap() = Some(error.kind());
+                                    }
+                                }
+                                return;
+                            }
+                            // An unpark permit closes the flag-check/park race.
                             thread::park();
                         },
                     }
@@ -151,12 +167,13 @@ impl<R: Read + Send + 'static> UnblockedReader<R> {
 }
 
 impl<R> UnblockedReader<R> {
-    /// Emergency cleanup when no close thread can be created. Releasing the
-    /// piper reader makes the existing OS worker close its source at its next
-    /// read completion, rather than park forever behind a full buffer.
-    pub fn abandon_output(&mut self) {
-        let (closed, _) = pipe(1);
-        drop(std::mem::replace(&mut self.pipe, closed));
+    /// Cleanup-only fallback: bypass piper backpressure on the existing OS
+    /// reader so synchronous ConPTY close can finish terminating its clients.
+    pub fn drain_without_buffering(&mut self) {
+        self.interest.drain_directly.store(true, Ordering::Release);
+        if let Some(worker) = &self.worker {
+            worker.thread().unpark();
+        }
     }
 
     /// Cleanup-only: keep the OS reader moving while ClosePseudoConsole waits.
@@ -217,6 +234,7 @@ impl<W: Write + Send + 'static> UnblockedWriter<W> {
         let interest = Arc::new(Registration {
             interest: Mutex::<Option<Interest>>::new(None),
             end: PipeEnd::Writer,
+            drain_directly: AtomicBool::new(false),
         });
 
         let completion = WriterCompletion { progress: written.clone(), interest: interest.clone() };

@@ -193,10 +193,10 @@ impl Drop for Pty {
         }
         if let Err(error) = self.begin_shutdown() {
             // Thread exhaustion must not panic or strand a live HPCON. Let the
-            // existing OS reader close its source instead of parking on piper;
-            // close on this disposal thread, then join the released reader.
+            // existing OS reader drain directly instead of parking on piper;
+            // close on this disposal thread, then join after client shutdown.
             log::error!("ConPTY close worker unavailable: {error}");
-            self.conout.abandon_output();
+            self.conout.drain_without_buffering();
             drop(self.backend.take());
         }
         self.conout.drain_and_join();
