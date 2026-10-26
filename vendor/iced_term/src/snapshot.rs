@@ -1,5 +1,5 @@
 //! Presentation owns only the current viewport. The terminal retains history.
-use crate::backend::TerminalSize;
+use crate::geometry::TerminalSize;
 use crate::settings::HistoryLimit;
 use alacritty_terminal::grid::{Dimensions, Indexed};
 use alacritty_terminal::index::{Column, Line, Point};

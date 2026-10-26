@@ -1,0 +1,16 @@
+{
+    "Findings":  "Font reduction after positive undersized layout used stale area; native pixel products could overflow u16 winsize fields. Both fixed.",
+    "RedGreen":  "Both new regressions failed on reviewed head, then passed after geometry fixes. Tiny-pane test reproduces 512x369 versus correct 20x9 on this host.",
+    "Formatting":  "passed: cargo fmt --all -- --check",
+    "Clippy":  "application and explicit iced_term all-targets with -D warnings passed for wgpu and tiny-skia",
+    "ApplicationTestsPerRenderer":  "39 library + 2 app + 2 compile-fail doctests passed; opt-in startup probe ignored",
+    "ExampleTestsPerRenderer":  "5 passed",
+    "AdapterTestsPerRenderer":  "72 passed; opt-in history profile ignored",
+    "ReleaseBuilds":  "app and all examples passed for wgpu and tiny-skia",
+    "NativeProbe":  "14 stages passed, including child acknowledgement of font reduction to 20x9 in 12x12 pixels and font/pane restoration; visible/hidden floods; exit 41 and joined/drained completion",
+    "NativeGui":  "cmd and PowerShell 2-session smoke traces passed; final output and fixture cleanup acknowledged",
+    "Idle":  "fresh native release raw data in idle/",
+    "Execution":  "builds, tests and profiling sequential; complete verification suites passed without retries",
+    "RemainingCoverage":  "physical monitor DPI transitions, GUI minimize notifications and Unix PTY execution unavailable; logical scale/restore and portable pixel bounds tested",
+    "GitHubActionsUsed":  false
+}

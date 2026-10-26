@@ -96,7 +96,7 @@ fn terminal(id: u64, natural: bool) -> Terminal {
     prepare_terminal(id, natural).attach(Default::default(), Default::default())
 }
 
-fn prepare_terminal(id: u64, natural: bool) -> PreparedTerminal {
+pub(crate) fn prepare_terminal(id: u64, natural: bool) -> PreparedTerminal {
     #[cfg(windows)]
     let (program, args) = if natural {
         ("cmd.exe", vec!["/D", "/Q", "/C", "(for /L %i in (1,1,3000) do @echo 012345678901234567890123456789012345678901234567890123456789) & echo PIKE_FINAL_7 & exit /b 37"])
