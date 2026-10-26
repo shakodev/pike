@@ -103,3 +103,22 @@ fn reader_distinguishes_pending_from_eof_and_cleanup_drains_a_full_pipe() {
     assert!(reader.worker.is_none());
     assert_eq!(reader.read(&mut [0; 1]).unwrap(), 0);
 }
+
+#[test]
+fn read_failure_is_distinguished_from_normal_broken_pipe_eof() {
+    struct FailedReader(io::ErrorKind);
+    impl Read for FailedReader {
+        fn read(&mut self, _: &mut [u8]) -> io::Result<usize> {
+            Err(self.0.into())
+        }
+    }
+    for kind in [io::ErrorKind::BrokenPipe, io::ErrorKind::Other] {
+        let mut reader = UnblockedReader::new(FailedReader(kind), 16);
+        reader.drain_and_join();
+        if kind == io::ErrorKind::BrokenPipe {
+            assert_eq!(reader.read(&mut [0; 1]).unwrap(), 0);
+        } else {
+            assert_eq!(reader.read(&mut [0; 1]).unwrap_err().kind(), kind);
+        }
+    }
+}

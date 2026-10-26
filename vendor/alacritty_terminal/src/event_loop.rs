@@ -308,6 +308,7 @@ where
                 match event.key {
                     tty::PTY_CHILD_EVENT_TOKEN => {
                         if let Some(tty::ChildEvent::Exited(code)) = self.pty.next_child_event() {
+                            self.input.close();
                             completion.reason = ExitReason::ChildExit;
                             completion.exit_code = code;
                             if let Some(code) = code {

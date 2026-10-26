@@ -49,6 +49,7 @@ pub struct UnblockedReader<R> {
     /// We logically own the reader, but we don't actually use it.
     _reader: PhantomData<R>,
     worker: Option<thread::JoinHandle<()>>,
+    error: Arc<Mutex<Option<io::ErrorKind>>>,
 }
 
 impl<R: Read + Send + 'static> UnblockedReader<R> {
@@ -60,6 +61,9 @@ impl<R: Read + Send + 'static> UnblockedReader<R> {
             interest: Mutex::<Option<Interest>>::new(None),
             end: PipeEnd::Reader,
         });
+
+        let error = Arc::new(Mutex::new(None));
+        let source_error = error.clone();
 
         // Spawn the reader thread.
         let worker = spawn_named("alacritty-tty-reader-thread", move || {
@@ -86,6 +90,11 @@ impl<R: Read + Send + 'static> UnblockedReader<R> {
                     },
 
                     Poll::Ready(Err(e)) => {
+                        // BrokenPipe is normal ConPTY EOF. Other read failures
+                        // must reach the I/O loop, not masquerade as a clean drain.
+                        if e.kind() != io::ErrorKind::BrokenPipe {
+                            *source_error.lock().unwrap() = Some(e.kind());
+                        }
                         log::error!("error writing to pipe: {}", e);
                         return;
                     },
@@ -105,6 +114,7 @@ impl<R: Read + Send + 'static> UnblockedReader<R> {
             first_register: true,
             _reader: PhantomData,
             worker: Some(worker),
+            error,
         }
     }
 
@@ -161,6 +171,10 @@ impl<R: Read + Send + 'static> Read for UnblockedReader<R> {
         let waker = Waker::from(self.interest.clone());
         match self.pipe.poll_drain_bytes(&mut Context::from_waker(&waker), buf) {
             Poll::Pending => Err(io::ErrorKind::WouldBlock.into()),
+            Poll::Ready(0) => match *self.error.lock().unwrap() {
+                Some(kind) => Err(kind.into()),
+                None => Ok(0),
+            },
             Poll::Ready(n) => Ok(n),
         }
     }
