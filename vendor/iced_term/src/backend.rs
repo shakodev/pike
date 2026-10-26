@@ -1,22 +1,23 @@
 use crate::actions::Action;
 use crate::event_bridge::{EventBridgeEvent, Sender};
-use crate::settings::BackendSettings;
+use crate::settings::{BackendSettings, HistoryLimit};
+use crate::snapshot::{RenderableContent, SnapshotStats};
 use alacritty_terminal::event::{Event, EventListener, OnResize, WindowSize};
 use alacritty_terminal::event_loop::{EventLoop, Notifier};
 use alacritty_terminal::grid::{Dimensions, Scroll};
 use alacritty_terminal::index::{Column, Direction, Line, Point, Side};
-use alacritty_terminal::selection::{Selection, SelectionRange, SelectionType};
+use alacritty_terminal::selection::{Selection, SelectionType};
 use alacritty_terminal::sync::FairMutex;
 use alacritty_terminal::term::search::{Match, RegexIter, RegexSearch};
 use alacritty_terminal::term::{
-    self, cell::Cell, test::TermSize, viewport_to_point, Term, TermMode,
+    self, test::TermSize, viewport_to_point, Term, TermMode,
 };
-use alacritty_terminal::{tty, Grid};
+use alacritty_terminal::tty;
 use iced::keyboard::Modifiers;
 use iced_core::Size;
 use std::cmp::min;
 use std::io::Result;
-use std::ops::{Index, RangeInclusive};
+use std::ops::Index;
 use std::sync::Arc;
 
 const URL_REGEX: &str = r#"(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file://|git://|ssh:|ftp://)[^\u{0000}-\u{001F}\u{007F}-\u{009F}<>"\s{-}\^⟨⟩`]+"#;
@@ -26,6 +27,7 @@ pub enum Command {
     Write(Vec<u8>),
     Scroll(i32),
     Resize(Option<Size<f32>>, Option<Size<f32>>),
+    SetHistoryLimit(HistoryLimit),
     SelectStart(SelectionType, (f32, f32)),
     SelectUpdate((f32, f32)),
     ProcessLink(LinkAction, Point),
@@ -140,6 +142,10 @@ pub struct Backend {
     pub(crate) url_regex: RegexSearch,
     event_bridge_failed: bool,
     shutdown: crate::ShutdownHandle,
+    history_limit: HistoryLimit,
+    visible: bool,
+    snapshots: u64,
+    cells_copied: u64,
 }
 
 impl Backend {
@@ -170,24 +176,17 @@ impl Backend {
             escape_args: settings.escape_args,
         };
 
-        let config = term::Config::default();
+        let history_limit = settings.history;
+        let config = term::Config {
+            scrolling_history: history_limit.lines(),
+            ..Default::default()
+        };
         let terminal_size = TerminalSize::default();
         let pty = tty::new(&pty_config, terminal_size.into(), id)?;
 
         let event_proxy = EventProxy(pty_event_proxy_sender.complete_on_drop());
 
-        let mut term = Term::new(config, &terminal_size, event_proxy.clone());
-
-        let cursor = term.grid_mut().cursor_cell().clone();
-
-        let initial_content = RenderableContent {
-            grid: term.grid().clone(),
-            selectable_range: None,
-            terminal_mode: *term.mode(),
-            terminal_size,
-            cursor: cursor.clone(),
-            hovered_hyperlink: None,
-        };
+        let term = Term::new(config, &terminal_size, event_proxy.clone());
 
         let term = Arc::new(FairMutex::new(term));
 
@@ -217,10 +216,14 @@ impl Backend {
             term: term.clone(),
             size: terminal_size,
             notifier,
-            last_content: initial_content,
+            last_content: RenderableContent::default(),
             url_regex: RegexSearch::new(URL_REGEX).expect("invalid url regexp"),
             event_bridge_failed: false,
             shutdown,
+            history_limit,
+            visible: false,
+            snapshots: 0,
+            cells_copied: 0,
         })
     }
 
@@ -241,7 +244,6 @@ impl Backend {
                 },
                 EventBridgeEvent::Completed => Action::Ignore,
                 EventBridgeEvent::BackendCompleted(completion) => {
-                    self.sync();
                     Action::BackendCompleted(completion)
                 },
             };
@@ -300,6 +302,14 @@ impl Backend {
             Command::Resize(layout_size, font_measure) => {
                 self.resize(&mut term, layout_size, font_measure);
             },
+            Command::SetHistoryLimit(limit) => {
+                term.set_options(term::Config {
+                    scrolling_history: limit.lines(),
+                    ..Default::default()
+                });
+                self.history_limit = limit;
+                self.last_content.hovered_hyperlink = None;
+            },
             Command::SelectStart(selection_type, (x, y)) => {
                 self.start_selection(&mut term, selection_type, x, y);
             },
@@ -310,8 +320,13 @@ impl Backend {
                 self.process_link_action(&term, link_action, point);
             },
             Command::MouseReport(button, modifiers, point, pressed) => {
-                action = self
-                    .process_mouse_report(button, modifiers, point, pressed);
+                action = self.process_mouse_report(
+                    button,
+                    modifiers,
+                    point,
+                    pressed,
+                    *term.mode(),
+                );
             },
         };
 
@@ -336,18 +351,25 @@ impl Backend {
                 self.last_content.hovered_hyperlink = None;
             },
             LinkAction::Open => {
-                self.open_link();
+                self.open_link(terminal);
             },
         };
     }
 
-    fn open_link(&self) {
+    fn open_link(&self, terminal: &Term<EventProxy>) {
         if let Some(range) = &self.last_content.hovered_hyperlink {
             let start = range.start();
             let end = range.end();
 
-            let mut url = String::from(self.last_content.grid.index(*start).c);
-            for indexed in self.last_content.grid.iter_from(*start) {
+            if start.line < terminal.topmost_line()
+                || end.line > terminal.bottommost_line()
+                || start.column > terminal.last_column()
+                || end.column > terminal.last_column()
+            {
+                return;
+            }
+            let mut url = String::from(terminal.grid().index(*start).c);
+            for indexed in terminal.grid().iter_from(*start) {
                 url.push(indexed.c);
                 if indexed.point == *end {
                     break;
@@ -366,6 +388,7 @@ impl Backend {
         modifiers: Modifiers,
         point: Point,
         pressed: bool,
+        mode: TermMode,
     ) -> Action {
         let mut mods = 0;
         if modifiers.contains(Modifiers::SHIFT) {
@@ -378,7 +401,7 @@ impl Backend {
             mods += 16;
         }
 
-        match MouseMode::from(self.last_content.terminal_mode) {
+        match MouseMode::from(mode) {
             MouseMode::Sgr => {
                 self.sgr_mouse_report(point, button as u8 + mods, pressed)
             },
@@ -518,17 +541,14 @@ impl Backend {
         layout_size: Option<Size<f32>>,
         font_measure: Option<Size<f32>>,
     ) {
-        if self.notifier.0.input_status().closed {
-            return;
-        }
         if let Some(size) = layout_size {
             self.size.layout_height = size.height;
             self.size.layout_width = size.width;
         };
 
         if let Some(size) = font_measure {
-            self.size.cell_height = size.height as u16;
-            self.size.cell_width = size.width as u16;
+            self.size.cell_height = (size.height as u16).max(1);
+            self.size.cell_width = (size.width as u16).max(1);
         }
 
         let lines = (self.size.layout_height / self.size.cell_height as f32)
@@ -536,9 +556,19 @@ impl Backend {
         let cols = (self.size.layout_width / self.size.cell_width as f32)
             .floor() as u16;
         if lines > 0 && cols > 0 {
+            let closed = self.notifier.0.input_status().closed;
+            // Do not change parsing geometry during an in-flight EOF drain.
+            // Keep the newest layout pixels above for refresh after completion.
+            if closed && self.shutdown.completion().is_none() {
+                return;
+            }
             self.size.num_lines = lines;
             self.size.num_cols = cols;
-            self.notifier.on_resize(self.size.into());
+            // An exited model still reflows for its viewport. Its native PTY
+            // remains disposed and must never receive another resize.
+            if !closed {
+                self.notifier.on_resize(self.size.into());
+            }
             terminal.resize(TermSize::new(
                 self.size.num_cols as usize,
                 self.size.num_lines as usize,
@@ -606,36 +636,65 @@ impl Backend {
     }
 
     pub fn selectable_content(&self) -> String {
-        let content = self.renderable_content();
-        let mut result = String::new();
-        if let Some(range) = content.selectable_range {
-            for indexed in content.grid.display_iter() {
-                if range.contains(indexed.point) {
-                    result.push(indexed.c);
-                }
-            }
-        }
-        result
+        self.term.lock().selection_to_string().unwrap_or_default()
     }
 
     pub fn sync(&mut self) {
+        if !self.visible {
+            return;
+        }
         let term = self.term.clone();
         let mut term = term.lock();
         self.internal_sync(&mut term);
     }
 
     fn internal_sync(&mut self, terminal: &mut Term<EventProxy>) {
-        let selectable_range = match &terminal.selection {
-            Some(s) => s.to_range(terminal),
-            None => None,
-        };
+        self.last_content.capture(terminal, self.size);
+        self.snapshots = self.snapshots.saturating_add(1);
+        self.cells_copied = self
+            .cells_copied
+            .saturating_add(self.last_content.viewport.cells().len() as u64);
+    }
 
-        let cursor = terminal.grid_mut().cursor_cell().clone();
-        self.last_content.grid = terminal.grid().clone();
-        self.last_content.selectable_range = selectable_range;
-        self.last_content.cursor = cursor.clone();
-        self.last_content.terminal_mode = *terminal.mode();
-        self.last_content.terminal_size = self.size;
+    pub(crate) fn is_visible(&self) -> bool {
+        self.visible
+    }
+
+    /// Seed UI cell metrics while retaining the backend's initial row/column
+    /// count. There is no real pane layout yet, and a hidden child can already
+    /// have exited before UI attachment. Do not reflow or notify the PTY here.
+    pub(crate) fn initialize_font(&mut self, measure: Size<f32>) {
+        self.size.cell_width = (measure.width as u16).max(1);
+        self.size.cell_height = (measure.height as u16).max(1);
+        self.size.layout_width =
+            self.size.num_cols as f32 * self.size.cell_width as f32;
+        self.size.layout_height =
+            self.size.num_lines as f32 * self.size.cell_height as f32;
+    }
+
+    pub(crate) fn set_visible(&mut self, visible: bool) {
+        if self.visible == visible {
+            return;
+        }
+        self.visible = visible;
+        if visible {
+            self.sync();
+        } else {
+            self.last_content = RenderableContent::default();
+        }
+    }
+
+    pub(crate) fn snapshot_stats(&self) -> SnapshotStats {
+        let terminal = self.term.lock();
+        SnapshotStats {
+            snapshots: self.snapshots,
+            cells_copied: self.cells_copied,
+            viewport_cells: self.last_content.viewport.cells().len(),
+            history_lines: terminal.history_size(),
+            history_limit: self.history_limit,
+            columns: terminal.columns(),
+            screen_lines: terminal.screen_lines(),
+        }
     }
 
     pub fn renderable_content(&self) -> &RenderableContent {
@@ -675,28 +734,6 @@ fn visible_regex_match_iter<'a>(
         .take_while(move |rm| rm.start().line <= viewport_end)
 }
 
-pub struct RenderableContent {
-    pub grid: Grid<Cell>,
-    pub hovered_hyperlink: Option<RangeInclusive<Point>>,
-    pub selectable_range: Option<SelectionRange>,
-    pub cursor: Cell,
-    pub terminal_mode: TermMode,
-    pub terminal_size: TerminalSize,
-}
-
-impl Default for RenderableContent {
-    fn default() -> Self {
-        Self {
-            grid: Grid::new(0, 0, 0),
-            hovered_hyperlink: None,
-            selectable_range: None,
-            cursor: Cell::default(),
-            terminal_mode: TermMode::empty(),
-            terminal_size: TerminalSize::default(),
-        }
-    }
-}
-
 impl Drop for Backend {
     fn drop(&mut self) {
         self.request_shutdown();
@@ -711,6 +748,9 @@ impl EventListener for EventProxy {
         self.0.send(event);
     }
 }
+
+#[cfg(test)]
+mod history_tests;
 
 #[cfg(all(test, windows))]
 mod event_bridge_tests {

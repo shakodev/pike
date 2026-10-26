@@ -1,0 +1,72 @@
+﻿{
+    "Case":  "full-2000",
+    "Profile":  {
+                    "mode":  "full",
+                    "history_limit":  "2000",
+                    "retained_history":  "2000",
+                    "columns":  "120",
+                    "rows":  "30",
+                    "combining_per_cell":  "0",
+                    "iterations":  "100",
+                    "logical_cells_per_snapshot":  "243600",
+                    "p50_us":  "1979.300",
+                    "p95_us":  "3267.000",
+                    "viewport_allocation_reused":  "false"
+                },
+    "Phases":  [
+                   {
+                       "Phase":  "empty",
+                       "Samples":  10,
+                       "PrivateBytes":  1015808,
+                       "MinimumPrivateBytes":  1015808,
+                       "MaximumPrivateBytes":  1015808,
+                       "WorkingSetBytes":  5017600,
+                       "Threads":  5,
+                       "Handles":  62
+                   },
+                   {
+                       "Phase":  "saturated",
+                       "Samples":  14,
+                       "PrivateBytes":  7335936,
+                       "MinimumPrivateBytes":  7335936,
+                       "MaximumPrivateBytes":  7335936,
+                       "WorkingSetBytes":  11169792,
+                       "Threads":  5,
+                       "Handles":  62
+                   },
+                   {
+                       "Phase":  "plateau",
+                       "Samples":  13,
+                       "PrivateBytes":  7335936,
+                       "MinimumPrivateBytes":  7335936,
+                       "MaximumPrivateBytes":  7335936,
+                       "WorkingSetBytes":  11169792,
+                       "Threads":  5,
+                       "Handles":  62
+                   },
+                   {
+                       "Phase":  "snapshot",
+                       "Samples":  11,
+                       "PrivateBytes":  20238336,
+                       "MinimumPrivateBytes":  20238336,
+                       "MaximumPrivateBytes":  20238336,
+                       "WorkingSetBytes":  23707648,
+                       "Threads":  5,
+                       "Handles":  63
+                   },
+                   {
+                       "Phase":  "released",
+                       "Samples":  9,
+                       "PrivateBytes":  1585152,
+                       "MinimumPrivateBytes":  1585152,
+                       "MaximumPrivateBytes":  2179072,
+                       "WorkingSetBytes":  5361664,
+                       "Threads":  5,
+                       "Handles":  61
+                   }
+               ],
+    "MaximumSampledPrivateBytes":  20238336,
+    "CpuSeconds":  0.25,
+    "WallSeconds":  1.5503561,
+    "ExecutableSha256":  "50C5AD359B79CD523514A296943C44A8FA499E379B74DAC74AE2B023230A5808"
+}

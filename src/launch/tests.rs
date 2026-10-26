@@ -6,6 +6,26 @@ use std::time::Duration;
 
 const DEADLINE: Duration = Duration::from_secs(10);
 
+#[test]
+fn hidden_attachment_has_no_snapshot_until_activation_and_retains_normal_ownership() {
+    let executor = SharedExecutor::new().unwrap();
+    let mut pool = LaunchPool::default();
+    let request = executor.enter(|| pool.start(fixture_settings())).unwrap();
+    let ready = executor.block_on(request.receive()).unwrap();
+    let mut terminal = ready
+        .attach_hidden(Default::default(), Default::default())
+        .unwrap();
+    assert!(!terminal.is_visible());
+    terminal.refresh();
+    assert_eq!(terminal.snapshot_stats().snapshots, 0);
+    terminal.set_visible(true);
+    assert_eq!(terminal.snapshot_stats().snapshots, 1);
+    let handle = terminal.shutdown_handle();
+    drop(terminal);
+    wait(&executor, pool.shutdown());
+    assert!(handle.completion().is_some());
+}
+
 fn limits(jobs: u16, sessions: u16) -> LaunchLimits {
     LaunchLimits {
         jobs: NonZeroU16::new(jobs).unwrap(),

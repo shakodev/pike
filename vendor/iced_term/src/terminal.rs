@@ -62,10 +62,31 @@ impl PreparedTerminal {
 
     /// Call on the UI thread; font/cache construction is deliberately deferred.
     pub fn attach(self, font: FontSettings, theme: ThemeSettings) -> Terminal {
+        self.attach_with_visibility(font, theme, true)
+    }
+
+    /// UI-only attachment for a background session: no initial viewport copy.
+    pub fn attach_hidden(
+        self,
+        font: FontSettings,
+        theme: ThemeSettings,
+    ) -> Terminal {
+        self.attach_with_visibility(font, theme, false)
+    }
+
+    fn attach_with_visibility(
+        mut self,
+        font: FontSettings,
+        theme: ThemeSettings,
+        visible: bool,
+    ) -> Terminal {
+        let font = TermFont::new(font);
+        self.backend.initialize_font(font.measure);
+        self.backend.set_visible(visible);
         Terminal {
             id: self.id,
             widget_id: iced::widget::Id::unique(),
-            font: TermFont::new(font),
+            font,
             theme: Theme::new(theme),
             bindings: BindingsLayout::default(),
             cache: Cache::default(),
@@ -97,11 +118,46 @@ impl Terminal {
     }
 
     /// Refresh the retained read-only model after backend completion, even when
-    /// no event subscription was active. No terminal contents are logged.
+    /// no event subscription was active. Returns None while hidden: activate
+    /// first to obtain the final viewport. No terminal contents are logged.
     pub fn final_content(&mut self) -> Option<&crate::RenderableContent> {
         self.backend.shutdown_handle().completion()?;
+        if !self.is_visible() {
+            return None;
+        }
         self.backend.sync();
         Some(self.backend.renderable_content())
+    }
+
+    /// Hidden sessions still require their event subscription and handle calls
+    /// for protocol/lifecycle delivery. Hiding releases their cached viewport;
+    /// activation refreshes it once, including after the backend has exited.
+    pub fn set_visible(&mut self, visible: bool) {
+        if self.backend.is_visible() == visible {
+            return;
+        }
+        self.backend.set_visible(visible);
+        self.cache.clear();
+    }
+
+    pub fn is_visible(&self) -> bool {
+        self.backend.is_visible()
+    }
+
+    /// Explicit presentation refresh. Hidden calls do no snapshot work.
+    pub fn refresh(&mut self) {
+        if self.is_visible() {
+            self.backend.sync();
+            self.cache.clear();
+        }
+    }
+
+    pub fn renderable_content(&self) -> Option<&crate::RenderableContent> {
+        self.is_visible().then(|| self.backend.renderable_content())
+    }
+
+    pub fn snapshot_stats(&self) -> crate::SnapshotStats {
+        self.backend.snapshot_stats()
     }
 
     pub fn input_status(&self) -> crate::InputStatus {
@@ -134,6 +190,14 @@ impl Terminal {
             },
             Command::ChangeFont(font_settings) => {
                 self.font = TermFont::new(font_settings);
+                // Ordinary hidden events skip font synchronization, but an
+                // explicit font change must still update the session geometry.
+                if !self.is_visible() {
+                    self.backend.handle(backend::Command::Resize(
+                        None,
+                        Some(self.font.measure),
+                    ));
+                }
             },
             Command::AddBindings(bindings) => {
                 self.bindings.add_bindings(bindings);
@@ -150,6 +214,9 @@ impl Terminal {
     }
 
     fn sync_and_redraw(&mut self) {
+        if !self.is_visible() {
+            return;
+        }
         self.sync_font();
         self.backend.sync();
         self.redraw();

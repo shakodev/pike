@@ -105,7 +105,8 @@ and API/overload policy details.
   Canceling a subscription keeps its owned Terminal alive; dropping that owner
   requests close even when a subscription recipe/handle remains elsewhere.
 - Natural exit enables the existing Alacritty parser's EOF drain before Exit;
-  completed sessions reject input and ignore geometry changes. `final_content`
+  completed sessions reject input. This patch ignored geometry after exit;
+  R11 later reflows retained models without notifying the disposed PTY. `final_content`
   can refresh the retained model without consuming subscription events.
 - `Action::Shutdown` still describes terminal Exit, not released resources.
   Callers must use backend completion for resource/lifecycle decisions. A wait
@@ -147,3 +148,43 @@ and API/overload policy details.
   adapter. No dependency, feature or lockfile changes.
 - See [issue #10 verification](../../docs/verification/issue-10.md), including
   native-Windows verification still required outside GitHub Actions.
+
+## R11 / issue #11 — bounded history and viewport-only presentation
+
+- `BackendSettings::history` accepts a validated `HistoryLimit`: default 2,000,
+  maximum 10,000 lines, with zero disabling normal-screen history. The existing
+  Alacritty Config/set_options path applies changes to the primary buffer even
+  while alternate screen is active. `BackendCommand::SetHistoryLimit` updates
+  the limit live, including retained exited models.
+- Replace `RenderableContent::grid` with `viewport: ViewportSnapshot`, an owned
+  row-major vector of only visible cells. Retain absolute points, display offset,
+  cursor cell/point, selection and mode metadata. Refresh reuses its allocation;
+  no production Grid/history clone or transcript remains. Cursor and view code,
+  lifecycle tests and the shutdown example use the new viewport API.
+- Prepared backends do not take snapshots. UI attachment makes them visible,
+  or `attach_hidden` keeps snapshots at zero through the first activation. UI
+  attachment seeds cell metrics without changing the initial grid. After backend
+  completion, valid layouts reflow the retained model without notifying the PTY;
+  pending EOF drains keep their parsing geometry. The application handoff exposes
+  `PreparedSession::attach_hidden` through its existing ownership/cancellation gate.
+  `Terminal::set_visible(false)` releases the viewport and canvas cache; callers
+  must still subscribe and route every live session's events. Hidden handling,
+  explicit refresh and completion perform zero snapshots. Activation refreshes
+  once, even after exit; `final_content` returns None until activation. Snapshot
+  counters expose metadata only and create no sampler/background task.
+- Copy and URL extraction read the authoritative model on demand, so selection
+  spanning multiple history pages does not depend on presentation copies. Mouse
+  protocol encoding reads current modes rather than a stale hidden snapshot.
+- This is a line cap, not a byte cap. Alacritty retains up to 1,000 spare rows;
+  cell extras (combining marks and hyperlink strings) can grow within a cell.
+  Snapshots share extras via the existing Arc/COW representation. These residual
+  limits are measured and documented, without changing the emulator or PTY.
+- Ten new regressions cover saturation, zero/reduced history, normal/alternate
+  screen, scrolling/selection, allocation reuse, wide/combining cell metadata,
+  hidden native flood, hidden font changes and reactivation of exited output. An opt-in release probe
+  compares the exact R03 full-grid clone algorithm with viewport/hidden paths;
+  the clone exists only in that ignored profiling test.
+- No dependency, lockfile, feature or Alacritty source changes. Remove this patch
+  when the adapter exposes equivalent validated history and visibility-aware
+  viewport snapshots upstream. See [Windows verification and residual byte
+  limits](../../docs/verification/issue-11.md) for commands and measurements.
