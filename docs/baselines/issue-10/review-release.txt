@@ -1,0 +1,10 @@
+macOS arm64, Rust 1.97.1, default renderer-wgpu; review fixes in the same commit.
+Command: cargo test --release --locked --lib measure_32_requested_launches -- --ignored --nocapture
+
+scenario,requested,admitted,rejected,max_dispatch_us,heartbeats,max_gap_ms,recovery_ms
+target_close,32,2,30,244.042,13,7.575,11.566
+window_close,32,2,30,15.875,13,7.562,7.984
+failure,32,2,30,121.125,13,9.527,0.231
+
+test launch::tests::measure_32_requested_launches ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.34s

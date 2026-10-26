@@ -175,3 +175,53 @@ fn canceled_startup_result_disposes_an_unobserved_session() {
         assert_eq!(result.reason, ExitReason::Requested);
     }
 }
+
+fn prepared(id: u64) -> PreparedTerminal {
+    #[cfg(windows)]
+    let (program, args) =
+        ("cmd.exe", vec!["/D", "/Q", "/C", "set /p PIKE_WAIT="]);
+    #[cfg(not(windows))]
+    let (program, args) = ("/bin/sh", vec!["-c", "read pike_wait"]);
+    PreparedTerminal::new(
+        id,
+        settings::BackendSettings {
+            program: program.into(),
+            args: args.into_iter().map(str::to_owned).collect(),
+            #[cfg(windows)]
+            escape_args: false,
+            ..Default::default()
+        },
+    )
+    .unwrap()
+}
+
+#[test]
+fn prepared_backend_moves_from_worker_and_attaches_on_ui_thread() {
+    fn assert_send<T: Send>() {}
+    assert_send::<PreparedTerminal>();
+    let prepared = std::thread::spawn(|| prepared(7010)).join().unwrap();
+    let handle = prepared.shutdown_handle();
+    let terminal = prepared.attach(Default::default(), Default::default());
+    assert_eq!(terminal.id, 7010);
+    drop(terminal);
+    let result = runtime().block_on(async {
+        tokio::time::timeout(DEADLINE, handle.wait()).await.unwrap()
+    });
+    assert_eq!(result.reason, ExitReason::Requested);
+}
+
+#[test]
+fn dropping_prepared_backend_without_font_attachment_acknowledges_cleanup() {
+    let handle = std::thread::spawn(|| {
+        let prepared = prepared(7011);
+        let handle = prepared.shutdown_handle();
+        drop(prepared);
+        handle
+    })
+    .join()
+    .unwrap();
+    let result = runtime().block_on(async {
+        tokio::time::timeout(DEADLINE, handle.wait()).await.unwrap()
+    });
+    assert_eq!(result.reason, ExitReason::Requested);
+}

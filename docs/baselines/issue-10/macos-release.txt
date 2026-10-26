@@ -1,0 +1,28 @@
+
+running 1 test
+scenario,requested,admitted,rejected,max_dispatch_us,heartbeats,max_gap_ms,recovery_ms
+target_close,32,2,30,72.500,13,7.551,16.705
+window_close,32,2,30,20.375,13,7.617,11.675
+failure,32,2,30,22.667,13,7.568,0.176
+test launch::tests::measure_32_requested_launches ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.35s
+
+        0.72 real         0.02 user         0.04 sys
+            16302080  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                2440  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   4  messages sent
+                   0  messages received
+                   4  signals received
+                  13  voluntary context switches
+                 390  involuntary context switches
+            80391914  instructions retired
+            66492688  cycles elapsed
+             7946672  peak memory footprint

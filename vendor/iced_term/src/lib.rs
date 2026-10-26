@@ -23,7 +23,7 @@ pub use backend::Command as BackendCommand;
 pub use backend::{LinkAction, MouseButton, RenderableContent};
 pub use event_bridge::{EventBridgeError, EventBridgeEvent};
 pub use lifecycle::{BackendCompletion, ExitReason, ShutdownHandle};
-pub use terminal::{Command, Event, Terminal};
+pub use terminal::{Command, Event, PreparedTerminal, Terminal};
 pub use theme::{ColorPalette, Theme};
 pub use view::TerminalView;
 

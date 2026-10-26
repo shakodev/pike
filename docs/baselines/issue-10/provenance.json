@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-26",
+  "base_commit": "081ec9c1e91343402c5ce153b7488fa107c431b8",
+  "os": [
+    "ProductName:\t\tmacOS",
+    "ProductVersion:\t\t26.7.1",
+    "BuildVersion:\t\t25G241"
+  ],
+  "architecture": "arm64",
+  "rustc": [
+    "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "binary: rustc",
+    "commit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452",
+    "commit-date: 2026-07-14",
+    "host: aarch64-apple-darwin",
+    "release: 1.97.1",
+    "LLVM version: 22.1.6"
+  ],
+  "profile": "release, default renderer-wgpu",
+  "command": "/usr/bin/time -l target/release/deps/pike-9daeab5daea0ded4 --exact launch::tests::measure_32_requested_launches --ignored --nocapture",
+  "source_sha256": {
+    "src/launch.rs": "29387ead22ce608d1b3b8f897570d3e6aac330532104b96833376cadefee975d",
+    "src/launch/tests.rs": "3bebf5211f2efd709c75c128ae726fcf0f56a8c2d0a89db9eb43de77da9a97fc",
+    "src/main.rs": "e49c3de7113c2cf5635a30fafdecd85634206c8b4493b1ebd6fec3e0e69ed2d6",
+    "vendor/iced_term/src/terminal.rs": "c0edc04951ce8940c70b9eae2d805bb54dd3b1b34e3402e09893e08850ff0882",
+    "Cargo.lock": "f2499ce171f71875ac098ef7b52161139645cf5f6fa81ac2c778bcffa2f8b367"
+  }
+}
