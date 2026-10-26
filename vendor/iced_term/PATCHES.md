@@ -202,12 +202,15 @@ and API/overload policy details.
   `FontSettings.scale_factor` remains line height, not DPI. Invalid values
   retain valid settings; finite extremes bound shaping to size 1–256 and
   relative height 0.1–8. Iced's layout already uses logical coordinates.
-- `geometry.rs` separates last usable layout, cached fractional cell metrics
+- `geometry.rs` separates latest positive layout, cached fractional cell metrics
   and applied terminal size. Geometry/selection/rendering use the same floats;
-  integer conversion stays at the native boundary. Reject invalid/sub-cell
-  layouts without replacing the last usable one, preserve new fonts across
+  integer conversion stays at the native boundary. Invalid/sub-cell layouts
+  preserve the applied grid; positive sub-cell bounds remain current for later
+  font reduction. Preserve new fonts across
   tiny layouts, and cap viewport allocation at 512×512 cells. Initial synthetic
   bounds use f64 products to preserve initial dimensions exactly.
+  Native pixel metadata also bounds cell-by-row/column products to u16, avoiding
+  Unix winsize overflow without changing logical metrics or Alacritty.
 - `backend.rs` reflows only for changed rows/columns. Windows native resize
   comparison uses ConPTY's rows/columns; Unix additionally compares rounded
   pixel metadata. Preserve R11's deferred EOF-drain reflow and closed-PTY rule.
@@ -220,7 +223,7 @@ and API/overload policy details.
   calls, grid resizes and explicit cache clears. No background sampler, timer,
   task, polling, unsafe code or extra allocation per ordinary event is added.
   Widget layout commands no longer carry a possibly stale font measurement.
-- Eleven new regressions plus an opt-in native size/flood release probe verify
+- Thirteen new regressions plus an opt-in native size/flood release probe verify
   counters, fractional/invalid/extreme dimensions, four logical scale values,
   font changes and hidden work. See [Windows evidence and remaining physical
   DPI/minimize validation](../../docs/verification/issue-12.md).

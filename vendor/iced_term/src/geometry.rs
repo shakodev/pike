@@ -44,9 +44,17 @@ impl From<TerminalSize> for WindowSize {
             num_lines: size.num_lines,
             num_cols: size.num_cols,
             // Integer pixel metadata exists only at the native API boundary.
-            cell_width: size.cell_width.round().clamp(1.0, u16::MAX as f32)
+            cell_width: size
+                .cell_width
+                .round()
+                .max(1.0)
+                .min((u16::MAX / size.num_cols) as f32)
                 as u16,
-            cell_height: size.cell_height.round().clamp(1.0, u16::MAX as f32)
+            cell_height: size
+                .cell_height
+                .round()
+                .max(1.0)
+                .min((u16::MAX / size.num_lines) as f32)
                 as u16,
         }
     }
@@ -110,15 +118,15 @@ impl Geometry {
             None => self.layout,
         };
         let cell = self.cell;
+        // Preserve the latest positive area even if this font cannot fit yet.
+        // Applied grid dimensions stay unchanged until a candidate is usable.
+        self.layout = layout;
         // f64 division avoids overflow even for extreme finite f32 inputs.
         let cols = (layout.width / f64::from(cell.width)).floor();
         let lines = (layout.height / f64::from(cell.height)).floor();
         if cols < 1.0 || lines < 1.0 {
             return None;
         }
-        // A minimized/tiny/invalid layout must not replace the last usable one.
-        self.layout = layout;
-        self.cell = cell;
         Some(TerminalSize {
             num_cols: cols.min(f64::from(MAX_COLUMNS)) as u16,
             num_lines: lines.min(f64::from(MAX_LINES)) as u16,

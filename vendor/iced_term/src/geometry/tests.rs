@@ -1,6 +1,22 @@
 use super::*;
 
 #[test]
+fn native_pixel_extents_do_not_overflow_the_u16_winsize_fields() {
+    let mut geometry = Geometry::default();
+    for cell in [256.0, 1000.0, f32::MAX] {
+        let size = geometry
+            .update(
+                Some(Size::new(f32::MAX, f32::MAX)),
+                Some(Size::new(cell, cell)),
+            )
+            .unwrap();
+        let native = WindowSize::from(size);
+        assert!(native.num_cols.checked_mul(native.cell_width).is_some());
+        assert!(native.num_lines.checked_mul(native.cell_height).is_some());
+    }
+}
+
+#[test]
 fn restore_uses_font_changed_while_pane_was_too_small_for_one_cell() {
     let mut geometry = Geometry::default();
     assert!(geometry
@@ -50,12 +66,13 @@ fn fractional_cells_and_subcell_drags_keep_the_same_grid() {
 }
 
 #[test]
-fn invalid_or_undersized_input_preserves_the_last_usable_layout_and_metrics() {
+fn invalid_input_preserves_positive_layout_and_tiny_areas_wait_for_usable_cells(
+) {
     let mut geometry = Geometry::default();
     let original = geometry
         .update(Some(Size::new(800.0, 480.0)), Some(Size::new(8.0, 16.0)))
         .unwrap();
-    for value in [0.0, -1.0, f32::NAN, f32::INFINITY, f32::NEG_INFINITY, 0.01] {
+    for value in [0.0, -1.0, f32::NAN, f32::INFINITY, f32::NEG_INFINITY] {
         assert!(geometry
             .update(Some(Size::new(value, value)), None)
             .is_none());
@@ -70,6 +87,12 @@ fn invalid_or_undersized_input_preserves_the_last_usable_layout_and_metrics() {
     // A font change still uses the last usable pane area after minimize.
     let zoomed = geometry.update(None, Some(Size::new(10.0, 20.0))).unwrap();
     assert_eq!((zoomed.num_cols, zoomed.num_lines), (80, 24));
+    assert!(geometry.update(Some(Size::new(0.01, 0.01)), None).is_none());
+    assert!(geometry.update(None, None).is_none());
+    assert_eq!(
+        geometry.update(Some(Size::new(800.0, 480.0)), None),
+        Some(zoomed)
+    );
 }
 
 #[test]

@@ -1,0 +1,15 @@
+﻿{
+    "Shell":  "cmd",
+    "Sessions":  2,
+    "Mode":  "smoke",
+    "Run":  1,
+    "Renderer":  "tiny-skia (ICED_BACKEND override); build features recorded separately",
+    "ReadyAndWindowMs":  356.5975,
+    "CloseObservationMs":  1905.3906000000002,
+    "FinalMarkers":  2,
+    "ChildExitCodes":  [
+                           42,
+                           41
+                       ],
+    "ExitCode":  0
+}

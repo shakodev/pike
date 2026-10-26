@@ -16,26 +16,31 @@ and relative line height to 0.1–8. These are adapter safety limits, independen
 of the future product zoom range.
 
 The pinned Iced 0.14.1 window state constructs its logical viewport from physical
-client size divided by monitor DPI times application scale. `ScaleFactorChanged`
+client size divided by `(monitor DPI × application scale)`. `ScaleFactorChanged`
 updates that viewport; paragraphs and widget layouts already use logical units.
 Consequently a pure monitor-scale change does not require reshaping logical cell
 metrics. A changed logical pane area goes through the same resize calculation
 as a window drag. No DPI multiplier is applied to line height or measured cells.
 
-`geometry.rs` keeps the last usable layout independently of cached font metrics
+`geometry.rs` keeps the latest finite positive pane area independently of cached font metrics
 and applied terminal geometry. It preserves fractional cells for division,
 rendering and selection hit-testing; integer conversion occurs only for native
 pixel metadata. Initial synthetic layout products use f64 to preserve the
 backend's initial 80×50 grid without float-rounding loss. Layout messages carry
 only their area, so a queued widget resize cannot overwrite a newer font.
 
-Zero, negative, NaN, infinite or sub-cell pane areas preserve the last usable
-layout and applied grid. A valid new font is remembered even when the current
-pane cannot fit one cell; restoration uses those cached metrics. Finite huge
+Zero, negative, NaN and infinite pane areas preserve the last positive area and
+applied grid. Sub-cell areas also preserve the applied grid, but remember their
+positive bounds: reducing the font must use that current pane area. A valid new
+font is remembered even when the pane cannot fit one cell; restoration uses
+those cached metrics. Finite huge
 areas and tiny positive cell metrics clamp the viewport to **512 columns × 512
 rows**, bounding allocation and remaining below ConPTY's signed coordinate
 limit. No path emits a zero or wrapped native size. These are viewport limits;
 the separate history line/byte limitations from #11 still apply.
+Native cell-pixel metadata is additionally bounded so its product with columns
+or rows fits the 16-bit Unix winsize pixel fields. Logical drawing metrics stay
+fractional; ConPTY continues to consume only rows/columns.
 
 Only changed rows/columns call `Term::resize`. On Windows only changed
 rows/columns notify ConPTY, which consumes no pixel metrics; Unix also compares
@@ -66,14 +71,14 @@ throttling or polling.
 
 Both lean renderer profiles pass formatting, denied-warning all-target
 application/adapter Clippy, 39 library tests, two application tests, two
-compile-fail doctests, five example tests and **70 adapter tests**. The opt-in
+compile-fail doctests, five example tests and **72 adapter tests**. The opt-in
 startup and history profiling probes stay ignored in ordinary tests. App and
 all examples build in release for both renderers. Builds, tests and profiling
 run sequentially.
 Renderer/runtime feature isolation, the feature-guard regressions and the
 measurement-support/trace validation checks also pass locally.
 
-Eleven new adapter regressions cover the full font cache key, repeated/invalid
+Thirteen new adapter regressions cover the full font cache key, repeated/invalid
 settings, finite extremes, fractional boundaries/hit-testing, startup rounding,
 font changes while too small, invalid/minimized layouts, 100/125/150/200% logical
 scale conversions, no-op/title/input handling, visible wakeup floods, hidden
@@ -102,7 +107,7 @@ the worker has not yet applied a queued resize; production adds no retry loop.
 | 4,096-line visible output flood | 43×11 | 0 / 0 |
 | 4,096-line hidden output flood | 43×11 | 0 / 0; zero hidden snapshots/cache clears |
 
-The final tiny-skia probe uses 0.250 s process CPU over 0.629 s observed wall
+The original `43b7fb0` tiny-skia probe uses 0.250 s process CPU over 0.629 s observed wall
 time and peaks at 9.39 MiB sampled private bytes. Its two floods use the real
 parser/PTY; it creates no GUI window or render surface, and child resources are
 excluded. Cumulative elapsed columns are trace timestamps, **not** input/render
@@ -111,7 +116,7 @@ hashes are under [issue-12 baselines](../baselines/issue-12/).
 
 Native cmd and PowerShell two-session GUI smoke checks pass layout resize,
 size markers, independent child exits 41/42, final output and cleanup. The
-tiny-skia cmd idle run records 61 responsive samples over 61.39 seconds with no
+original tiny-skia cmd idle run records 61 responsive samples over 61.39 seconds with no
 process CPU-counter advance, 12.39–12.52 MiB private bytes, 23.51–23.57 MiB
 working set and 9–13 threads. Fixture cleanup succeeds. These are whole-GUI
 process measurements; the shell/native host resources are recorded separately.
@@ -127,6 +132,38 @@ child console sizes, plus actual font/line-height changes; it does not change
 Windows display settings or claim OS notification coverage. GUI minimize/restore
 notifications likewise need an interactive check; zero/tiny restoration is
 verified directly through the same public resize command on native ConPTY.
+
+## PR #61 review
+
+Review of `43b7fb0` reproduced two geometry defects. After an 800×480 pane shrank
+below one cell to 12×12, font reduction incorrectly reused the earlier area and
+produced 512×369 cells instead of 20×9. Geometry now remembers positive bounds
+even when the current font cannot fit, while retaining the applied grid until
+it can. A real ConPTY regression verifies visible and hidden paths, exactly one
+resize and the corresponding snapshot counts. The release probe also asks the
+native child to acknowledge the tiny-pane font reduction and subsequent restore.
+
+The native size conversion previously bounded each pixel dimension independently
+but allowed row/column products to overflow Unix's u16 winsize fields. Capping
+per-cell metadata by the corresponding row/column count prevents that overflow
+without changing logical metrics or Alacritty. A platform-independent regression
+tests checked multiplication at finite extreme inputs; Unix PTY execution is
+not available on this Windows host.
+
+Both new tests failed before their fixes and pass after them. Full formatting,
+Clippy, application/example/adapter tests and release builds are repeated for
+both renderers. The original measurements retain their original provenance;
+fresh review validation, source hashes and native probe/idle evidence are kept
+separately under `docs/baselines/issue-12/review/`.
+The reviewed release's 14-stage native probe acknowledges the correct 20×9
+tiny-pane grid and one resize on restoration. It records 0.1875 s process CPU
+over 0.640 s observed wall time and 9.53 MiB sampled private bytes (headless,
+excluding child resources). Fresh cmd/PowerShell GUI smoke traces and cleanup
+pass. The fresh GUI idle observation has 61 responsive samples over 61.39 seconds,
+0.051% measured one-core CPU, 12.39–12.51 MiB private bytes and 9–13 threads.
+The process CPU counter advanced by 0.03125 s in this interval; no production
+timer or background work was introduced. These observations are not a causal
+before/after performance comparison.
 
 ## Reproduction
 

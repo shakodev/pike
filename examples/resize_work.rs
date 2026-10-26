@@ -224,6 +224,55 @@ async fn run(terminal: &mut Terminal, events: &mut BoxStream<'static, Event>) ->
         .await?;
         record(&mut output, "font-change", terminal, start)?;
     }
+    // A smaller font must use the newest positive pane area even when the
+    // preceding font could not fit there. Native acknowledgement catches a
+    // stale remembered area as well as an incorrect in-memory grid.
+    let before = terminal.work_stats();
+    let previous = terminal.snapshot_stats();
+    send(
+        terminal,
+        BackendCommand::Resize(Some(Size::new(12.0, 12.0)), None),
+    );
+    assert_eq!(terminal.work_stats(), before);
+    assert_eq!(terminal.snapshot_stats().columns, previous.columns);
+    assert_eq!(
+        terminal.snapshot_stats().screen_lines,
+        previous.screen_lines
+    );
+    terminal.handle(Command::ChangeFont(FontSettings {
+        size: 1.0,
+        ..Default::default()
+    }));
+    let cells = terminal.renderable_content().unwrap().terminal_size;
+    let expected = (
+        (12.0 / f64::from(cells.cell_width)).floor() as usize,
+        (12.0 / f64::from(cells.cell_height)).floor() as usize,
+    );
+    assert_eq!(terminal.work_stats().pty_resizes, before.pty_resizes + 1);
+    let stats = terminal.snapshot_stats();
+    assert_eq!((stats.columns, stats.screen_lines), expected);
+    size(terminal, events, expected, &mut nonce).await?;
+    record(&mut output, "font-reduction-in-tiny-pane", terminal, start)?;
+    let before = terminal.work_stats();
+    terminal.handle(Command::ChangeFont(FontSettings {
+        size: 20.0,
+        scale_factor: 1.6,
+        ..Default::default()
+    }));
+    assert_eq!(terminal.work_stats().pty_resizes, before.pty_resizes);
+    send(
+        terminal,
+        BackendCommand::Resize(Some(Size::new(510.0, 365.0)), None),
+    );
+    assert_eq!(terminal.work_stats().pty_resizes, before.pty_resizes + 1);
+    size(
+        terminal,
+        events,
+        (previous.columns, previous.screen_lines),
+        &mut nonce,
+    )
+    .await?;
+    record(&mut output, "font-and-pane-restore", terminal, start)?;
     for (hidden, nonce) in [(false, 1), (true, 2)] {
         terminal.set_visible(!hidden);
         let before = terminal.work_stats();

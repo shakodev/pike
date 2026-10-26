@@ -22,6 +22,49 @@ fn finish(terminal: Terminal) {
 }
 
 #[test]
+fn font_reduction_uses_the_current_positive_pane_area_after_an_undersized_layout(
+) {
+    for visible in [true, false] {
+        let mut terminal = terminal();
+        terminal.handle(Command::ProxyToBackend(BackendCommand::Resize(
+            Some(iced::Size::new(800.0, 480.0)),
+            Some(iced::Size::new(8.0, 16.0)),
+        )));
+        terminal.set_visible(visible);
+        let before = terminal.snapshot_stats();
+        let work = terminal.work_stats();
+        terminal.handle(Command::ProxyToBackend(BackendCommand::Resize(
+            Some(iced::Size::new(12.0, 12.0)),
+            None,
+        )));
+        let tiny = terminal.snapshot_stats();
+        assert_eq!(
+            (tiny.columns, tiny.screen_lines),
+            (before.columns, before.screen_lines)
+        );
+        assert_eq!(terminal.work_stats(), work);
+        terminal.handle(Command::ChangeFont(FontSettings {
+            size: 1.0,
+            ..Default::default()
+        }));
+        let measure = terminal.font.measure;
+        let expected = (
+            (12.0 / f64::from(measure.width)).floor() as usize,
+            (12.0 / f64::from(measure.height)).floor() as usize,
+        );
+        let after = terminal.snapshot_stats();
+        assert_eq!(
+            (after.columns, after.screen_lines),
+            expected,
+            "visible: {visible}"
+        );
+        assert_eq!(terminal.work_stats().pty_resizes, work.pty_resizes + 1);
+        assert_eq!(after.snapshots, before.snapshots + u64::from(visible));
+        finish(terminal);
+    }
+}
+
+#[test]
 fn metadata_input_and_noops_do_no_font_resize_snapshot_or_cache_work() {
     let mut terminal = terminal();
     let before = terminal.work_stats();
