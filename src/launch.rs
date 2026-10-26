@@ -3,26 +3,14 @@ use std::future::Future;
 use std::io;
 use std::num::NonZeroU16;
 use std::sync::Arc;
-use std::sync::atomic::{AtomicU64, Ordering};
+
+use crate::identity::Reservation;
+pub use crate::identity::{RequestId, SessionId};
 
 use iced::futures::future::{self, Either};
 use iced_term::settings::{BackendSettings, FontSettings, ThemeSettings};
 use iced_term::{PreparedTerminal, Terminal};
 use tokio::sync::{Semaphore, oneshot, watch};
-
-static NEXT_ID: AtomicU64 = AtomicU64::new(1);
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct RequestId(u64);
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct SessionId(u64);
-
-impl SessionId {
-    pub fn get(self) -> u64 {
-        self.0
-    }
-}
 
 #[derive(Clone, Copy, Debug)]
 pub struct LaunchLimits {
@@ -239,11 +227,10 @@ impl LaunchPool {
             .clone()
             .try_acquire_owned()
             .map_err(|_| LaunchError::SessionLimit)?;
-        let id = NEXT_ID
-            .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1))
-            .map_err(|_| LaunchError::IdsExhausted)?;
-        let request_id = RequestId(id);
-        let session_id = SessionId(id);
+        let Reservation {
+            request: request_id,
+            session: session_id,
+        } = Reservation::allocate().map_err(|_| LaunchError::IdsExhausted)?;
         let (cancel, mut canceled) = watch::channel(Handoff::Pending);
         let handoff = CancelLaunch(cancel.clone());
         let check_cancel = canceled.clone();

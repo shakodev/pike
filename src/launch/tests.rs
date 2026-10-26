@@ -1,6 +1,7 @@
 use super::*;
 use crate::executor::SharedExecutor;
 use iced::Executor;
+use std::sync::atomic::Ordering;
 use std::sync::mpsc;
 use std::time::Duration;
 
@@ -144,6 +145,30 @@ fn retry_uses_fresh_request_and_session_ids_after_failure() {
     assert_ne!(second.session, ids.1);
     assert!(executor.block_on(second.receive()).is_err());
     executor.block_on(pool.shutdown());
+}
+
+#[test]
+fn launch_and_pure_state_share_the_process_identity_allocator() {
+    let mut model = crate::workspace::Model::default();
+    let (_, crate::session::Effect::Spawn(before)) = model.create_tab().unwrap() else {
+        panic!("expected reservation");
+    };
+    let executor = SharedExecutor::new().unwrap();
+    let mut pool = LaunchPool::default();
+    let launch = executor
+        .enter(|| pool.start_with(|_| Err(io::Error::other("synthetic failure"))))
+        .unwrap();
+    let session: crate::identity::SessionId = launch.session;
+    let request: crate::identity::RequestId = launch.request;
+    assert!(session.get() > before.session.get());
+    assert!(request.get() > before.request.get());
+    assert!(executor.block_on(launch.receive()).is_err());
+    executor.block_on(pool.shutdown());
+    let (_, crate::session::Effect::Spawn(after)) = model.create_tab().unwrap() else {
+        panic!("expected reservation");
+    };
+    assert!(after.session.get() > session.get());
+    assert!(after.request.get() > request.get());
 }
 
 #[test]
