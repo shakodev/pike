@@ -320,3 +320,6 @@ impl From<WindowSize> for COORD {
         COORD { X: columns as i16, Y: lines as i16 }
     }
 }
+
+#[cfg(test)]
+mod tests;
