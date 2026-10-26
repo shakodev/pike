@@ -1,0 +1,11 @@
+{
+  "before": {
+    "commit": "e1684230e66da504cbb607a374a9074d84b1dd0b",
+    "run": "https://github.com/shakodev/pike/actions/runs/40303916025"
+  },
+  "after": {
+    "commit": "75bdda7f85782b1002c0e8a5e90dd70119ffe149",
+    "run": "https://github.com/shakodev/pike/actions/runs/40305577911"
+  },
+  "note": "Release test executables, not GUI/idle or whole-tree measurements. Resource CSV rows are extracted verbatim from retained CI artifacts; metadata and probe transcripts are retained alongside them. Text line endings are normalized to LF and trailing blank lines removed; measurement values are unchanged."
+}

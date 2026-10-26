@@ -127,3 +127,71 @@ checks and ConPTY probe described in
 - Flush active synchronized updates on I/O failure or explicit close before
   dropping the parser. Already-read output is retained even without Exit; a
   read-then-broken-pipe regression verifies the synchronized final sentinel.
+
+## R08 / issue #8 — Windows ownership and startup failure audit
+
+- Wrap HPCON immediately, close all startup error paths with safe output/console
+  ordering, and adopt both CreateProcess handles into Rust ownership. Close the
+  unused primary-thread handle immediately and retain the process until callback
+  join and backend completion.
+- Own initialized attribute lists in aligned storage and call
+  DeleteProcThreadAttributeList before freeing them on success and failure.
+- Watchers own stable callback state, reclaim failed registrations and unfired
+  callbacks, synchronously unregister/join before releasing the process, and wake
+  the poller when exit preceded registration. Cover in-flight callback teardown.
+- Return ConPTY HRESULT and pipe-worker creation errors; failed resize preserves
+  the session. Retain backend ownership if close-thread creation fails and use
+  the existing reader to release the output pipe during synchronous disposal.
+- Own optional DLL references across their function-pointer use and free on
+  partial export lookup or final backend destruction. Remove environment values
+  from duplicate-variable diagnostics and pass mutable storage to CreateProcess.
+- Add isolated release resource, SDK-control, natural-drain and attached-tree
+  fixtures. Test-only SDK memory/thread counters use existing windows-sys 0.59;
+  no runtime dependencies, versions, or lockfiles change.
+- The initial application fixes had zero linear handle growth on Server 2025/26100.
+  Server 2022/20348 leaks one handle per bare SDK console cycle, reproduced
+  independently of Pike. Follow-up #55 resolves that application-path blocker
+  with the maintained ConPTY runtime; both strict cohort checks now pass. No opaque HPCON access or second
+  PTY is introduced. See [audit and measurements](../../docs/verification/issue-8.md).
+
+
+## Issue #55 — pin the maintained native ConPTY runtime
+
+- Require the app-local Microsoft.Windows.Console.ConPTY 1.25.260930003 DLL and
+  host pair; use its documented Conpty-prefixed exports and SDK-compatible ABI.
+  Load an absolute path with dependency search limited to that directory and
+  System32. Missing/invalid files or exports return an error; no PATH search or
+  inbox fallback can reintroduce the measured legacy leak.
+- `tools/conpty-runtime.json` pins archive and x64 asset SHA-256 values.
+  Preparation/packaging verifies bytes, ships both files and the MIT license,
+  and supports offline restoration. No Cargo dependency or lockfile changes;
+  the measured native assets add 1,208,984 disk bytes. See
+  [runtime provenance/deployment](../../docs/dependencies/conpty/README.md).
+- Runtime integration reproduced a previously hidden emergency-close flaw:
+  abandoning output let the newer host exit before terminating descendants.
+  The fallback now asks the existing reader to drain directly past piper
+  backpressure until EOF, while close runs on the disposing thread. It adds no
+  worker and checks the control flag only on reader backpressure. A focused
+  regression proves EOF without a piper consumer; attached-tree tests cover it.
+- The final Windows audits pass on build 20348 and 26100 with zero handle growth
+  across all 13 measured scenarios. Bare inbox controls remain separate evidence
+  of the OS defect. [Issue #55 verification](../../docs/verification/issue-55.md)
+  retains measurements, the regression/fix, and validation limitations.
+
+
+## R08 PR review — gate execution and stabilize FFI ownership
+
+- Create the root process suspended and retain its primary-thread handle until
+  wait registration and both pipe workers are owned. Resume only after the PTY
+  owns normal teardown. Any earlier failure terminates a suspended process;
+  resume failure uses full PTY disposal. Failed startup cannot execute shell
+  commands or spawn descendants before returning an error.
+- Store callback context in Arc and derive its FFI pointer with Arc::as_ptr,
+  preserving shared access when the owner moves after registration. Avoid
+  Box's unique-owner aliasing guarantees while Windows may run the callback.
+  Blocking unregister still precedes releasing context/process ownership.
+- A delayed synthetic side-effect regression reproduced the startup race on
+  both Windows cohorts before this fix. Add resume-failure injection to the
+  strict release resource series; no runtime dependency or extra worker.
+- The x64 packaging script rejects another architecture, DLL or non-PE input
+  before creating output. See [review record](../../docs/verification/issue-8-review.md).

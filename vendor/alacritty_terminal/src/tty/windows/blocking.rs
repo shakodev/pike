@@ -3,6 +3,7 @@
 use crate::input::WriterProgress;
 use std::io::prelude::*;
 use std::marker::PhantomData;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll, Wake, Waker};
 use std::{io, thread};
@@ -11,11 +12,13 @@ use piper::{pipe, Reader, Writer};
 use polling::os::iocp::{CompletionPacket, PollerIocpExt};
 use polling::{Event, PollMode, Poller};
 
-use crate::thread::spawn_named;
+use super::conpty::{fault, Failure};
 
 struct Registration {
     interest: Mutex<Option<Interest>>,
     end: PipeEnd,
+    // Reader-only emergency close mode; reuse this allocation for control.
+    drain_directly: AtomicBool,
 }
 
 #[derive(Copy, Clone)]
@@ -54,69 +57,84 @@ pub struct UnblockedReader<R> {
 
 impl<R: Read + Send + 'static> UnblockedReader<R> {
     /// Spawn a new unblocked reader.
-    pub fn new(mut source: R, pipe_capacity: usize) -> Self {
+    pub fn new(mut source: R, pipe_capacity: usize) -> io::Result<Self> {
+        fault(Failure::ReaderWorker)?;
         // Create a new pipe.
         let (reader, mut writer) = pipe(pipe_capacity);
         let interest = Arc::new(Registration {
             interest: Mutex::<Option<Interest>>::new(None),
             end: PipeEnd::Reader,
+            drain_directly: AtomicBool::new(false),
         });
 
         let error = Arc::new(Mutex::new(None));
         let source_error = error.clone();
+        let cleanup = interest.clone();
 
         // Spawn the reader thread.
-        let worker = spawn_named("alacritty-tty-reader-thread", move || {
-            let _completion = ReaderCompletion(source_error.clone());
-            let waker = Waker::from(Arc::new(ThreadWaker(thread::current())));
-            let mut context = Context::from_waker(&waker);
+        let worker =
+            thread::Builder::new().name("alacritty-tty-reader-thread".into()).spawn(move || {
+                let _completion = ReaderCompletion(source_error.clone());
+                let waker = Waker::from(Arc::new(ThreadWaker(thread::current())));
+                let mut context = Context::from_waker(&waker);
 
-            loop {
-                // Read from the reader into the pipe.
-                match writer.poll_fill(&mut context, &mut source) {
-                    Poll::Ready(Ok(0)) => {
-                        // Either the pipe is closed or the reader is at its EOF.
-                        // In any case, we are done.
-                        return;
-                    },
+                loop {
+                    // Read from the reader into the pipe.
+                    match writer.poll_fill(&mut context, &mut source) {
+                        Poll::Ready(Ok(0)) => {
+                            // Either the pipe is closed or the reader is at its EOF.
+                            // In any case, we are done.
+                            return;
+                        },
 
-                    Poll::Ready(Ok(_)) => {
-                        // Keep reading.
-                        continue;
-                    },
+                        Poll::Ready(Ok(_)) => {
+                            // Keep reading.
+                            continue;
+                        },
 
-                    Poll::Ready(Err(e)) if e.kind() == io::ErrorKind::Interrupted => {
-                        // We were interrupted; continue.
-                        continue;
-                    },
+                        Poll::Ready(Err(e)) if e.kind() == io::ErrorKind::Interrupted => {
+                            // We were interrupted; continue.
+                            continue;
+                        },
 
-                    Poll::Ready(Err(e)) => {
-                        // BrokenPipe is normal ConPTY EOF. Other read failures
-                        // must reach the I/O loop, not masquerade as a clean drain.
-                        if e.kind() != io::ErrorKind::BrokenPipe {
-                            *source_error.lock().unwrap() = Some(e.kind());
-                        }
-                        log::error!("error writing to pipe: {}", e);
-                        return;
-                    },
+                        Poll::Ready(Err(e)) => {
+                            // BrokenPipe is normal ConPTY EOF. Other read failures
+                            // must reach the I/O loop, not masquerade as a clean drain.
+                            if e.kind() != io::ErrorKind::BrokenPipe {
+                                *source_error.lock().unwrap() = Some(e.kind());
+                            }
+                            log::error!("error writing to pipe: {}", e);
+                            return;
+                        },
 
-                    Poll::Pending => {
-                        // We are now waiting on the other end to advance. Park the
-                        // thread until they do.
-                        thread::park();
-                    },
+                        Poll::Pending => {
+                            // If a close thread cannot start, keep serving the OS
+                            // output pipe on this existing reader. Closing the
+                            // source early can make OpenConsole exit before it
+                            // sends close events to attached descendants.
+                            if cleanup.drain_directly.load(Ordering::Acquire) {
+                                if let Err(error) = io::copy(&mut source, &mut io::sink()) {
+                                    if error.kind() != io::ErrorKind::BrokenPipe {
+                                        *source_error.lock().unwrap() = Some(error.kind());
+                                    }
+                                }
+                                return;
+                            }
+                            // An unpark permit closes the flag-check/park race.
+                            thread::park();
+                        },
+                    }
                 }
-            }
-        });
+            })?;
 
-        Self {
+        Ok(Self {
             interest,
             pipe: reader,
             first_register: true,
             _reader: PhantomData,
             worker: Some(worker),
             error,
-        }
+        })
     }
 
     /// Register interest in the reader.
@@ -149,6 +167,15 @@ impl<R: Read + Send + 'static> UnblockedReader<R> {
 }
 
 impl<R> UnblockedReader<R> {
+    /// Cleanup-only fallback: bypass piper backpressure on the existing OS
+    /// reader so synchronous ConPTY close can finish terminating its clients.
+    pub fn drain_without_buffering(&mut self) {
+        self.interest.drain_directly.store(true, Ordering::Release);
+        if let Some(worker) = &self.worker {
+            worker.thread().unpark();
+        }
+    }
+
     /// Cleanup-only: keep the OS reader moving while ClosePseudoConsole waits.
     pub fn drain_and_join(&mut self) {
         let waker = Waker::from(Arc::new(ThreadWaker(thread::current())));
@@ -198,7 +225,8 @@ pub struct UnblockedWriter<W> {
 
 impl<W: Write + Send + 'static> UnblockedWriter<W> {
     /// Spawn a new unblocked writer.
-    pub fn new(mut sink: W, pipe_capacity: usize) -> Self {
+    pub fn new(mut sink: W, pipe_capacity: usize) -> io::Result<Self> {
+        fault(Failure::WriterWorker)?;
         // Create a new pipe.
         let (mut reader, writer) = pipe(pipe_capacity);
         let written = Arc::new(WriterProgress::default());
@@ -206,51 +234,53 @@ impl<W: Write + Send + 'static> UnblockedWriter<W> {
         let interest = Arc::new(Registration {
             interest: Mutex::<Option<Interest>>::new(None),
             end: PipeEnd::Writer,
+            drain_directly: AtomicBool::new(false),
         });
 
         let completion = WriterCompletion { progress: written.clone(), interest: interest.clone() };
 
         // Spawn the writer thread.
-        let worker = spawn_named("alacritty-tty-writer-thread", move || {
-            let _completion = completion;
-            let mut sink = CountingWriter { sink: &mut sink, written: writer_counter };
-            let waker = Waker::from(Arc::new(ThreadWaker(thread::current())));
-            let mut context = Context::from_waker(&waker);
+        let worker =
+            thread::Builder::new().name("alacritty-tty-writer-thread".into()).spawn(move || {
+                let _completion = completion;
+                let mut sink = CountingWriter { sink: &mut sink, written: writer_counter };
+                let waker = Waker::from(Arc::new(ThreadWaker(thread::current())));
+                let mut context = Context::from_waker(&waker);
 
-            loop {
-                // Write from the pipe into the writer.
-                match reader.poll_drain(&mut context, &mut sink) {
-                    Poll::Ready(Ok(0)) => {
-                        // Either the pipe is closed or the writer is full.
-                        // In any case, we are done.
-                        return;
-                    },
+                loop {
+                    // Write from the pipe into the writer.
+                    match reader.poll_drain(&mut context, &mut sink) {
+                        Poll::Ready(Ok(0)) => {
+                            // Either the pipe is closed or the writer is full.
+                            // In any case, we are done.
+                            return;
+                        },
 
-                    Poll::Ready(Ok(_)) => {
-                        // Keep writing.
-                        continue;
-                    },
+                        Poll::Ready(Ok(_)) => {
+                            // Keep writing.
+                            continue;
+                        },
 
-                    Poll::Ready(Err(e)) if e.kind() == io::ErrorKind::Interrupted => {
-                        // We were interrupted; continue.
-                        continue;
-                    },
+                        Poll::Ready(Err(e)) if e.kind() == io::ErrorKind::Interrupted => {
+                            // We were interrupted; continue.
+                            continue;
+                        },
 
-                    Poll::Ready(Err(e)) => {
-                        log::error!("error writing to pipe: {}", e);
-                        return;
-                    },
+                        Poll::Ready(Err(e)) => {
+                            log::error!("error writing to pipe: {}", e);
+                            return;
+                        },
 
-                    Poll::Pending => {
-                        // We are now waiting on the other end to advance. Park the
-                        // thread until they do.
-                        thread::park();
-                    },
+                        Poll::Pending => {
+                            // We are now waiting on the other end to advance. Park the
+                            // thread until they do.
+                            thread::park();
+                        },
+                    }
                 }
-            }
-        });
+            })?;
 
-        Self { interest, pipe: writer, written, _reader: PhantomData, worker: Some(worker) }
+        Ok(Self { interest, pipe: writer, written, _reader: PhantomData, worker: Some(worker) })
     }
 
     pub fn writer_progress(&self) -> Arc<WriterProgress> {

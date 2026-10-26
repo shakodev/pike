@@ -18,6 +18,7 @@ The initial target is `x86_64-pc-windows-msvc`.
 
    ```powershell
    cargo fetch --locked
+   powershell -NoProfile -File tools/prepare-conpty.ps1
    cargo fmt --all -- --check
    cargo clippy --locked --all-targets -- -D warnings
    cargo test --locked
@@ -25,9 +26,27 @@ The initial target is `x86_64-pc-windows-msvc`.
    cargo run --release --locked
    ```
 
-   The executable is `target/release/pike.exe`. Close its window to exit.
+   The executable is `target/release/pike.exe`. Keep its prepared `conpty.dll`
+   and `OpenConsole.exe` beside it. Close its window to exit.
    If linking fails because the MSVC tools or SDK cannot be found, check the
    selected Build Tools workloads and try an x64 Native Tools terminal.
+
+Windows terminal sessions use Microsoft's pinned native ConPTY DLL and host
+through the existing Alacritty backend. The preparation step verifies the
+package and file hashes and stages the x64 pair for debug/release apps, tests
+and examples. It downloads once, runs outside Cargo, and must run again after
+`cargo clean`. No NuGet client or additional Rust dependency is needed.
+See [runtime provenance and deployment](docs/dependencies/conpty/README.md)
+for offline/custom-target-directory setup. Package an already-built release
+with its runtime, manifest and license:
+
+```powershell
+powershell -NoProfile -File tools/package-windows.ps1
+```
+
+The resulting folder and ZIP are in `target/package-windows-x64`. Choose a
+fresh `-OutputDirectory` for each package. The pinned native files add
+1,208,984 bytes on disk; resource measurements are recorded separately.
 
 Commit `Cargo.lock` when intentionally updating dependencies. Use `--locked`
 for builds, tests, Clippy, and CI so resolution cannot silently change.
@@ -58,7 +77,12 @@ Alacritty 0.25.1 is also vendored for bounded input through its actual Windows
 writer, retaining its Apache-2.0 license and [patch ledger](vendor/alacritty_terminal/PATCHES.md).
 See [input verification](docs/verification/issue-6.md) for limits, tests and
 Windows resource observations. [Shutdown verification](docs/verification/issue-7.md)
-documents explicit backend completion and retained final output. Pike disables iced_term's compatibility defaults. Both the app and harness
+documents explicit backend completion and retained final output.
+The [Windows ownership audit](docs/verification/issue-8.md) records startup
+cleanup repairs and release resource measurements. The [pinned native runtime](docs/dependencies/conpty/README.md)
+avoids the Server 2022 inbox ConPTY leak tracked in #55.
+
+Pike disables iced_term's compatibility defaults. Both the app and harness
 use one shared Tokio executor with one async worker, at most two blocking
 workers, and timers. No Tokio I/O driver or per-pane runtime is needed.
 Blocking task admission and session teardown must be bounded by their callers;

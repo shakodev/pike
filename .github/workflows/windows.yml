@@ -61,6 +61,11 @@ jobs:
       - name: Verify renderer and runtime feature isolation
         run: ./tools/test-feature-profiles.ps1
 
+      - name: Prepare pinned ConPTY runtime
+        run: |
+          ./tools/prepare-conpty.ps1
+          ./tools/test-conpty-runtime.ps1
+
       - name: Test feature guard regressions
         run: ./tools/test-feature-profile-guard.ps1
 
@@ -92,6 +97,9 @@ jobs:
 
       - name: Build release
         run: cargo build --release --locked --no-default-features --features renderer-${{ matrix.renderer }}
+
+      - name: Package release with pinned native runtime
+        run: ./tools/package-windows.ps1 -OutputDirectory "${{ runner.temp }}/pike-package-${{ matrix.renderer }}-${{ github.run_id }}-${{ github.run_attempt }}"
 
       - name: Build compatibility examples
         run: cargo build --release --locked --examples --no-default-features --features renderer-${{ matrix.renderer }}
