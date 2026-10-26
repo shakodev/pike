@@ -117,7 +117,12 @@ fn io_failure_and_unwind_complete_only_after_backend_disposal_on_worker() {
         assert!(!result.output_drained);
         assert!(sender.input_status().closed);
         assert!(sender.poller.upgrade().is_none());
-        assert!(matches!(completed.try_recv(), Err(mpsc::TryRecvError::Disconnected)));
+        // Publication precedes the callback dropping its sender. Wait for
+        // disconnection rather than racing that final metadata-only drop.
+        assert!(matches!(
+            completed.recv_timeout(Duration::from_secs(5)),
+            Err(mpsc::RecvTimeoutError::Disconnected)
+        ));
     }
 }
 
