@@ -1,8 +1,9 @@
 # Pike
 
 A Windows-first terminal multiplexer built with Rust, Iced, and iced_term.
-This initial build baseline opens a native window; terminal sessions and
-multiplexer controls are not implemented yet.
+The app opens one independent terminal without blocking its UI during shell
+startup. Close terminal cancels a pending launch or closes the session;
+Open / Retry creates a fresh session. Split/layout controls are coming next.
 
 ## Build on Windows
 
@@ -78,6 +79,8 @@ writer, retaining its Apache-2.0 license and [patch ledger](vendor/alacritty_ter
 See [input verification](docs/verification/issue-6.md) for limits, tests and
 Windows resource observations. [Shutdown verification](docs/verification/issue-7.md)
 documents explicit backend completion and retained final output.
+[Startup verification](docs/verification/issue-10.md) covers bounded asynchronous
+preparation, cancellation, retry routing and pending native Windows validation.
 The [Windows launch contract and checks](docs/verification/issue-9.md) cover
 executable/argument encoding, automatic shell selection, cwd validation and
 independent inherited environment overrides.

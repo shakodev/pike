@@ -3,7 +3,7 @@ use crate::backend;
 use crate::bindings::{Binding, BindingAction, BindingsLayout, InputKind};
 use crate::event_bridge::{self, Delivery, Receiver};
 use crate::font::TermFont;
-use crate::settings::{FontSettings, Settings, ThemeSettings};
+use crate::settings::{BackendSettings, FontSettings, Settings, ThemeSettings};
 use crate::theme::{ColorPalette, Theme};
 use iced::futures::stream::BoxStream;
 use iced::futures::{stream, StreamExt};
@@ -37,26 +37,50 @@ pub struct Terminal {
     backend_event_rx: Arc<Receiver>,
 }
 
-impl Terminal {
-    pub fn new(id: u64, settings: Settings) -> Result<Self> {
-        let (backend_event_tx, backend_event_rx) = event_bridge::channel();
-        let theme = Theme::new(settings.theme);
-        let font = TermFont::new(settings.font);
+/// PTY/session state only. Prepare on a blocking worker, then attach on the UI
+/// thread. Dropping an unattached value requests nonblocking backend shutdown.
+/// No font measurement, widget ID or canvas cache is created during preparation.
+pub struct PreparedTerminal {
+    id: u64,
+    backend: backend::Backend,
+    backend_event_rx: Arc<Receiver>,
+}
 
+impl PreparedTerminal {
+    pub fn new(id: u64, settings: BackendSettings) -> Result<Self> {
+        let (sender, receiver) = event_bridge::channel();
         Ok(Self {
             id,
+            backend: backend::Backend::new(id, sender, settings)?,
+            backend_event_rx: receiver,
+        })
+    }
+
+    pub fn shutdown_handle(&self) -> crate::ShutdownHandle {
+        self.backend.shutdown_handle()
+    }
+
+    /// Call on the UI thread; font/cache construction is deliberately deferred.
+    pub fn attach(self, font: FontSettings, theme: ThemeSettings) -> Terminal {
+        Terminal {
+            id: self.id,
             widget_id: iced::widget::Id::unique(),
-            font,
-            theme,
+            font: TermFont::new(font),
+            theme: Theme::new(theme),
             bindings: BindingsLayout::default(),
             cache: Cache::default(),
-            backend: backend::Backend::new(
-                id,
-                backend_event_tx,
-                settings.backend,
-            )?,
-            backend_event_rx,
-        })
+            backend: self.backend,
+            backend_event_rx: self.backend_event_rx,
+        }
+    }
+}
+
+impl Terminal {
+    /// Synchronous compatibility constructor. Applications should prepare on a
+    /// bounded blocking worker and attach on their UI thread instead.
+    pub fn new(id: u64, settings: Settings) -> Result<Self> {
+        Ok(PreparedTerminal::new(id, settings.backend)?
+            .attach(settings.font, settings.theme))
     }
 
     pub fn widget_id(&self) -> &iced::widget::Id {

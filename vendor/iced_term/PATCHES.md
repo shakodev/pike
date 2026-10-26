@@ -131,3 +131,19 @@ and API/overload policy details.
 - Update synthetic harnesses to pass unquoted paths/argv and to opt into raw
   cmd scripts explicitly. Separate PowerShell scripts from native argv quoting.
   Existing lifecycle test scripts explicitly retain raw cmd semantics.
+
+## R10 / issue #10 — prepare session state before UI attachment
+
+- Add `PreparedTerminal::{new,shutdown_handle,attach}`. Preparation owns only the
+  existing backend and bounded event receiver and is `Send`; it creates no font,
+  widget ID or canvas cache. `attach` performs those UI operations on the caller's
+  UI thread. No unsafe Send assertion or extra PTY implementation is used.
+- Keep `Terminal::new` as a synchronous compatibility wrapper over those steps.
+  Dropping an unattached prepared value uses Backend's existing nonblocking close
+  and explicit completion handle. A retained event receiver does not own the PTY.
+- Add explicit adapter regressions for worker-to-UI handoff and disposal without
+  font attachment. Application startup uses bounded shared work, typed IDs,
+  cancellation and completion-aware capacity; that policy stays outside the
+  adapter. No dependency, feature or lockfile changes.
+- See [issue #10 verification](../../docs/verification/issue-10.md), including
+  native-Windows verification still required outside GitHub Actions.
