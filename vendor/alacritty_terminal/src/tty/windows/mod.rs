@@ -123,8 +123,11 @@ impl EventedReadWrite for Pty {
 impl EventedPty for Pty {
     fn begin_shutdown(&mut self) -> io::Result<()> {
         if let Some(backend) = self.backend.take() {
-            self.close_worker =
-                Some(crate::thread::spawn_named("ConPTY close", move || drop(backend)));
+            self.close_worker = Some(crate::thread::spawn_named("ConPTY close", move || {
+                trace_cleanup("close-start");
+                drop(backend);
+                trace_cleanup("close-return");
+            }));
         }
         Ok(())
     }

@@ -20,6 +20,7 @@ jobs:
     runs-on: windows-2025
     timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         renderer: [wgpu, tiny-skia]
     defaults:
