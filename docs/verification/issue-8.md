@@ -1,10 +1,11 @@
 # Issue #8: ConPTY resource ownership and failure cleanup
 
-The application-owned cleanup repairs are implemented in PR #54. Full issue
-acceptance is **blocked by #55**: the inbox ConPTY implementation on Windows
-Server 2022 build 20348 leaks one host handle per console even in the bare SDK
-control. The strict regression remains red on that cohort; it does not subtract
-or allow the platform leak. Server 2025 build 26100 has no linear handle growth.
+The application-owned cleanup repairs and the #55 runtime remedy are implemented
+in PR #54. The final packaged runtime has **zero host handle growth** across all
+13 measured scenarios on both Server 2022 build 20348 and Server 2025 build
+26100. [Issue #55 verification](issue-55.md) records the pinned runtime, deployment
+policy and passing final runs. The inbox-only measurements below are retained
+as historical evidence of why the native runtime became necessary.
 
 Prerequisites #4 and #7 were closed and present in the checkout. `PLAN.md` is
 absent from the checkout and all fetched Git history. Issue #8 confirms it was
@@ -16,14 +17,14 @@ The user's existing, untracked `AGENTS.md` is preserved outside the commits.
 
 | Resource | Acquisition and successful ownership | Failure and release path |
 | --- | --- | --- |
-| HPCON | Immediately wrapped in `Conpty` inside `Startup`, then moved into `Pty.backend` | Startup closes its output read end before dropping ConPTY. Normal disposal moves it exactly once into the transient close worker and joins it while draining. If close-worker creation fails, abandon the piper reader and close synchronously on the disposing thread; the existing OS reader closes its source instead of parking on backpressure. `Conpty::drop` calls the matching close function once. |
+| HPCON | Immediately wrapped in `Conpty` inside `Startup`, then moved into `Pty.backend` | Startup closes its output read end before dropping ConPTY. Normal disposal moves it exactly once into the transient close worker and joins it while draining. If close-worker creation fails, request direct draining on the existing reader and close synchronously on the disposing thread; the reader bypasses piper backpressure until EOF, keeping output serviced through client shutdown. `Conpty::drop` calls the matching close function once. |
 | Four anonymous-pipe endpoints | `miow` owns all endpoints; ConPTY gets its own copies | Parent console-side copies drop immediately after successful ConPTY creation. A failed first/second pipe or ConPTY creation drops existing endpoints by scope. Host endpoints move into worker closures; those drop their endpoint on return, error, unwind or failed thread creation. Startup retains the raw output until transfer and joins any writer already started during rollback. |
 | Child process handle | Successful `CreateProcessW` immediately becomes `Arc<OwnedHandle>`; startup retains a rollback reference, watcher retains the successful owner | Startup error terminates the root, closes console/output and waits for exit. The last owning reference calls `CloseHandle`. The callback borrows the handle from its context; no borrowed `Child` handle is adopted. |
 | Primary thread handle | Immediately becomes `OwnedHandle` | Dropped immediately, once, on every path after successful process creation. |
 | Attribute list and allocation | Pointer-aligned `Box<[usize]>`; owner constructed only after successful initialization | Sizing/init failure frees storage without deleting an uninitialized list. Every successfully initialized list calls `DeleteProcThreadAttributeList` once before deallocating storage, including update/process/registration failure. |
 | Child-wait registration/context | Watcher owns stable boxed callback state and registration | Failed registration drops the unregistered box. The one-shot callback borrows state. Destruction calls blocking `UnregisterWaitEx(..., INVALID_HANDLE_VALUE)` without holding the interest mutex, then frees state. Cancellation before callback and destruction during a callback both have regressions. |
 | Pipe/close worker thread handles | Stored `JoinHandle`s; the close worker receives ownership only after successful spawn | Constructors return thread-creation errors instead of panicking. Disposal joins successful workers; join drops the native thread handle. Close-thread failure retains backend ownership for the fallback above. No permanent worker is added. |
-| Optional conpty.dll module reference | `Library` immediately owns each successful `LoadLibraryW`; function pointers retain that owner | Missing export drops the module. A successful API table retains it through the final close call; `FreeLibrary` runs once. Dynamic-module runtime behavior remains untested; measured cohorts use inbox APIs. |
+| Packaged conpty.dll module reference | `Library` immediately owns each successful absolute-path `LoadLibraryExW`; function pointers retain that owner | Missing export drops the module. A successful API table retains it through the final close call; `FreeLibrary` runs once. The pinned DLL and adjacent host are exercised on both final measured cohorts; missing/invalid files return errors without inbox fallback. |
 
 If synchronous wait unregistration unexpectedly fails for the exclusively owned,
 valid registration, the destructor logs metadata and conservatively retains its
@@ -37,9 +38,10 @@ retain their hexadecimal value rather than being misread as `GetLastError`.
 `OnResize` cannot return an error through the existing trait, so a failed resize
 logs an API error and keeps the session alive. `CreateProcessW` receives writable
 UTF-16 command-line storage. All new unsafe operations have ownership/lifetime
-comments and use the installed windows-sys 0.59 signatures. There are no runtime
+comments and use the installed windows-sys 0.59 signatures. There are no Cargo
 dependency/version/lockfile changes; two existing Windows SDK feature groups
-are enabled only for test process-memory/thread observations.
+are enabled only for test process-memory/thread observations. Follow-up #55
+pins a native ConPTY distribution outside Cargo, justified by the SDK control.
 
 ## Close and drain contract
 
@@ -70,7 +72,7 @@ sentinel, exits with code 37, and verifies both sentinel and EOF through shutdow
 The existing adapter lifecycle probe separately verifies parsed final content.
 These are synthetic checks, not a promise to gracefully flush explicit cancel.
 
-## Reproduction and evidence
+## Historical inbox reproduction and evidence
 
 Reproduction commit `e168423` added measurements before the ownership patch.
 [Baseline run 40303916025](https://github.com/shakodev/pike/actions/runs/40303916025)
@@ -116,7 +118,7 @@ environment-controlled injection or polling timer.
 
 These are active headless release probes. They do not measure GUI idle CPU,
 renderer memory, whole-process-tree resources or user interaction latency.
-Windows 10 and Windows 11 client OS cohorts, side-by-side conpty.dll, detached
+Windows 10 and Windows 11 client OS cohorts, other ConPTY versions, detached
 descendants and real system-wide resource exhaustion remain unverified. The
 worker-failure regressions inject deterministic creation errors instead of
 exhausting a shared CI host.
@@ -175,6 +177,6 @@ isolation/guards, application Clippy/tests, example/support tests, explicit
 adapter and Alacritty tests/Clippy, release app/example builds, bounded-input
 and shutdown-lifecycle integrations, and dependency-file cleanliness. The
 subsequent evidence/documentation commit changes no Rust or dependency files.
-Local explicit adapter Clippy also passes for tiny-skia. The independent
-Server 2022 resource-audit failure remains an acceptance blocker; a green
-renderer matrix does not override it.
+Local explicit adapter Clippy also passes for tiny-skia. That inbox-only audit remained blocked at this historical checkpoint; follow-up
+#55 resolves it with the maintained runtime. The final runtime, strict audits
+and both renderer jobs pass on source `54a71a9` (see issue #55 verification).

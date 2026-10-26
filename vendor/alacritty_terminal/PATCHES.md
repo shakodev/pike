@@ -148,8 +148,32 @@ checks and ConPTY probe described in
 - Add isolated release resource, SDK-control, natural-drain and attached-tree
   fixtures. Test-only SDK memory/thread counters use existing windows-sys 0.59;
   no runtime dependencies, versions, or lockfiles change.
-- The application fixes have zero linear handle growth on Server 2025/26100.
-  Server 2022/20348 still leaks one handle per bare SDK console cycle, reproduced
-  independently of Pike. Full acceptance remains blocked by #55; the strict
-  legacy-cohort CI check intentionally fails. No opaque HPCON access or second
+- The initial application fixes had zero linear handle growth on Server 2025/26100.
+  Server 2022/20348 leaks one handle per bare SDK console cycle, reproduced
+  independently of Pike. Follow-up #55 resolves that application-path blocker
+  with the maintained ConPTY runtime; both strict cohort checks now pass. No opaque HPCON access or second
   PTY is introduced. See [audit and measurements](../../docs/verification/issue-8.md).
+
+
+## Issue #55 — pin the maintained native ConPTY runtime
+
+- Require the app-local Microsoft.Windows.Console.ConPTY 1.25.260930003 DLL and
+  host pair; use its documented Conpty-prefixed exports and SDK-compatible ABI.
+  Load an absolute path with dependency search limited to that directory and
+  System32. Missing/invalid files or exports return an error; no PATH search or
+  inbox fallback can reintroduce the measured legacy leak.
+- `tools/conpty-runtime.json` pins archive and x64 asset SHA-256 values.
+  Preparation/packaging verifies bytes, ships both files and the MIT license,
+  and supports offline restoration. No Cargo dependency or lockfile changes;
+  the measured native assets add 1,208,984 disk bytes. See
+  [runtime provenance/deployment](../../docs/dependencies/conpty/README.md).
+- Runtime integration reproduced a previously hidden emergency-close flaw:
+  abandoning output let the newer host exit before terminating descendants.
+  The fallback now asks the existing reader to drain directly past piper
+  backpressure until EOF, while close runs on the disposing thread. It adds no
+  worker and checks the control flag only on reader backpressure. A focused
+  regression proves EOF without a piper consumer; attached-tree tests cover it.
+- The final Windows audits pass on build 20348 and 26100 with zero handle growth
+  across all 13 measured scenarios. Bare inbox controls remain separate evidence
+  of the OS defect. [Issue #55 verification](../../docs/verification/issue-55.md)
+  retains measurements, the regression/fix, and validation limitations.

@@ -1,0 +1,14 @@
+kind,mode,handles,private_bytes,threads
+delta,missing-executable,0,24576,0
+delta,invalid-cwd,0,0,0
+delta,close,0,24576,0
+delta,injected-OutputPipe,0,0,0
+delta,injected-InputPipe,0,0,0
+delta,injected-Console,0,0,0
+delta,injected-AttributeSize,0,0,0
+delta,injected-AttributeInit,0,0,0
+delta,injected-AttributeUpdate,0,0,0
+delta,injected-Process,0,0,0
+delta,injected-Wait,0,0,0
+delta,injected-ReaderWorker,0,0,0
+delta,injected-WriterWorker,0,0,0

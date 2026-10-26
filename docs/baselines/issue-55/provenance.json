@@ -1,0 +1,8 @@
+{
+  "commit": "54a71a931c13bb3bc398c68e8de7d6a406cfc69b",
+  "audit_run": "https://github.com/shakodev/pike/actions/runs/40308238165",
+  "renderer_run": "https://github.com/shakodev/pike/actions/runs/40308238467",
+  "initial_runtime_regression": "https://github.com/shakodev/pike/actions/runs/40307609048",
+  "runtime_manifest": "tools/conpty-runtime.json",
+  "note": "Active release host-process diagnostics, not GUI idle or whole-tree results. CSV measurement values are extracted unchanged; text line endings are normalized to LF and trailing blank lines removed."
+}
