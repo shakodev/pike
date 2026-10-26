@@ -154,6 +154,24 @@ impl Drop for Pty {
         // This runs on the disposing PTY worker, including explicit close and
         // unwind. Drain/discard unread output to avoid full-pipe close deadlock.
         trace_cleanup("dispose-start");
+        if self.backend.is_some() {
+            // Explicit cancellation can race the client's console attachment.
+            // ClosePseudoConsole alone can then return while its output pipe
+            // remains open indefinitely. Disposal cancels the owned root child;
+            // natural exits already called begin_shutdown and keep their drain.
+            // SAFETY: the watcher owns this process handle throughout PTY drop.
+            let terminated = unsafe {
+                windows_sys::Win32::System::Threading::TerminateProcess(
+                    self.child_watcher.raw_handle(),
+                    1,
+                )
+            };
+            if terminated == 0 {
+                trace_cleanup("child-already-exited-or-termination-failed");
+            } else {
+                trace_cleanup("child-termination-requested");
+            }
+        }
         let _ = self.begin_shutdown();
         self.conout.drain_and_join();
         trace_cleanup("reader-joined");
