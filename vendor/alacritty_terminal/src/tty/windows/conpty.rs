@@ -230,6 +230,9 @@ pub(super) enum Failure {
 pub(super) fn fault(point: Failure) -> Result<()> {
     #[cfg(test)]
     if tests::FAILURE.with(|failure| failure.get() == Some(point)) {
+        // Give an incorrectly running child time to publish its synthetic side
+        // effect before faulting. This delay exists only in the regression.
+        tests::FAILURE_DELAY.with(|delay| std::thread::sleep(delay.get()));
         return Err(Error::from_raw_os_error(5));
     }
     let _ = point;

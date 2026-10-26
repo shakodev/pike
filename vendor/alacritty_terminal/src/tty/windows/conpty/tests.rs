@@ -22,6 +22,7 @@ use crate::tty::{ChildEvent, EventedPty, EventedReadWrite, Shell};
 
 thread_local! {
     pub(super) static FAILURE: Cell<Option<Failure>> = const { Cell::new(None) };
+    pub(super) static FAILURE_DELAY: Cell<Duration> = const { Cell::new(Duration::ZERO) };
 }
 
 fn injected<T>(point: Option<Failure>, f: impl FnOnce() -> T) -> T {
@@ -407,4 +408,32 @@ fn incomplete_runtime_returns_error_without_inbox_fallback() {
     std::fs::write(directory.join("OpenConsole.exe"), b"synthetic invalid host").unwrap();
     assert_eq!(ConptyApi::load_from(&directory).err().unwrap().kind(), ErrorKind::InvalidData);
     std::fs::remove_dir_all(directory).unwrap();
+}
+
+#[test]
+fn failed_startup_never_executes_the_child() {
+    let directory = std::env::temp_dir().join(format!("pike-startup-gate-{}", std::process::id()));
+    std::fs::create_dir(&directory).unwrap();
+    let mut executed = Vec::new();
+    for point in [Failure::Wait, Failure::WriterWorker, Failure::ReaderWorker] {
+        let marker = directory.join(format!("{point:?}.marker"));
+        let config = Options {
+            shell: Some(Shell::new(
+                "cmd.exe".into(),
+                vec!["/d".into(), "/c".into(), format!("echo synthetic>\"{}\"", marker.display())],
+            )),
+            ..Options::default()
+        };
+        // Without a suspended launch, the command has time to execute before
+        // the injected post-CreateProcess failure is returned to the caller.
+        FAILURE_DELAY.with(|delay| delay.set(Duration::from_millis(200)));
+        let result = injected(Some(point), || new(&config, SIZE));
+        FAILURE_DELAY.with(|delay| delay.set(Duration::ZERO));
+        assert!(result.is_err());
+        if marker.exists() {
+            executed.push(point);
+        }
+    }
+    std::fs::remove_dir_all(directory).unwrap();
+    assert!(executed.is_empty(), "failed startup executed child commands at {executed:?}");
 }
