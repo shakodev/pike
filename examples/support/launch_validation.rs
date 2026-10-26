@@ -16,8 +16,10 @@ pub fn run() -> io::Result<()> {
     if args.first().is_some_and(|s| s == "--fixture") {
         return fixture(&args[1..]);
     }
-    let directory =
-        std::env::temp_dir().join(format!("pike-launch-{} 雪's space", std::process::id()));
+    let directory = std::env::temp_dir().join(format!(
+        "pike-launch-{} 雪's %PATH% space",
+        std::process::id()
+    ));
     fs::create_dir(&directory)?;
     struct Cleanup(PathBuf);
     impl Drop for Cleanup {
@@ -190,12 +192,12 @@ pub fn run() -> io::Result<()> {
                     "/V:OFF".into(),
                     "/S".into(),
                     "/C".into(),
-                    format!(
-                        "\"echo cmd-semantic>\"{}\" & exit /b 19\"",
-                        cmd_output.display()
-                    ),
+                    "\"echo cmd-semantic>\"%PIKE_LAUNCH_COMMAND_OUTPUT%\" & exit /b 19\"".into(),
                 ],
                 escape_args: false,
+                // Expansion of this variable is one pass: literal percent pairs
+                // in its value are not reinterpreted as more shell variables.
+                env: [("PIKE_LAUNCH_COMMAND_OUTPUT".into(), string(&cmd_output)?)].into(),
                 ..Default::default()
             },
             ..Default::default()

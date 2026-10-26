@@ -141,8 +141,8 @@ bare-name resolution does not introduce the prefix. Rust documents this
 WSL distribution execution, interactive GUI behavior and reference-machine idle
 RAM/CPU measurements remain outside this launch fixture. No WSL distribution,
 extra PTY implementation, dependency package or persistent runtime task is added.
-The final evidence commit changes only documentation and synthetic measurements;
-all production and fixture source matches the verified revision above.
+The original evidence commit changed only documentation and synthetic measurements;
+subsequent review changes and their verification are described below.
 
 
 ## PR review — capture cwd and reject ambiguous drive-relative lookup
@@ -161,4 +161,20 @@ one live child with a drive-relative cwd and verifies its directory alongside
 the other independent session. Automatic-shell cleanup now also asserts a
 Requested completion, so an unrelated backend failure cannot pass that check.
 The historical measurements above remain associated with their recorded source;
-review verification is recorded after the updated native matrix completes.
+review verification is recorded in [PR #56 checks](https://github.com/shakodev/pike/pull/56/checks).
+
+Review also found that the cmd probe embedded its temporary filename directly
+in command syntax, allowing percent pairs in a directory name to be expanded.
+The probe now supplies the path through a child environment variable with a
+single expansion, and its directory deliberately contains literal `%PATH%`.
+This covers percent-containing executable paths as well as native arguments
+without reinterpreting them through a shell.
+
+
+The path-isolation production revision `681a71a` passes
+[Windows renderer checks](https://github.com/shakodev/pike/actions/runs/40338185319)
+and [Server 2022/2025 resource audits](https://github.com/shakodev/pike/actions/runs/40338185328).
+All 14 resource scenarios in each cohort retain zero handle/thread growth.
+This run includes the two new native regressions and the live drive-relative cwd
+probe. Subsequent changes affect only the synthetic percent-path probe and
+review documentation; final checks are required green before merging.
