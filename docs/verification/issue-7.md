@@ -72,8 +72,9 @@ Local host: macOS arm64, pinned Rust 1.97.1. Passed formatting, application
 Clippy with warnings denied, application tests (4), examples (4), explicit
 Alacritty tests (144 unit, 45 reference, 1 doctest) and explicit adapter tests
 for each renderer (44 on macOS). Alacritty's explicit all-target Clippy passes.
-The broader adapter-test Clippy command also encounters upstream view-test
-style lints; this is outside the required app/Alacritty checks.
+The broader workspace all-target Clippy check also passes for both lean
+renderers. Three existing view-test initializers were rewritten without
+behavior changes to satisfy its field-reassignment lint.
 
 New regressions cover multiple drain chunks/final sentinel, repeated close
 with one stream result, cancellation of subscriptions/waiters/owner, disposal

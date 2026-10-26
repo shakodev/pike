@@ -113,3 +113,7 @@ and API/overload policy details.
 - No dependency, feature, lockfile, or second PTY changes. See the
   [Alacritty ledger](../alacritty_terminal/PATCHES.md) for worker/ConPTY details,
   and [verification](../../docs/verification/issue-7.md) for measured limits.
+
+- Three upstream `view.rs` test initializers now set terminal mode directly
+  rather than reassigning Default fields, enabling all-target workspace Clippy
+  with denied warnings. Test behavior and production view code are unchanged.

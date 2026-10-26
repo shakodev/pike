@@ -988,8 +988,10 @@ mod tests {
         fn generates_drag_update_command_when_dragged_in_mouse_motion_mode() {
             let mut state = TerminalViewState::new();
             state.is_dragged = true; // Simulate an ongoing drag operation
-            let mut terminal_content = RenderableContent::default();
-            terminal_content.terminal_mode = TermMode::MOUSE_MOTION;
+            let terminal_content = RenderableContent {
+                terminal_mode: TermMode::MOUSE_MOTION,
+                ..RenderableContent::default()
+            };
             let layout_position = Point { x: 5.0, y: 5.0 };
             let cursor_position = Point { x: 100.0, y: 150.0 };
             let mut commands = Vec::new();
@@ -1024,8 +1026,10 @@ mod tests {
             let mut state = TerminalViewState::new();
             state.keyboard_modifiers = Modifiers::SHIFT;
             state.is_dragged = true; // Simulate an ongoing drag operation
-            let mut terminal_content = RenderableContent::default();
-            terminal_content.terminal_mode = TermMode::SGR_MOUSE;
+            let terminal_content = RenderableContent {
+                terminal_mode: TermMode::SGR_MOUSE,
+                ..RenderableContent::default()
+            };
             let layout_position = Point { x: 5.0, y: 5.0 };
             let cursor_position = Point { x: 100.0, y: 150.0 };
             let mut commands = Vec::new();
@@ -1050,8 +1054,10 @@ mod tests {
             let mut state = TerminalViewState::new();
             state.keyboard_modifiers = Modifiers::COMMAND;
             state.is_dragged = true; // Simulate an ongoing drag operation
-            let mut terminal_content = RenderableContent::default();
-            terminal_content.terminal_mode = TermMode::SGR_MOUSE;
+            let terminal_content = RenderableContent {
+                terminal_mode: TermMode::SGR_MOUSE,
+                ..RenderableContent::default()
+            };
             let layout_position = Point { x: 5.0, y: 5.0 };
             let cursor_position = Point { x: 100.0, y: 150.0 };
             let mut commands = Vec::new();

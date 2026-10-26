@@ -81,6 +81,9 @@ jobs:
           PIKE_TRACE_CLEANUP: '1'
         run: cargo test --locked -p iced_term --lib --no-default-features --features iced/${{ matrix.renderer }},iced/tokio -- --nocapture
 
+      - name: Lint vendored iced_term explicitly
+        run: cargo clippy --locked -p iced_term --all-targets --no-default-features --features iced/${{ matrix.renderer }},iced/tokio -- -D warnings
+
       - name: Test vendored Alacritty explicitly
         run: cargo test --locked -p alacritty_terminal
 
