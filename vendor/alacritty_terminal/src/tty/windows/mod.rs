@@ -181,6 +181,16 @@ impl Drop for Pty {
         trace_cleanup("close-joined");
         self.conin.close_and_join();
         trace_cleanup("writer-joined");
+        // TerminateProcess is asynchronous. Completion must also wait for the
+        // owned root process, using its existing handle, on this cleanup worker.
+        // SAFETY: the watcher still owns the handle; no UI thread waits here.
+        unsafe {
+            windows_sys::Win32::System::Threading::WaitForSingleObject(
+                self.child_watcher.raw_handle(),
+                windows_sys::Win32::System::Threading::INFINITE,
+            );
+        }
+        trace_cleanup("child-exited");
     }
 }
 
