@@ -8,6 +8,7 @@ use std::time::Duration;
 use std::time::Instant;
 
 use windows_sys::Win32::Foundation::{FILETIME, HANDLE, INVALID_HANDLE_VALUE};
+use windows_sys::Win32::System::Console::{ClosePseudoConsole, CreatePseudoConsole};
 use windows_sys::Win32::System::Diagnostics::ToolHelp::{
     CreateToolhelp32Snapshot, Thread32First, Thread32Next, TH32CS_SNAPTHREAD, THREADENTRY32,
 };
@@ -394,4 +395,16 @@ fn attached_tree_and_flood() {
         println!("tree,{mode},3,{:.3}", close.elapsed().as_secs_f64() * 1000.0);
         std::fs::remove_dir_all(directory).unwrap();
     }
+}
+
+#[test]
+fn incomplete_runtime_returns_error_without_inbox_fallback() {
+    let directory = std::env::temp_dir().join(format!("pike-runtime-{}", std::process::id()));
+    std::fs::create_dir(&directory).unwrap();
+    assert_eq!(ConptyApi::load_from(&directory).err().unwrap().kind(), ErrorKind::NotFound);
+    std::fs::write(directory.join("conpty.dll"), b"synthetic invalid library").unwrap();
+    assert_eq!(ConptyApi::load_from(&directory).err().unwrap().kind(), ErrorKind::NotFound);
+    std::fs::write(directory.join("OpenConsole.exe"), b"synthetic invalid host").unwrap();
+    assert_eq!(ConptyApi::load_from(&directory).err().unwrap().kind(), ErrorKind::InvalidData);
+    std::fs::remove_dir_all(directory).unwrap();
 }

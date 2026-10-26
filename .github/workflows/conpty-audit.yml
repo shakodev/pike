@@ -29,6 +29,10 @@ jobs:
           New-Item -ItemType Directory -Force target/audit | Out-Null
           Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber | ConvertTo-Json | Set-Content target/audit/os.json
           rustc --version --verbose | Tee-Object target/audit/compiler.txt
+      - name: Prepare pinned ConPTY runtime
+        run: |
+          ./tools/prepare-conpty.ps1 | ConvertTo-Json -Depth 4 | Set-Content target/audit/runtime.json
+          ./tools/test-conpty-runtime.ps1
       - name: Measure 100 failed launches and close cycles in isolation
         run: |
           cargo test --release --locked -p alacritty_terminal tty::windows::conpty::tests::resource_cycles -- --ignored --exact --nocapture --test-threads=1 2>&1 | Tee-Object target/audit/resources.txt

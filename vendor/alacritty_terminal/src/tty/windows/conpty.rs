@@ -1,19 +1,20 @@
 use log::{info, warn};
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsStr;
-use std::io::{Error, Result};
+use std::io::{Error, ErrorKind, Result};
 use std::os::windows::ffi::OsStrExt;
 use std::os::windows::io::{AsRawHandle, FromRawHandle, OwnedHandle};
+use std::path::Path;
 use std::sync::Arc;
 use std::{mem, ptr};
 
 use windows_sys::core::HRESULT;
+use windows_sys::s;
 use windows_sys::Win32::Foundation::{FreeLibrary, ERROR_INSUFFICIENT_BUFFER, HANDLE, HMODULE};
-use windows_sys::Win32::System::Console::{
-    ClosePseudoConsole, CreatePseudoConsole, ResizePseudoConsole, COORD, HPCON,
+use windows_sys::Win32::System::Console::{COORD, HPCON};
+use windows_sys::Win32::System::LibraryLoader::{
+    GetProcAddress, LoadLibraryExW, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR, LOAD_LIBRARY_SEARCH_SYSTEM32,
 };
-use windows_sys::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryW};
-use windows_sys::{s, w};
 
 use windows_sys::Win32::System::Threading::{
     CreateProcessW, DeleteProcThreadAttributeList, InitializeProcThreadAttributeList,
@@ -30,15 +31,9 @@ use crate::tty::Options;
 
 const PIPE_CAPACITY: usize = crate::event_loop::READ_BUFFER_SIZE;
 
-/// Load the pseudoconsole API from conpty.dll if possible, otherwise use the
-/// standard Windows API.
-///
-/// The conpty.dll from the Windows Terminal project
-/// supports loading OpenConsole.exe, which offers many improvements and
-/// bugfixes compared to the standard conpty that ships with Windows.
-///
-/// The conpty.dll and OpenConsole.exe files will be searched in PATH and in
-/// the directory where Alacritty's executable is located.
+// The package's inc/conpty.h uses the same signatures as the inbox SDK API,
+// with Conpty-prefixed exports. Keep one matched DLL/host pair beside the exe.
+// Do not search PATH or fall back to leaking inbox APIs (issue #55).
 type CreatePseudoConsoleFn =
     unsafe extern "system" fn(COORD, HANDLE, HANDLE, u32, *mut HPCON) -> HRESULT;
 type ResizePseudoConsoleFn = unsafe extern "system" fn(HPCON, COORD) -> HRESULT;
@@ -48,7 +43,7 @@ struct ConptyApi {
     create: CreatePseudoConsoleFn,
     resize: ResizePseudoConsoleFn,
     close: ClosePseudoConsoleFn,
-    _library: Option<Library>,
+    _library: Library,
 }
 
 // The module must outlive all calls through its function pointers.
@@ -64,43 +59,56 @@ impl Drop for Library {
 }
 
 impl ConptyApi {
-    fn new() -> Self {
-        match Self::load_conpty() {
-            Some(conpty) => {
-                info!("Using conpty.dll for pseudoconsole");
-                conpty
-            },
-            None => {
-                // Cannot load conpty.dll - use the standard Windows API.
-                info!("Using Windows API for pseudoconsole");
-                Self {
-                    create: CreatePseudoConsole,
-                    resize: ResizePseudoConsole,
-                    close: ClosePseudoConsole,
-                    _library: None,
-                }
-            },
-        }
+    fn new() -> Result<Self> {
+        let executable = std::env::current_exe()?;
+        let directory =
+            executable.parent().ok_or_else(|| Error::other("missing executable directory"))?;
+        Self::load_from(directory)
     }
 
-    /// Try loading ConptyApi from conpty.dll library.
-    fn load_conpty() -> Option<Self> {
-        type LoadedFn = unsafe extern "system" fn() -> isize;
-        unsafe {
-            let hmodule = LoadLibraryW(w!("conpty.dll"));
-            if hmodule.is_null() {
-                return None;
+    fn load_from(directory: &Path) -> Result<Self> {
+        let required = |name: &str| -> Result<()> {
+            if !directory.join(name).is_file() {
+                return Err(Error::new(ErrorKind::NotFound,
+                    format!("Pike requires packaged {name} beside its executable; run tools/prepare-conpty.ps1 or reinstall the complete Windows package")));
             }
-            let library = Library(hmodule);
-            let create_fn = GetProcAddress(library.0, s!("CreatePseudoConsole"))?;
-            let resize_fn = GetProcAddress(library.0, s!("ResizePseudoConsole"))?;
-            let close_fn = GetProcAddress(library.0, s!("ClosePseudoConsole"))?;
-
-            Some(Self {
-                create: mem::transmute::<LoadedFn, CreatePseudoConsoleFn>(create_fn),
-                resize: mem::transmute::<LoadedFn, ResizePseudoConsoleFn>(resize_fn),
-                close: mem::transmute::<LoadedFn, ClosePseudoConsoleFn>(close_fn),
-                _library: Some(library),
+            Ok(())
+        };
+        required("conpty.dll")?;
+        required("OpenConsole.exe")?;
+        let path = win32_string(&directory.join("conpty.dll"));
+        // SAFETY: a terminated absolute path selects only our app-local module.
+        // Dependency lookup is limited to that directory and System32. The
+        // library owner remains live through every function-pointer call.
+        unsafe {
+            let module = LoadLibraryExW(
+                path.as_ptr(),
+                ptr::null_mut(),
+                LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_SYSTEM32,
+            );
+            if module.is_null() {
+                return Err(Error::new(
+                    ErrorKind::InvalidData,
+                    format!("cannot load packaged ConPTY runtime: {}", Error::last_os_error()),
+                ));
+            }
+            let library = Library(module);
+            let missing = || {
+                Error::new(ErrorKind::InvalidData, "packaged ConPTY runtime is missing required exports; reinstall the complete Windows package")
+            };
+            let create =
+                GetProcAddress(library.0, s!("ConptyCreatePseudoConsole")).ok_or_else(missing)?;
+            let resize =
+                GetProcAddress(library.0, s!("ConptyResizePseudoConsole")).ok_or_else(missing)?;
+            let close =
+                GetProcAddress(library.0, s!("ConptyClosePseudoConsole")).ok_or_else(missing)?;
+            type LoadedFn = unsafe extern "system" fn() -> isize;
+            info!("Using packaged ConPTY runtime");
+            Ok(Self {
+                create: mem::transmute::<LoadedFn, CreatePseudoConsoleFn>(create),
+                resize: mem::transmute::<LoadedFn, ResizePseudoConsoleFn>(resize),
+                close: mem::transmute::<LoadedFn, ClosePseudoConsoleFn>(close),
+                _library: library,
             })
         }
     }
@@ -239,7 +247,7 @@ fn hresult(result: HRESULT) -> Result<()> {
 }
 
 pub fn new(config: &Options, window_size: WindowSize) -> Result<Pty> {
-    let api = ConptyApi::new();
+    let api = ConptyApi::new()?;
     let mut pty_handle = 0;
     fault(Failure::OutputPipe)?;
     let (conout, conout_pty_handle) = miow::pipe::anonymous(0)?;
