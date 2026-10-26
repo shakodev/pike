@@ -143,6 +143,7 @@ pub struct Backend {
     event_bridge_failed: bool,
     shutdown: crate::ShutdownHandle,
     history_limit: HistoryLimit,
+    deferred_resize: bool,
     visible: bool,
     snapshots: u64,
     cells_copied: u64,
@@ -221,6 +222,7 @@ impl Backend {
             event_bridge_failed: false,
             shutdown,
             history_limit,
+            deferred_resize: false,
             visible: false,
             snapshots: 0,
             cells_copied: 0,
@@ -253,7 +255,7 @@ impl Backend {
                 cmd,
                 Command::ProcessAlacrittyEvent(
                     Event::Exit | Event::ChildExit(_)
-                )
+                ) | Command::Resize(_, _)
             )
         {
             return if matches!(cmd, Command::Write(_)) {
@@ -560,8 +562,10 @@ impl Backend {
             // Do not change parsing geometry during an in-flight EOF drain.
             // Keep the newest layout pixels above for refresh after completion.
             if closed && self.shutdown.completion().is_none() {
+                self.deferred_resize = true;
                 return;
             }
+            self.deferred_resize = false;
             self.size.num_lines = lines;
             self.size.num_cols = cols;
             // An exited model still reflows for its viewport. Its native PTY
@@ -645,6 +649,9 @@ impl Backend {
         }
         let term = self.term.clone();
         let mut term = term.lock();
+        if self.deferred_resize && self.shutdown.completion().is_some() {
+            self.resize(&mut term, None, None);
+        }
         self.internal_sync(&mut term);
     }
 

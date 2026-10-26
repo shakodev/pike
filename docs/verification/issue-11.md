@@ -68,8 +68,8 @@ snapshot change. This does not add clipboard, keyboard or hyperlink features.
 
 ## Verification
 
-Native Windows checks cover 58 adapter tests per renderer plus one deliberately
-ignored profiling test. Ten new regressions cover validated limits; saturated
+Native Windows checks cover 59 adapter tests per renderer plus one deliberately
+ignored profiling test. Eleven new regressions cover validated limits; saturated
 history and reused viewport allocation; output while scrolled back with absolute
 cursor/selection coordinates; zero history; primary/alternate transitions and
 history reduction while alternate is active; wide/combining cell metadata;
@@ -77,6 +77,29 @@ multi-page copy; hidden flood with no snapshots; hidden font geometry changes;
 and reactivation of final output after native ConPTY exit.
 An application regression checks initially-hidden attachment through LaunchPool
 and acknowledged cleanup through the normal handoff ownership path.
+
+### PR #60 review follow-up
+
+Review of `94869fe` reproduced stale geometry when a hidden session received a
+layout during shutdown's EOF drain, then activated after backend completion.
+The layout pixels were remembered but never replayed. A deferred-resize flag now
+applies the latest valid layout before the next visible snapshot, after disposal
+is acknowledged. Hidden refreshes still take zero snapshots; activation takes one.
+Resizes are also accepted after event-bridge failure, using the same deferred or
+completed-model-only path. Input remains closed and the disposed PTY is never
+notified. Ordinary snapshots do not issue additional resizes.
+
+The new native ConPTY regression deterministically holds completion observation
+pending while the real backend closes and joins. It failed on the original head
+for normal shutdown, then on the partial fix for bridge failure; it passes with
+both fixes. Formatting, all-target Clippy, application/example/adapter tests and
+release builds were repeated sequentially for both renderers. The original
+history/smoke/idle measurements below retain their original provenance; review
+validation and a fresh release idle observation are recorded separately in
+`docs/baselines/issue-11/review/`.
+The reviewed release's 61-sample idle run spans 61.48 seconds, with no measured
+CPU-counter advance, 12.28–12.40 MiB private bytes and 9–13 threads. Every sampled
+window responds; the synthetic child exits with 41 and cleanup completes.
 
 The native hidden-flood test consumes all backend events through source/backend
 completion while snapshot counts stay unchanged. Activation adds exactly one

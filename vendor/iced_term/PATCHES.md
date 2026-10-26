@@ -44,7 +44,9 @@ powershell -NoProfile -File tools/test-feature-profiles.ps1
 - Reserve separate sticky error, child-exit, Exit and source-completion state.
   On overload, reject subsequent ordinary events and report a redacted,
   session-scoped error. Processing that error requests only that PTY's shutdown
-  and disables its writes/resizes. Lifecycle events remain deliverable.
+  and disables its writes/resizes. R11 later permits retained-model resizing
+  after failure, deferring reflow until EOF draining completes. Lifecycle events
+  remain deliverable.
 - `backend.rs`: replace `blocking_send` with bounded state mutation and a
   Tokio Notify wake. The brief bridge mutex never covers terminal operations,
   I/O or awaits, and no producer waits for UI queue capacity. The event-loop
@@ -165,7 +167,10 @@ and API/overload policy details.
   or `attach_hidden` keeps snapshots at zero through the first activation. UI
   attachment seeds cell metrics without changing the initial grid. After backend
   completion, valid layouts reflow the retained model without notifying the PTY;
-  pending EOF drains keep their parsing geometry. The application handoff exposes
+  pending EOF drains keep their parsing geometry. Layouts received during a drain
+  are replayed before the next visible snapshot after completion, including after
+  bridge failure; closed PTYs remain unnotified and input remains rejected.
+  The application handoff exposes
   `PreparedSession::attach_hidden` through its existing ownership/cancellation gate.
   `Terminal::set_visible(false)` releases the viewport and canvas cache; callers
   must still subscribe and route every live session's events. Hidden handling,
@@ -179,9 +184,10 @@ and API/overload policy details.
   cell extras (combining marks and hyperlink strings) can grow within a cell.
   Snapshots share extras via the existing Arc/COW representation. These residual
   limits are measured and documented, without changing the emulator or PTY.
-- Ten new regressions cover saturation, zero/reduced history, normal/alternate
+- Eleven new regressions cover saturation, zero/reduced history, normal/alternate
   screen, scrolling/selection, allocation reuse, wide/combining cell metadata,
-  hidden native flood, hidden font changes and reactivation of exited output. An opt-in release probe
+  hidden native flood, hidden font changes, deferred shutdown layout after normal
+  close/bridge failure and reactivation of exited output. An opt-in release probe
   compares the exact R03 full-grid clone algorithm with viewport/hidden paths;
   the clone exists only in that ignored profiling test.
 - No dependency, lockfile, feature or Alacritty source changes. Remove this patch

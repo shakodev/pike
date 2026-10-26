@@ -122,3 +122,65 @@ fn changing_history_in_alternate_screen_updates_only_the_normal_buffer() {
     assert_eq!(backend.snapshot_stats().history_lines, 0);
     finish(backend);
 }
+
+#[test]
+fn activation_applies_layout_deferred_during_shutdown_even_after_bridge_failure(
+) {
+    for failed in [false, true] {
+        let mut backend = backend();
+        let actual_shutdown = backend.shutdown_handle();
+        // Hold the UI's completion observation pending deterministically, while
+        // still closing and joining the real synthetic ConPTY backend below.
+        let (completed, completion) = tokio::sync::watch::channel(None);
+        let (events, _receiver) = crate::event_bridge::channel();
+        backend.shutdown = crate::ShutdownHandle::new(
+            backend.notifier.0.clone(),
+            events,
+            completion,
+        );
+        if failed {
+            backend.handle(Command::EventBridge(EventBridgeEvent::Error(
+                crate::EventBridgeError::ControlOverflow,
+            )));
+        } else {
+            backend.handle(Command::RequestShutdown);
+        }
+        assert!(backend.input_status().closed);
+        assert_eq!(
+            backend.handle(Command::Write(b"rejected".to_vec())),
+            Action::InputRejected(crate::InputError::Closed)
+        );
+        backend.handle(Command::Resize(
+            Some(Size::new(600.0, 200.0)),
+            Some(Size::new(10.0, 20.0)),
+        ));
+        assert_eq!(backend.snapshot_stats().columns, 80);
+        assert_eq!(backend.snapshot_stats().screen_lines, 50);
+        assert_eq!(backend.snapshot_stats().snapshots, 0);
+        let result = tokio::runtime::Builder::new_current_thread()
+            .enable_time()
+            .build()
+            .unwrap()
+            .block_on(async {
+                tokio::time::timeout(
+                    Duration::from_secs(5),
+                    actual_shutdown.wait(),
+                )
+                .await
+                .unwrap()
+            });
+        completed.send_replace(Some(result));
+        backend.sync();
+        assert_eq!(backend.snapshot_stats().snapshots, 0);
+        backend.set_visible(true);
+        let stats = backend.snapshot_stats();
+        assert_eq!(
+            (stats.columns, stats.screen_lines),
+            (60, 10),
+            "bridge failure: {failed}"
+        );
+        assert_eq!(stats.viewport_cells, 600);
+        assert_eq!(stats.snapshots, 1);
+        finish(backend);
+    }
+}
