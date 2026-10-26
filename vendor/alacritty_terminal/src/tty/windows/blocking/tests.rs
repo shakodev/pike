@@ -50,7 +50,7 @@ impl Write for GatedWriter {
 fn buffered_and_blocked_bytes_are_not_acknowledged_and_failure_closes_admission() {
     let (entered, waiting) = mpsc::channel();
     let (release, gate) = mpsc::channel();
-    let mut writer = UnblockedWriter::new(GatedWriter { entered, release: gate }, 1024);
+    let mut writer = UnblockedWriter::new(GatedWriter { entered, release: gate }, 1024).unwrap();
     let progress = writer.writer_progress();
     let queue = crate::input::InputQueue::new(progress.clone());
     queue.send(b"synthetic", || Ok(())).unwrap();
@@ -95,7 +95,7 @@ fn reader_distinguishes_pending_from_eof_and_cleanup_drains_a_full_pipe() {
         }
     }
     let source = GatedReader { entered, release: gate, bytes: io::Cursor::new(vec![b'x'; 4096]) };
-    let mut reader = UnblockedReader::new(source, 16);
+    let mut reader = UnblockedReader::new(source, 16).unwrap();
     waiting.recv_timeout(Duration::from_secs(5)).unwrap();
     assert_eq!(reader.read(&mut [0; 1]).unwrap_err().kind(), io::ErrorKind::WouldBlock);
     release.send(()).unwrap();
@@ -113,7 +113,7 @@ fn read_failure_is_distinguished_from_normal_broken_pipe_eof() {
         }
     }
     for kind in [io::ErrorKind::BrokenPipe, io::ErrorKind::Other] {
-        let mut reader = UnblockedReader::new(FailedReader(kind), 16);
+        let mut reader = UnblockedReader::new(FailedReader(kind), 16).unwrap();
         reader.drain_and_join();
         if kind == io::ErrorKind::BrokenPipe {
             assert_eq!(reader.read(&mut [0; 1]).unwrap(), 0);
@@ -131,7 +131,7 @@ fn reader_panic_is_not_reported_as_a_clean_eof() {
             panic!("synthetic reader panic");
         }
     }
-    let mut reader = UnblockedReader::new(PanickingReader, 16);
+    let mut reader = UnblockedReader::new(PanickingReader, 16).unwrap();
     reader.drain_and_join();
     assert_eq!(reader.read(&mut [0; 1]).unwrap_err().kind(), io::ErrorKind::Other);
 }

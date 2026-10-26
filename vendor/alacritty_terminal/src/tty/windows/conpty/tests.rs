@@ -97,6 +97,8 @@ fn resource_cycles() {
             Failure::AttributeUpdate,
             Failure::Process,
             Failure::Wait,
+            Failure::ReaderWorker,
+            Failure::WriterWorker,
         ]
         .map(|point| (format!("injected-{point:?}"), Some(point))),
     );
@@ -165,7 +167,8 @@ fn failed_registration_releases_callback_and_process() {
 
 #[test]
 fn unregister_before_exit_releases_context() {
-    let mut child = std::process::Command::new("cmd.exe").spawn().unwrap();
+    let mut child =
+        std::process::Command::new("cmd.exe").stdin(std::process::Stdio::piped()).spawn().unwrap();
     use std::os::windows::io::AsHandle;
     let handle = Arc::new(child.as_handle().try_clone_to_owned().unwrap());
     let weak = Arc::downgrade(&handle);
@@ -197,7 +200,7 @@ fn attached_fixture() {
         );
     }
     std::fs::write(directory.join(format!("{depth}.pid")), std::process::id().to_string()).unwrap();
-    if std::env::var("PIKE_AUDIT_MODE").unwrap() == "flood" {
+    if std::env::var("PIKE_AUDIT_MODE").unwrap() != "attached" {
         let block = [b'x'; 8192];
         loop {
             std::io::stdout().write_all(&block).unwrap();
@@ -212,7 +215,7 @@ fn attached_fixture() {
 #[ignore = "isolated Windows integration probe; invoked explicitly by CI"]
 fn attached_tree_and_flood() {
     use windows_sys::Win32::System::Threading::{OpenProcess, PROCESS_SYNCHRONIZE};
-    for mode in ["attached", "flood"] {
+    for mode in ["attached", "flood", "close-worker-failure"] {
         let directory =
             std::env::temp_dir().join(format!("pike-audit-{}-{mode}", std::process::id()));
         std::fs::create_dir(&directory).unwrap();
@@ -254,7 +257,7 @@ fn attached_tree_and_flood() {
         // Leave output unread briefly so close must handle a full pipe.
         std::thread::sleep(Duration::from_millis(50));
         let close = Instant::now();
-        drop(pty);
+        injected((mode == "close-worker-failure").then_some(Failure::CloseWorker), || drop(pty));
         for process in processes {
             // SAFETY: process remains owned through this finite wait.
             assert_eq!(

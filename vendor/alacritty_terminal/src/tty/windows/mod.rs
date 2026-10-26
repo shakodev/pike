@@ -128,12 +128,25 @@ impl EventedPty for Pty {
     }
 
     fn begin_shutdown(&mut self) -> io::Result<()> {
-        if let Some(backend) = self.backend.take() {
-            self.close_worker = Some(crate::thread::spawn_named("ConPTY close", move || {
-                trace_cleanup("close-start");
-                drop(backend);
-                trace_cleanup("close-return");
-            }));
+        if self.backend.is_some() {
+            // Spawn before transferring backend ownership. A failed OS thread
+            // creation leaves it here for the synchronous disposal fallback.
+            conpty::fault(conpty::Failure::CloseWorker)?;
+            let (send, recv) = std::sync::mpsc::sync_channel(1);
+            let worker =
+                std::thread::Builder::new().name("ConPTY close".into()).spawn(move || {
+                    if let Ok(backend) = recv.recv() {
+                        trace_cleanup("close-start");
+                        drop(backend);
+                        trace_cleanup("close-return");
+                    }
+                })?;
+            if let Err(error) = send.send(self.backend.take().unwrap()) {
+                self.backend = Some(error.0);
+                let _ = worker.join();
+                return Err(io::Error::other("ConPTY close worker stopped before handoff"));
+            }
+            self.close_worker = Some(worker);
         }
         Ok(())
     }
@@ -178,7 +191,14 @@ impl Drop for Pty {
                 trace_cleanup("child-termination-requested");
             }
         }
-        let _ = self.begin_shutdown();
+        if let Err(error) = self.begin_shutdown() {
+            // Thread exhaustion must not panic or strand a live HPCON. Let the
+            // existing OS reader close its source instead of parking on piper;
+            // close on this disposal thread, then join the released reader.
+            log::error!("ConPTY close worker unavailable: {error}");
+            self.conout.abandon_output();
+            drop(self.backend.take());
+        }
         self.conout.drain_and_join();
         trace_cleanup("reader-joined");
         if let Some(worker) = self.close_worker.take() {

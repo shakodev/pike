@@ -176,6 +176,7 @@ struct Startup {
     output: Option<miow::pipe::AnonRead>,
     backend: Option<Conpty>,
     process: Option<Arc<OwnedHandle>>,
+    writer: Option<UnblockedWriter<miow::pipe::AnonWrite>>,
 }
 
 impl Drop for Startup {
@@ -189,6 +190,9 @@ impl Drop for Startup {
         }
         drop(self.output.take());
         drop(self.backend.take());
+        if let Some(writer) = &mut self.writer {
+            writer.close_and_join();
+        }
         if let Some(process) = &self.process {
             // SAFETY: termination is asynchronous; retain ownership through wait.
             unsafe {
@@ -210,6 +214,9 @@ pub(super) enum Failure {
     AttributeUpdate,
     Process,
     Wait,
+    ReaderWorker,
+    WriterWorker,
+    CloseWorker,
 }
 
 pub(super) fn fault(point: Failure) -> Result<()> {
@@ -254,6 +261,7 @@ pub fn new(config: &Options, window_size: WindowSize) -> Result<Pty> {
         output: Some(conout),
         backend: Some(Conpty { handle: pty_handle, api }),
         process: None,
+        writer: None,
     };
     // ConPTY owns copies. Parent copies must not prevent EOF on any error path.
     drop(conin_pty_handle);
@@ -325,8 +333,9 @@ pub fn new(config: &Options, window_size: WindowSize) -> Result<Pty> {
     let child_watcher = ChildExitWatcher::new(process)?;
     drop(attributes);
 
-    let conin = UnblockedWriter::new(conin, PIPE_CAPACITY);
-    let conout = UnblockedReader::new(startup.output.take().unwrap(), PIPE_CAPACITY);
+    startup.writer = Some(UnblockedWriter::new(conin, PIPE_CAPACITY)?);
+    let conout = UnblockedReader::new(startup.output.take().unwrap(), PIPE_CAPACITY)?;
+    let conin = startup.writer.take().unwrap();
     let backend = startup.backend.take().unwrap();
     startup.process.take();
     Ok(Pty::new(backend, conout, conin, child_watcher))
