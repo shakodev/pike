@@ -98,3 +98,12 @@ checks and ConPTY probe described in
 - Make the Windows-only writer completion helper cfg-specific and simplify the
   Unix passwd fallback to satisfy the pinned compiler's existing Clippy lints
   on the macOS verification host. Shell fallback behavior is preserved.
+
+- Windows CI reproduced an indefinitely pending output reader when explicit
+  close raced console attachment, even though ClosePseudoConsole returned.
+  Explicit disposal now terminates the existing owned root process first and
+  waits for its exit off thread. Natural EOF-draining exits retain their own
+  path. This is cancellation, not a graceful child-shutdown guarantee. An
+  opt-in `PIKE_TRACE_CLEANUP` trace records only worker stages/thread IDs.
+- On poller preparation failure, move the already-created PTY to a transient
+  disposal worker rather than invoking its blocking destructor on the UI.

@@ -97,7 +97,16 @@ where
         ref_test: bool,
     ) -> io::Result<EventLoop<T, U>> {
         let (tx, rx) = mpsc::channel();
-        let poll = polling::Poller::new()?.into();
+        let poll = match polling::Poller::new() {
+            Ok(poll) => Arc::new(poll),
+            Err(error) => {
+                // The caller may be the UI thread and already owns a PTY.
+                // Its destructor can block; failed preparation must dispose
+                // that PTY on a transient cleanup worker as well.
+                drop(thread::spawn_named("PTY failed preparation", move || drop(pty)));
+                return Err(error);
+            },
+        };
         let counter = pty.input_writer_progress();
         let count_writes = counter.is_none();
         let input = InputQueue::new(counter.unwrap_or_else(|| Arc::new(WriterProgress::default())));
