@@ -33,11 +33,18 @@ jobs:
         run: |
           cargo test --release --locked -p alacritty_terminal tty::windows::conpty::tests::resource_cycles -- --ignored --exact --nocapture --test-threads=1 2>&1 | Tee-Object target/audit/resources.txt
           exit $LASTEXITCODE
+      - name: Measure bare SDK control
+        if: ${{ !cancelled() }}
+        run: |
+          cargo test --release --locked -p alacritty_terminal tty::windows::conpty::tests::sdk_control -- --ignored --exact --nocapture --test-threads=1 2>&1 | Tee-Object target/audit/sdk-control.txt
+          exit $LASTEXITCODE
       - name: Check attached descendants and close under flood
+        if: ${{ !cancelled() }}
         run: |
           cargo test --release --locked -p alacritty_terminal tty::windows::conpty::tests::attached_tree_and_flood -- --ignored --exact --nocapture --test-threads=1 2>&1 | Tee-Object target/audit/attached-tree.txt
           exit $LASTEXITCODE
       - name: Run backend regressions on both OS cohorts
+        if: ${{ !cancelled() }}
         run: |
           cargo test --locked -p alacritty_terminal 2>&1 | Tee-Object target/audit/tests.txt
           exit $LASTEXITCODE

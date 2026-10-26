@@ -78,6 +78,48 @@ fn sample() -> Sample {
     }
 }
 
+fn sdk_control_cycle() {
+    // A deliberately bare SDK control: no Pike backend, attribute list, child,
+    // wait registration, library loading, pipe worker, or close worker.
+    let (output, console_output) = miow::pipe::anonymous(0).unwrap();
+    let (console_input, input) = miow::pipe::anonymous(0).unwrap();
+    let mut console = 0;
+    // SAFETY: live pipes and correctly sized output pointer. Only success owns
+    // an HPCON. Close output before the synchronous SDK close, as documented.
+    hresult(unsafe {
+        CreatePseudoConsole(
+            SIZE.into(),
+            console_input.as_raw_handle() as HANDLE,
+            console_output.as_raw_handle() as HANDLE,
+            0,
+            &mut console,
+        )
+    })
+    .unwrap();
+    drop(console_input);
+    drop(console_output);
+    drop(output);
+    unsafe {
+        ClosePseudoConsole(console);
+    }
+    drop(input);
+}
+
+#[test]
+#[ignore = "isolated SDK control; explicitly run on both OS cohorts"]
+fn sdk_control() {
+    for _ in 0..10 {
+        sdk_control_cycle();
+    }
+    for cycle in 0..=100 {
+        if cycle != 0 {
+            sdk_control_cycle();
+        }
+        let sample = sample();
+        println!("sdk,{cycle},{},{},{}", sample.handles, sample.private, sample.threads);
+    }
+}
+
 #[test]
 #[ignore = "isolated release resource measurement; run with --ignored --exact --nocapture"]
 fn resource_cycles() {
