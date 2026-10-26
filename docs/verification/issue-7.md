@@ -137,3 +137,28 @@ root process before explicit disposal and waits for process exit off thread;
 the tests returned to their original five-second deadline. Trace points cover
 close entry/return, reader/close/writer joins, and child exit. Normal operation
 has tracing disabled, and terminal contents are never included.
+
+
+## PR review follow-up
+
+Review found that normal reads ignored `ReadStatus::Eof`, leaving exhausted
+I/O registered with the level-triggered poller until child notification arrived.
+The loop now deregisters only the exhausted I/O, closes input, ignores stale
+resizes and keeps waiting for child exit or an explicit close wake. The new
+portable regression uses two loopback sockets to model independent I/O/child
+readiness; it verifies exactly one EOF read, delayed code 37, and explicit close
+without a timer or extra production worker. Local sandbox execution of that
+fixture requires permission for loopback sockets.
+
+Windows reader-thread unwind is now recorded before its piper writer drops,
+so it cannot be mistaken for clean EOF. A dedicated fault-injection test
+covers that ordering. The compatibility harness now records backend completion
+metadata and fails for I/O errors, panic, unexpected cancellation or incomplete
+natural drains, including a timeout that followed terminal Exit. Its regression
+ensures a final marker alone cannot hide failed backend completion.
+
+The original Windows measurements above remain tied to their recorded source
+commit; the review changes are validated by the PR's subsequent Windows matrix.
+The added coverage brings the explicit Alacritty suite to 145 macOS / 152
+Windows unit tests, plus the existing 45 references and one doctest. Examples
+now run five focused tests; adapter counts remain 44 macOS / 46 Windows.

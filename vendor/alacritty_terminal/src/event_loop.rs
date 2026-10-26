@@ -137,13 +137,16 @@ where
     /// Drain the channel.
     ///
     /// Returns `false` when a shutdown message was received.
-    fn drain_recv_channel(&mut self) -> bool {
+    fn drain_recv_channel(&mut self, read_eof: bool) -> bool {
         while let Some(msg) = self.rx.recv() {
-            if self.input.is_closed() {
+            if self.shutdown_requested.load(Ordering::Acquire)
+                || (!read_eof && self.input.is_closed())
+            {
                 return false;
             }
             match msg {
                 Msg::Input(_) => unreachable!("input is admitted through the bounded queue"),
+                Msg::Resize(_) if read_eof => (),
                 Msg::Resize(window_size) => self.pty.on_resize(window_size),
                 Msg::Shutdown => return false,
             }
@@ -284,8 +287,11 @@ where
             None
         };
 
+        let mut read_eof = false;
         'event_loop: loop {
-            if self.input.is_closed() {
+            if self.shutdown_requested.load(Ordering::Acquire)
+                || (!read_eof && self.input.is_closed())
+            {
                 if !self.shutdown_requested.load(Ordering::Acquire) {
                     completion.reason = ExitReason::IoError(ErrorKind::BrokenPipe);
                 }
@@ -302,7 +308,9 @@ where
                 completion.reason = ExitReason::IoError(err.kind());
                 break;
             }
-            if self.input.is_closed() {
+            if self.shutdown_requested.load(Ordering::Acquire)
+                || (!read_eof && self.input.is_closed())
+            {
                 continue;
             }
             if events.is_empty() && self.rx.peek().is_none() && self.input.is_empty() {
@@ -310,7 +318,7 @@ where
                 self.event_proxy.send_event(Event::Wakeup);
                 continue;
             }
-            if !self.drain_recv_channel() {
+            if !self.drain_recv_channel(read_eof) {
                 break;
             }
             for event in events.iter() {
@@ -327,7 +335,11 @@ where
                                 // Closing ConPTY must run concurrently with draining its
                                 // output. Other PTYs need no special close preparation.
                                 let drained = self.pty.begin_shutdown().and_then(|()| {
-                                    self.drain_output(&mut state, &mut buf, pipe.as_mut())
+                                    if read_eof {
+                                        Ok(())
+                                    } else {
+                                        self.drain_output(&mut state, &mut buf, pipe.as_mut())
+                                    }
                                 });
                                 match drained {
                                     Ok(()) => completion.output_drained = true,
@@ -341,17 +353,32 @@ where
                         }
                     },
                     tty::PTY_READ_WRITE_TOKEN => {
-                        if event.is_interrupt() {
+                        if read_eof {
                             continue;
                         }
-                        if event.readable {
-                            if let Err(err) = self.pty_read(&mut state, &mut buf, pipe.as_mut()) {
-                                error!("Error reading from PTY in event loop: {err}");
-                                completion.reason = ExitReason::IoError(err.kind());
-                                break 'event_loop;
+                        if event.readable || event.is_interrupt() {
+                            match self.pty_read(&mut state, &mut buf, pipe.as_mut()) {
+                                Ok(ReadStatus::Eof) => {
+                                    // EOF/HUP remains level-triggered until removed.
+                                    // Keep only the child watcher and shutdown wake
+                                    // alive, preserving a later exit code without spin.
+                                    read_eof = true;
+                                    self.input.close();
+                                    if let Err(err) = self.pty.deregister_io(&self.poll) {
+                                        completion.reason = ExitReason::IoError(err.kind());
+                                        break 'event_loop;
+                                    }
+                                    continue;
+                                },
+                                Ok(_) => (),
+                                Err(err) => {
+                                    error!("Error reading from PTY in event loop: {err}");
+                                    completion.reason = ExitReason::IoError(err.kind());
+                                    break 'event_loop;
+                                },
                             }
                         }
-                        if event.writable {
+                        if event.writable && !event.is_interrupt() {
                             if let Err(err) = self.pty_write(&mut state) {
                                 error!("Error writing to PTY in event loop: {err}");
                                 completion.reason = ExitReason::IoError(err.kind());
@@ -363,7 +390,7 @@ where
                 }
             }
             let needs_write = state.needs_write(&self.input);
-            if needs_write != interest.writable {
+            if !read_eof && needs_write != interest.writable {
                 interest.writable = needs_write;
                 if let Err(err) = self.pty.reregister(&self.poll, interest, poll_opts) {
                     completion.reason = ExitReason::IoError(err.kind());

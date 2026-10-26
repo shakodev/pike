@@ -67,6 +67,7 @@ impl<R: Read + Send + 'static> UnblockedReader<R> {
 
         // Spawn the reader thread.
         let worker = spawn_named("alacritty-tty-reader-thread", move || {
+            let _completion = ReaderCompletion(source_error.clone());
             let waker = Waker::from(Arc::new(ThreadWaker(thread::current())));
             let mut context = Context::from_waker(&waker);
 
@@ -311,6 +312,17 @@ impl<W: Write + Send + 'static> Write for UnblockedWriter<W> {
 }
 
 struct ThreadWaker(thread::Thread);
+
+// Publish an abnormal source end before piper closes and wakes its reader.
+// Otherwise a source panic would be indistinguishable from a clean EOF.
+struct ReaderCompletion(Arc<Mutex<Option<io::ErrorKind>>>);
+impl Drop for ReaderCompletion {
+    fn drop(&mut self) {
+        if thread::panicking() {
+            *self.0.lock().unwrap_or_else(|error| error.into_inner()) = Some(io::ErrorKind::Other);
+        }
+    }
+}
 
 struct WriterCompletion {
     progress: Arc<WriterProgress>,

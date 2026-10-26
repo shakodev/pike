@@ -172,3 +172,164 @@ fn drain_deadline_reports_timeout_instead_of_claiming_eof() {
     assert_eq!(error.kind(), ErrorKind::TimedOut);
     release.send(()).unwrap();
 }
+
+// Two sockets model independent PTY-I/O and child-exit readiness without a
+// second PTY implementation. Closing output must not remove the child watcher.
+fn socket_pair() -> (std::net::TcpStream, std::net::TcpStream) {
+    let listener = std::net::TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0)).unwrap();
+    let peer = std::net::TcpStream::connect(listener.local_addr().unwrap()).unwrap();
+    let (stream, _) = listener.accept().unwrap();
+    stream.set_nonblocking(true).unwrap();
+    (stream, peer)
+}
+
+struct EofReader {
+    stream: std::net::TcpStream,
+    reads: Arc<std::sync::atomic::AtomicUsize>,
+}
+impl Read for EofReader {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        self.reads.fetch_add(1, Ordering::Relaxed);
+        self.stream.read(buf)
+    }
+}
+
+struct EofPty {
+    reader: EofReader,
+    writer: io::Sink,
+    child: std::net::TcpStream,
+    registered: bool,
+    exhausted: Option<mpsc::Sender<()>>,
+    metadata: Option<mpsc::Sender<Msg>>,
+}
+impl event::OnResize for EofPty {
+    fn on_resize(&mut self, _: WindowSize) {
+        panic!("EOF session must ignore queued resizes");
+    }
+}
+impl EventedReadWrite for EofPty {
+    type Reader = EofReader;
+    type Writer = io::Sink;
+    unsafe fn register(
+        &mut self,
+        poll: &Arc<polling::Poller>,
+        _: PollingEvent,
+        mode: PollMode,
+    ) -> io::Result<()> {
+        // SAFETY: both owned sockets outlive their registrations below.
+        unsafe {
+            poll.add_with_mode(
+                &self.reader.stream,
+                PollingEvent::readable(tty::PTY_READ_WRITE_TOKEN),
+                mode,
+            )?;
+            poll.add_with_mode(
+                &self.child,
+                PollingEvent::readable(tty::PTY_CHILD_EVENT_TOKEN),
+                mode,
+            )?;
+        }
+        self.registered = true;
+        Ok(())
+    }
+    fn reregister(
+        &mut self,
+        poll: &Arc<polling::Poller>,
+        mut interest: PollingEvent,
+        mode: PollMode,
+    ) -> io::Result<()> {
+        assert!(self.registered, "exhausted I/O must not be rearmed");
+        interest.key = tty::PTY_READ_WRITE_TOKEN;
+        poll.modify_with_mode(&self.reader.stream, interest, mode)
+    }
+    fn deregister(&mut self, poll: &Arc<polling::Poller>) -> io::Result<()> {
+        self.deregister_io(poll)?;
+        poll.delete(&self.child)
+    }
+    fn reader(&mut self) -> &mut Self::Reader {
+        &mut self.reader
+    }
+    fn writer(&mut self) -> &mut Self::Writer {
+        &mut self.writer
+    }
+}
+impl EventedPty for EofPty {
+    fn deregister_io(&mut self, poll: &Arc<polling::Poller>) -> io::Result<()> {
+        if self.registered {
+            poll.delete(&self.reader.stream)?;
+            self.registered = false;
+            self.metadata
+                .as_ref()
+                .unwrap()
+                .send(Msg::Resize(WindowSize {
+                    num_lines: 24,
+                    num_cols: 80,
+                    cell_width: 1,
+                    cell_height: 1,
+                }))
+                .unwrap();
+            self.exhausted.take().unwrap().send(()).unwrap();
+        }
+        Ok(())
+    }
+    fn next_child_event(&mut self) -> Option<ChildEvent> {
+        let mut code = [0];
+        match self.child.read(&mut code) {
+            Ok(1) => Some(ChildEvent::Exited(Some(i32::from(code[0])))),
+            _ => None,
+        }
+    }
+}
+
+#[test]
+fn eof_disables_io_but_preserves_later_child_exit_and_explicit_close() {
+    for close in [false, true] {
+        let (stream, output) = socket_pair();
+        let (child, mut exit) = socket_pair();
+        let reads = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        let (exhausted, eof) = mpsc::channel();
+        let pty = EofPty {
+            reader: EofReader { stream, reads: reads.clone() },
+            writer: io::sink(),
+            child,
+            registered: false,
+            exhausted: Some(exhausted),
+            metadata: None,
+        };
+        let terminal = Arc::new(FairMutex::new(Term::new(
+            Default::default(),
+            &TermSize::new(80, 24),
+            Listener,
+        )));
+        let mut event_loop = EventLoop::new(terminal, Listener, pty, true, false).unwrap();
+        event_loop.pty.metadata = Some(event_loop.tx.clone());
+        let sender = event_loop.channel();
+        let (complete, result) = mpsc::channel();
+        drop(output);
+        event_loop.spawn_disposing(|| (), move |value| complete.send(value).unwrap());
+        eof.recv_timeout(Duration::from_secs(5)).unwrap();
+        assert!(sender.input_status().closed);
+        assert!(matches!(result.try_recv(), Err(mpsc::TryRecvError::Empty)));
+        assert!(sender
+            .send(Msg::Resize(WindowSize {
+                num_lines: 24,
+                num_cols: 80,
+                cell_width: 1,
+                cell_height: 1
+            }))
+            .is_err());
+        if close {
+            sender.send(Msg::Shutdown).unwrap();
+        } else {
+            exit.write_all(&[37]).unwrap();
+        }
+        let completion = result.recv_timeout(Duration::from_secs(5)).unwrap();
+        assert_eq!(reads.load(Ordering::Relaxed), 1);
+        assert_eq!(
+            completion.reason,
+            if close { ExitReason::Requested } else { ExitReason::ChildExit }
+        );
+        assert_eq!(completion.exit_code, if close { None } else { Some(37) });
+        assert_eq!(completion.output_drained, !close);
+    }
+}

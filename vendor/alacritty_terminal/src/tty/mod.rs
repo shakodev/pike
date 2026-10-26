@@ -101,6 +101,12 @@ pub trait EventedPty: EventedReadWrite {
         Ok(())
     }
 
+    /// Remove exhausted PTY I/O from polling while retaining child-exit events.
+    /// Unsupported implementations fail explicitly instead of spinning on EOF.
+    fn deregister_io(&mut self, _: &Arc<Poller>) -> io::Result<()> {
+        Err(io::ErrorKind::Unsupported.into())
+    }
+
     /// Tries to retrieve an event.
     ///
     /// Returns `Some(event)` on success, or `None` if there are no events to retrieve.

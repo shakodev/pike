@@ -121,6 +121,12 @@ impl EventedReadWrite for Pty {
 }
 
 impl EventedPty for Pty {
+    fn deregister_io(&mut self, _: &Arc<Poller>) -> io::Result<()> {
+        self.conin.deregister();
+        self.conout.deregister();
+        Ok(())
+    }
+
     fn begin_shutdown(&mut self) -> io::Result<()> {
         if let Some(backend) = self.backend.take() {
             self.close_worker = Some(crate::thread::spawn_named("ConPTY close", move || {

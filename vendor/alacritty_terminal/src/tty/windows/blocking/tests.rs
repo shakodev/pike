@@ -122,3 +122,16 @@ fn read_failure_is_distinguished_from_normal_broken_pipe_eof() {
         }
     }
 }
+
+#[test]
+fn reader_panic_is_not_reported_as_a_clean_eof() {
+    struct PanickingReader;
+    impl Read for PanickingReader {
+        fn read(&mut self, _: &mut [u8]) -> io::Result<usize> {
+            panic!("synthetic reader panic");
+        }
+    }
+    let mut reader = UnblockedReader::new(PanickingReader, 16);
+    reader.drain_and_join();
+    assert_eq!(reader.read(&mut [0; 1]).unwrap_err().kind(), io::ErrorKind::Other);
+}

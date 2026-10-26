@@ -107,3 +107,19 @@ checks and ConPTY probe described in
   opt-in `PIKE_TRACE_CLEANUP` trace records only worker stages/thread IDs.
 - On poller preparation failure, move the already-created PTY to a transient
   disposal worker rather than invoking its blocking destructor on the UI.
+
+## R07 review fixes
+
+- On EOF/hangup, close input and remove exhausted PTY I/O from the poller while
+  retaining the child-exit watcher and shutdown wake. This prevents repeated
+  level-triggered EOF wakes and preserves a delayed child code. Queued resizes
+  are ignored after EOF, and explicit close still wakes the remaining wait.
+  `EventedPty::deregister_io` has platform implementations and an explicit
+  Unsupported default for other implementations. Unix teardown remains
+  idempotent after the I/O registration has already been removed.
+- A Windows reader completion guard marks source unwind as an I/O error before
+  the piper writer drops. A panicked reader can no longer masquerade as a clean
+  EOF and set `output_drained=true`. No production polling or dependency changes.
+- A portable two-socket fixture verifies one EOF read, delayed child exit/code,
+  ignored queued metadata and explicit close after EOF. It models readiness,
+  not another PTY. Windows also tests an injected reader panic.
