@@ -195,3 +195,32 @@ checks and ConPTY probe described in
   strict release resource series; no runtime dependency or extra worker.
 - The x64 packaging script rejects another architecture, DLL or non-PE input
   before creating output. See [review record](../../docs/verification/issue-8-review.md).
+
+## R09 / issue #9 — Windows launch preparation
+
+- Prepare and validate executable, arguments, cwd and environment before any
+  ConPTY resource allocation. Resolve to an explicit executable and supply
+  `lpApplicationName` separately from writable, terminated UTF-16 command data.
+  Quote argv[0] and retain the existing CRT encoder for ordinary arguments.
+  Raw command syntax remains an explicit caller choice via `escape_args`.
+- Resolve explicit unquoted .exe names against the session PATH then System32;
+  paths resolve against session cwd. Extensionless names gain .exe; scripts
+  require an explicit interpreter. No implicit cmd wrapper or cwd search for
+  bare names. Automatic resolution prefers pwsh (PATH, then ProgramFiles),
+  system Windows PowerShell, then system cmd. Never automatically select WSL.
+- Reject invalid/missing explicit executables, invalid cwd, NUL arguments,
+  oversized command lines, invalid environment entries and case-insensitive
+  duplicate override keys with downcastable, payload-free `LaunchError` values.
+  CreateProcess errors retain an OS code without user command data.
+- Merge inherited UTF-16 environment entries without lossy conversion; preserve
+  drive-directory entries, explicit empty values and inherited keys. Use Windows
+  `CompareStringOrdinal` for case-insensitive overrides and sorted blocks, with
+  double-NUL termination. No global cwd/environment edits or duplicate logging.
+- Redact Debug for Options/Shell. Only enable two API modules in the existing
+  windows-sys dependency (Globalization/SystemInformation); no new package,
+  version or lockfile changes. All launch allocations are temporary; no new
+  runtime worker, timer or idle work.
+- Windows launch unit regressions and the release `launch_validation` example
+  cover preparation, native argv round trips, two live sessions, private
+  diagnostics, cmd, Windows PowerShell and installed PowerShell 7. See
+  [verification](../../docs/verification/issue-9.md) for commands/results.

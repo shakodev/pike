@@ -125,14 +125,6 @@ fn argument(path: &Path) -> io::Result<String> {
     let value = path
         .to_str()
         .ok_or_else(|| io::Error::other("non-Unicode fixture path"))?;
-    #[cfg(windows)]
-    {
-        if value.contains(['"', '\r', '\n']) {
-            return Err(io::Error::other("unsupported controlled fixture path"));
-        }
-        Ok(format!("\"{value}\""))
-    }
-    #[cfg(not(windows))]
     Ok(value.into())
 }
 

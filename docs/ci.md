@@ -98,3 +98,7 @@ retention and completion after canceled consumers/owners, reports latency and
 external process counters, and checks owned fixture PIDs disappear. It uses a
 fresh runner-temporary directory. See [issue #7](verification/issue-7.md) for the
 source-completion/backend-completion distinction and measurement limits.
+
+The release `launch_validation` example checks native argument round trips,
+independent cwd/environment settings, private structured errors and separate
+cmd/PowerShell command semantics on both renderers. See [issue #9](verification/issue-9.md).

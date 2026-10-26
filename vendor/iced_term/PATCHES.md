@@ -117,3 +117,17 @@ and API/overload policy details.
 - Three upstream `view.rs` test initializers now set terminal mode directly
   rather than reassigning Default fields, enabling all-target workspace Clippy
   with denied warnings. Test behavior and production view code are unchanged.
+
+## R09 / issue #9 — expose safe launch arguments and shell selection
+
+- Default Windows BackendSettings to automatic shell selection (empty program,
+  no args) instead of WSL. An explicit program is an unquoted executable name
+  or path; never parse a full command line or silently fall back after failure.
+- Add Windows `BackendSettings::escape_args`, true by default, forwarding to
+  Alacritty's existing encoder. Set false only for deliberately constructed
+  shell syntax such as cmd /D /S /C. No extra interpreter for ordinary args.
+- Re-export `LaunchError` on Windows; the existing io::Result API carries this
+  typed error through `get_ref().downcast_ref()`. Redact configuration Debug.
+- Update synthetic harnesses to pass unquoted paths/argv and to opt into raw
+  cmd scripts explicitly. Separate PowerShell scripts from native argv quoting.
+  Existing lifecycle test scripts explicitly retain raw cmd semantics.

@@ -35,6 +35,8 @@ fn terminal(id: u64, natural: bool) -> Terminal {
         id,
         settings::Settings {
             backend: settings::BackendSettings {
+                #[cfg(windows)]
+                escape_args: false,
                 program: program.into(),
                 args: args.into_iter().map(str::to_owned).collect(),
                 ..Default::default()

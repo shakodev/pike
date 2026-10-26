@@ -18,7 +18,7 @@ pub mod windows;
 pub use self::windows::*;
 
 /// Configuration for the `Pty` interface.
-#[derive(Clone, Debug, PartialEq, Eq, Default)]
+#[derive(Clone, PartialEq, Eq, Default)]
 pub struct Options {
     /// Shell options.
     ///
@@ -43,7 +43,7 @@ pub struct Options {
 }
 
 /// Shell options.
-#[derive(Clone, Debug, PartialEq, Eq, Default)]
+#[derive(Clone, PartialEq, Eq, Default)]
 pub struct Shell {
     /// Path to a shell program to run on startup.
     pub(crate) program: String,
@@ -168,4 +168,17 @@ fn terminfo_exists(terminfo: &str) -> bool {
 
     // No valid terminfo path has been found.
     false
+}
+
+// Session configuration can contain secrets in arguments, paths and values.
+impl std::fmt::Debug for Options {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Options").finish_non_exhaustive()
+    }
+}
+
+impl std::fmt::Debug for Shell {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Shell").finish_non_exhaustive()
+    }
 }

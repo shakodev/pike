@@ -17,6 +17,8 @@ pub use alacritty_terminal::input::{
 };
 pub use alacritty_terminal::selection::SelectionType;
 pub use alacritty_terminal::term::TermMode;
+#[cfg(windows)]
+pub use alacritty_terminal::tty::LaunchError;
 pub use backend::Command as BackendCommand;
 pub use backend::{LinkAction, MouseButton, RenderableContent};
 pub use event_bridge::{EventBridgeError, EventBridgeEvent};

@@ -117,8 +117,8 @@ fn terminal(id: u64, mode: &str, count: usize, directory: &Path) -> io::Result<T
         id,
         iced_term::settings::Settings {
             backend: iced_term::settings::BackendSettings {
-                program: format!("\"{fixture}\""),
-                args: vec![mode.into(), count.to_string(), format!("\"{output}\"")],
+                program: fixture.into(),
+                args: vec![mode.into(), count.to_string(), output.into()],
                 ..Default::default()
             },
             ..Default::default()
