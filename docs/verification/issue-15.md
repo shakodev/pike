@@ -75,7 +75,15 @@ interactive checks require an available Windows desktop and are not fabricated.
 
 ## Recorded execution
 
-Local tiny-skia live fixture and targeted model/menu regressions passed before
-base integration. Final profile counts, head SHA and native workflow results
-are recorded in the PR after final validation. Cross-target compilation is
-only an API check and is never treated as Windows execution.
+On the branch integrated with main `487f5bca537d9810b971b5bd04b2b6d3edd9bf26`,
+fmt, both-profile clippy and root tests passed (39 library + 3 app + 2 docs;
+one existing measurement ignored). Each explicit adapter profile passed
+87 tests with one existing measurement ignored. The explicit Alacritty suite
+passed 146 unit + 45 reference + 1 doc tests after allowing native process
+signalling (two lifecycle cases are denied by the macOS sandbox).
+Both release live probes passed all 11 cases and acknowledged both cleanups;
+[bounded local metadata](../baselines/issue-15/) records their results.
+Windows cross-clippy passed for tiny-skia as an API check only.
+
+Final head SHA and native Windows workflow results are recorded in the PR.
+Actual Windows execution and integration of merged issue20 remain pending.
