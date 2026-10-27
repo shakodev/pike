@@ -92,6 +92,10 @@ default-features = false
 [dev-dependencies.serde_json]
 version = "1.0.0"
 
+# Exercise the existing Windows buffering contract on portable test hosts too.
+[dev-dependencies.piper]
+version = "=0.2.5"
+
 [target."cfg(windows)".dev-dependencies.windows-sys]
 version = "=0.59.0"
 features = ["Win32_System_ProcessStatus", "Win32_System_Diagnostics_ToolHelp"]

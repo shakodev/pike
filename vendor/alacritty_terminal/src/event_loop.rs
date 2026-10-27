@@ -325,6 +325,7 @@ where
         };
 
         let mut read_eof = false;
+        let mut read_pending = false;
         'event_loop: loop {
             if self.shutdown_requested.load(Ordering::Acquire)
                 || (!read_eof && self.input.is_closed())
@@ -338,6 +339,16 @@ where
             let timeout =
                 handler.sync_timeout().map(|st| st.saturating_duration_since(Instant::now()));
             events.clear();
+            // One bounded next turn, not an idle timer or a polling loop.
+            // Re-notify after Interrupted too: pending work must never rely on
+            // an already-consumed notification. An exact-budget read gets a
+            // final attempt to reach Pending and arm the reader's waker.
+            if read_pending {
+                if let Err(err) = self.poll.notify() {
+                    completion.reason = ExitReason::IoError(err.kind());
+                    break;
+                }
+            }
             if let Err(err) = self.poll.wait(&mut events, timeout) {
                 if err.kind() == ErrorKind::Interrupted {
                     continue;
@@ -350,13 +361,22 @@ where
             {
                 continue;
             }
-            if !self.prepare_io_turn(&mut state, &events, Instant::now()) {
+            // Prepare deadlines on every turn, including productive buffered
+            // reads; a pending continuation must not skip sync expiration.
+            let has_work = self.prepare_io_turn(&mut state, &events, Instant::now());
+            if !has_work && !read_pending {
                 continue;
             }
             if !self.drain_recv_channel(read_eof) {
                 break;
             }
-            for event in events.iter() {
+            // Buffered completion sources need not produce another readiness
+            // event after a capped read. Continue on the existing worker while
+            // still servicing channel, write and child events between turns.
+            let continuation = std::mem::take(&mut read_pending)
+                .then_some(PollingEvent::readable(tty::PTY_READ_WRITE_TOKEN));
+            let mut read_serviced = false;
+            for event in events.iter().chain(continuation) {
                 match event.key {
                     tty::PTY_CHILD_EVENT_TOKEN => {
                         if let Some(tty::ChildEvent::Exited(code)) = self.pty.next_child_event() {
@@ -391,7 +411,8 @@ where
                         if read_eof {
                             continue;
                         }
-                        if event.readable || event.is_interrupt() {
+                        if !read_serviced && (event.readable || event.is_interrupt()) {
+                            read_serviced = true;
                             match self.pty_read(&mut state, &mut buf, pipe.as_mut()) {
                                 Ok(ReadStatus::Eof) => {
                                     // EOF/HUP remains level-triggered until removed.
@@ -405,7 +426,8 @@ where
                                     }
                                     continue;
                                 },
-                                Ok(_) => (),
+                                Ok(ReadStatus::More) => read_pending = true,
+                                Ok(ReadStatus::Pending) => (),
                                 Err(err) => {
                                     error!("Error reading from PTY in event loop: {err}");
                                     completion.reason = ExitReason::IoError(err.kind());
@@ -687,3 +709,6 @@ mod input_tests;
 
 #[cfg(test)]
 mod lifecycle_tests;
+
+#[cfg(test)]
+mod read_tests;

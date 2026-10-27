@@ -1,0 +1,38 @@
+{
+  "baseline_sha": "103e29552148aeb2273996e0d178fa781f6ec680",
+  "normalization": "host paths replaced; original and retained hashes preserve provenance",
+  "files": {
+    "probe.rs": {
+      "original_sha256": "1f41304e2e617b70e1d09b51a8ac0656c1fd992dc8c9cd6e999b20a4be9fe875",
+      "retained_sha256": "1f41304e2e617b70e1d09b51a8ac0656c1fd992dc8c9cd6e999b20a4be9fe875"
+    },
+    "Cargo.toml": {
+      "original_sha256": "b01ddd04d3da9b0578ac90069d2033de6d954b0ccb21848e5411ce58ec69e22e",
+      "retained_sha256": "b01ddd04d3da9b0578ac90069d2033de6d954b0ccb21848e5411ce58ec69e22e"
+    },
+    "Cargo.lock": {
+      "original_sha256": "65f2f6de92077ca12c9c5fe002fb898abee21fab02fa27404511f583eed0a519",
+      "retained_sha256": "65f2f6de92077ca12c9c5fe002fb898abee21fab02fa27404511f583eed0a519"
+    },
+    "baseline-red.log": {
+      "original_sha256": "216c31476118624ba5de576d3c3c90c2456ca219cb294b87e6951880b6dab0cf",
+      "retained_sha256": "9ef7a4cad44ee8a880f32ba5449ed321559867a2f17428f8d30c41c7e8304742"
+    },
+    "rearm-control.log": {
+      "original_sha256": "0158548b19debb0b7c8ad1af3e86d9f13672763f38d36aa22d36d94e28446da7",
+      "retained_sha256": "0158548b19debb0b7c8ad1af3e86d9f13672763f38d36aa22d36d94e28446da7"
+    },
+    "source-hashes.json": {
+      "original_sha256": "854c9282416aee45fffdcca53f40cd67ff44bec5a279fc15f05c23380035fc4c",
+      "retained_sha256": "07e330068555f9d14ab73ad32a0eb7df553e7fb54d2114f3df91eb3f8ae80c41"
+    },
+    "dependency-check.json": {
+      "original_sha256": "cc82425fadb00b6c79bdcb8a27e4c238c4658b9875d7592851c193506c2e1cbf",
+      "retained_sha256": "cc82425fadb00b6c79bdcb8a27e4c238c4658b9875d7592851c193506c2e1cbf"
+    },
+    "issue67-before-fix.log": {
+      "original_sha256": "712608e4afbdef0cbd0a4c695bea984c51d50008459bf4a2ae606f8cbb40c73b",
+      "retained_sha256": "77a8c7a2dfc80729f89d0c5d093229c4fd4fc8503c233f2fbd33def7e55ded42"
+    }
+  }
+}
