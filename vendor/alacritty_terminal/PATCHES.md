@@ -1,5 +1,22 @@
 # Alacritty terminal patch ledger
 
+## Issue #67 — bounded buffered-read continuation
+
+- Preserve `ReadStatus::More` in one worker-local bit. Notify the existing
+  poller before its next wait and append one readable service opportunity to
+  that turn's normal events. Read at most one existing service budget per
+  turn, including when a kernel event and continuation coincide. Channel,
+  write, child-exit and end-of-turn handling retain their normal paths.
+- Pending/EOF/error stops continuation. An exactly-full read gets a final
+  attempt to reach Pending and arm piper's reader waker; Interrupted waits
+  cannot consume the only continuation wake. No idle timer, zero-timeout poll,
+  extra worker, queue, PTY, production dependency or lockfile change.
+- Add portable real-piper event-loop regressions and a native Windows test
+  using the actual UnblockedReader/IOCP with output fully buffered before
+  registration. Test-only piper uses the already locked 0.2.5 on all hosts.
+  See [verification](../../docs/verification/issue-67.md) for baseline red,
+  source provenance, native execution requirements and precise limits.
+
 ## Provenance
 
 - Published crate: **alacritty_terminal 0.25.1**, retaining every archive file,

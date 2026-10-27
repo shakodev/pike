@@ -1,0 +1,13 @@
+[package]
+name = "pike-read-progress-investigation"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+alacritty_terminal = { path = "../../vendor/alacritty_terminal" }
+piper = "=0.2.5"
+polling = "=3.11.0"
+fastrand = "=2.5.0"

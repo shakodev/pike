@@ -1,0 +1,22 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.19s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/iced_term-9ce3d5d08dfd63b8)
+
+running 1 test
+
+thread 'lifecycle_tests::repeated_close_during_output_has_one_backend_result_and_fused_stream' (2475337) panicked at vendor/iced_term/src/lifecycle_tests.rs:185:61:
+called `Result::unwrap()` on an `Err` value: Elapsed(())
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test lifecycle_tests::repeated_close_during_output_has_one_backend_result_and_fused_stream ... FAILED
+
+failures:
+
+failures:
+    lifecycle_tests::repeated_close_during_output_has_one_backend_result_and_fused_stream
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 87 filtered out; finished in 5.10s
+
+error: test failed, to rerun pass `-p iced_term --lib`
+
+ACTUAL_EXIT_CODE=101

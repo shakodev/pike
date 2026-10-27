@@ -1,0 +1,32 @@
+   Compiling pike-read-progress-investigation v0.0.0 (<repository>/target/read-progress-investigation)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.80s
+     Running unittests src/lib.rs (target/debug/deps/pike_read_progress_investigation-d5ebbf5a1ec5dad3)
+
+running 2 tests
+test below_service_cap_progresses_without_rearm ... read n=65534 buffered=0 destination=65535 control_repost=false
+observation reply=true consumed=65534 buffered=0 reads=2 pending=1 posts=1 registrations=1 input=InputStatus { outstanding_bytes: 0, queued_bytes: 0, written_bytes: 0, cancelled_bytes: 0, closed: false }
+cleanup=Completion { reason: Requested, exit_code: None, output_drained: false }
+ok
+test buffered_output_must_progress_without_new_readiness ... read n=65535 buffered=131074 destination=65535 control_repost=false
+observation reply=false consumed=65535 buffered=131074 reads=1 pending=0 posts=1 registrations=1 input=InputStatus { outstanding_bytes: 0, queued_bytes: 0, written_bytes: 0, cancelled_bytes: 0, closed: false }
+read n=65535 buffered=65539 destination=65535 control_repost=false
+read n=65535 buffered=4 destination=65535 control_repost=false
+read n=4 buffered=0 destination=65535 control_repost=false
+manual-readable-rescue query parsed; no new producer bytes
+cleanup=Completion { reason: Requested, exit_code: None, output_drained: false }
+
+thread 'buffered_output_must_progress_without_new_readiness' (2407987) panicked at src/lib.rs:283:5:
+real merged EventLoop stranded pinned-piper output after 65535-byte service turn
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    buffered_output_must_progress_without_new_readiness
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.45s
+
+error: test failed, to rerun pass `--lib`
+
+ACTUAL_EXIT_CODE=101
