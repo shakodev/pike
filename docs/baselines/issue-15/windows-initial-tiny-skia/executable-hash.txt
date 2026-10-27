@@ -1,0 +1,3 @@
+Algorithm : SHA256
+Hash      : 198ED698B49D40A4EF923C6E1080A7FCB055096D4440855D74327130671D1D2B
+Path      : D:\a\pike\pike\target\issue-15\release\examples\selection_copy.exe

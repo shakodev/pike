@@ -83,7 +83,16 @@ passed 146 unit + 45 reference + 1 doc tests after allowing native process
 signalling (two lifecycle cases are denied by the macOS sandbox).
 Both release live probes passed all 11 cases and acknowledged both cleanups;
 [bounded local metadata](../baselines/issue-15/) records their results.
-Windows cross-clippy passed for tiny-skia as an API check only.
+Windows cross-clippy passed for both profiles as API checks only.
 
 Final head SHA and native Windows workflow results are recorded in the PR.
-Actual Windows execution and integration of merged issue20 remain pending.
+Both native Windows renderer profiles passed at source `7ac940ed82e536bcdae376c5737183b55301d8ef`
+in [run 40499476379](https://github.com/shakodev/pike/actions/runs/40499476379).
+Their checked-in metadata includes actual clipboard and failed-acquisition checks
+and both child PIDs absent after cleanup; raw text metadata is normalized to LF.
+The same head also passed both native Unicode and widget geometry jobs plus
+the Windows2022/2025 ConPTY audits. General Windows Rust CI and subsequent
+head checks are linked from the PR.
+#20 is independent, not a prerequisite;
+current merged Unicode main satisfies #11/#13. Newer main will be integrated
+if it lands before final validation.

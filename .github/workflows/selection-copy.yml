@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   selection:
-    name: Native widget fixture (${{ matrix.renderer }})
+    name: Native selection fixture (${{ matrix.renderer }})
     runs-on: windows-2025
     timeout-minutes: 30
     strategy:

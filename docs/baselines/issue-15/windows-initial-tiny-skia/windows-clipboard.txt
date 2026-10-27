@@ -1,0 +1,1 @@
+passed: real CF_UNICODETEXT round trips, actual owned-thread clipboard lock, unchanged no-selection/failed writes
