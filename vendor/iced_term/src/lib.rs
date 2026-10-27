@@ -6,6 +6,7 @@ mod backend;
 mod event_bridge;
 mod font;
 mod geometry;
+mod keyboard;
 mod lifecycle;
 mod snapshot;
 mod terminal;

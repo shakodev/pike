@@ -18,7 +18,6 @@ use iced::keyboard::Modifiers;
 use iced_core::Size;
 use std::cmp::min;
 use std::io::Result;
-use std::ops::Index;
 use std::sync::Arc;
 
 const URL_REGEX: &str = r#"(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file://|git://|ssh:|ftp://)[^\u{0000}-\u{001F}\u{007F}-\u{009F}<>"\s{-}\^⟨⟩`]+"#;
@@ -76,6 +75,7 @@ pub enum MouseButton {
 pub enum LinkAction {
     Clear,
     Hover,
+    /// Inert in Pike's MVP; deliberate fallible link actions belong to R44.
     Open,
 }
 
@@ -130,6 +130,7 @@ impl Backend {
 
         let history_limit = settings.history;
         let config = term::Config {
+            kitty_keyboard: false,
             scrolling_history: history_limit.lines(),
             ..Default::default()
         };
@@ -273,6 +274,7 @@ impl Backend {
             Command::SetHistoryLimit(limit) => {
                 if self.history_limit != limit {
                     term.set_options(term::Config {
+                        kitty_keyboard: false,
                         scrolling_history: limit.lines(),
                         ..Default::default()
                     });
@@ -326,36 +328,10 @@ impl Backend {
             LinkAction::Clear => {
                 self.last_content.hovered_hyperlink = None;
             },
-            LinkAction::Open => {
-                self.open_link(terminal);
-            },
+            // MVP does not launch external programs from terminal links.
+            // Keep the command inert until deliberate, fallible actions (R44).
+            LinkAction::Open => {},
         };
-    }
-
-    fn open_link(&self, terminal: &Term<EventProxy>) {
-        if let Some(range) = &self.last_content.hovered_hyperlink {
-            let start = range.start();
-            let end = range.end();
-
-            if start.line < terminal.topmost_line()
-                || end.line > terminal.bottommost_line()
-                || start.column > terminal.last_column()
-                || end.column > terminal.last_column()
-            {
-                return;
-            }
-            let mut url = String::from(terminal.grid().index(*start).c);
-            for indexed in terminal.grid().iter_from(*start) {
-                url.push(indexed.c);
-                if indexed.point == *end {
-                    break;
-                }
-            }
-
-            open::that(url).unwrap_or_else(|_| {
-                panic!("link opening is failed");
-            })
-        }
     }
 
     fn process_mouse_report(

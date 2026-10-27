@@ -230,3 +230,33 @@ and API/overload policy details.
 - No dependencies, lockfile, feature, renderer default or Alacritty changes.
   Remove when upstream offers equivalent cached logical metrics, validated
   geometry and mutation-specific presentation invalidation.
+
+## R14 / issue #14 — legacy keyboard bytes and explicit consumption
+
+- Add `keyboard.rs`: a pure legacy VT/xterm encoder with event-local modifiers,
+  Ctrl+A–Z/C0 mappings, normal/application cursor modes, F1–F20 and modified
+  navigation/function keys, Alt prefixes and committed-text fallback. The
+  Ctrl+U=0x15 correction covers Ctrl+Shift+U too, following
+  [upstream PR 89](https://github.com/kemokempo/iced_term/pull/89), head `f331a47`.
+  Correct malformed modified F1–F4 SS3 sequences and Alt+Insert's wrong code.
+- Keep only platform clipboard/custom overrides in `BindingsLayout`, rather
+  than allocating the large default keyboard table per session. Lookup borrows
+  character keys without lowercasing allocations; latest matching overrides win.
+  A missing binding is None; explicit `BindingAction::Ignore` consumes without
+  bytes. Copy/Paste consume even when no command/text is produced.
+- `view.rs` captures consumed keys independently of emitted commands and uses
+  each key's modifiers. Repeat presses encode once; releases emit no legacy
+  bytes. Committed text is borrowed until R06 preflight; input reaches the same
+  bounded writer. Ctrl+Alt printable text takes precedence over default legacy
+  encoding, preserving AltGr; dead/uncommitted keys do not manufacture text.
+- Disable default link activation and make explicit `LinkAction::Open` inert
+  until R44. Delete the panic-prone launcher and remove `open` from the normalized
+  manifest and root lockfile, also dropping its unused is-wsl/is-docker packages.
+  Published archive files and original manifest/lockfile remain provenance.
+- Set Alacritty kitty configuration explicitly false during preparation and
+  history changes. Do not advertise or encode negotiated kitty behavior (R45).
+- Eight keyboard regressions and one backend policy regression extend the
+  adapter suite to 79 passing tests per profile. The raw-byte widget/PTY probe
+  exercises 166 cases in each cursor mode, byte admission, and a synthetic Vim
+  edit/save/exit. No production polling/tasks or new dependencies are introduced.
+  See [verification, policy and native limitations](../../docs/verification/issue-14.md).

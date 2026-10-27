@@ -83,6 +83,8 @@ documents explicit backend completion and retained final output.
 2,000-line history limit, viewport-only presentation and hidden-session refresh.
 [Resize verification](docs/verification/issue-12.md) covers cached font metrics,
 fractional cells, deduplicated native resizes and event-specific presentation work.
+[Keyboard verification](docs/verification/issue-14.md) documents legacy byte
+encoding, binding precedence, consumed keys and remaining Windows layout checks.
 [Startup verification](docs/verification/issue-10.md) covers bounded asynchronous
 preparation, cancellation, retry routing and native Windows release measurements.
 The [Windows launch contract and checks](docs/verification/issue-9.md) cover
