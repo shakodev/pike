@@ -29,6 +29,7 @@ jobs:
     env:
       CARGO_TERM_COLOR: always
       CARGO_INCREMENTAL: '0'
+      CARGO_BUILD_JOBS: '4'
 
     steps:
       - name: Check out source
@@ -103,6 +104,45 @@ jobs:
 
       - name: Build compatibility examples
         run: cargo build --release --locked --examples --no-default-features --features renderer-${{ matrix.renderer }}
+
+      - name: Check legacy keyboard bytes and editor with Windows ConPTY
+        timeout-minutes: 3
+        run: |
+          $output = "${{ runner.temp }}/pike-keyboard-${{ matrix.renderer }}-${{ github.run_id }}-${{ github.run_attempt }}"
+          $vim = Join-Path $env:ProgramFiles 'Git/usr/bin/vim.exe'
+          if (-not (Test-Path -LiteralPath $vim)) { throw 'Git for Windows Vim is required for the synthetic editor check.' }
+          $timer = [Diagnostics.Stopwatch]::StartNew()
+          & ./target/release/examples/keyboard_input.exe $output $vim
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $timer.Stop()
+          foreach ($mode in @('normal', 'application', 'newline', 'application-newline')) {
+            $fixtureId = [int](Get-Content -LiteralPath (Join-Path $output "$mode/ready") -Raw)
+            $child = Get-Process -Id $fixtureId -ErrorAction SilentlyContinue
+            if ($child) {
+              try {
+                if ($child.ProcessName -eq 'input_fixture') { throw "Keyboard fixture $fixtureId survived acknowledged cleanup." }
+              } finally { $child.Dispose() }
+            }
+          }
+          [ordered]@{
+            Commit = '${{ github.sha }}'
+            Renderer = '${{ matrix.renderer }}'
+            RunnerOS = (Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber)
+            ExecutableSha256 = (Get-FileHash ./target/release/examples/keyboard_input.exe -Algorithm SHA256).Hash
+            ElapsedMilliseconds = $timer.Elapsed.TotalMilliseconds
+            Scope = 'Synthetic Iced events through widget, bounded writer and native ConPTY; excludes physical layouts and PSReadLine.'
+            FixtureCleanup = 'All four fixture PIDs absent after acknowledged shutdown.'
+          } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $output 'provenance.json') -Encoding UTF8
+          Get-Content -LiteralPath (Join-Path $output 'summary.csv')
+          Get-Content -LiteralPath (Join-Path $output 'editor.txt')
+
+      - name: Retain synthetic keyboard evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: keyboard-input-${{ matrix.renderer }}
+          path: ${{ runner.temp }}/pike-keyboard-${{ matrix.renderer }}-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: warn
 
       - name: Check Windows launch arguments, shells, cwd and environment
         run: |

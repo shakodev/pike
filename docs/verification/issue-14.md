@@ -202,10 +202,25 @@ omit `.exe`; `/usr/bin/vim` is selected if available. Wgpu needs graphics-device
 access even for this offscreen widget API. A successful run has completed.txt,
 four summary rows, and matching raw result records.
 
-This host has no Windows runtime or PowerShell, so **native ConPTY key transport,
-physical US/AltGr/dead-key layouts and PSReadLine remain unverified**. Cross-target
-Clippy is compilation only. Before merging, run both native probes, exercise
-physical key repeat/composition on the supported Windows layouts, and check
-Ctrl+U/Ctrl+C/navigation in a profile-free PowerShell/PSReadLine session and a
-full-screen editor. These native acceptance checks keep the PR draft. No Actions
-were dispatched or edited; commits use `[skip ci]` under the existing constraint.
+This development host has no Windows runtime or PowerShell. Cross-target
+Clippy is compilation only. **Physical US/AltGr/dead-key layouts and PSReadLine
+remain unverified**: before merging, exercise physical key repeat/composition on
+the supported Windows layouts and check Ctrl+U/Ctrl+C/navigation in a profile-free
+PowerShell/PSReadLine session. These acceptance checks keep the PR draft.
+
+## Native Windows Actions follow-up (2026-10-27)
+
+The current authorization permits Windows GitHub Actions. The existing
+`windows.yml` renderer matrix now executes the existing release keyboard probe,
+requires Git for Windows Vim for the full-screen editor check, and verifies all
+four raw fixture PIDs are absent after acknowledged shutdown. Official actions
+remain SHA-pinned, permissions stay read-only, and Cargo uses four build jobs.
+No production source, dependency or feature changes were needed for this follow-up.
+
+The workflow retains per-renderer `keyboard-input-*` artifacts even on failure,
+with synthetic raw results, capture/byte-oracle summaries, editor output and
+commit/OS/executable hash provenance. A successful synthetic run establishes
+native ConPTY transport and editor behavior for injected Iced events; it does
+not establish physical layout, OS key-event conversion or PSReadLine behavior.
+The original macOS evidence above is preserved and is not Windows evidence.
+Native run results will be recorded after dispatch; they are not yet claimed.

@@ -102,3 +102,14 @@ source-completion/backend-completion distinction and measurement limits.
 The release `launch_validation` example checks native argument round trips,
 independent cwd/environment settings, private structured errors and separate
 cmd/PowerShell command semantics on both renderers. See [issue #9](verification/issue-9.md).
+
+The existing release `keyboard_input` example now runs on native Windows for
+both renderers. It checks 168 synthetic key events in each of four cursor/newline
+mode combinations through the widget, bounded writer and ConPTY, then uses the
+runner's Git for Windows Vim for insert/move/save/exit. The job checks all four
+raw fixture PIDs after acknowledged shutdown and retains `keyboard-input-*`
+artifacts from a fresh runner-temporary directory, including partial evidence
+on failure. Metadata records the tested commit, OS, renderer, executable hash
+and total probe time; only synthetic fixture data is retained. This does not
+validate physical US/AltGr/dead-key layouts or PSReadLine, and does not assert
+hardware-dependent performance budgets. See [issue #14](verification/issue-14.md).
