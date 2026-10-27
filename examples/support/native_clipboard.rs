@@ -1,4 +1,5 @@
 //! Opt-in isolated Windows runner fixture, never a production clipboard backend.
+use std::cell::Cell;
 use std::io;
 use std::ptr;
 use std::sync::mpsc;
@@ -6,7 +7,8 @@ use std::thread;
 use std::time::Duration;
 use windows_sys::Win32::Foundation::{GlobalFree, HGLOBAL, HWND};
 use windows_sys::Win32::System::DataExchange::{
-    CloseClipboard, EmptyClipboard, GetClipboardData, OpenClipboard, SetClipboardData,
+    CloseClipboard, EmptyClipboard, GetClipboardData, GetClipboardOwner,
+    GetClipboardSequenceNumber, OpenClipboard, SetClipboardData,
 };
 use windows_sys::Win32::System::Memory::{
     GMEM_MOVEABLE, GlobalAlloc, GlobalLock, GlobalSize, GlobalUnlock,
@@ -16,9 +18,21 @@ use windows_sys::Win32::UI::WindowsAndMessaging::{CreateWindowExW, DestroyWindow
 // Standard SDK format value; avoid enabling the unrelated OLE API module.
 const CF_UNICODETEXT: u32 = 13;
 const MAX_FIXTURE_BYTES: usize = 2 * 1024 * 1024;
+// Exercise an actual allocation larger than its initialized text prefix. These
+// bytes deliberately remain outside every Rust reference and clipboard read.
+const FIXTURE_PADDING_BYTES: usize = 64;
+
+#[derive(Clone, Copy)]
+struct Written {
+    // Identity only; never pass this old value to a Windows API after closing.
+    handle_identity: usize,
+    initialized_units: usize,
+    sequence: u32,
+}
 
 pub struct Clipboard {
     window: HWND,
+    written: Cell<Option<Written>>,
 }
 struct Open<'a> {
     _owner: &'a Clipboard,
@@ -68,7 +82,10 @@ impl Clipboard {
         if window.is_null() {
             return Err(io::Error::last_os_error());
         }
-        Ok(Self { window })
+        Ok(Self {
+            window,
+            written: Cell::new(None),
+        })
     }
     fn open(&self) -> io::Result<Open<'_>> {
         // SAFETY: The owner window remains alive on this thread; the guard
@@ -87,14 +104,20 @@ impl Clipboard {
             .ok_or_else(|| {
                 io::Error::other("controlled clipboard payload exceeds fixture limit")
             })?;
-        // SAFETY: Allocate movable clipboard storage of exactly the checked
-        // size. Until successful transfer, Allocation frees it on every exit.
-        let mut allocation = Allocation(unsafe { GlobalAlloc(GMEM_MOVEABLE, bytes) });
+        let allocation_bytes = bytes
+            .checked_add(FIXTURE_PADDING_BYTES)
+            .filter(|bytes| *bytes <= MAX_FIXTURE_BYTES)
+            .ok_or_else(|| {
+                io::Error::other("controlled clipboard padding exceeds fixture limit")
+            })?;
+        // SAFETY: Allocate checked movable storage with deliberate spare bytes.
+        // Only the text prefix is initialized. Allocation owns it until transfer.
+        let mut allocation = Allocation(unsafe { GlobalAlloc(GMEM_MOVEABLE, allocation_bytes) });
         if allocation.0.is_null() {
             return Err(io::Error::last_os_error());
         }
-        // SAFETY: Lock our allocation, then initialize all bytes with a valid
-        // NUL-terminated UTF-16 string before touching the system clipboard.
+        // SAFETY: Lock our allocation, then initialize exactly units.len()
+        // values with NUL-terminated UTF-16. Spare bytes remain unreferenced.
         unsafe {
             let destination = GlobalLock(allocation.0).cast::<u16>();
             if destination.is_null() {
@@ -104,6 +127,7 @@ impl Clipboard {
             GlobalUnlock(allocation.0);
         }
         let _open = self.open()?;
+        self.written.set(None);
         // SAFETY: Clipboard is open with our real message-only owner window.
         // Successful SetClipboardData transfers allocation ownership to Windows.
         unsafe {
@@ -111,28 +135,72 @@ impl Clipboard {
                 return Err(io::Error::last_os_error());
             }
         }
+        let handle_identity = allocation.0 as usize;
         allocation.0 = ptr::null_mut();
+        // SAFETY: Clipboard remains open after our non-delayed write. The
+        // sequence and owner identify these initialized bytes on later reads.
+        let sequence = unsafe { GetClipboardSequenceNumber() };
+        if sequence == 0 {
+            return Err(io::Error::other("clipboard sequence unavailable"));
+        }
+        self.written.set(Some(Written {
+            handle_identity,
+            initialized_units: units.len(),
+            sequence,
+        }));
         Ok(())
     }
     pub fn read(&self) -> io::Result<String> {
+        // This fixture is intentionally not a general-purpose clipboard reader.
+        // Only read the exact initialized prefix of our own successful write;
+        // unknown/foreign formats and allocation padding have no Rust value
+        // initialization guarantee, even when GlobalSize says they are in bounds.
+        let written = self.written.get().ok_or_else(|| {
+            io::Error::new(
+                io::ErrorKind::InvalidData,
+                "no owned clipboard write to observe",
+            )
+        })?;
         let _open = self.open()?;
         // SAFETY: The clipboard stays open while borrowing OS-owned storage.
-        // Bounds come from GlobalSize and are capped before forming the slice;
-        // unlock before the guard closes. Never free OS-owned clipboard data.
+        // Reject changed content BEFORE locking or referencing it. A valid
+        // clipboard consumer may not modify/free a GetClipboardData handle.
+        // Only the recorded prefix of this non-delayed, unchanged owned write
+        // is known initialized; never create a slice over GlobalSize padding.
+        // Copy and unlock before closing; never dereference a retained handle.
         unsafe {
+            if GetClipboardOwner() != self.window
+                || GetClipboardSequenceNumber() != written.sequence
+            {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    "controlled clipboard ownership changed",
+                ));
+            }
             let handle = GetClipboardData(CF_UNICODETEXT);
             if handle.is_null() {
                 return Err(io::Error::last_os_error());
             }
+            if handle as usize != written.handle_identity {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    "controlled clipboard allocation changed",
+                ));
+            }
             let bytes = GlobalSize(handle);
-            if bytes == 0 || bytes > MAX_FIXTURE_BYTES || !bytes.is_multiple_of(2) {
+            let initialized_bytes = written
+                .initialized_units
+                .checked_mul(2)
+                .filter(|bytes| *bytes > 0 && *bytes <= MAX_FIXTURE_BYTES)
+                .ok_or_else(|| io::Error::other("invalid initialized clipboard extent"))?;
+            if bytes < initialized_bytes || bytes > MAX_FIXTURE_BYTES || !bytes.is_multiple_of(2) {
                 return Err(io::Error::other("invalid controlled clipboard allocation"));
             }
             let data = GlobalLock(handle).cast::<u16>();
             if data.is_null() {
                 return Err(io::Error::last_os_error());
             }
-            let units = std::slice::from_raw_parts(data, bytes / 2);
+            let units = std::slice::from_raw_parts(data, written.initialized_units);
             let result = units
                 .iter()
                 .position(|unit| *unit == 0)

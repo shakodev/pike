@@ -205,7 +205,27 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut clipboard = Clipboard::default();
     #[cfg(windows)]
     if std::env::args().any(|argument| argument == "--native-clipboard") {
-        clipboard.native = Some(native_clipboard::Clipboard::new()?);
+        let native = native_clipboard::Clipboard::new()?;
+        check(
+            matches!(native.read(), Err(error) if error.kind() == io::ErrorKind::InvalidData),
+            "native reader accepted unknown clipboard data",
+        )?;
+        native.write("OWNED_SYNTHETIC_PREFIX".into())?;
+        check(
+            native.read()? == "OWNED_SYNTHETIC_PREFIX",
+            "padded owned clipboard round trip failed",
+        )?;
+        let foreign = native_clipboard::Clipboard::new()?;
+        foreign.write("FOREIGN_SYNTHETIC_PREFIX".into())?;
+        check(
+            matches!(native.read(), Err(error) if error.kind() == io::ErrorKind::InvalidData),
+            "native reader accepted replaced clipboard data",
+        )?;
+        check(
+            foreign.read()? == "FOREIGN_SYNTHETIC_PREFIX",
+            "foreign owner lost its own data",
+        )?;
+        clipboard.native = Some(native);
     }
     let mut terminals = Vec::with_capacity(2);
     let result = (|| -> io::Result<()> {
@@ -618,7 +638,7 @@ fn run(
     if clipboard.native.is_some() {
         fs::write(
             directory.join("windows-clipboard.txt"),
-            "passed: real CF_UNICODETEXT round trips, actual owned-thread clipboard lock, unchanged no-selection/failed writes\n",
+            "passed: real CF_UNICODETEXT round trips over initialized owned prefixes with spare allocation padding, foreign/unknown clipboard rejection, actual owned-thread clipboard lock, unchanged no-selection/failed writes\n",
         )?;
     }
     report.record("passed", 0, 11, "cases")?;

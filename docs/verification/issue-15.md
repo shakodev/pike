@@ -96,3 +96,33 @@ head checks are linked from the PR.
 #20 is independent, not a prerequisite;
 current merged Unicode main satisfies #11/#13. Newer main will be integrated
 if it lands before final validation.
+
+## Review correction: initialized clipboard prefix
+
+The first native runs demonstrated behavior but did not establish Rust memory
+safety: the initial reader formed a slice over the whole GlobalSize extent.
+[GlobalSize may exceed the requested allocation length](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-globalsize),
+and [from_raw_parts requires every referenced element to be initialized](https://doc.rust-lang.org/std/slice/fn.from_raw_parts.html).
+Those initial artifacts remain labeled with their original source SHA.
+
+The corrected helper is an owned-write observer, not a general clipboard
+reader. Each successful non-delayed write records its initialized UTF-16 unit
+count, opaque allocation identity and clipboard sequence. While holding
+OpenClipboard, reads first reject unknown writes, another owner, changed
+sequence or allocation identity. GlobalSize supplies only a checked upper
+bound; the Rust slice covers exactly the recorded initialized prefix, including
+its NUL, and never covers spare allocation bytes. Consumers must follow the
+[Windows handle ownership contract](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclipboarddata),
+which prohibits modifying/freeing the borrowed data. Retained identity bits
+are compared only; old handles are never passed to APIs or dereferenced after
+CloseClipboard. Failed acquisition keeps the previous proof; attempted content
+replacement invalidates it before EmptyClipboard, and successful transfer
+relinquishes allocation ownership before any subsequent fallible operation.
+
+Every native write now deliberately allocates 64 spare bytes beyond the
+initialized prefix. The probe checks an exact padded round trip, rejects
+unknown clipboard data and a successful replacement by a second real HWND
+with InvalidData, then repeats the full widget/clipboard cases. This exercises
+the ownership boundary and padding contract on both native renderer profiles.
+The new safety correction requires its own exact-head native run and
+independent re-review; the prior passing runs do not substitute for that.
