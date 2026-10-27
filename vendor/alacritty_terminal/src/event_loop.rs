@@ -234,6 +234,43 @@ where
         Ok(())
     }
 
+    fn prepare_io_turn(&mut self, state: &mut State, events: &Events, now: Instant) -> bool {
+        // Sync expiration must not depend on input being empty. Retaining an
+        // expired deadline under backpressure would make subsequent waits
+        // return immediately instead of sleeping for writer capacity.
+        if state.parser.sync_timeout().sync_timeout().is_some_and(|deadline| deadline <= now) {
+            state.parser.stop_sync(&mut *self.terminal.lock());
+            self.event_proxy.send_event(Event::Wakeup);
+        }
+        !events.is_empty() || self.rx.peek().is_some() || state.needs_write(&self.input)
+    }
+
+    fn finish_io_turn(
+        &mut self,
+        state: &mut State,
+        interest: &mut PollingEvent,
+        read_eof: bool,
+    ) -> io::Result<()> {
+        if read_eof {
+            return Ok(());
+        }
+        // Input admission wakes Poller::wait without a readiness event. On
+        // Windows, piper keeps a writer waker only while full, so a previous
+        // writable event is not continuously level-triggered. Service pending
+        // bytes on this wake even when writable interest is already enabled.
+        // The PTY writer is nonblocking; backpressure retains current bytes
+        // and waits for capacity readiness, with no timer or polling loop.
+        if state.needs_write(&self.input) {
+            self.pty_write(state)?;
+        }
+        let needs_write = state.needs_write(&self.input);
+        if needs_write != interest.writable {
+            interest.writable = needs_write;
+            self.pty.reregister(&self.poll, *interest, PollMode::Level)?;
+        }
+        Ok(())
+    }
+
     /// Compatibility entry point: ownership of returned backend state belongs
     /// to the caller. UI adapters should use `spawn_disposing` instead.
     pub fn spawn(self) -> JoinHandle<(Self, State)> {
@@ -324,13 +361,10 @@ where
             {
                 continue;
             }
-            if events.is_empty()
-                && !read_pending
-                && self.rx.peek().is_none()
-                && self.input.is_empty()
-            {
-                state.parser.stop_sync(&mut *self.terminal.lock());
-                self.event_proxy.send_event(Event::Wakeup);
+            // Prepare deadlines on every turn, including productive buffered
+            // reads; a pending continuation must not skip sync expiration.
+            let has_work = self.prepare_io_turn(&mut state, &events, Instant::now());
+            if !has_work && !read_pending {
                 continue;
             }
             if !self.drain_recv_channel(read_eof) {
@@ -401,24 +435,14 @@ where
                                 },
                             }
                         }
-                        if event.writable && !event.is_interrupt() {
-                            if let Err(err) = self.pty_write(&mut state) {
-                                error!("Error writing to PTY in event loop: {err}");
-                                completion.reason = ExitReason::IoError(err.kind());
-                                break 'event_loop;
-                            }
-                        }
                     },
                     _ => (),
                 }
             }
-            let needs_write = state.needs_write(&self.input);
-            if !read_eof && needs_write != interest.writable {
-                interest.writable = needs_write;
-                if let Err(err) = self.pty.reregister(&self.poll, interest, poll_opts) {
-                    completion.reason = ExitReason::IoError(err.kind());
-                    break;
-                }
+            if let Err(err) = self.finish_io_turn(&mut state, &mut interest, read_eof) {
+                error!("Error servicing PTY input in event loop: {err}");
+                completion.reason = ExitReason::IoError(err.kind());
+                break;
             }
         }
         if completion.reason == ExitReason::Requested

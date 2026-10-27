@@ -39,13 +39,13 @@ pub const MIN_COLUMNS: usize = 2;
 pub const MIN_SCREEN_LINES: usize = 1;
 
 /// Max size of the window title stack.
-const TITLE_STACK_MAX_DEPTH: usize = 4096;
+const TITLE_STACK_MAX_DEPTH: usize = 64;
 
 /// Default semantic escape characters.
 pub const SEMANTIC_ESCAPE_CHARS: &str = ",│`|:\"' ()[]{}<>\t";
 
 /// Max size of the keyboard modes.
-const KEYBOARD_MODE_STACK_MAX_DEPTH: usize = TITLE_STACK_MAX_DEPTH;
+const KEYBOARD_MODE_STACK_MAX_DEPTH: usize = 4096;
 
 /// Default tab interval, corresponding to terminfo `it` value.
 const INITIAL_TABSTOPS: usize = 8;
@@ -1676,9 +1676,13 @@ impl<T: EventListener> Handler for Term<T> {
         trace!("Requested write of escape sequence for color code {prefix}: color[{index}]");
 
         let terminator = terminator.to_owned();
+        // Capture the override at this query's parser position. A later OSC
+        // set/reset may run before an asynchronous consumer formats the reply.
+        let requested_color = self.colors[index];
         self.event_proxy.send_event(Event::ColorRequest(
             index,
-            Arc::new(move |color| {
+            Arc::new(move |fallback| {
+                let color = requested_color.unwrap_or(fallback);
                 format!(
                     "\x1b]{};rgb:{1:02x}{1:02x}/{2:02x}{2:02x}/{3:02x}{3:02x}{4}",
                     prefix, color.r, color.g, color.b, terminator
@@ -1843,7 +1847,7 @@ impl<T: EventListener> Handler for Term<T> {
         self.scroll_region = Line(0)..Line(self.screen_lines() as i32);
         self.tabs = TabStops::new(self.columns());
         self.title_stack = Vec::new();
-        self.title = None;
+        self.set_title(None);
         self.selection = None;
         self.vi_mode_cursor = Default::default();
         self.keyboard_mode_stack = Default::default();
@@ -2219,7 +2223,7 @@ impl<T: EventListener> Handler for Term<T> {
 
     #[inline]
     fn set_title(&mut self, title: Option<String>) {
-        trace!("Setting title to '{title:?}'");
+        let title = title.map(|title| crate::event::sanitize_title(&title));
 
         self.title.clone_from(&title);
 
@@ -2233,13 +2237,8 @@ impl<T: EventListener> Handler for Term<T> {
 
     #[inline]
     fn push_title(&mut self) {
-        trace!("Pushing '{:?}' onto title stack", self.title);
-
         if self.title_stack.len() >= TITLE_STACK_MAX_DEPTH {
-            let removed = self.title_stack.remove(0);
-            trace!(
-                "Removing '{removed:?}' from bottom of title stack that exceeds its maximum depth"
-            );
+            self.title_stack.remove(0);
         }
 
         self.title_stack.push(self.title.clone());
@@ -2250,16 +2249,15 @@ impl<T: EventListener> Handler for Term<T> {
         trace!("Attempting to pop title from stack...");
 
         if let Some(popped) = self.title_stack.pop() {
-            trace!("Title '{popped:?}' popped from stack");
             self.set_title(popped);
         }
     }
 
     #[inline]
     fn text_area_size_pixels(&mut self) {
-        self.event_proxy.send_event(Event::TextAreaSizeRequest(Arc::new(move |window_size| {
-            let height = window_size.num_lines * window_size.cell_height;
-            let width = window_size.num_cols * window_size.cell_width;
+        self.event_proxy.send_event(Event::TextAreaSizeRequest(Arc::new(move |size| {
+            let height = size.height;
+            let width = size.width;
             format!("\x1b[4;{height};{width}t")
         })));
     }
@@ -3274,7 +3272,7 @@ mod tests {
         for _ in 0..4097 {
             term.push_title();
         }
-        assert_eq!(term.title_stack.len(), 4096);
+        assert_eq!(term.title_stack.len(), TITLE_STACK_MAX_DEPTH);
 
         // Title and title stack reset when terminal state is reset.
         term.push_title();
@@ -3293,6 +3291,22 @@ mod tests {
         term.title = Some("Test".into());
         term.set_title(None);
         assert_eq!(term.title, None);
+    }
+
+    #[test]
+    fn title_and_saved_titles_are_sanitized_and_bounded_before_retention() {
+        let mut term = Term::new(Config::default(), &TermSize::new(80, 24), VoidListener);
+        for _ in 0..1000 {
+            term.set_title(Some(format!("\u{202e}\n{}", "🦀".repeat(4096))));
+            term.push_title();
+        }
+        assert_eq!(term.title_stack.len(), TITLE_STACK_MAX_DEPTH);
+        for title in term.title_stack.iter().flatten().chain(term.title.iter()) {
+            assert_eq!(title.len(), crate::event::TITLE_BYTE_LIMIT);
+            assert_eq!(title.capacity(), crate::event::TITLE_BYTE_LIMIT);
+            assert!(!title.contains('\u{202e}'));
+            assert!(!title.contains('\n'));
+        }
     }
 
     #[test]

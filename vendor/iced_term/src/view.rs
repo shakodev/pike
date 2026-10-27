@@ -32,7 +32,7 @@ impl<'a> TerminalView<'a> {
         container(Self { term })
             .width(Length::Fill)
             .height(Length::Fill)
-            .style(|_| term.theme.container_style())
+            .style(|_| term.backend.theme.container_style())
             .into()
     }
 
@@ -76,8 +76,8 @@ impl<'a> TerminalView<'a> {
         cell: &cell::Cell,
         point: TerminalGridPoint,
     ) -> (Color, Color) {
-        let mut fg = self.term.theme.get_color(cell.fg);
-        let mut bg = self.term.theme.get_color(cell.bg);
+        let mut fg = self.term.backend.theme.get_color(cell.fg);
+        let mut bg = self.term.backend.theme.get_color(cell.bg);
         if cell
             .flags
             .intersects(cell::Flags::DIM | cell::Flags::DIM_BOLD)
@@ -529,6 +529,7 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
             // because the widget global background color must be the same
             let default_bg = self
                 .term
+                .backend
                 .theme
                 .get_color(ansi::Color::Named(NamedColor::Background));
 
@@ -639,7 +640,7 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                 // Handle cursor rendering
                 if is_cursor {
                     let cursor_color =
-                        self.term.theme.get_color(content.cursor.fg);
+                        self.term.backend.theme.get_color(content.cursor.fg);
                     let cursor_rect = Path::rectangle(
                         Point::new(x, y),
                         Size::new(
@@ -748,6 +749,9 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         let state = tree.state.downcast_mut::<TerminalViewState>();
         self.handle_resize(state, layout, shell);
         match event {
+            iced::Event::Window(iced::window::Event::Focused) => {
+                self.term.backend.window_focus.set_focused(true);
+            },
             iced::Event::Window(iced::window::Event::Rescaled(_)) => {
                 // Iced layout/cells stay in logical pixels; force the renderer
                 // to recreate geometry for the new physical scale once.
@@ -755,6 +759,7 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                 shell.request_redraw();
             },
             iced::Event::Window(iced::window::Event::Unfocused) => {
+                self.term.backend.window_focus.set_focused(false);
                 state.reset_pointer();
                 state.keyboard_modifiers = Modifiers::empty();
             },
@@ -763,6 +768,14 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
 
         let is_cursor_in_layout = self.is_cursor_in_layout(cursor, layout);
         self.handle_focus(event, state, is_cursor_in_layout);
+        let focused =
+            state.is_focused() && self.term.backend.window_focus.is_focused();
+        if focused != self.term.backend.is_focused() {
+            shell.publish(Event::BackendCall(
+                self.term.id,
+                Command::FocusChanged(focused),
+            ));
+        }
 
         let commands = match event {
             iced::Event::Mouse(mouse_event) if is_cursor_in_layout => self

@@ -22,6 +22,7 @@ struct App {
     target: Target,
     exiting: bool,
     notice: Option<String>,
+    window_focus: iced_term::WindowFocus,
 }
 
 #[derive(Default)]
@@ -45,6 +46,7 @@ enum Message {
         Result<Box<PreparedSession>, LaunchError>,
     ),
     Terminal(Event),
+    WindowFocused(bool),
     CloseWindow,
     ShutdownComplete,
 }
@@ -128,7 +130,8 @@ impl App {
                 }
                 match result.and_then(|ready| ready.attach(Default::default(), Default::default()))
                 {
-                    Ok(terminal) => {
+                    Ok(mut terminal) => {
+                        terminal.set_window_focus(self.window_focus.clone());
                         let focus = TerminalView::focus(terminal.widget_id().clone());
                         self.target = Target::Running(Box::new(terminal));
                         return focus;
@@ -163,6 +166,12 @@ impl App {
                     }
                 }
             }
+            Message::WindowFocused(focused) => {
+                self.window_focus.set_focused(focused);
+                if !focused && let Target::Running(terminal) = &mut self.target {
+                    terminal.set_focused(false);
+                }
+            }
             Message::CloseWindow if !self.exiting => {
                 self.exiting = true;
                 self.close_target();
@@ -181,6 +190,11 @@ impl App {
         };
         Subscription::batch([
             iced::window::close_requests().map(|_| Message::CloseWindow),
+            iced::window::events().filter_map(|(_, event)| match event {
+                iced::window::Event::Focused => Some(Message::WindowFocused(true)),
+                iced::window::Event::Unfocused => Some(Message::WindowFocused(false)),
+                _ => None,
+            }),
             terminal,
         ])
     }

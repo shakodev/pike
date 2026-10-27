@@ -1,0 +1,13 @@
+{"compile": ["rustc", "--edition=2024", "/private/tmp/pike-reviewer2-sync-deadline-probe.rs", "-L", "dependency=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/debug/deps", "--extern", "alacritty_terminal=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/debug/deps/libalacritty_terminal-0f1d80b8df714eff.rlib", "--extern", "polling=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/debug/deps/libpolling-b442832dbb4641b3.rlib", "-o", "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/sync-deadline-review-probe-corrected-local"]}
+warning: unused import: `Read`
+ --> /private/tmp/pike-reviewer2-sync-deadline-probe.rs:3:21
+  |
+3 | use std::{io::{self,Read,Write},sync::{Arc,atomic::{AtomicUsize,Ordering},mpsc},net::{TcpListener,TcpStream,Ipv4Addr},time::Duration};
+  |                     ^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: 1 warning emitted
+
+write_calls_after_300ms=3; queued=0; outstanding=2; sync_sentinel_flushed=true
+cleanup=Requested

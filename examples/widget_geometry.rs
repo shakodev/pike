@@ -15,7 +15,7 @@ use iced_term::{
     AlacrittyEvent, BackendCommand, Command, Event, PreparedTerminal, Terminal, TerminalView,
 };
 use pike::executor::SharedExecutor;
-use std::io::{self, Read, Write};
+use std::io::{self, Write};
 use std::path::Path;
 use std::time::Duration;
 
@@ -107,6 +107,7 @@ fn fixture(id: &str) -> io::Result<()> {
     if id == "2" {
         write!(output, "\x1b[?1000h")?;
     }
+    write!(output, "\x1b[?1004h")?;
     write!(
         output,
         "\x1b[0m\x1b[2;2H\x1b[?25h\x1b]2;pike:geometry:{id}:{}\x07",
@@ -114,7 +115,9 @@ fn fixture(id: &str) -> io::Result<()> {
     )?;
     output.flush()?;
     drop(output);
-    io::stdin().read_exact(&mut [0_u8; 1])?;
+    // Consume synthetic focus reports until owned shutdown, rather than
+    // treating the first reported focus byte as a request to exit.
+    io::copy(&mut io::stdin().lock(), &mut io::sink())?;
     Ok(())
 }
 
@@ -476,6 +479,8 @@ fn run(
     }
     widget_events::verify(renderer, terminals, first)?;
     report.record("event_checks", 0, 32, 0)?;
+    report.record("window_focus_checks", 0, 4, 0)?;
+    report.record("virtual_pixel_dpi_checks", 0, 1.5, 0)?;
     std::fs::write(output.join("renderer.txt"), renderer.name())?;
     report.record("passed", 0, 3, 0)
 }

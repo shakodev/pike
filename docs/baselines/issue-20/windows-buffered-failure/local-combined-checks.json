@@ -1,0 +1,43 @@
+{
+  "platform": "macOS; not native Windows verification",
+  "integrated_main": "103e29552148aeb2273996e0d178fa781f6ec680",
+  "merged_source": "6f3e07fc1df5e5f0b685032ae32211f5e7ab526c",
+  "writer_source_unchanged_from": "e5f236eee5c40ee1b8eda97168064684025fb410",
+  "strict_protocol_fixture_unchanged_from": "59971770792cd5c9eb6436d7599fca4f9c11a58f",
+  "checks": "fmt, both app/adapter clippy deny warnings, app/examples/doc tests and all eight release probes passed",
+  "adapter_wgpu": {
+    "passed": 92,
+    "failed_cleanup_timeouts": 3,
+    "ignored": 1
+  },
+  "adapter_tiny_skia": {
+    "passed": 89,
+    "failed_cleanup_timeouts": 6,
+    "ignored": 1
+  },
+  "alacritty": "unchanged;152units+45references+1doc passed before integration",
+  "fixture_pids_checked_absent": [
+    2015,
+    2020,
+    2046,
+    2047,
+    2048,
+    2101,
+    2105,
+    2071,
+    2075,
+    2716,
+    2721,
+    2732,
+    2733,
+    2734,
+    2746,
+    2753,
+    2741,
+    2743
+  ],
+  "sha256": {
+    "vendor/alacritty_terminal/src/event_loop.rs": "2970503ee2a0c21ddf88a7fa0253f094106d5d0b1fb8564550dec4dd9a9bc354",
+    "vendor/alacritty_terminal/src/event_loop/lifecycle_tests.rs": "07a23600e1442a92a66bb0cfd76e2f547f6722a48db0198c0ae6155aaa157248"
+  }
+}

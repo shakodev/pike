@@ -1,0 +1,22 @@
+   Compiling alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/alacritty_terminal)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.21s
+     Running unittests src/lib.rs (target/issue-20/debug/deps/alacritty_terminal-49523ea75508f8ef)
+
+running 1 test
+test event_loop::lifecycle_tests::expired_sync_deadline_is_cleared_while_partial_input_remains_blocked ... FAILED
+
+failures:
+
+---- event_loop::lifecycle_tests::expired_sync_deadline_is_cleared_while_partial_input_remains_blocked stdout ----
+
+thread 'event_loop::lifecycle_tests::expired_sync_deadline_is_cleared_while_partial_input_remains_blocked' (2380486) panicked at vendor/alacritty_terminal/src/event_loop/lifecycle_tests.rs:323:5:
+an expired deadline must not force zero-timeout polls under input backpressure
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    event_loop::lifecycle_tests::expired_sync_deadline_is_cleared_while_partial_input_remains_blocked
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 152 filtered out; finished in 0.16s
+
+error: test failed, to rerun pass `-p alacritty_terminal --lib`

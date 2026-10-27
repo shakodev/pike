@@ -1,0 +1,42 @@
+Rust checks (Windows MSVC, wgpu)	Install and show pinned toolchain	2026-10-27T11:32:25.7484656Z Default host: x86_64-pc-windows-msvc
+Rust checks (Windows MSVC, wgpu)	Show compiler and Cargo versions	2026-10-27T11:32:39.9903256Z rustc 1.97.1 (8bab26f4f 2026-07-14)
+Rust checks (Windows MSVC, wgpu)	Show compiler and Cargo versions	2026-10-27T11:32:39.9905076Z host: x86_64-pc-windows-msvc
+Rust checks (Windows MSVC, wgpu)	Test application	2026-10-27T11:34:18.7370794Z test result: ok. 39 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 2.57s
+Rust checks (Windows MSVC, wgpu)	Test application	2026-10-27T11:34:18.8186833Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+Rust checks (Windows MSVC, wgpu)	Test application	2026-10-27T11:34:19.1483981Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+Rust checks (Windows MSVC, wgpu)	Test compatibility examples	2026-10-27T11:34:30.3329091Z test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, wgpu)	Test compatibility examples	2026-10-27T11:34:30.3456382Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, wgpu)	Test compatibility examples	2026-10-27T11:34:30.3578369Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, wgpu)	Test compatibility examples	2026-10-27T11:34:30.3698450Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, wgpu)	Test compatibility examples	2026-10-27T11:34:30.3815534Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, wgpu)	Test compatibility examples	2026-10-27T11:34:30.3932000Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, wgpu)	Test compatibility examples	2026-10-27T11:34:30.4047118Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, wgpu)	Test compatibility examples	2026-10-27T11:34:30.9064278Z test result: ok. 39 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.49s
+Rust checks (Windows MSVC, wgpu)	Test compatibility examples	2026-10-27T11:34:30.9218141Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, wgpu)	Test compatibility examples	2026-10-27T11:34:30.9342611Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, wgpu)	Test compatibility examples	2026-10-27T11:34:30.9469823Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, wgpu)	Test vendored iced_term explicitly	2026-10-27T11:34:46.4426426Z test result: ok. 85 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 2.20s
+Rust checks (Windows MSVC, wgpu)	Test vendored Alacritty explicitly	2026-10-27T11:34:58.1665818Z test result: ok. 169 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 2.32s
+Rust checks (Windows MSVC, wgpu)	Test vendored Alacritty explicitly	2026-10-27T11:34:59.4190475Z test result: ok. 45 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.24s
+Rust checks (Windows MSVC, wgpu)	Test vendored Alacritty explicitly	2026-10-27T11:35:00.4017510Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+Rust checks (Windows MSVC, tiny-skia)	Install and show pinned toolchain	2026-10-27T11:32:24.7554541Z Default host: x86_64-pc-windows-msvc
+Rust checks (Windows MSVC, tiny-skia)	Show compiler and Cargo versions	2026-10-27T11:32:35.0447764Z rustc 1.97.1 (8bab26f4f 2026-07-14)
+Rust checks (Windows MSVC, tiny-skia)	Show compiler and Cargo versions	2026-10-27T11:32:35.0449905Z host: x86_64-pc-windows-msvc
+Rust checks (Windows MSVC, tiny-skia)	Test application	2026-10-27T11:33:50.5680051Z test result: ok. 39 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 2.38s
+Rust checks (Windows MSVC, tiny-skia)	Test application	2026-10-27T11:33:50.6504999Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+Rust checks (Windows MSVC, tiny-skia)	Test application	2026-10-27T11:33:50.9022907Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+Rust checks (Windows MSVC, tiny-skia)	Test compatibility examples	2026-10-27T11:34:01.7936966Z test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, tiny-skia)	Test compatibility examples	2026-10-27T11:34:01.8113147Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, tiny-skia)	Test compatibility examples	2026-10-27T11:34:01.8288231Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, tiny-skia)	Test compatibility examples	2026-10-27T11:34:01.8456704Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, tiny-skia)	Test compatibility examples	2026-10-27T11:34:01.8622692Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, tiny-skia)	Test compatibility examples	2026-10-27T11:34:01.8761988Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, tiny-skia)	Test compatibility examples	2026-10-27T11:34:01.8913238Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, tiny-skia)	Test compatibility examples	2026-10-27T11:34:02.7771371Z test result: ok. 39 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.87s
+Rust checks (Windows MSVC, tiny-skia)	Test compatibility examples	2026-10-27T11:34:02.7958333Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, tiny-skia)	Test compatibility examples	2026-10-27T11:34:02.8141720Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, tiny-skia)	Test compatibility examples	2026-10-27T11:34:02.8319817Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+Rust checks (Windows MSVC, tiny-skia)	Test vendored iced_term explicitly	2026-10-27T11:34:17.4511731Z test result: ok. 85 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 1.83s
+Rust checks (Windows MSVC, tiny-skia)	Test vendored Alacritty explicitly	2026-10-27T11:34:28.8830541Z test result: ok. 169 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 2.34s
+Rust checks (Windows MSVC, tiny-skia)	Test vendored Alacritty explicitly	2026-10-27T11:34:30.1122277Z test result: ok. 45 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.22s
+Rust checks (Windows MSVC, tiny-skia)	Test vendored Alacritty explicitly	2026-10-27T11:34:30.9415289Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s

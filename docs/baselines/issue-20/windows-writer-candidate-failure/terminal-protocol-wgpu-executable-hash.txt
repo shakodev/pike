@@ -1,0 +1,4 @@
+
+Algorithm : SHA256
+Hash      : F4EEB9AC4B8A6DCC81C0D35791DDECDD31F7818471A1240E495E07299C5518DC
+Path      : D:\a\pike\pike\target\issue-20\release\examples\terminal_protocol.exe

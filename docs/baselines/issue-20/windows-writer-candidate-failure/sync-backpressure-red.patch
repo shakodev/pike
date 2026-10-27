@@ -1,0 +1,48 @@
+diff --git a/vendor/alacritty_terminal/src/event_loop/lifecycle_tests.rs b/vendor/alacritty_terminal/src/event_loop/lifecycle_tests.rs
+index f00f1d2..3a35482 100644
+--- a/vendor/alacritty_terminal/src/event_loop/lifecycle_tests.rs
++++ b/vendor/alacritty_terminal/src/event_loop/lifecycle_tests.rs
+@@ -289,0 +290,43 @@ fn notify_only_wake_resumes_partial_write_then_reports_error_after_disposal() {
++#[test]
++fn expired_sync_deadline_is_cleared_while_partial_input_remains_blocked() {
++    let (dropping, _dropped) = mpsc::channel();
++    let (release, gate) = mpsc::channel();
++    let terminal =
++        Arc::new(FairMutex::new(Term::new(Default::default(), &TermSize::new(80, 24), Listener)));
++    let pty = FailedPty {
++        reader: TestReader { bytes: io::Cursor::new(Vec::new()), pending: true },
++        writer: ScriptedWriter {
++            steps: [Ok(0)].into(),
++            bytes: Vec::new(),
++            calls: 0,
++            blocked: None,
++            release_error: None,
++        },
++        dropping,
++        release: gate,
++        panic: false,
++    };
++    let mut event_loop = EventLoop::new(terminal.clone(), Listener, pty, true, false).unwrap();
++    let sender = event_loop.channel();
++    let mut state = State::default();
++    state.parser.advance(&mut *terminal.lock(), b"\x1b[?2026hSYNC_WAIT");
++    let deadline = state.parser.sync_timeout().sync_timeout().unwrap();
++    sender.send_input(b"x").unwrap();
++    state.ensure_next(&event_loop.input);
++    assert_eq!(sender.input_status().queued_bytes, 0);
++    assert!(state.needs_write(&event_loop.input));
++    std::thread::sleep(deadline.saturating_duration_since(Instant::now()) + Duration::from_millis(1));
++    let mut interest = PollingEvent::readable(0);
++    interest.writable = true;
++    event_loop.update_write_interest(&mut state, &mut interest, false).unwrap();
++    release.send(()).unwrap();
++    assert!(
++        state.parser.sync_timeout().sync_timeout().is_none(),
++        "an expired deadline must not force zero-timeout polls under input backpressure"
++    );
++    assert_eq!(event_loop.pty.writer.calls, 1);
++    assert_eq!(sender.input_status().outstanding_bytes, 1);
++    let text: String = terminal.lock().grid().display_iter().map(|cell| cell.c).collect();
++    assert!(text.contains("SYNC_WAIT"));
++}
++

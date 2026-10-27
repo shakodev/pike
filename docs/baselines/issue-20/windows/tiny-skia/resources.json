@@ -1,0 +1,9 @@
+{
+  "Scope": "Short release protocol probe parent only; excludes synthetic child resources, GUI, idle budgets and interactive latency",
+  "WallSeconds": 0.1115392,
+  "Samples": 5,
+  "LastSampleCpuSeconds": 0.0625,
+  "MaximumSampledPrivateBytes": 13807616,
+  "MaximumSampledWorkingSetBytes": 11431936,
+  "SamplingMilliseconds": 10
+}

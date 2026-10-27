@@ -1,0 +1,65 @@
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_term)
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.22s
+     Running unittests src/lib.rs (target/issue-20/debug/deps/pike-f11db1c3c7164c84)
+
+running 40 tests
+test identity::tests::exhaustion_is_permanent_and_never_wraps ... ok
+test executor::tests::canceled_task_drops_its_future_and_executor_keeps_running ... ok
+test launch::tests::canceled_before_blocking_work_starts_never_calls_prepare ... ok
+test launch::tests::canceled_running_job_keeps_capacity_until_worker_returns ... ok
+test launch::tests::measure_32_requested_launches ... ignored, release startup/cancellation measurement; see docs/verification/issue-10.md
+test launch::tests::launch_and_pure_state_share_the_process_identity_allocator ... ok
+test executor::tests::enter_spawn_block_on_and_timers_share_one_runtime ... ok
+test launch::tests::panicked_launch_reports_failure_and_drains_its_permits ... ok
+test launch::tests::reserved::reserved_admission_rejection_spends_token_and_rolls_back_all_acquired_permits ... ok
+test launch::tests::reserved::stale_mismatched_and_abandoned_claims_do_not_launch_or_reissue_tokens ... ok
+test launch::tests::canceled_prepared_handoff_cannot_attach_and_window_shutdown_waits_for_cleanup ... ok
+test launch::tests::retry_uses_fresh_request_and_session_ids_after_failure ... ok
+test launch::tests::session_limit_is_independent_of_job_budget ... ok
+test launch::tests::slow_failure_keeps_executor_responsive_and_rejects_30_of_32_requests ... ok
+test launch::tests::slow_success_after_cancel_releases_pty_before_reusing_capacity ... ok
+test launch::tests::unconsumed_success_stays_bounded_and_dropping_it_releases_pty ... ok
+test workspace::tests::background_exit_targets_session_and_preserves_layout_and_focus ... ok
+test workspace::tests::background_zoom_activation_and_focus_keep_the_selected_pane_visible ... ok
+test workspace::tests::closing_background_tab_does_not_change_active_tab_and_closes_exact_sessions ... ok
+test launch::tests::window_close_during_slow_success_waits_for_late_backend_disposal ... ok
+test workspace::tests::failed_split_keeps_source_and_failed_or_canceled_reservations_are_bounded ... ok
+test workspace::tests::final_pane_deletes_tab_and_final_tab_leaves_empty_window ... ok
+test workspace::tests::focus_hidden_pane_restores_layout_and_refocusing_visible_pane_preserves_zoom ... ok
+test workspace::tests::late_or_mismatched_results_never_attach_or_remove_another_entry ... ok
+test workspace::tests::launch_claim_follows_session_across_moves_and_cannot_be_reissued ... ok
+test workspace::tests::layout_edits_preserve_reservations_and_reject_removed_handles ... ok
+test workspace::tests::layout_overflow_does_not_orphan_a_session_or_remove_move_source ... ok
+test workspace::tests::split_move_swap_and_remove_while_zoomed_preserve_visible_focus ... ok
+test workspace::tests::zoom_nonfocused_pane_synchronizes_focus_when_maximizing_switching_and_restoring ... ok
+test executor::tests::drop_cancels_pending_async_work_and_joins_finite_blocking_work ... ok
+test executor::tests::blocking_work_queues_after_two_workers ... ok
+test launch::tests::hidden_attachment_has_no_snapshot_until_activation_and_retains_normal_ownership ... ok
+test launch::tests::reserved::canceled_consumed_reservation_disposes_late_success_and_fresh_retry_keeps_identity ... ok
+test launch::tests::reserved::model_effect_preserves_identity_through_preparation_attachment_and_backend_events ... ok
+test launch::tests::reserved::reserved_attachment_cancellation_reports_failure_before_model_commit ... ok
+test launch::tests::committed_ui_attachment_wins_over_later_startup_cancellation ... ok
+test launch::tests::cancellation_during_ui_attachment_cannot_return_a_closing_terminal ... ok
+test launch::tests::pool_drop_closes_prepared_and_attached_backends ... ok
+test launch::tests::attached_session_has_no_job_slot_but_retains_session_slot_until_cleanup ... ok
+test workspace::tests::deterministic_generated_transactions_preserve_invariants_after_every_step ... ok
+
+test result: ok. 39 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.24s
+
+     Running unittests src/main.rs (target/issue-20/debug/deps/pike-1feaa0f98c6e9186)
+
+running 3 tests
+test tests::late_success_and_failure_cannot_replace_a_retried_target ... ok
+test tests::terminal_errors_are_visible_and_preserve_the_terminal_model ... ok
+test tests::copy_menu_targets_only_the_current_stable_session_and_skips_no_selection ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+   Doc-tests pike
+
+running 2 tests
+test src/identity.rs - identity::LaunchToken (line 37) - compile fail ... ok
+test src/identity.rs - identity::LaunchToken (line 31) - compile fail ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s

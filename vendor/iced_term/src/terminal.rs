@@ -31,7 +31,6 @@ pub struct Terminal {
     pub id: u64,
     widget_id: iced::widget::Id,
     pub(crate) font: TermFont,
-    pub(crate) theme: Theme,
     pub(crate) cache: Cache,
     pub(crate) bindings: BindingsLayout,
     pub(crate) backend: backend::Backend,
@@ -94,6 +93,7 @@ impl PreparedTerminal {
         visible: bool,
     ) -> Terminal {
         let font = TermFont::new(font);
+        self.backend.theme = Theme::new(theme);
         self.backend.initialize_font(font.measure);
         self.backend.set_visible(visible);
         self.backend.take_render_dirty();
@@ -101,7 +101,6 @@ impl PreparedTerminal {
             id: self.id,
             widget_id: iced::widget::Id::unique(),
             font,
-            theme: Theme::new(theme),
             bindings: BindingsLayout::default(),
             cache: Cache::default(),
             backend: self.backend,
@@ -167,13 +166,21 @@ impl Terminal {
     /// Hidden sessions still require their event subscription and handle calls
     /// for protocol/lifecycle delivery. Hiding releases their cached viewport;
     /// activation refreshes it once, including after the backend has exited.
-    pub fn set_visible(&mut self, visible: bool) {
+    /// Returns a scoped rejection if the required focus-out report could not
+    /// be admitted; that backend also requests close instead of losing a reply.
+    pub fn set_visible(&mut self, visible: bool) -> Action {
         if self.backend.is_visible() == visible {
-            return;
+            return Action::Ignore;
         }
+        let action = if !visible {
+            self.backend.handle(backend::Command::FocusChanged(false))
+        } else {
+            Action::Ignore
+        };
         self.backend.set_visible(visible);
         self.backend.take_render_dirty();
         self.redraw();
+        action
     }
 
     pub fn is_visible(&self) -> bool {
@@ -211,6 +218,32 @@ impl Terminal {
         self.backend.input_status()
     }
 
+    /// Actual status when known; explicit cancellation/signals may have none.
+    pub fn exit_code(&self) -> Option<i32> {
+        self.backend.exit_code()
+    }
+
+    /// Pane focus, gated by visibility and the actual owner's WindowFocus.
+    /// Workspace owners must route activation/removal, including hidden tabs.
+    pub fn set_focused(&mut self, focused: bool) -> Action {
+        self.handle(Command::ProxyToBackend(backend::Command::FocusChanged(
+            focused
+                && self.is_visible()
+                && self.backend.window_focus.is_focused(),
+        )))
+    }
+
+    /// Bind the actual window owner's authority before showing/activating a
+    /// terminal. Share this handle with hidden sessions and later attachments.
+    pub fn set_window_focus(&mut self, focus: crate::WindowFocus) -> Action {
+        self.backend.window_focus = focus;
+        if !self.backend.window_focus.is_focused() {
+            self.set_focused(false)
+        } else {
+            Action::Ignore
+        }
+    }
+
     /// Advisory whole-input check. Admission repeats it atomically when handled.
     pub fn preflight_input(
         &self,
@@ -234,7 +267,8 @@ impl Terminal {
 
         match cmd {
             Command::ChangeTheme(color_pallete) => {
-                self.theme = Theme::new(ThemeSettings::new(color_pallete));
+                self.backend.theme =
+                    Theme::new(ThemeSettings::new(color_pallete));
                 repaint = true;
             },
             Command::ChangeFont(font_settings) => {
