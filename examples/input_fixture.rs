@@ -45,7 +45,8 @@ fn run() -> io::Result<()> {
     {
         return Err(io::Error::other("invalid keyboard fixture mode"));
     }
-    raw_console(keyboard.is_some())?;
+    let keyboard_mode = keyboard.is_some();
+    raw_console(keyboard_mode)?;
     fs::create_dir_all(&directory)?;
     if let Some(mode) = keyboard {
         let mut output = io::stdout().lock();
@@ -67,7 +68,7 @@ fn run() -> io::Result<()> {
             std::thread::park();
         }
     }
-    let mut input = io::stdin().lock();
+    let mut input = fixture_input(keyboard_mode);
     let mut bytes = 0;
     let mut hash = 0xcbf29ce484222325_u64;
     let mut buffer = [0; 4096];
@@ -93,6 +94,51 @@ fn run() -> io::Result<()> {
         }
         writeln!(report, "extra,{extra}")?;
         report.flush()?;
+    }
+}
+
+#[cfg(not(windows))]
+fn fixture_input(_keyboard: bool) -> impl Read {
+    io::stdin().lock()
+}
+
+#[cfg(windows)]
+fn fixture_input(keyboard: bool) -> Box<dyn Read> {
+    struct ConsoleInput;
+    impl Read for ConsoleInput {
+        fn read(&mut self, buffer: &mut [u8]) -> io::Result<usize> {
+            use windows_sys::Win32::System::Console::{
+                GetStdHandle, ReadConsoleA, STD_INPUT_HANDLE,
+            };
+            if buffer.is_empty() {
+                return Ok(0);
+            }
+            let mut read = 0;
+            // SAFETY: Borrow the inherited console handle, without closing it.
+            // `buffer` is writable for the supplied length, `read` is valid
+            // output storage, and null requests no intermediate Ctrl wakeup.
+            // CP_UTF8 was set by raw_console. Unlike Rust stdin's Windows
+            // ReadConsoleW wrapper, this preserves a trailing Ctrl+Z byte.
+            let result = unsafe {
+                ReadConsoleA(
+                    GetStdHandle(STD_INPUT_HANDLE),
+                    buffer.as_mut_ptr().cast(),
+                    buffer.len().min(u32::MAX as usize) as u32,
+                    &mut read,
+                    std::ptr::null(),
+                )
+            };
+            if result == 0 {
+                return Err(io::Error::last_os_error());
+            }
+            Ok(read as usize)
+        }
+    }
+    if keyboard {
+        Box::new(ConsoleInput)
+    } else {
+        // Preserve the original bounded-input fixture's reader.
+        Box::new(io::stdin().lock())
     }
 }
 

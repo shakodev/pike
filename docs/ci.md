@@ -106,10 +106,12 @@ cmd/PowerShell command semantics on both renderers. See [issue #9](verification/
 The existing release `keyboard_input` example now runs on native Windows for
 both renderers. It checks 168 synthetic key events in each of four cursor/newline
 mode combinations through the widget, bounded writer and ConPTY, then uses the
-runner's Git for Windows Vim for insert/move/save/exit. The job checks all four
+runner's Git for Windows Vim for insert/move/save/exit. Profile-free PowerShell 7
+also runs its shipped PSReadLine module with built-in Emacs bindings to check
+Ctrl+U, Ctrl+C, post-cancellation input and navigation. The job checks all four
 raw fixture PIDs after acknowledged shutdown and retains `keyboard-input-*`
 artifacts from a fresh runner-temporary directory, including partial evidence
 on failure. Metadata records the tested commit, OS, renderer, executable hash
 and total probe time; only synthetic fixture data is retained. This does not
-validate physical US/AltGr/dead-key layouts or PSReadLine, and does not assert
+validate physical US/AltGr/dead-key layouts, and does not assert
 hardware-dependent performance budgets. See [issue #14](verification/issue-14.md).

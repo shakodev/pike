@@ -206,8 +206,94 @@ fn main() -> io::Result<()> {
             "not run: pass a Vim executable as the second argument\n",
         )?;
     }
+    #[cfg(windows)]
+    verify_psreadline(&executor, &renderer, &output)?;
     fs::write(output.join("renderer.txt"), renderer.name())?;
     fs::write(output.join("completed.txt"), "passed\n")
+}
+
+#[cfg(windows)]
+fn verify_psreadline(
+    executor: &SharedExecutor,
+    renderer: &iced::Renderer,
+    output: &Path,
+) -> io::Result<()> {
+    use iced::keyboard::key::Named;
+    let script = output.join("psreadline.ps1");
+    fs::write(&script, include_str!("support/psreadline.ps1"))?;
+    let settings = iced_term::settings::BackendSettings {
+        program: std::env::args().nth(3).unwrap_or_else(|| "pwsh.exe".into()),
+        args: vec![
+            "-NoLogo".into(),
+            "-NoProfile".into(),
+            "-ExecutionPolicy".into(),
+            "Bypass".into(),
+            "-File".into(),
+            path_string(&script)?,
+            path_string(output)?,
+        ],
+        ..Default::default()
+    };
+    let (_, completion) = with_terminal(executor, 14010, settings, |terminal| {
+        let text = |text: &str| cases::character(text, Modifiers::empty(), Some(text));
+        let ctrl = |key: &str| cases::character(key, Modifiers::CTRL, None);
+        let named = |key| cases::named(key, Modifiers::empty());
+        let mut scene = Scene::new();
+        for (label, events) in [
+            (
+                "ctrl-u",
+                vec![
+                    text("discard"),
+                    ctrl("u"),
+                    text("kept"),
+                    named(Named::Enter),
+                ],
+            ),
+            ("ctrl-c", vec![text("discard"), ctrl("c")]),
+            ("after-cancel", vec![text("after"), named(Named::Enter)]),
+            (
+                "navigation",
+                vec![
+                    text("ab"),
+                    named(Named::ArrowLeft),
+                    text("x"),
+                    named(Named::Home),
+                    text("z"),
+                    named(Named::End),
+                    named(Named::Backspace),
+                    named(Named::Enter),
+                ],
+            ),
+        ] {
+            wait(executor, terminal, |_, command| {
+                matches!(command,
+                    BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::Title(title))
+                    if title == &format!("pike:psreadline-{label}"))
+            })?;
+            scene.focus(terminal, renderer)?;
+            for event in events {
+                let (events, captured) = scene.dispatch(terminal, renderer, Event::Keyboard(event));
+                check(captured, "PSReadLine key was not captured")?;
+                route(terminal, events)?;
+            }
+        }
+        wait(executor, terminal, |_, command| {
+            matches!(command,
+                BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::Title(title))
+                if title == "pike:psreadline-done")
+        })?;
+        executor
+            .block_on(async {
+                tokio::time::timeout(Duration::from_secs(10), terminal.shutdown_handle().wait())
+                    .await
+            })
+            .map_err(io::Error::other)?;
+        Ok(())
+    })?;
+    check(
+        completion.exit_code == Some(0),
+        "PSReadLine fixture did not exit successfully",
+    )
 }
 
 fn binding(target: InputKind, action: BindingAction) -> (Binding<InputKind>, BindingAction) {

@@ -224,3 +224,20 @@ native ConPTY transport and editor behavior for injected Iced events; it does
 not establish physical layout, OS key-event conversion or PSReadLine behavior.
 The original macOS evidence above is preserved and is not Windows evidence.
 Native run results will be recorded after dispatch; they are not yet claimed.
+
+The first native dispatch (`40486804722`, source `bc21abe`) exposed a raw-child
+fixture problem: Rust 1.97.1's Windows stdin wrapper strips a trailing Ctrl+Z
+after ReadConsoleW. Depending on read batch boundaries, the Ctrl+A–Z matrix
+therefore missed a byte and timed out. The Windows keyboard child now uses
+ReadConsoleA directly with the already-selected UTF-8 console code page and no
+Ctrl wakeup structure. All byte oracles are unchanged, and the original bounded
+input fixture keeps its original reader. See the
+[pinned Rust implementation](https://github.com/rust-lang/rust/blob/1.97.1/library/std/src/sys/stdio/windows.rs)
+and [ReadConsole contract](https://learn.microsoft.com/en-us/windows/console/readconsole).
+
+The same probe now also starts profile-free PowerShell 7 with its shipped
+PSReadLine module and built-in Emacs bindings. It sends Ctrl+U, Ctrl+C,
+post-cancellation input, arrows, Home/End and Backspace through the real widget
+and ConPTY and checks known returned lines. It does not invoke editing methods
+directly or mock ConsoleKeyInfo. The synthetic report records actual PowerShell
+and PSReadLine versions. This check remains pending until its native run passes.

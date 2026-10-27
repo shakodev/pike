@@ -112,7 +112,7 @@ jobs:
           $vim = Join-Path $env:ProgramFiles 'Git/usr/bin/vim.exe'
           if (-not (Test-Path -LiteralPath $vim)) { throw 'Git for Windows Vim is required for the synthetic editor check.' }
           $timer = [Diagnostics.Stopwatch]::StartNew()
-          & ./target/release/examples/keyboard_input.exe $output $vim
+          & ./target/release/examples/keyboard_input.exe $output $vim (Join-Path $PSHOME 'pwsh.exe')
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $timer.Stop()
           foreach ($mode in @('normal', 'application', 'newline', 'application-newline')) {
@@ -130,11 +130,12 @@ jobs:
             RunnerOS = (Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber)
             ExecutableSha256 = (Get-FileHash ./target/release/examples/keyboard_input.exe -Algorithm SHA256).Hash
             ElapsedMilliseconds = $timer.Elapsed.TotalMilliseconds
-            Scope = 'Synthetic Iced events through widget, bounded writer and native ConPTY; excludes physical layouts and PSReadLine.'
+            Scope = 'Synthetic Iced events through widget, bounded writer, native ConPTY, Vim and profile-free PowerShell/PSReadLine; excludes physical layouts.'
             FixtureCleanup = 'All four fixture PIDs absent after acknowledged shutdown.'
           } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $output 'provenance.json') -Encoding UTF8
           Get-Content -LiteralPath (Join-Path $output 'summary.csv')
           Get-Content -LiteralPath (Join-Path $output 'editor.txt')
+          Get-Content -LiteralPath (Join-Path $output 'psreadline.txt')
 
       - name: Retain synthetic keyboard evidence
         if: always()
