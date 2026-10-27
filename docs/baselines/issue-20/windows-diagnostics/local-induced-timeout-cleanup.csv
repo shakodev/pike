@@ -1,0 +1,3 @@
+session,reason,exit_code,output_drained
+20001,ChildExit,Some(80),true
+20002,ChildExit,Some(42),true

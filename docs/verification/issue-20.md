@@ -254,3 +254,25 @@ strict response checks are unchanged, and this cannot create a pass. A child
 that cannot consume the diagnostic stimulus may have no retained read trace.
 All diagnostic bytes are controlled fixture data; no production logging or
 runtime/vendor source changes are involved.
+
+Buffered source `7fb8683e1d9af4dac1c931c4056c34ff8b53cb59` also passed
+[all twenty independent native launches](https://github.com/shakodev/pike/actions/runs/40502419892),
+with 92 adapter tests per profile (one existing ignored). Every one of its
+forty child traces retained input mode 512 (`ENABLE_VIRTUAL_TERMINAL_INPUT`)
+at startup, before/after RIS and every later phase boundary. This is evidence
+for these passing trials, not proof about the earlier failed run. Its
+[widget](https://github.com/shakodev/pike/actions/runs/40502420018),
+[Unicode](https://github.com/shakodev/pike/actions/runs/40502419874),
+[full CI](https://github.com/shakodev/pike/actions/runs/40502419867) and
+[two-OS audit](https://github.com/shakodev/pike/actions/runs/40502419841)
+checks also passed.
+
+[Both diagnostic waves](../baselines/issue-20/windows-diagnostics/) retain all
+40 attempted launches / 80 exact child streams, per-origin formatted replies,
+events/cleanup, source/runtime/executable provenance, resource observations
+and hashes of every downloaded artifact. A local deliberately stopped child
+verified that the failure-only read-release path still exits unsuccessfully,
+omits the success marker and acknowledges cleanup; that negative experiment
+is labeled macOS and makes no native Windows claim. No failing byte trace or
+production repair has been established. The original native timeout remains
+an explicit verification blocker pending independent review; the PR stays draft.

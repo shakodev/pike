@@ -1,0 +1,4250 @@
+[
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/adapter-tests.txt",
+    "bytes": 9131,
+    "sha256": "50f270ce07bd6835e334faadc37b2b6a7b47726f70677d1fc1745e9d1ad42148"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/compiler.txt",
+    "bytes": 201,
+    "sha256": "20815ee828e9107afea25520937957032db8ca234a25409cc7acffbdfbd4d392"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/executable-hash.txt",
+    "bytes": 187,
+    "sha256": "36e062a92a5959c82559bc36a03b2ef3dff38694f46a592c4d1dedc59caf1925"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/os.json",
+    "bytes": 118,
+    "sha256": "8787a52a239b549d5c2c2b090395abfbba781050c8a4be80ef992f8d0685010c"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/runtime.json",
+    "bytes": 460,
+    "sha256": "140b54a8dab594dea1b49e824f26858286816acdfb872e9c454cb3de7b6e0e7a"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/source-hashes.txt",
+    "bytes": 1500,
+    "sha256": "67b2f1034c390ad79eacead80e42f6c5a4a72c710e0709602f0a4884a16ab340"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/source-sha.txt",
+    "bytes": 42,
+    "sha256": "e4769dee39d745cc8cbdd085a466144d1937fdda4d2888a620da45a2a35e6ff4"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "6102effdcc3de43e410c83679178440ad75d323410a3d07620b5cd3fc11e3ea7"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "a43d0385bc15f6b0225d44fe0acaa40f3e393a0497ce76568a4da3b21bb2e1d1"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "cea0ef71d3fe6ea60d9c0d81fff1b9cedd4173ca17b28ab4e92c475282f69c70"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-01/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-01/resources.json",
+    "bytes": 342,
+    "sha256": "0c8bcd9ab8d0293ae4d723ffdddd83a869deaccd746b0d228ce2efb5e895ce7f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-01/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-01/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "cb7f82dc3ddf71d511da904c5d4a2c311c3f1d2ea3dc0652927e4ea6d5548e56"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "5826126bc35b86197ce12e157f1a986f3faa962fbee8accf8420aae69d04e69a"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "fa695a15a7e6c1ba27b23bd997325db0e6b28f9ec496ce304df7e046f6129998"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-02/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-02/resources.json",
+    "bytes": 342,
+    "sha256": "7ca7a4225e8f4bb14df988e0ae8e486f4eb67ff1d24940c953301b27585dfee8"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-02/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-02/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "2d0d1a2c48414b1acec59d6a51ca161d8210fb70ea91f7ba15ba0bb883e90147"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "fbc2df761a47f935597a71c5fddf280683d271b4a85de2d5338e7b82c994a05c"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-03/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-03/resources.json",
+    "bytes": 341,
+    "sha256": "b6559cc0dee883be0e72e078448925c5d01dae5ac4ad6483a868627d74020bd9"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-03/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-03/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/events.csv",
+    "bytes": 608,
+    "sha256": "3ba0291a9c8c20aae5329ab362d695dd88c650b62df50e20883834a475fa022b"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "1fa5d31168b1f8e20688b733576cc0cbd36571ec57c3a00a7f9cf25bfdf86a8e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "86af1a4e860588062524f76e3014a080ff3a2b45b9111a7a2125cb7bdb092695"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "fd8a5720f8b5875c815fc0f1e8631ca8a90689faa131c23823d1d7981b51876b"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-04/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-04/resources.json",
+    "bytes": 341,
+    "sha256": "c6e5bfc9022a261a3fc1aaf2b16229bd22ecb192384730875ad467b0ca51debf"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-04/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-04/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "d947226be6299a049ae88eb0f05ff5d032074540bd926d45cd5174cec134ed9b"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "9934db2d907501987ad20277aeeedfaaa96146e777ff321b6695c71f7b8cc92f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-05/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-05/resources.json",
+    "bytes": 341,
+    "sha256": "e6e7f8c0dcfb860c39eeacaf008c24d8d7d3f346689cf7cf07465584c34109bd"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-05/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-05/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "9955f4a562efd60e9e84fb2ae6530fd781f06724fad301713d2fdc262a2f635d"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/fixture-2.pid",
+    "bytes": 3,
+    "sha256": "6f81082badfd007354ac6ebb78adaa04bfedf9a1fb9a01909788bad472008ea3"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "addb18c15a93e6d3e311822e006f37684e6be3d0f5e072d92efb60d960fa6717"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-06/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-06/resources.json",
+    "bytes": 341,
+    "sha256": "16262b5d64d606dd783ee9933c6d03d83f78ba56da677a8286ac0424be1f44bd"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-06/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-06/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "2432f63cf0e11221691ae19475e77147418bc3d5c74435d1fecee3168b428782"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "0c8f86d7e62776666e662e5e4f60c33620752d6d7d14abf31697f85022e6028d"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "7483bfae25ace985fbc47a68769a9c8f011b3b96ef00f2e9c5ea3290cb722265"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-07/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-07/resources.json",
+    "bytes": 342,
+    "sha256": "489997f31ee06af5cbdaaf2583800ce88858632aaf1b661a87b25ff72b187a59"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-07/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-07/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "b7b598d56a5096e61d7b35cc791ea1e21484bdd778fb8a2ebc52e1045e8255b9"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "0e5275f34e63038d1fb8a9ef94dce7e7dade73d03bd7b6125a73fcc43e9bdfc0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "a7ecb45726d1b514c4011195525b6b60f62abc28d68348c0845ad0895deb9aee"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-08/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-08/resources.json",
+    "bytes": 342,
+    "sha256": "80d24b451fa6464e75c19342b26a832ecddb79a913bbbb23308bec72d7b4e824"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-08/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-08/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "1277794b437dacbc8725fda4f687f941d3826544407e69271d8fe9abd5a01837"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "98c53df687f2e9b94da80eef5b9049f1fac456b4c41c808f1a6b0fe80adecedb"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "c1692e1e11739c5dbc9b4598bb5ad7edc7094162e278914c1d433b257129af29"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-09/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-09/resources.json",
+    "bytes": 343,
+    "sha256": "618d94aaf2398a8236830aed432690ea8be74b04cbab61105ca31de615ccb9cd"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-09/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-09/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "0886327340b14606010a0df6afe15856c56d91a0be9b6ce7f775ba307bfd834a"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "d12a4891fbf81cfb0fb5383b313e4fb499ca245463748fd4b509ce0359e44625"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-10/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-10/resources.json",
+    "bytes": 341,
+    "sha256": "860e7d34673233555b05ba546501e36133079399b0e16a1e31e984f4595be9ec"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-10/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-tiny-skia/trial-10/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/adapter-tests.txt",
+    "bytes": 9131,
+    "sha256": "10c0065e25e8fd95b0e6b8f47dbcb5124cc8b67b16ac6437f8b3bbfd5d07383b"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/compiler.txt",
+    "bytes": 201,
+    "sha256": "20815ee828e9107afea25520937957032db8ca234a25409cc7acffbdfbd4d392"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/executable-hash.txt",
+    "bytes": 187,
+    "sha256": "53459c088f7dc1b97cbf6ac33911b714f09f4de017f946b50793225ab6b1d702"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/os.json",
+    "bytes": 118,
+    "sha256": "8787a52a239b549d5c2c2b090395abfbba781050c8a4be80ef992f8d0685010c"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/runtime.json",
+    "bytes": 460,
+    "sha256": "140b54a8dab594dea1b49e824f26858286816acdfb872e9c454cb3de7b6e0e7a"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/source-hashes.txt",
+    "bytes": 1500,
+    "sha256": "67b2f1034c390ad79eacead80e42f6c5a4a72c710e0709602f0a4884a16ab340"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/source-sha.txt",
+    "bytes": 42,
+    "sha256": "e4769dee39d745cc8cbdd085a466144d1937fdda4d2888a620da45a2a35e6ff4"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-01/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-01/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-01/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-01/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "a7099f07753cd64ce81353bbe6a5d32b6b0be97c0cd017f9aa84852a6ab70640"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-01/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "1a145b425f30663a2d6668b6e836bc1fc0afb675e5b82c19ab86a9df6a980476"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-01/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-01/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-01/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-01/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-01/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "63af290b48d5ffc76580e9211c6af8f705a7903ee7f0e9cf5e984c6ace0e5235"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-01/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-01/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-01/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-01/resources.json",
+    "bytes": 341,
+    "sha256": "583e4204742e2fb60f6e9ecdd2d67568a1221d4baad79a63ef89e78f92d24e7c"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-01/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-01/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-02/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-02/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-02/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-02/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "d2642c5b5a666062774a9d2834fbbb4aa0d669cfc4342e288f37bf2c5c58bb5f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-02/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "de3daca6a937e505613555f4f5bd599fada0d2b4a253139611a2bf3ce5c7594c"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-02/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-02/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-02/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-02/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-02/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-02/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-02/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-02/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-02/resources.json",
+    "bytes": 341,
+    "sha256": "772c6c3c0a1e0d86a4fd524239da4f0aa39348f331bd1a596446b1830802e21f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-02/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-02/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-03/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-03/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-03/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-03/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "b84e4d71547e781cd9665620b478b13943484194a43f42578f7e88dc01fcc862"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-03/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "47f6c8c4b34d11e58a4b8643ea77722600f0f2a2134c6b5558de0b704a6ec9fb"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-03/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-03/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-03/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-03/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-03/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-03/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-03/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-03/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-03/resources.json",
+    "bytes": 343,
+    "sha256": "b3d5e2e9a248b9a9239eb0fbbe6af65a376fcf35a34e7f1a38c7e98f2072a0a9"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-03/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-03/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-04/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-04/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-04/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-04/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "1cd4f57251bdb116d210372aaeb28645baf4ca4f338b5868cbc92396575c0579"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-04/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "b72653265c6bad2943d9235c8725b57920e6e5e1ff76165410094e7ae3c9bb99"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-04/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-04/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-04/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-04/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-04/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-04/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-04/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-04/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-04/resources.json",
+    "bytes": 343,
+    "sha256": "66b9c568490a154d035ec973071fca55a73ec4db4106db840403425fb5a87b2a"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-04/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-04/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-05/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-05/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-05/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-05/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "8b01315e403fc6491b9913a552cf8ff5ee954c14ad3207898db1ccf318cd9ba3"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-05/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "8552b874fd59a64333e862c0a1eda2cf54fa62e3ebb0710c7fb6b82858ede198"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-05/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-05/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-05/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-05/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-05/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-05/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-05/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-05/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-05/resources.json",
+    "bytes": 343,
+    "sha256": "fe3064ce6955c5b9c9a345861b9756fb19da4dc62f3e0827edd0958d507646c4"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-05/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-05/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-06/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-06/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-06/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-06/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "a4e95083ad6163ab0961e8e0d2caeceb402a089352e21a0c32233ef4c0423aeb"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-06/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "2a2005a19dd5b0c0484102245c4131e5a650506891b747eed63725d04a17802c"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-06/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-06/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-06/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-06/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-06/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "848dffd038b1ae76e20e0d13b1ef343ae8b861776db9f8f651f1fd8612d45829"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-06/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-06/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-06/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-06/resources.json",
+    "bytes": 341,
+    "sha256": "baafc42cda28afd51841437c53109a4ee2914aa44e3b66bbe6865b27e856b206"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-06/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-06/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-07/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-07/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-07/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-07/probe/fixture-1.pid",
+    "bytes": 5,
+    "sha256": "71af38d89c9daeec9f963b70ab164af0b8d282850101cd5701017feee7f8b421"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-07/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "ede4d2a70581e161821e09ec5e71ea50b59b6458bf101e3f1c0d5544f212d367"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-07/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-07/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-07/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-07/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-07/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-07/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-07/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-07/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-07/resources.json",
+    "bytes": 343,
+    "sha256": "f1a2137ce6967da7d0914a6891ece38cc762d0a6d9d779f1ac731a3de480fe78"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-07/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-07/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-08/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-08/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-08/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-08/probe/fixture-1.pid",
+    "bytes": 3,
+    "sha256": "74332c78b10e3ee51ac4a3c18ccc15c1b6c9807b3ca609969de5e3c361573dfa"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-08/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "17674574828520aa5f240bbbdf40521549a514c0145e431f11e494d9923073c7"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-08/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-08/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-08/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-08/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-08/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-08/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-08/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-08/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-08/resources.json",
+    "bytes": 343,
+    "sha256": "443dc9924892fceb2f13b6ecd60842412d2f8b8e03a74569d964529848704e1f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-08/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-08/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-09/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-09/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-09/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-09/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "9087bff4ee5a4c50553a8a9096963d8d75dea9601fee74de289bbf21bcc25608"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-09/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "d5047fc16cd0e349a515cdf2ca0e5c94d599d5b4279fc48f25fc689e6abb2223"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-09/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-09/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-09/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-09/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-09/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "d4179a3b4bca2a60879e96a3e4ab1447f743f44c97d7d12d475fb31a62eeb10c"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-09/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-09/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-09/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-09/resources.json",
+    "bytes": 342,
+    "sha256": "d8352e410e76733e41a8473df24e1d6b9502b2ba99589c2ce48e257edfcf6630"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-09/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-09/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-10/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-10/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-10/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-10/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "7a6171f6389cbb707e393717e03f6845452716736ca449cd509217f20f200aef"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-10/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "622a1ac152781212335667688350aa0bc791e9d98108a949ef5a2efe1ab05aa9"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-10/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-10/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-10/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-10/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-10/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "b916b62ab351bc8aee35e5fdff500cb7759459483b6e5e8dbb0332d8056ef022"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-10/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-10/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-10/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-10/resources.json",
+    "bytes": 341,
+    "sha256": "78d9765b89085777b186606f44c433d616558ac02cd39bef9d9c7fa42627c0fe"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-10/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "synchronous",
+    "path": "terminal-protocol-wgpu/trial-10/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/adapter-tests.txt",
+    "bytes": 9131,
+    "sha256": "0e8e7b732e40c4be77247c891bfc20e1f1da9cf0a3ccfef3018078ad483955d2"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/compiler.txt",
+    "bytes": 201,
+    "sha256": "20815ee828e9107afea25520937957032db8ca234a25409cc7acffbdfbd4d392"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/executable-hash.txt",
+    "bytes": 187,
+    "sha256": "a20c01c5540450b29371729044ff8e605d1a46b975dde0b2a3331e4764de7858"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/os.json",
+    "bytes": 118,
+    "sha256": "8787a52a239b549d5c2c2b090395abfbba781050c8a4be80ef992f8d0685010c"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/runtime.json",
+    "bytes": 460,
+    "sha256": "140b54a8dab594dea1b49e824f26858286816acdfb872e9c454cb3de7b6e0e7a"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/source-hashes.txt",
+    "bytes": 1500,
+    "sha256": "5ad1ba7680770b939e37bfb5ddd1e4d3635f27d1bd24b0d4b7dfa0c103382244"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/source-sha.txt",
+    "bytes": 42,
+    "sha256": "a9d6534b6a9574f535a3f683ad715ff8c714255ad68f03563d4788ec4751a3a7"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "ba1b646a08d80a1f04471938b3fcba822748fdb0c9966769aeb6424b25a21b37"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "35543fa109d1144c357ffe7697bce3b1f22a84dc508b29d066db8dc55bcc8613"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "e30c67e5207edb913a5b1f58b0ea7e0dce4be4660724fd147c29a655130fd9b6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/resources.json",
+    "bytes": 342,
+    "sha256": "8c36b2924f17da6a81f1554929885b33dd6acffd30b63ff6f361de6b8811d96b"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-01/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "6a618f6b82f906a08c1136d213b80efb7c5432cfb82b604b9c60834561132386"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "4b3d0e48caf0f1eef87000c663d60d0a880d65475b9440a1b7c2a8bc0ae15c2f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/resources.json",
+    "bytes": 343,
+    "sha256": "1272c64511158ed8e171f52021357e199e6df46d3e93e0bd175b8aa31a7e5905"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-02/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "c59821ffcb528b5ab1f2d4146272fe59815bca045793eede7d9b4e4d08f4c6a8"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "9990866c30ffb9417c77fbcb416009a424a2f7552ec2a74cddfc207ff728e09c"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "ab001b18bc2664a0791e242a07a5eb94049a65ad4c0a8a3142b4c807ab728aa7"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/resources.json",
+    "bytes": 343,
+    "sha256": "0abeeb6af088c71f6b92fbcdaa3700dfeef7a2356c3d4d78a3b5671d01865848"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-03/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "083f14945e6d7ebdab7194c4d443ac45bfc63ed8b804bb47102d01326da39a4a"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "d8d0dedb4bda4204d0b5e1de5a990a00757aa2d80a64bd97699cad3b3d6fbf5f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/resources.json",
+    "bytes": 343,
+    "sha256": "9ff02ccfb80866aa54c6aa00a841f3d7ca71486ab75dee3f12af4ba08697cefa"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-04/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/fixture-1.pid",
+    "bytes": 3,
+    "sha256": "2e00b312b0a9681bef09f9085a4e918b8fceb0c0b1c043dc17c90beef5fa446c"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "735fb136742e717765c25d2553d051876f2bc5eb75e5c1f3c55a7b3c2a0c46ca"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "e2e44a54e09bf35e289cbb3a5bc8c987861a3fe7b5ea69fdd0d1c6a3a7df5936"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/resources.json",
+    "bytes": 341,
+    "sha256": "6acc8089033313e7b23b6c09270d893970ddb632f7288e895f6c598a0f5706b3"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-05/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "71181f5d23343d7db98f90aed3499d8c2a23131b3151cc66c4591918dfc09acc"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "0925b6de7ba8ac29b8792da28d96f0bc1ab5ae7f852bf33092f6c1da267e258b"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "7b7d2aad44f96f0b9ae07c929cc7ec5fe69f3e28e02eb1b6f14c2777b3646ea4"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/resources.json",
+    "bytes": 343,
+    "sha256": "bb0da18125b5809de9257617580e600a9cfc50b33d66dfddca34cef40b2000ba"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-06/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "3b86c974ffebae972294e91fadaf955547a73621ab79770c8757cccb069cdc27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "098c34d0a9154864e825ff44ed0b5b70719e84a73bff869369542f813faec4da"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/resources.json",
+    "bytes": 342,
+    "sha256": "78fb2e9de9244551ae2465e83a5fdfc9a0d2b2cee3bc7b8140aaf30363d644f0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-07/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "a849b24b9925efb779e9556560d2661226a68d08306639699174fb1d8eddf517"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/fixture-2.pid",
+    "bytes": 3,
+    "sha256": "a73ab888363736220eb589458721088241ee10059b1f5898a13fe9c2e14fcd8c"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "10a5406ad78b908fe69189885ef509cc8ab8711bc23e9629398d32a7cdbf8914"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/resources.json",
+    "bytes": 340,
+    "sha256": "79c7d06bc4f3c048bdf60d42d35dec93fb4790afae824c07239d8cd98a15a573"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-08/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "7536db66480f6a7c7479ad0f1b69d5d157ddba031d828da9cf4084711ed07b97"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "bc063d436befa40f527e200c6a8e6331d8d372755d59f606831230821aae2ef6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "10a5406ad78b908fe69189885ef509cc8ab8711bc23e9629398d32a7cdbf8914"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/resources.json",
+    "bytes": 341,
+    "sha256": "cfa63182c1d68e2950cf256d96383daf7633d489039598ab1f10396ad3d48a2a"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-09/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "67bf8bb9a96346d74f0c767e724cc46ef2a1f69f7dd990593e25c70b77b9abf3"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "007d45c89dfb5b1a7436620f9a146a9042eb6cbe23dda547da5dee1a56c941da"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f1c39570edf525224e917a689baeaad531f0d40e76db3408571c99411bb57d12"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/resources.json",
+    "bytes": 341,
+    "sha256": "97eff31e7d1cd98e7471fe068b720efd6fa15fb40c5b6252cd750012fc4078c9"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-tiny-skia/trial-10/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/adapter-tests.txt",
+    "bytes": 9131,
+    "sha256": "3136af925d3cc60e8ad0c6e2de33db110647cb5feea6cf84edcb8fa221129e7b"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/compiler.txt",
+    "bytes": 201,
+    "sha256": "20815ee828e9107afea25520937957032db8ca234a25409cc7acffbdfbd4d392"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/executable-hash.txt",
+    "bytes": 187,
+    "sha256": "93c04af56907fefc33ba37f4efe3c056038ef6917e2a11d36d7d826f1cefdde2"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/os.json",
+    "bytes": 118,
+    "sha256": "8787a52a239b549d5c2c2b090395abfbba781050c8a4be80ef992f8d0685010c"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/runtime.json",
+    "bytes": 460,
+    "sha256": "140b54a8dab594dea1b49e824f26858286816acdfb872e9c454cb3de7b6e0e7a"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/source-hashes.txt",
+    "bytes": 1500,
+    "sha256": "5ad1ba7680770b939e37bfb5ddd1e4d3635f27d1bd24b0d4b7dfa0c103382244"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/source-sha.txt",
+    "bytes": 42,
+    "sha256": "a9d6534b6a9574f535a3f683ad715ff8c714255ad68f03563d4788ec4751a3a7"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "ad5f9478d603fe97eae2bbff07f76fe7f18610343b5f3bc8e00945ee51b30d2c"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "d732f39159e67eb62327ae853dfec69db69ec85b23a8b1f840db1959d32acced"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/resources.json",
+    "bytes": 341,
+    "sha256": "144c1e6eee43cd655b3cb0e63a0e613f5e23cfa7deaf9e6004e7dba0f8abfcd4"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-01/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "b72653265c6bad2943d9235c8725b57920e6e5e1ff76165410094e7ae3c9bb99"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "f1332d3115c71f96af4c91ecc32fd878b53d89fcd72ea7892afcba7efe7fbe3a"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "d0077616a336c050468223130f8199eb6aca59af637999470c97a64a5dcf532b"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/resources.json",
+    "bytes": 343,
+    "sha256": "bad78eeea6512589da9c61e511b7463a82dfe486097130f446fe3042a408ee1d"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-02/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/probe/events.csv",
+    "bytes": 608,
+    "sha256": "f118ce735d6bd45ec6e1328baf5ae9d1befd757fddac3199a5b11463ec7f299b"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "32502c3ae072641a69929c0edf13af8d3dc7a77c08283bd9814571f2ced2984a"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "e524d225a5a87cdb208cf8b9a4f04d21656ae4bed1556440f80a916ba7c0402c"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/resources.json",
+    "bytes": 342,
+    "sha256": "09666fbf090be3c94ccbc55545ff395c33a0880fffd7d54f9c570686256edae7"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-03/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "0bb1de272b46ce4f48e1434be989c5938776dd1237a7dd88f8867886105e28f5"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "7078c7f8564ee0300ee371c8511553483f3465110b7b962bd63822b541aa8892"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "8da9579957b44d94d8ac8fde85314aff92ffaea0b42c7fe060608bd11f89f682"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/resources.json",
+    "bytes": 343,
+    "sha256": "8052a493e102c5f6ba440c70fa396a28a9ce9a0e130d5f8d6eb4af1292e496f2"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-04/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "75868569c7f5ef9f9fdc4f2dde488cbb7e7ec83c13ea29f958a86a60b9971dbd"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "a5793c19ca50ee11a832f9065c27b02f74335a728926cdb3c06e254dcb96a7d9"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/resources.json",
+    "bytes": 343,
+    "sha256": "1b5890a4f9d500a15d3638bffaf3e3c4f23f59fdb671423df9a66354491d28a0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-05/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "6beb5eb7eefdd7dada9588445e3b6485c1f68eac97d0b105aa18e59ecd0f35b3"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "016562d2d357325c642f6a5961d7d242a47dd7dd30ccf0e59d578246488272af"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/resources.json",
+    "bytes": 342,
+    "sha256": "e07cf0741e0b7444ce0013cc22cf0eda157a0d91366f1171cd90218d975c1400"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-06/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "9bbf7a2c2940b4c95ea485f65a8731a1372aee56edca6ed31e66e7eb0f47e28b"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "cb68dbec7d3df2537d3ad28cf2e941a2e2c6621049565051b63780573661e131"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "20746445130d274b0e35f1177f0a7fe3004bd425bd4b63f613441201be16655e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/resources.json",
+    "bytes": 342,
+    "sha256": "0f34d3eb175110ffcfd9e8759a75c68ae33450dd29d62fb75aa9e477523f5c27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-07/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "6dc32ae01ea2417f37f28b4acb7079d3d20ab741b88a9862fa06be0ed64af44f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "14b76d13a16412aeac0dff5c5e9aca3eae10fe74cbbb51af99100647f0154be5"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/resources.json",
+    "bytes": 343,
+    "sha256": "01c7bcea9b5b0e69d9824d0837ec33a6aa30eff26565dbc155947312a2a5870b"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-08/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "c068e38b5bc9d237e3b0007d5eb0d485b07ddde7c77a57a13865da4ffe843943"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "b97d4904938f12a04277ff18c386c7460877bf4002ad82a0ee3a5ab88f2b9249"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/resources.json",
+    "bytes": 341,
+    "sha256": "6f2bfacd179b8be7d39f4e3730849f7a1a178f1491f5f439d3702fdb2bdb0745"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-09/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "50d65da5a5788e6183a480898578d672eb3f1d593a5b308e6e0b971e90fab6b9"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "8a2ce3d29ea75e65617e22cb290f95804238d8794268838606b10608739a6d72"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "fe228771dfe56fdf05d2775214a75f98516338b3505c344f8a064ff039d07f9c"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/resources.json",
+    "bytes": 342,
+    "sha256": "4c358bb61df7ea5faaf3b4ad3b26c7be2de313f5c93b1b5787304ed4e932f699"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "wave": "buffered",
+    "path": "terminal-protocol-wgpu/trial-10/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]
