@@ -9,6 +9,7 @@ use iced::futures::stream::BoxStream;
 use iced::futures::{stream, StreamExt};
 use iced::widget::canvas::Cache;
 use iced::Subscription;
+use std::cell::Cell;
 use std::hash::{Hash, Hasher};
 use std::io::Result;
 use std::sync::Arc;
@@ -35,7 +36,7 @@ pub struct Terminal {
     pub(crate) bindings: BindingsLayout,
     pub(crate) backend: backend::Backend,
     backend_event_rx: Arc<Receiver>,
-    cache_invalidations: u64,
+    cache_invalidations: Cell<u64>,
 }
 
 /// Per-session metadata counters; no sampling task or terminal text is retained.
@@ -105,7 +106,7 @@ impl PreparedTerminal {
             cache: Cache::default(),
             backend: self.backend,
             backend_event_rx: self.backend_event_rx,
-            cache_invalidations: 0,
+            cache_invalidations: Cell::new(0),
         }
     }
 }
@@ -184,7 +185,7 @@ impl Terminal {
             font_measurements: self.font.measurements(),
             pty_resizes,
             grid_resizes,
-            cache_invalidations: self.cache_invalidations,
+            cache_invalidations: self.cache_invalidations.get(),
         }
     }
 
@@ -245,9 +246,10 @@ impl Terminal {
         action
     }
 
-    fn redraw(&mut self) {
+    pub(crate) fn redraw(&self) {
         self.cache.clear();
-        self.cache_invalidations = self.cache_invalidations.saturating_add(1);
+        self.cache_invalidations
+            .set(self.cache_invalidations.get().saturating_add(1));
     }
 }
 

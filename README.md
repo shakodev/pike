@@ -83,6 +83,9 @@ documents explicit backend completion and retained final output.
 2,000-line history limit, viewport-only presentation and hidden-session refresh.
 [Resize verification](docs/verification/issue-12.md) covers cached font metrics,
 fractional cells, deduplicated native resizes and event-specific presentation work.
+[Widget verification](docs/verification/issue-13.md) covers terminal identity,
+pane-local cached drawing and clipping, with fractional-scale fixture screenshots.
+
 [Keyboard verification](docs/verification/issue-14.md) documents legacy byte
 encoding, binding precedence, consumed keys and remaining Windows layout checks.
 [Startup verification](docs/verification/issue-10.md) covers bounded asynchronous
