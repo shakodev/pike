@@ -277,9 +277,9 @@ and API/overload policy details.
   padding, wide/combining cells, history, session swaps and unavailable sinks.
   Windows-only fixture APIs perform actual CF_UNICODETEXT round trips and a
   competing-thread clipboard lock; no production clipboard implementation.
-  The native observer reads only its initialized owned prefix after validating
-  owner/sequence/allocation identity; foreign data and spare bytes are rejected
-  or excluded before constructing Rust references.
+  Native OS readback references only its initialized prefix in the same open
+  write transaction. Later bounded receipts validate owner/sequence/identity
+  without dereferencing clipboard memory; foreign data never gains Rust references.
 - Pinned Alacritty preserves no-op/height-only selection and invalidates it on
   column reflow. Follow this policy; never cache/resurrect stale copied text.
   Iced's unit-returning clipboard facade cannot expose OS errors. See

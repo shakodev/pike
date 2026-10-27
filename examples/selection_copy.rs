@@ -638,7 +638,7 @@ fn run(
     if clipboard.native.is_some() {
         fs::write(
             directory.join("windows-clipboard.txt"),
-            "passed: real CF_UNICODETEXT round trips over initialized owned prefixes with spare allocation padding, foreign/unknown clipboard rejection, actual owned-thread clipboard lock, unchanged no-selection/failed writes\n",
+            "passed: real CF_UNICODETEXT round trips in one open write/readback transaction over initialized prefixes with spare allocation padding, foreign/unknown clipboard rejection, actual owned-thread clipboard lock, unchanged no-selection/failed writes\n",
         )?;
     }
     report.record("passed", 0, 11, "cases")?;

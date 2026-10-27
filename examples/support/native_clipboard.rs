@@ -1,5 +1,5 @@
 //! Opt-in isolated Windows runner fixture, never a production clipboard backend.
-use std::cell::Cell;
+use std::cell::RefCell;
 use std::io;
 use std::ptr;
 use std::sync::mpsc;
@@ -22,17 +22,16 @@ const MAX_FIXTURE_BYTES: usize = 2 * 1024 * 1024;
 // bytes deliberately remain outside every Rust reference and clipboard read.
 const FIXTURE_PADDING_BYTES: usize = 64;
 
-#[derive(Clone, Copy)]
 struct Written {
     // Identity only; never pass this old value to a Windows API after closing.
     handle_identity: usize,
-    initialized_units: usize,
     sequence: u32,
+    readback: String,
 }
 
 pub struct Clipboard {
     window: HWND,
-    written: Cell<Option<Written>>,
+    written: RefCell<Option<Written>>,
 }
 struct Open<'a> {
     _owner: &'a Clipboard,
@@ -84,7 +83,7 @@ impl Clipboard {
         }
         Ok(Self {
             window,
-            written: Cell::new(None),
+            written: RefCell::new(None),
         })
     }
     fn open(&self) -> io::Result<Open<'_>> {
@@ -126,8 +125,8 @@ impl Clipboard {
             ptr::copy_nonoverlapping(units.as_ptr(), destination, units.len());
             GlobalUnlock(allocation.0);
         }
-        let _open = self.open()?;
-        self.written.set(None);
+        let open = self.open()?;
+        self.written.borrow_mut().take();
         // SAFETY: Clipboard is open with our real message-only owner window.
         // Successful SetClipboardData transfers allocation ownership to Windows.
         unsafe {
@@ -137,44 +136,84 @@ impl Clipboard {
         }
         let handle_identity = allocation.0 as usize;
         allocation.0 = ptr::null_mut();
-        // SAFETY: Clipboard remains open after our non-delayed write. The
-        // sequence and owner identify these initialized bytes on later reads.
+        // SAFETY: This SAME OpenClipboard transaction still excludes other
+        // writers. Obtain the current OS handle, require our just-transferred
+        // allocation, then reference only the units.len() values initialized
+        // above. GlobalSize is an upper bound, never the initialized length.
+        // Decode into owned Rust storage and unlock before closing. No slice
+        // lifetime or old native handle survives publication to other writers.
+        let readback = unsafe {
+            let handle = GetClipboardData(CF_UNICODETEXT);
+            if handle.is_null() {
+                return Err(io::Error::last_os_error());
+            }
+            if handle as usize != handle_identity {
+                return Err(io::Error::other(
+                    "clipboard changed our transferred allocation",
+                ));
+            }
+            let actual_bytes = GlobalSize(handle);
+            if actual_bytes < bytes
+                || actual_bytes > MAX_FIXTURE_BYTES
+                || !actual_bytes.is_multiple_of(2)
+            {
+                return Err(io::Error::other("invalid controlled clipboard allocation"));
+            }
+            let data = GlobalLock(handle).cast::<u16>();
+            if data.is_null() {
+                return Err(io::Error::last_os_error());
+            }
+            let initialized = std::slice::from_raw_parts(data, units.len());
+            let result = initialized
+                .iter()
+                .position(|unit| *unit == 0)
+                .ok_or_else(|| io::Error::other("controlled clipboard text is not terminated"))
+                .and_then(|end| String::from_utf16(&initialized[..end]).map_err(io::Error::other));
+            GlobalUnlock(handle);
+            result?
+        };
+        // Publication may change the sequence when closing. Snapshot it only
+        // afterwards; subsequent observations never dereference clipboard data,
+        // so this receipt is NOT used as an unsafe initialization guarantee.
+        drop(open);
+        // SAFETY: Query the current window station's metadata, not old handles.
         let sequence = unsafe { GetClipboardSequenceNumber() };
         if sequence == 0 {
             return Err(io::Error::other("clipboard sequence unavailable"));
         }
-        self.written.set(Some(Written {
+        *self.written.borrow_mut() = Some(Written {
             handle_identity,
-            initialized_units: units.len(),
             sequence,
-        }));
+            readback,
+        });
         Ok(())
     }
     pub fn read(&self) -> io::Result<String> {
-        // This fixture is intentionally not a general-purpose clipboard reader.
-        // Only read the exact initialized prefix of our own successful write;
-        // unknown/foreign formats and allocation padding have no Rust value
-        // initialization guarantee, even when GlobalSize says they are in bounds.
-        let written = self.written.get().ok_or_else(|| {
+        // A bounded receipt of the actual OS readback above, NOT a general
+        // clipboard reader. Never create Rust references to foreign data even
+        // if a producer retains our HWND or recycles a native handle value.
+        let written = self.written.borrow();
+        let written = written.as_ref().ok_or_else(|| {
             io::Error::new(
                 io::ErrorKind::InvalidData,
                 "no owned clipboard write to observe",
             )
         })?;
         let _open = self.open()?;
-        // SAFETY: The clipboard stays open while borrowing OS-owned storage.
-        // Reject changed content BEFORE locking or referencing it. A valid
-        // clipboard consumer may not modify/free a GetClipboardData handle.
-        // Only the recorded prefix of this non-delayed, unchanged owned write
-        // is known initialized; never create a slice over GlobalSize padding.
-        // Copy and unlock before closing; never dereference a retained handle.
+        // SAFETY: Only query current OS metadata under OpenClipboard. Retained
+        // handle identity bits are compared, never passed to APIs/dereferenced.
+        // Even forged/changed metadata cannot cause an unknown-memory read.
         unsafe {
-            if GetClipboardOwner() != self.window
-                || GetClipboardSequenceNumber() != written.sequence
-            {
+            if GetClipboardOwner() != self.window {
                 return Err(io::Error::new(
                     io::ErrorKind::InvalidData,
-                    "controlled clipboard ownership changed",
+                    "controlled clipboard owner changed",
+                ));
+            }
+            if GetClipboardSequenceNumber() != written.sequence {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    "controlled clipboard sequence changed",
                 ));
             }
             let handle = GetClipboardData(CF_UNICODETEXT);
@@ -187,28 +226,8 @@ impl Clipboard {
                     "controlled clipboard allocation changed",
                 ));
             }
-            let bytes = GlobalSize(handle);
-            let initialized_bytes = written
-                .initialized_units
-                .checked_mul(2)
-                .filter(|bytes| *bytes > 0 && *bytes <= MAX_FIXTURE_BYTES)
-                .ok_or_else(|| io::Error::other("invalid initialized clipboard extent"))?;
-            if bytes < initialized_bytes || bytes > MAX_FIXTURE_BYTES || !bytes.is_multiple_of(2) {
-                return Err(io::Error::other("invalid controlled clipboard allocation"));
-            }
-            let data = GlobalLock(handle).cast::<u16>();
-            if data.is_null() {
-                return Err(io::Error::last_os_error());
-            }
-            let units = std::slice::from_raw_parts(data, written.initialized_units);
-            let result = units
-                .iter()
-                .position(|unit| *unit == 0)
-                .ok_or_else(|| io::Error::other("controlled clipboard text is not terminated"))
-                .and_then(|end| String::from_utf16(&units[..end]).map_err(io::Error::other));
-            GlobalUnlock(handle);
-            result
         }
+        Ok(written.readback.clone())
     }
 }
 impl Drop for Clipboard {

@@ -105,24 +105,34 @@ safety: the initial reader formed a slice over the whole GlobalSize extent.
 and [from_raw_parts requires every referenced element to be initialized](https://doc.rust-lang.org/std/slice/fn.from_raw_parts.html).
 Those initial artifacts remain labeled with their original source SHA.
 
-The corrected helper is an owned-write observer, not a general clipboard
-reader. Each successful non-delayed write records its initialized UTF-16 unit
-count, opaque allocation identity and clipboard sequence. While holding
-OpenClipboard, reads first reject unknown writes, another owner, changed
-sequence or allocation identity. GlobalSize supplies only a checked upper
-bound; the Rust slice covers exactly the recorded initialized prefix, including
-its NUL, and never covers spare allocation bytes. Consumers must follow the
-[Windows handle ownership contract](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclipboarddata),
-which prohibits modifying/freeing the borrowed data. Retained identity bits
-are compared only; old handles are never passed to APIs or dereferenced after
-CloseClipboard. Failed acquisition keeps the previous proof; attempted content
-replacement invalidates it before EmptyClipboard, and successful transfer
-relinquishes allocation ownership before any subsequent fallible operation.
+The corrected helper performs SetClipboardData and actual GetClipboardData
+readback in the **same OpenClipboard transaction**. While that lock excludes
+other writers, it requires the just-transferred allocation identity, validates
+GlobalSize bounds and references exactly the initialized UTF-16 prefix,
+including its NUL. It decodes into Rust-owned storage and unlocks before closing.
+The Rust slice never includes the spare bytes, and no borrowed native data or
+handle is used after CloseClipboard. This initialization proof does not depend
+on clipboard owner/version metadata or the behavior of foreign producers.
 
-Every native write now deliberately allocates 64 spare bytes beyond the
-initialized prefix. The probe checks an exact padded round trip, rejects
-unknown clipboard data and a successful replacement by a second real HWND
-with InvalidData, then repeats the full widget/clipboard cases. This exercises
-the ownership boundary and padding contract on both native renderer profiles.
-The new safety correction requires its own exact-head native run and
-independent re-review; the prior passing runs do not substitute for that.
+After closing, it records the published sequence and bounded actual OS readback.
+Later observations acquire OpenClipboard, reject unknown writes or changed
+owner/sequence/allocation identity, and return that recorded readback. They
+**never dereference clipboard memory**, including foreign/malformed data, even
+if identity/version metadata were forged. Only identity bits are compared;
+old handles are never passed to an API. This is a fixture receipt of one
+actual OS round trip, not a general clipboard reader or production cache.
+The last receipt is bounded to the fixture's 2 MiB payload cap. Sequence is
+sampled after publication/CloseClipboard rather than during the write.
+The [Windows handle contract](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclipboarddata)
+also forbids consumers modifying/freeing clipboard-owned data. Failed
+acquisition retains the prior receipt; attempted replacement invalidates it
+before EmptyClipboard, and successful SetClipboardData relinquishes allocation
+ownership before any subsequent fallible operation.
+
+Every native write deliberately allocates 64 spare bytes beyond its initialized
+prefix. The probe checks an exact padded round trip, rejects unknown data and
+a successful replacement by a second real HWND with InvalidData, then repeats
+the full widget/clipboard cases. These checks exercise the ownership boundary
+on both native renderer profiles. The correction requires its own exact-head
+native run and independent re-review; prior passing behavioral runs do not
+substitute for that.
