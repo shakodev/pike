@@ -1,0 +1,6 @@
+
+Algorithm : SHA256
+Hash      : B7159DD67A8CEA20A5EA99D88EBCA6EEFAC043DA1E151B70181C27916B1B8E58
+Path      : D:\a\pike\pike\target\issue-13\release\examples\widget_geometry.exe
+
+

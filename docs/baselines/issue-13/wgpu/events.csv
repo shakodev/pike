@@ -1,0 +1,12 @@
+ms,event,session,a,b
+0.025,fixture,1,19681,0
+3.437,fixture,2,19682,0
+4.702,fixture,3,19683,0
+17.838,translation_delta,1,1.25,0:0.000000
+27.937,pixel_checks,1,1.25,0
+37.220,translation_delta,1,1.5,0:0.000000
+48.388,pixel_checks,1,1.5,0
+61.603,translation_delta,1,2,0:0.000000
+78.119,pixel_checks,1,2,0
+102.887,event_checks,0,32,0
+103.066,passed,0,3,0

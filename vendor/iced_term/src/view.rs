@@ -12,7 +12,7 @@ use iced::font::{Style as FontStyle, Weight as FontWeight};
 use iced::mouse::{Cursor, ScrollDelta};
 use iced::widget::canvas::{Path, Text};
 use iced::widget::container;
-use iced::{Color, Element, Length, Point, Rectangle, Size, Theme};
+use iced::{Color, Element, Length, Point, Rectangle, Size, Theme, Vector};
 use iced_core::clipboard::Kind as ClipboardKind;
 use iced_core::keyboard::{Key, Modifiers};
 use iced_core::mouse::{self, Click};
@@ -75,13 +75,20 @@ impl<'a> TerminalView<'a> {
         layout: iced_graphics::core::Layout<'_>,
         shell: &mut iced_graphics::core::Shell<'_, Event>,
     ) {
-        let layout_size = layout.bounds().size();
-        if state.size != layout_size {
-            state.size = layout_size;
-            // Font settings update cached backend metrics independently. Do not
-            // queue a captured (and potentially stale) font alongside layout.
-            let cmd = Command::Resize(Some(layout_size), None);
-            shell.publish(Event::BackendCall(self.term.id, cmd));
+        let bounds = layout.bounds();
+        let previous = state.bounds.replace(bounds);
+        if previous != Some(bounds) {
+            // A moved pane must not continue a drag/double-click at its old
+            // screen position. Selection itself remains owned by the session.
+            state.reset_pointer();
+        }
+        if previous.map(|bounds| bounds.size()) != Some(bounds.size()) {
+            // Every session needs its first layout, including equal-sized tab
+            // replacements. The backend deduplicates unchanged cell geometry.
+            shell.publish(Event::BackendCall(
+                self.term.id,
+                Command::Resize(Some(bounds.size()), None),
+            ));
         }
     }
 
@@ -95,7 +102,11 @@ impl<'a> TerminalView<'a> {
         use iced_core::mouse::{Button::Left, Event::ButtonPressed};
 
         if let Mouse(ButtonPressed(Left)) = event {
-            state.focus = is_cursor_in_layout;
+            if is_cursor_in_layout {
+                state.focus();
+            } else {
+                state.unfocus();
+            }
         }
     }
 
@@ -109,6 +120,21 @@ impl<'a> TerminalView<'a> {
         let mut commands = Vec::new();
         let terminal_content = self.term.backend.renderable_content();
         let terminal_mode = terminal_content.terminal_mode;
+
+        // Button events carry no position of their own. Use the current Iced
+        // cursor, not a remembered grid point: a diff/relayout may have reset
+        // that point without an intervening CursorMoved event.
+        if matches!(
+            event,
+            mouse::Event::ButtonPressed(_) | mouse::Event::ButtonReleased(_)
+        ) {
+            state.mouse_position_on_grid = Backend::selection_point(
+                cursor_position.x - layout_position.x,
+                cursor_position.y - layout_position.y,
+                &terminal_content.terminal_size,
+                terminal_content.viewport.display_offset(),
+            );
+        }
 
         match event {
             iced_core::mouse::Event::ButtonPressed(
@@ -399,7 +425,17 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
     }
 
     fn state(&self) -> tree::State {
-        tree::State::new(TerminalViewState::new())
+        tree::State::new(TerminalViewState::new(self.term.id))
+    }
+
+    fn diff(&self, tree: &mut Tree) {
+        // Iced reconciles by widget type/position, not by terminal session.
+        // Backport upstream PR 70: never reuse another session's input state.
+        if tree.state.downcast_ref::<TerminalViewState>().terminal_id
+            != self.term.id
+        {
+            tree.state = self.state();
+        }
     }
 
     fn layout(
@@ -434,6 +470,13 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         _cursor: Cursor,
         viewport: &Rectangle,
     ) {
+        let bounds = layout.bounds();
+        let Some(clip) = bounds.intersection(viewport) else {
+            return;
+        };
+        if bounds.width <= 0.0 || bounds.height <= 0.0 {
+            return;
+        }
         let state = tree.state.downcast_ref::<TerminalViewState>();
         let content = self.term.backend.renderable_content();
         let term_size = content.terminal_size;
@@ -441,10 +484,9 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         let cell_height = term_size.cell_height;
         let font_size = self.term.font.size;
         let font_scale_factor = self.term.font.scale_factor;
-        let layout_offset_x = layout.position().x;
-        let layout_offset_y = layout.position().y;
-
-        let geom = self.term.cache.draw(renderer, viewport.size(), |frame| {
+        // Cache only pane-local geometry. Repositioning reuses the same cache;
+        // translation and clipping always come from the current layout.
+        let geom = self.term.cache.draw(renderer, bounds.size(), |frame| {
             // Precompute constants used in the inner loop
             let display_offset = content.viewport.display_offset() as f32;
             let cell_size = Size::new(cell_width, cell_height);
@@ -466,9 +508,8 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                 let col = indexed.point.column.0 as f32;
 
                 // Resolve position point for this cell
-                let x = layout_offset_x + (col * cell_width);
-                let y = layout_offset_y
-                    + (((line as f32) + display_offset) * cell_height);
+                let x = col * cell_width;
+                let y = ((line as f32) + display_offset) * cell_height;
                 let cell_center_y = y + half_h;
                 let cell_center_x = x + half_w;
 
@@ -490,8 +531,7 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                     last_line = Some(line);
                     bg_batch_rect = BackgroundRect::default()
                         .with_cell_height(cell_height)
-                        .with_display_offset(display_offset)
-                        .with_layout_offset_y(layout_offset_y);
+                        .with_display_offset(display_offset);
                 }
 
                 // Handle dim, inverse, and selected text
@@ -528,7 +568,6 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                         bg_batch_rect = BackgroundRect::default()
                             .with_cell_height(cell_height)
                             .with_display_offset(display_offset)
-                            .with_layout_offset_y(layout_offset_y)
                             .activate()
                             .with_color(bg)
                             .with_start_x(x)
@@ -540,8 +579,7 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
 
                     bg_batch_rect = BackgroundRect::default()
                         .with_cell_height(cell_height)
-                        .with_display_offset(display_offset)
-                        .with_layout_offset_y(layout_offset_y);
+                        .with_display_offset(display_offset);
                 }
 
                 // Draw hovered hyperlink underline (rare; keep per-cell for correctness)
@@ -619,7 +657,15 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         });
 
         use iced::advanced::graphics::geometry::Renderer as _;
-        renderer.draw_geometry(geom);
+        use iced_core::Renderer as _;
+        renderer.with_layer(clip, |renderer| {
+            renderer.with_translation(
+                Vector::new(bounds.x, bounds.y),
+                |renderer| {
+                    renderer.draw_geometry(geom);
+                },
+            );
+        });
     }
 
     fn update(
@@ -635,6 +681,19 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
     ) {
         let state = tree.state.downcast_mut::<TerminalViewState>();
         self.handle_resize(state, layout, shell);
+        match event {
+            iced::Event::Window(iced::window::Event::Rescaled(_)) => {
+                // Iced layout/cells stay in logical pixels; force the renderer
+                // to recreate geometry for the new physical scale once.
+                self.term.redraw();
+                shell.request_redraw();
+            },
+            iced::Event::Window(iced::window::Event::Unfocused) => {
+                state.reset_pointer();
+                state.keyboard_modifiers = Modifiers::empty();
+            },
+            _ => {},
+        }
 
         let is_cursor_in_layout = self.is_cursor_in_layout(cursor, layout);
         self.handle_focus(event, state, is_cursor_in_layout);
@@ -659,6 +718,16 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
             _ => Vec::new(),
         };
 
+        // Releases outside the pane still end its drag. Do not let a later
+        // cursor re-entry extend a selection after the button was released.
+        if matches!(
+            event,
+            iced::Event::Mouse(mouse::Event::ButtonReleased(
+                mouse::Button::Left
+            ))
+        ) {
+            state.is_dragged = false;
+        }
         if !commands.is_empty() {
             shell.capture_event();
         }
@@ -702,32 +771,35 @@ impl<'a> From<TerminalView<'a>> for Element<'a, Event, Theme, iced::Renderer> {
 
 #[derive(Debug, Clone)]
 struct TerminalViewState {
+    terminal_id: u64,
     focus: bool,
     is_dragged: bool,
     last_click: Option<mouse::Click>,
     scroll_pixels: f32,
     keyboard_modifiers: Modifiers,
-    size: Size<f32>,
+    bounds: Option<Rectangle>,
     mouse_position_on_grid: TerminalGridPoint,
 }
 
 impl TerminalViewState {
-    fn new() -> Self {
+    fn new(terminal_id: u64) -> Self {
         Self {
+            terminal_id,
             focus: false,
             is_dragged: false,
             last_click: None,
             scroll_pixels: 0.0,
             keyboard_modifiers: Modifiers::empty(),
-            size: Size::from([0.0, 0.0]),
+            bounds: None,
             mouse_position_on_grid: TerminalGridPoint::default(),
         }
     }
-}
 
-impl Default for TerminalViewState {
-    fn default() -> Self {
-        Self::new()
+    fn reset_pointer(&mut self) {
+        self.is_dragged = false;
+        self.last_click = None;
+        self.scroll_pixels = 0.0;
+        self.mouse_position_on_grid = TerminalGridPoint::default();
     }
 }
 
@@ -742,6 +814,8 @@ impl operation::Focusable for TerminalViewState {
 
     fn unfocus(&mut self) {
         self.focus = false;
+        self.reset_pointer();
+        self.keyboard_modifiers = Modifiers::empty();
     }
 }
 
@@ -749,7 +823,6 @@ impl operation::Focusable for TerminalViewState {
 struct BackgroundRect {
     display_offset: f32,
     cell_height: f32,
-    layout_offset_y: f32,
     is_active: bool,
     color: Color,
     start_x: f32,
@@ -764,11 +837,6 @@ impl BackgroundRect {
 
     fn with_cell_height(mut self, value: f32) -> Self {
         self.cell_height = value;
-        self
-    }
-
-    fn with_layout_offset_y(mut self, value: f32) -> Self {
-        self.layout_offset_y = value;
         self
     }
 
@@ -793,8 +861,7 @@ impl BackgroundRect {
     }
 
     fn build(&self, line: i32) -> Path {
-        let flush_y = self.layout_offset_y
-            + ((line as f32 + self.display_offset) * self.cell_height);
+        let flush_y = (line as f32 + self.display_offset) * self.cell_height;
         Path::rectangle(
             Point::new(self.start_x, flush_y),
             Size::new(self.width, self.cell_height),
@@ -817,6 +884,9 @@ impl BackgroundRect {
 }
 
 #[cfg(test)]
+mod state_tests;
+
+#[cfg(test)]
 mod tests {
     use super::*;
 
@@ -826,7 +896,7 @@ mod tests {
 
         #[test]
         fn handles_mouse_mode_with_left_click() {
-            let mut state = TerminalViewState::new();
+            let mut state = TerminalViewState::new(0);
             let terminal_mode = TermMode::MOUSE_MODE;
             let layout_position = Point { x: 5.0, y: 5.0 };
             let cursor_position = Point { x: 100.0, y: 150.0 };
@@ -870,7 +940,7 @@ mod tests {
             ];
 
             for _selection_type in cases {
-                let mut state = TerminalViewState::new();
+                let mut state = TerminalViewState::new(0);
                 state.keyboard_modifiers = Modifiers::SHIFT;
                 let mut commands = Vec::new();
 
@@ -899,7 +969,7 @@ mod tests {
 
         #[test]
         fn updates_mouse_position_on_grid() {
-            let mut state = TerminalViewState::new();
+            let mut state = TerminalViewState::new(0);
             let terminal_content = RenderableContent::default();
             let mut commands = Vec::new();
             let cases = vec![
@@ -960,7 +1030,7 @@ mod tests {
 
         #[test]
         fn generates_drag_update_command_when_dragged() {
-            let mut state = TerminalViewState::new();
+            let mut state = TerminalViewState::new(0);
             state.is_dragged = true; // Simulate an ongoing drag operation
             let terminal_content = RenderableContent::default();
             let layout_position = Point { x: 5.0, y: 5.0 };
@@ -984,7 +1054,7 @@ mod tests {
 
         #[test]
         fn generates_drag_update_command_when_dragged_in_mouse_motion_mode() {
-            let mut state = TerminalViewState::new();
+            let mut state = TerminalViewState::new(0);
             state.is_dragged = true; // Simulate an ongoing drag operation
             let terminal_content = RenderableContent {
                 terminal_mode: TermMode::MOUSE_MOTION,
@@ -1021,7 +1091,7 @@ mod tests {
         #[test]
         fn generates_drag_update_command_when_dragged_in_srg_mode_with_key_mods(
         ) {
-            let mut state = TerminalViewState::new();
+            let mut state = TerminalViewState::new(0);
             state.keyboard_modifiers = Modifiers::SHIFT;
             state.is_dragged = true; // Simulate an ongoing drag operation
             let terminal_content = RenderableContent {
@@ -1049,7 +1119,7 @@ mod tests {
 
         #[test]
         fn generates_drag_update_and_link_open() {
-            let mut state = TerminalViewState::new();
+            let mut state = TerminalViewState::new(0);
             state.keyboard_modifiers = Modifiers::COMMAND;
             state.is_dragged = true; // Simulate an ongoing drag operation
             let terminal_content = RenderableContent {
@@ -1092,7 +1162,7 @@ mod tests {
 
         #[test]
         fn mouse_mode_activated() {
-            let mut state = TerminalViewState::new();
+            let mut state = TerminalViewState::new(0);
             let terminal_mode = TermMode::MOUSE_MODE;
             let bindings = BindingsLayout::new();
             let mut commands = Vec::new();
@@ -1122,7 +1192,7 @@ mod tests {
 
         #[test]
         fn link_open_on_button_release() {
-            let mut state = TerminalViewState::new();
+            let mut state = TerminalViewState::new(0);
             state.keyboard_modifiers = Modifiers::COMMAND;
             let terminal_mode = TermMode::MOUSE_MODE;
             let bindings = BindingsLayout::new();
@@ -1163,7 +1233,7 @@ mod tests {
 
         #[test]
         fn link_open_on_button_release_in_non_mouse_mode() {
-            let mut state = TerminalViewState::new();
+            let mut state = TerminalViewState::new(0);
             state.keyboard_modifiers = Modifiers::COMMAND;
             state.mouse_position_on_grid = TerminalGridPoint {
                 line: Line(4),
@@ -1201,7 +1271,7 @@ mod tests {
 
         #[test]
         fn scroll_with_lines_downward() {
-            let mut state = TerminalViewState::new();
+            let mut state = TerminalViewState::new(0);
             let font = TermFont::new(FontSettings::default());
             let mut commands = Vec::new();
 
@@ -1218,7 +1288,7 @@ mod tests {
 
         #[test]
         fn scroll_with_lines_upward() {
-            let mut state = TerminalViewState::new();
+            let mut state = TerminalViewState::new(0);
             let font = TermFont::new(FontSettings::default());
             let mut commands = Vec::new();
 
@@ -1235,7 +1305,7 @@ mod tests {
 
         #[test]
         fn scroll_with_pixels_accumulating_downward() {
-            let mut state = TerminalViewState::new();
+            let mut state = TerminalViewState::new(0);
             let font = TermFont::new(FontSettings::default());
             let mut commands = Vec::new();
 
@@ -1253,7 +1323,7 @@ mod tests {
 
         #[test]
         fn scroll_with_pixels_accumulating_upward() {
-            let mut state = TerminalViewState::new();
+            let mut state = TerminalViewState::new(0);
             let font = TermFont::new(FontSettings::default());
             let mut commands = Vec::new();
 

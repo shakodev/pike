@@ -1,0 +1,32 @@
+{
+  "RecordedAtUtc": "2026-10-27T08:48:09.583554+00:00",
+  "BaseCommit": "fb9e5fce64934340b023b73a40fcf79d43efec20",
+  "Host": "aarch64-apple-darwin",
+  "OS": "26.7.1",
+  "Compiler": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "UpstreamIdentityPatch": "d9b343fdd5362979c61be307cdd0fa4ab301ef80",
+  "Renderers": [
+    "wgpu",
+    "tiny-skia"
+  ],
+  "PhysicalScales": [
+    1.25,
+    1.5,
+    2.0
+  ],
+  "FixturesPerProfile": 3,
+  "SurvivingFixtures": 0,
+  "NativeWindowsExecuted": false,
+  "GitHubActionsUsed": false,
+  "SourcesSha256": {
+    "Cargo.toml": "f06c1a687ee65986476ad17ac38160de994a5a82b91dc86dc7a55c17efac5f3f",
+    "Cargo.lock": "f2499ce171f71875ac098ef7b52161139645cf5f6fa81ac2c778bcffa2f8b367",
+    "vendor/iced_term/src/view.rs": "b91de1c3f70c68e3ca50b4c22568cc80ca2d0821edea1b2dea56ce78f5de64e7",
+    "vendor/iced_term/src/terminal.rs": "ef4452220300c07a6be634b8b833e520e0fa5ebb77174a2ddc53252ed232230d",
+    "vendor/iced_term/src/view/state_tests.rs": "864973944b325bb9710718edca44eb0a24a785e6c8d0dfd8f25a61e39852eed5",
+    "examples/widget_geometry.rs": "620dbc8e8221209695593370c81f6e2a76d9bb5b341148cb183aada4620158d3",
+    "examples/support/widget_events.rs": "dc06a8ec6eaea87b40b7594479798c3ba1564aed30bb9fd8a8527e39df9f22b3",
+    "examples/compatibility/report.rs": "e0dc84fa95f14a49a8a438c1b72a0745138776c634c4bb3b5b0db03344dc5e72"
+  },
+  "Screenshots": "Selected PPM snapshots converted to PNG with macOS sips"
+}

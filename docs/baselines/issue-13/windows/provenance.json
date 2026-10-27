@@ -1,0 +1,135 @@
+{
+  "tested_source_sha": "3228f47d4e0b9f803e640e81cd74d1edc622fb82",
+  "widget_run": "https://github.com/shakodev/pike/actions/runs/40486889935",
+  "windows_ci_run": "https://github.com/shakodev/pike/actions/runs/40486889924",
+  "conpty_audit_run": "https://github.com/shakodev/pike/actions/runs/40486889948",
+  "scope": "Native Windows Server 2025 x64 MSVC, pinned ConPTY, real synthetic PTY children and headless rendering; no physical monitor or interactive desktop verification.",
+  "results": {
+    "widget_profiles": [
+      "wgpu",
+      "tiny-skia"
+    ],
+    "adapter_tests_per_profile": 77,
+    "adapter_ignored_per_profile": 1,
+    "application_library_tests_per_profile": 39,
+    "application_tests_per_profile": 2,
+    "compile_fail_doctests_per_profile": 2,
+    "compatibility_tests_per_profile": 5,
+    "library_source_probe_tests_per_profile": 39,
+    "fixture_cleanup": "Three requested backend completions and all three fixture PIDs absent for each renderer."
+  },
+  "screenshots": [
+    {
+      "path": "wgpu/moved-1.25.png",
+      "original_ppm_sha256": "b10998e64d3a739aa0bdc64d094e4107f498baa6efbcbdc6faf67e17a336a448",
+      "png_sha256": "bd17c6287c523d78fd5467bb1fefff212621c0a7c52d74bcdfd4996ab58d8355",
+      "width": 800,
+      "height": 500
+    },
+    {
+      "path": "wgpu/moved-1.5.png",
+      "original_ppm_sha256": "1261e3b0f11c45e55d9823837529e59dceb92746b143a9e87f4529e2059b340e",
+      "png_sha256": "d353ccb52e1fd7233200ba806abdfdc1e08c1533ef782a248b19b12ee6310bec",
+      "width": 960,
+      "height": 600
+    },
+    {
+      "path": "wgpu/moved-2.png",
+      "original_ppm_sha256": "a20086ca38f829e5be27545b48de21e813205a701170382d00f10bd192d4e13c",
+      "png_sha256": "676b998374c0cb012e1ed7f1e39f4414b21e9d4a764c0b68994ceff9b887e3c2",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "path": "wgpu/clipped-1.5.png",
+      "original_ppm_sha256": "5a1cb2179f17be92449462bcf6790fac18c55bdbe7495f126dbc43b7c62e9e30",
+      "png_sha256": "eb6b399a745066967cde00b5f1b9c578144c4a3b0fe8303404bd926012104c3c",
+      "width": 960,
+      "height": 600
+    },
+    {
+      "path": "wgpu/nested-1.png",
+      "original_ppm_sha256": "6d1cc9022a5f571005af594cdd45bde0897110501c2e995f8d89eb289f811f4c",
+      "png_sha256": "ff301e822ddb85b2fd4f3de9e7cc31fc1e0ede9d9f56d0995a55f5681ae8e474",
+      "width": 800,
+      "height": 500
+    },
+    {
+      "path": "wgpu/nested-2.png",
+      "original_ppm_sha256": "8c244253d082c78e5cc268d15f3e9b4785975dafeac4ebd1636afc7c8f37c5f4",
+      "png_sha256": "7e41c5541fcce662c15e09a57f9fedea4c2102ccc7bf4bf0684021abba8bad7a",
+      "width": 800,
+      "height": 500
+    },
+    {
+      "path": "wgpu/nested-4.png",
+      "original_ppm_sha256": "45229e4440d320955b8a0dac1397462bf500f52c5cb509e4f4f57049a5112613",
+      "png_sha256": "1a8ff9e8274421a1c94e96715dbdefe01d42495c641d0eadbc38436f44c1fb5a",
+      "width": 800,
+      "height": 500
+    },
+    {
+      "path": "wgpu/font-theme.png",
+      "original_ppm_sha256": "ce9e7c7380fd2648da0cae157afea0aa33613826af0e34c3ab6003feaeaeb078",
+      "png_sha256": "0183ee6d0feb4a50b78e9fc24749c882ef4c3b20b8666b72c57baa4d72d2aab1",
+      "width": 960,
+      "height": 600
+    },
+    {
+      "path": "tiny-skia/moved-1.25.png",
+      "original_ppm_sha256": "21e08d83f8c8f108de08c32c8003a33a8871236fc116eac5f4d5ee0d3e8ba38b",
+      "png_sha256": "9dcc6a6234648f0a8a8c86a08ac95e031b4fa74ee07f7dd4912b5bd5e3e0ff2d",
+      "width": 800,
+      "height": 500
+    },
+    {
+      "path": "tiny-skia/moved-1.5.png",
+      "original_ppm_sha256": "3fe16aa0556b93ae970ebbfd729b28822816d8f2af9dfba79f0c59b2f40643a5",
+      "png_sha256": "0387c1403a24bca3ff53c8560f461b3a82ba2dea92551e9fea480544b5e91d89",
+      "width": 960,
+      "height": 600
+    },
+    {
+      "path": "tiny-skia/moved-2.png",
+      "original_ppm_sha256": "2aa6a3976328e4ecc0e46d854d9923400fa9b1a6f6756f0ef8e049ff4566c456",
+      "png_sha256": "aa38e42b7508d824ff3c6b812b53b958d40f589eeaa612450215f365394974bd",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "path": "tiny-skia/clipped-1.5.png",
+      "original_ppm_sha256": "16871157bbd650c070fad701ae1e222d91aab4a05adac54072289da8b2e10582",
+      "png_sha256": "1333add08cfadecaa692112bf0315a7d24ebe114a887dc44678bbc6d1aeaf501",
+      "width": 960,
+      "height": 600
+    },
+    {
+      "path": "tiny-skia/nested-1.png",
+      "original_ppm_sha256": "322843f96a5ce32c6bfe84c9a084a4aa223e539db3547d70ad4ee2d8d2c062e6",
+      "png_sha256": "5bd628ffe14859ac29867ba1fccfb7e7511353763005ea87f883612258321806",
+      "width": 800,
+      "height": 500
+    },
+    {
+      "path": "tiny-skia/nested-2.png",
+      "original_ppm_sha256": "01c3301588d5829d1f2f4c4a8e3790587d8d8ba60d0987268bdbdf59d702d944",
+      "png_sha256": "87067a45a0088db9af8ff47d05cc52684983ad7c5907216daec1cf78a000cdb2",
+      "width": 800,
+      "height": 500
+    },
+    {
+      "path": "tiny-skia/nested-4.png",
+      "original_ppm_sha256": "9f6f24e93f17d02ebfff28fe2690eba376ed79ad98455b8f63a232cc2ecac016",
+      "png_sha256": "797551395868f24fd7f44057ff1726be4516fadb84033981c915e416c3446694",
+      "width": 800,
+      "height": 500
+    },
+    {
+      "path": "tiny-skia/font-theme.png",
+      "original_ppm_sha256": "0bcf3463bd7e59cb6c1d0aa8d4f3e4866ab1e9b06c81fb87a4439d3e1b462cb5",
+      "png_sha256": "b8efbebe9e07469601460261d4a89282902c735235ba130dfc3cfe74a9f37076",
+      "width": 960,
+      "height": 600
+    }
+  ]
+}
