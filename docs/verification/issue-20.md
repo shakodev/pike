@@ -235,3 +235,22 @@ response/order/origin oracles are unchanged. The focused Windows job exercises
 ten independent launches per renderer and stops on first failure, without
 raising the existing deadline or retrying until green. This investigation
 remains a native verification blocker until its cause/coverage is resolved.
+
+Diagnostic source `3e5ba2f` passed ten independent launches per renderer
+([native run](https://github.com/shakodev/pike/actions/runs/40500354892)); all
+other native workflows also passed. These green diagnostic runs do not repair
+or explain the original timeout. Their traces show an extra startup DA reply
+in phase zero for each session, explaining the earlier phase-counter fix only.
+
+The next diagnostic revision buffers reply/read traces during the exchange,
+then writes them after completion to reduce observer I/O. It snapshots actual
+Windows input modes at startup, before/after RIS, before initial queries and
+later phase boundaries (at most eight snapshots per child). On a failed verdict
+only, the parent records each origin's input-writer counters and sends 512
+explicitly marked question marks through the same input path to release a
+blocked synthetic read and persist its partial trace. A one-second diagnostic
+grace follows the already-failed verdict; the original acceptance deadline and
+strict response checks are unchanged, and this cannot create a pass. A child
+that cannot consume the diagnostic stimulus may have no retained read trace.
+All diagnostic bytes are controlled fixture data; no production logging or
+runtime/vendor source changes are involved.

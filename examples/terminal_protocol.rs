@@ -36,6 +36,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .ok_or("non-Unicode fixture path")?
         .to_owned();
     let mut terminals = Vec::new();
+    let mut reply_trace = Vec::new();
     let window_focus = iced_term::WindowFocus::default();
     window_focus.set_focused(true); // Controlled headless window owner.
     let result = (|| -> io::Result<()> {
@@ -72,11 +73,41 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             terminals.push(terminal);
         }
         executor.block_on(async {
-            tokio::time::timeout(Duration::from_secs(30), run(&mut terminals, output))
-                .await
-                .map_err(io::Error::other)?
+            tokio::time::timeout(
+                Duration::from_secs(30),
+                run(&mut terminals, output, &mut reply_trace),
+            )
+            .await
+            .map_err(io::Error::other)?
         })
     })();
+    let mut replies = std::fs::File::create(output.join("reply-trace.csv"))?;
+    writeln!(replies, "session,phase,kind,reply_hex")?;
+    for row in reply_trace {
+        writeln!(replies, "{row}")?;
+    }
+    if result.is_err() {
+        let mut status = std::fs::File::create(output.join("failed-input-status.txt"))?;
+        for (index, terminal) in terminals.iter().enumerate() {
+            writeln!(
+                status,
+                "session={}, {:?}",
+                20001 + index,
+                terminal.input_status()
+            )?;
+        }
+        // The verdict is already failed. Release a blocked synthetic read so
+        // its Drop can persist the bounded pre-failure trace. This padding is
+        // diagnostic stimulus, never a reply or a successful retry.
+        std::fs::write(
+            output.join("diagnostic-padding.txt"),
+            "512 question marks per session, after failed verdict\n",
+        )?;
+        for terminal in &mut terminals {
+            let _ = send(terminal, &[b'?'; 512]);
+        }
+        executor.block_on(async { tokio::time::sleep(Duration::from_secs(1)).await });
+    }
     let handles: Vec<_> = terminals.iter().map(Terminal::shutdown_handle).collect();
     drop(terminals);
     let mut cleanup = std::fs::File::create(output.join("cleanup.csv"))?;
@@ -128,21 +159,52 @@ fn expect(input: &mut impl Read, expected: &[u8]) -> io::Result<()> {
 }
 
 // Opt-in fixture diagnostics contain only this controlled child's synthetic
-// input. Keep partial reads visible on timeout, with a strict total byte cap.
+// input. Buffer in memory during the exchange; writing every read/reply can
+// change native pipe scheduling. Persist on completion or diagnostic release.
 struct RecordedInput<R> {
     input: R,
-    trace: std::fs::File,
-    remaining: usize,
+    directory: std::path::PathBuf,
+    id: u8,
+    bytes: Vec<u8>,
+    stages: Vec<(&'static str, Option<u32>)>,
+}
+
+impl<R> RecordedInput<R> {
+    fn stage(&mut self, stage: &'static str) -> io::Result<()> {
+        check(
+            self.stages.len() < 8,
+            "synthetic stage trace exceeded its bound",
+        )?;
+        self.stages.push((stage, console_input_mode()?));
+        Ok(())
+    }
+}
+
+impl<R> Drop for RecordedInput<R> {
+    fn drop(&mut self) {
+        let _ = std::fs::write(
+            self.directory.join(format!("input-{}.bin", self.id)),
+            &self.bytes,
+        );
+        let _ = std::fs::write(
+            self.directory.join(format!("stage-{}.txt", self.id)),
+            self.stages.last().map_or("startup", |(stage, _)| *stage),
+        );
+        let _ = std::fs::write(
+            self.directory
+                .join(format!("console-modes-{}.txt", self.id)),
+            format!("{:?}\n", self.stages),
+        );
+    }
 }
 
 impl<R: Read> Read for RecordedInput<R> {
     fn read(&mut self, buffer: &mut [u8]) -> io::Result<usize> {
         let count = self.input.read(buffer)?;
-        if count > self.remaining {
+        if count > 4096 - self.bytes.len() {
             return Err(io::Error::other("synthetic input trace exceeded its bound"));
         }
-        self.trace.write_all(&buffer[..count])?;
-        self.remaining -= count;
+        self.bytes.extend_from_slice(&buffer[..count]);
         Ok(count)
     }
 }
@@ -157,9 +219,12 @@ fn fixture(id: u8, directory: &Path) -> io::Result<()> {
     let mut output = io::stdout().lock();
     let mut input = RecordedInput {
         input: io::stdin().lock(),
-        trace: std::fs::File::create(directory.join(format!("input-{id}.bin")))?,
-        remaining: 4096,
+        directory: directory.to_owned(),
+        id,
+        bytes: Vec::new(),
+        stages: Vec::new(),
     };
+    input.stage("startup")?;
     std::fs::write(
         directory.join(format!("fixture-{id}.pid")),
         std::process::id().to_string(),
@@ -168,22 +233,21 @@ fn fixture(id: u8, directory: &Path) -> io::Result<()> {
     expect(&mut input, b"S")?;
     title(&mut output, &format!("synthetic-\u{202e}title-{id}"))?;
     expect(&mut input, b"T")?;
+    input.stage("before-reset")?;
     output.write_all(b"\x1bc")?;
     output.flush()?;
     expect(&mut input, b"R")?;
+    input.stage("after-reset")?;
     output.write_all(b"\x07")?;
     output.flush()?;
     expect(&mut input, b"B")?;
-    std::fs::write(directory.join(format!("stage-{id}.txt")), "initial-queries")?;
+    input.stage("initial-queries")?;
     output.write_all(query_bytes())?;
     output.flush()?;
     let expected = expected_replies(id);
     expect(&mut input, &expected)?;
     std::fs::write(directory.join(format!("replies-{id}.bin")), &expected)?;
-    std::fs::write(
-        directory.join(format!("stage-{id}.txt")),
-        "metadata-query-flood",
-    )?;
+    input.stage("metadata-query-flood")?;
     for index in 0..10_000 {
         write!(output, "\x1b]2;synthetic-flood-{id}-{index}\x07\x07")?;
         if index % 1000 == 0 {
@@ -200,7 +264,7 @@ fn fixture(id: u8, directory: &Path) -> io::Result<()> {
         &mut input,
         format!("\x1b]10;rgb:{fg}\x07").repeat(10).as_bytes(),
     )?;
-    std::fs::write(directory.join(format!("stage-{id}.txt")), "focus-reports")?;
+    input.stage("focus-reports")?;
     output.write_all(b"\x1b[?1004h")?;
     title(&mut output, &format!("pike:protocol:focus:{id}"))?;
     if id == 2 {
@@ -214,7 +278,7 @@ fn fixture(id: u8, directory: &Path) -> io::Result<()> {
     title(&mut output, &format!("pike:protocol:hidden:{id}"))?;
     expect(&mut input, b"\x1b[O")?;
     title(&mut output, &format!("pike:protocol:done:{id}"))?;
-    std::fs::write(directory.join(format!("stage-{id}.txt")), "passed")?;
+    input.stage("passed")?;
     Ok(())
 }
 
@@ -228,7 +292,11 @@ fn send(terminal: &mut Terminal, bytes: &[u8]) -> io::Result<()> {
     )
 }
 
-async fn run(terminals: &mut [Terminal], output: &Path) -> io::Result<()> {
+async fn run(
+    terminals: &mut [Terminal],
+    output: &Path,
+    replies: &mut Vec<String>,
+) -> io::Result<()> {
     let streams: Vec<_> = terminals
         .iter()
         .map(|terminal| {
@@ -245,9 +313,6 @@ async fn run(terminals: &mut [Terminal], output: &Path) -> io::Result<()> {
     let mut queries = [[0_u32; 3]; 2];
     let mut completed = [false; 2];
     let mut record = std::fs::File::create(output.join("events.csv"))?;
-    let mut replies = std::fs::File::create(output.join("reply-trace.csv"))?;
-    writeln!(replies, "session,phase,kind,reply_hex")?;
-    let mut trace_rows = 0;
     writeln!(record, "event,session,value")?;
     while let Some(Event::BackendCall(id, command)) = events.next().await {
         let index = usize::try_from(
@@ -312,13 +377,11 @@ async fn run(terminals: &mut [Terminal], output: &Path) -> io::Result<()> {
         let action = terminal.handle(Command::ProxyToBackend(command));
         if let Some(reply) = captured.lock().unwrap().take() {
             check(
-                trace_rows < 256 && reply.len() <= 128,
+                replies.len() < 256 && reply.len() <= 128,
                 "synthetic reply trace exceeded its bound",
             )?;
             let hex: String = reply.bytes().map(|byte| format!("{byte:02x}")).collect();
-            writeln!(replies, "{id},{},{kind},{hex}", phases[index])?;
-            replies.flush()?;
-            trace_rows += 1;
+            replies.push(format!("{id},{},{kind},{hex}", phases[index]));
         }
         match action {
             Action::ChangeTitle(value) if value == format!("pike:protocol:ready:{fixture_id}") => {
@@ -432,6 +495,23 @@ fn check(condition: bool, message: &'static str) -> io::Result<()> {
     } else {
         Err(io::Error::other(message))
     }
+}
+
+#[cfg(windows)]
+fn console_input_mode() -> io::Result<Option<u32>> {
+    use windows_sys::Win32::System::Console::{GetConsoleMode, GetStdHandle, STD_INPUT_HANDLE};
+    let mut mode = 0;
+    // SAFETY: Query the borrowed synthetic console input handle and a valid
+    // stack output pointer. No mode or handle ownership changes here.
+    if unsafe { GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), &mut mode) } == 0 {
+        return Err(io::Error::last_os_error());
+    }
+    Ok(Some(mode))
+}
+
+#[cfg(not(windows))]
+fn console_input_mode() -> io::Result<Option<u32>> {
+    Ok(None)
 }
 
 #[cfg(windows)]
