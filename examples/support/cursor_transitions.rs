@@ -6,9 +6,18 @@ use iced::futures::{StreamExt, stream};
 use iced::{Event, Executor, Point, Rectangle, Size};
 use iced_term::{AlacrittyEvent, BackendCommand, Command, Terminal};
 use pike::executor::SharedExecutor;
-use std::{fs, io, path::Path};
+use std::{
+    fs,
+    io::{self, Write},
+    path::Path,
+};
 
-fn state(executor: &SharedExecutor, terminal: &mut Terminal, name: &str) -> io::Result<()> {
+fn state(
+    executor: &SharedExecutor,
+    terminal: &mut Terminal,
+    name: &str,
+    output: &Path,
+) -> io::Result<()> {
     let newline = if cfg!(windows) { "\r" } else { "\n" };
     terminal.handle(Command::ProxyToBackend(BackendCommand::Write(
         format!("state {name}{newline}").into_bytes(),
@@ -26,7 +35,26 @@ fn state(executor: &SharedExecutor, terminal: &mut Terminal, name: &str) -> io::
             }
             Err(io::Error::other("state-only source ended before its normal Wakeup"))
         }).await.map_err(io::Error::other)?
-    })
+    })?;
+    let content = terminal.renderable_content().unwrap();
+    let mut states = fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(output.join("state-model.txt"))?;
+    writeln!(
+        states,
+        "request={name} point={:?} shape={:?} color={:?} focus={} mode={:?} cell={:?} at-column1={:?} size={:?} snapshots={} work={:?}",
+        content.cursor_point,
+        content.cursor_shape,
+        content.cursor_color,
+        content.focused,
+        content.terminal_mode,
+        content.cursor,
+        content.viewport.cells().get(1),
+        content.terminal_size,
+        terminal.snapshot_stats().snapshots,
+        terminal.work_stats()
+    )
 }
 pub fn verify(
     executor: &SharedExecutor,
@@ -57,9 +85,9 @@ pub fn verify(
             .iter()
             .map(|cell| cell.c)
             .collect();
-        state(executor, terminal, "hide")?;
+        state(executor, terminal, "hide", output)?;
         let hidden = pixels::render(terminal, renderer, tree, bounds, viewport, 1.5);
-        state(executor, terminal, "show")?;
+        state(executor, terminal, "show", output)?;
         let block = pixels::render(terminal, renderer, tree, bounds, viewport, 1.5);
         check(
             !pixels::same(&hidden.rgba, &block.rgba),
@@ -67,22 +95,48 @@ pub fn verify(
         )?;
         pixels::legible(&block, cell)?;
         for shape in ["underline", "beam"] {
-            state(executor, terminal, shape)?;
+            state(executor, terminal, shape, output)?;
             let shot = pixels::render(terminal, renderer, tree, bounds, viewport, 1.5);
             check(
                 !pixels::same(&block.rgba, &shot.rgba),
                 "state-only DECSCUSR did not repaint",
             )?;
-            check(
-                pixels::same(
-                    &pixels::crop(&hidden, center)?,
-                    &pixels::crop(&shot, center)?,
-                ),
-                "state-only non-block shape retained stale glyph color",
-            )?;
+            let expected = pixels::crop(&hidden, center)?;
+            let actual = pixels::crop(&shot, center)?;
+            if !pixels::same(&expected, &actual) {
+                // Preserve this original failed verdict. These bounded synthetic
+                // frames/model records distinguish shape/position/color from
+                // genuinely stale cached paint; do not refresh or retry.
+                report::screenshot(&output.join("state-failed-hidden.ppm"), hidden.clone())?;
+                report::screenshot(&output.join("state-failed-block.ppm"), block.clone())?;
+                report::screenshot(&output.join("state-failed-shape.ppm"), shot)?;
+                let changed = expected
+                    .chunks_exact(4)
+                    .zip(actual.chunks_exact(4))
+                    .filter(|(a, b)| a != b)
+                    .count();
+                let histogram = |bytes: &[u8]| {
+                    let mut colors = std::collections::BTreeMap::<[u8; 4], usize>::new();
+                    for pixel in bytes.chunks_exact(4) {
+                        *colors.entry(pixel.try_into().unwrap()).or_default() += 1;
+                    }
+                    colors
+                };
+                fs::write(
+                    output.join("state-failed.txt"),
+                    format!(
+                        "case={case} request={shape} center={center:?} cell={cell:?} changed_pixels={changed}\nexpected={:?}\nactual={:?}\n",
+                        histogram(&expected),
+                        histogram(&actual)
+                    ),
+                )?;
+                return Err(io::Error::other(
+                    "state-only non-block shape retained stale glyph color",
+                ));
+            }
         }
-        state(executor, terminal, "block")?;
-        state(executor, terminal, "color")?;
+        state(executor, terminal, "block", output)?;
+        state(executor, terminal, "color", output)?;
         let colored = pixels::render(terminal, renderer, tree, bounds, viewport, 1.5);
         if case == 5 {
             check(
@@ -90,7 +144,7 @@ pub fn verify(
                 "state-only OSC12 did not repaint",
             )?;
         }
-        state(executor, terminal, "reset-color")?;
+        state(executor, terminal, "reset-color", output)?;
         let reset = pixels::render(terminal, renderer, tree, bounds, viewport, 1.5);
         if case == 5 {
             check(
@@ -207,7 +261,7 @@ pub fn verify(
             "state-only transition remeasured fonts",
         )?;
     }
-    state(executor, terminal, "alt")?;
+    state(executor, terminal, "alt", output)?;
     check(
         terminal
             .renderable_content()
@@ -218,7 +272,7 @@ pub fn verify(
             .all(|cell| cell.c == ' '),
         "state-only alternate screen was not empty",
     )?;
-    state(executor, terminal, "main")?;
+    state(executor, terminal, "main", output)?;
     check(
         terminal
             .renderable_content()
