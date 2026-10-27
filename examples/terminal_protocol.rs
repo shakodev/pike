@@ -127,6 +127,26 @@ fn expect(input: &mut impl Read, expected: &[u8]) -> io::Result<()> {
     check(bytes == expected, "synthetic ordered reply bytes differ")
 }
 
+// Opt-in fixture diagnostics contain only this controlled child's synthetic
+// input. Keep partial reads visible on timeout, with a strict total byte cap.
+struct RecordedInput<R> {
+    input: R,
+    trace: std::fs::File,
+    remaining: usize,
+}
+
+impl<R: Read> Read for RecordedInput<R> {
+    fn read(&mut self, buffer: &mut [u8]) -> io::Result<usize> {
+        let count = self.input.read(buffer)?;
+        if count > self.remaining {
+            return Err(io::Error::other("synthetic input trace exceeded its bound"));
+        }
+        self.trace.write_all(&buffer[..count])?;
+        self.remaining -= count;
+        Ok(count)
+    }
+}
+
 fn title(output: &mut impl Write, value: &str) -> io::Result<()> {
     write!(output, "\x1b]2;{value}\x07")?;
     output.flush()
@@ -135,7 +155,11 @@ fn title(output: &mut impl Write, value: &str) -> io::Result<()> {
 fn fixture(id: u8, directory: &Path) -> io::Result<()> {
     raw_console()?;
     let mut output = io::stdout().lock();
-    let mut input = io::stdin().lock();
+    let mut input = RecordedInput {
+        input: io::stdin().lock(),
+        trace: std::fs::File::create(directory.join(format!("input-{id}.bin")))?,
+        remaining: 4096,
+    };
     std::fs::write(
         directory.join(format!("fixture-{id}.pid")),
         std::process::id().to_string(),
@@ -150,11 +174,16 @@ fn fixture(id: u8, directory: &Path) -> io::Result<()> {
     output.write_all(b"\x07")?;
     output.flush()?;
     expect(&mut input, b"B")?;
+    std::fs::write(directory.join(format!("stage-{id}.txt")), "initial-queries")?;
     output.write_all(query_bytes())?;
     output.flush()?;
     let expected = expected_replies(id);
     expect(&mut input, &expected)?;
     std::fs::write(directory.join(format!("replies-{id}.bin")), &expected)?;
+    std::fs::write(
+        directory.join(format!("stage-{id}.txt")),
+        "metadata-query-flood",
+    )?;
     for index in 0..10_000 {
         write!(output, "\x1b]2;synthetic-flood-{id}-{index}\x07\x07")?;
         if index % 1000 == 0 {
@@ -171,6 +200,7 @@ fn fixture(id: u8, directory: &Path) -> io::Result<()> {
         &mut input,
         format!("\x1b]10;rgb:{fg}\x07").repeat(10).as_bytes(),
     )?;
+    std::fs::write(directory.join(format!("stage-{id}.txt")), "focus-reports")?;
     output.write_all(b"\x1b[?1004h")?;
     title(&mut output, &format!("pike:protocol:focus:{id}"))?;
     if id == 2 {
@@ -184,6 +214,7 @@ fn fixture(id: u8, directory: &Path) -> io::Result<()> {
     title(&mut output, &format!("pike:protocol:hidden:{id}"))?;
     expect(&mut input, b"\x1b[O")?;
     title(&mut output, &format!("pike:protocol:done:{id}"))?;
+    std::fs::write(directory.join(format!("stage-{id}.txt")), "passed")?;
     Ok(())
 }
 
@@ -214,6 +245,9 @@ async fn run(terminals: &mut [Terminal], output: &Path) -> io::Result<()> {
     let mut queries = [[0_u32; 3]; 2];
     let mut completed = [false; 2];
     let mut record = std::fs::File::create(output.join("events.csv"))?;
+    let mut replies = std::fs::File::create(output.join("reply-trace.csv"))?;
+    writeln!(replies, "session,phase,kind,reply_hex")?;
+    let mut trace_rows = 0;
     writeln!(record, "event,session,value")?;
     while let Some(Event::BackendCall(id, command)) = events.next().await {
         let index = usize::try_from(
@@ -241,8 +275,51 @@ async fn run(terminals: &mut [Terminal], output: &Path) -> io::Result<()> {
                 _ => {}
             }
         }
+        let captured = std::sync::Arc::new(std::sync::Mutex::new(None));
+        let tap = captured.clone();
+        let (command, kind) = match command {
+            BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::PtyWrite(reply)) => {
+                *tap.lock().unwrap() = Some(reply.clone());
+                (
+                    BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::PtyWrite(reply)),
+                    "pty",
+                )
+            }
+            BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::ColorRequest(color, format)) => (
+                BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::ColorRequest(
+                    color,
+                    std::sync::Arc::new(move |color| {
+                        let reply = format(color);
+                        *tap.lock().unwrap() = Some(reply.clone());
+                        reply
+                    }),
+                )),
+                "color",
+            ),
+            BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::TextAreaSizeRequest(format)) => (
+                BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::TextAreaSizeRequest(
+                    std::sync::Arc::new(move |size| {
+                        let reply = format(size);
+                        *tap.lock().unwrap() = Some(reply.clone());
+                        reply
+                    }),
+                )),
+                "pixels",
+            ),
+            other => (other, "none"),
+        };
         let terminal = &mut terminals[index];
         let action = terminal.handle(Command::ProxyToBackend(command));
+        if let Some(reply) = captured.lock().unwrap().take() {
+            check(
+                trace_rows < 256 && reply.len() <= 128,
+                "synthetic reply trace exceeded its bound",
+            )?;
+            let hex: String = reply.bytes().map(|byte| format!("{byte:02x}")).collect();
+            writeln!(replies, "{id},{},{kind},{hex}", phases[index])?;
+            replies.flush()?;
+            trace_rows += 1;
+        }
         match action {
             Action::ChangeTitle(value) if value == format!("pike:protocol:ready:{fixture_id}") => {
                 check(phases[index] == 0, "duplicate readiness")?;

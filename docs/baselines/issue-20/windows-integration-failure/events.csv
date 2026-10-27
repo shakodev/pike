@@ -1,0 +1,15 @@
+event,session,value
+sanitized_title,20001,passed
+reset_title,20001,passed
+bell,20001,passed
+sanitized_title,20002,passed
+reset_title,20002,passed
+bell,20002,passed
+adapter_color_queries,20002,17
+adapter_pixel_size_queries,20002,1
+adapter_character_size_queries,20002,1
+ordered_queries,20002,19
+focus_reports,20002,passed
+exit_status,20002,42
+exit_status,20002,42
+completed,20002,passed

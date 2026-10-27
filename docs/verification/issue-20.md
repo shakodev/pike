@@ -1,6 +1,6 @@
 # Issue #20 — terminal protocol and metadata policies
 
-Both review-corrected native Windows profiles pass at source `187f6e6`;
+Review-corrected native Windows profiles passed at source `187f6e6`;
 exact run links, source hashes and retained evidence are in the final section.
 
 The issue is the self-contained plan; PLAN.md is absent. Work started from
@@ -216,3 +216,22 @@ for both local renderer profiles. Protocol, public-widget geometry/focus and
 Unicode two-font/four-scale release probes are repeated on the combined source.
 The 187f6e6 native evidence above is preserved with its original exact source;
 combined-head native reruns are pending until the integration is pushed.
+
+## Combined-head transport investigation
+
+Combined source `938a48b` passed all local checks and six release probes. Native
+full CI, Unicode, widget geometry and resource audits passed, as did the
+protocol tiny-skia job. Its [wgpu protocol job](https://github.com/shakodev/pike/actions/runs/40498774695)
+timed out after session 20001 title/reset/bell but before its initial query read
+completed; session 20002 completed all strict 17+1+1 routing, focus and drained
+status-42 checks. Both backends acknowledged cleanup. The
+[failure evidence](../baselines/issue-20/windows-integration-failure/) preserves
+exact source/hash/event/cleanup records; no root cause is claimed yet.
+
+The diagnostic fixture now retains only bounded synthetic test bytes: at most
+256 formatted-reply records of 128 bytes each, per-child partial-input traces
+capped at 4,096 bytes and a latest-stage marker. Runtime/vendor code and strict
+response/order/origin oracles are unchanged. The focused Windows job exercises
+ten independent launches per renderer and stops on first failure, without
+raising the existing deadline or retrying until green. This investigation
+remains a native verification blocker until its cause/coverage is resolved.
