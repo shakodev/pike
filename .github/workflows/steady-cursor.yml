@@ -47,7 +47,7 @@ jobs:
           rustc --version --verbose | Tee-Object "$env:EVIDENCE/compiler.txt"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber | ConvertTo-Json | Set-Content "$env:EVIDENCE/os.json"
-          Get-FileHash Cargo.lock, vendor/iced_term/src/view.rs, vendor/iced_term/src/view/cursor.rs, vendor/iced_term/src/view/glyphs.rs, vendor/iced_term/src/snapshot.rs, vendor/iced_term/src/backend.rs, vendor/iced_term/src/terminal.rs, examples/steady_cursor.rs, examples/support/cursor_pixels.rs, examples/support/cursor_micro.rs, examples/support/cursor_transitions.rs | Format-Table -AutoSize | Out-String -Width 240 | Set-Content "$env:EVIDENCE/source-hashes.txt"
+          Get-FileHash Cargo.lock, vendor/iced_term/src/view.rs, vendor/iced_term/src/view/cursor.rs, vendor/iced_term/src/view/glyphs.rs, vendor/iced_term/src/snapshot.rs, vendor/iced_term/src/backend.rs, vendor/iced_term/src/terminal.rs, examples/steady_cursor.rs, examples/support/cursor_input.rs, examples/support/cursor_pixels.rs, examples/support/cursor_micro.rs, examples/support/cursor_transitions.rs | Format-Table -AutoSize | Out-String -Width 240 | Set-Content "$env:EVIDENCE/source-hashes.txt"
 
       - name: Cache dependencies and isolated fixture build
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
@@ -102,6 +102,7 @@ jobs:
           } finally {
               $process.Dispose()
           }
+          if ((Get-Content "$probeOutput/fixture-input.txt" -Raw) -notmatch 'after=512') { throw 'Fixture did not record raw Windows VT input mode.' }
           if ((Get-Content "$probeOutput/completed.txt" -Raw).Trim() -ne 'passed') { throw 'Missing successful completion marker.' }
           if (-not (Test-Path "$probeOutput/state-only.txt") -or -not (Test-Path "$probeOutput/micro-result.txt")) { throw 'Missing state-only or actual Micro results.' }
           $cleanup = @(Import-Csv "$probeOutput/cleanup.csv")

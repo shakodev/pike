@@ -18,6 +18,9 @@ fn state(
     name: &str,
     output: &Path,
 ) -> io::Result<()> {
+    let previous = terminal.renderable_content().unwrap();
+    let previous_point = previous.cursor_point;
+    let previous_cells = previous.viewport.cells().to_vec();
     let newline = if cfg!(windows) { "\r" } else { "\n" };
     terminal.handle(Command::ProxyToBackend(BackendCommand::Write(
         format!("state {name}{newline}").into_bytes(),
@@ -54,7 +57,51 @@ fn state(
         content.terminal_size,
         terminal.snapshot_stats().snapshots,
         terminal.work_stats()
-    )
+    )?;
+    if !matches!(name, "alt" | "main") {
+        check(
+            content.cursor_point == previous_point,
+            "state-only command moved the authoritative cursor",
+        )?;
+        check(
+            content.viewport.cells() == previous_cells,
+            "state-only command changed authoritative cells",
+        )?;
+    }
+    let expected_shape = match name {
+        "block" => Some("Block"),
+        "underline" => Some("Underline"),
+        "beam" => Some("Beam"),
+        "hide" => Some("Hidden"),
+        _ => None,
+    };
+    if let Some(expected) = expected_shape {
+        check(
+            format!("{:?}", content.cursor_shape) == expected,
+            "state-only requested shape differs from authoritative shape",
+        )?;
+    }
+    if name == "show" {
+        check(
+            format!("{:?}", content.cursor_shape) != "Hidden",
+            "state-only show left the authoritative cursor hidden",
+        )?;
+    }
+    if name == "color" {
+        check(
+            content
+                .cursor_color
+                .map(|color| (color.r, color.g, color.b))
+                == Some((255, 128, 0)),
+            "state-only OSC12 did not update the authoritative color",
+        )?;
+    } else if name == "reset-color" {
+        check(
+            content.cursor_color.is_none(),
+            "state-only OSC112 did not reset the authoritative color",
+        )?;
+    }
+    Ok(())
 }
 pub fn verify(
     executor: &SharedExecutor,

@@ -1,4 +1,6 @@
 //! Public VT/widget/pixel evidence. Output and editor files are synthetic.
+#[path = "support/cursor_input.rs"]
+mod input;
 #[path = "support/cursor_micro.rs"]
 mod micro;
 #[path = "support/cursor_pixels.rs"]
@@ -16,7 +18,7 @@ use iced::{Event, Executor, Font, Point, Rectangle, Size};
 use iced_term::{AlacrittyEvent, BackendCommand, Command, Terminal};
 use pike::executor::SharedExecutor;
 use std::fs;
-use std::io::{self, BufRead, Write};
+use std::io::{self, Write};
 use std::path::Path;
 use std::time::{Duration, Instant};
 
@@ -32,7 +34,7 @@ fn check(ok: bool, message: &'static str) -> io::Result<()> {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<_> = std::env::args().collect();
     if args.get(1).is_some_and(|arg| arg == "--fixture") {
-        fixture()?;
+        fixture(args.get(2).map(Path::new))?;
         return Ok(());
     }
     if args.get(1).is_some_and(|arg| arg == "--micro-fixture") {
@@ -71,7 +73,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             })),
             backend: iced_term::settings::BackendSettings {
                 program,
-                args: vec!["--fixture".into()],
+                args: vec![
+                    "--fixture".into(),
+                    output.to_str().ok_or("non-Unicode output path")?.into(),
+                ],
                 ..Default::default()
             },
         },
@@ -105,13 +110,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn fixture() -> io::Result<()> {
-    no_echo()?;
+fn fixture(diagnostics: Option<&Path>) -> io::Result<()> {
+    input::configure(diagnostics)?;
     let mut output = io::stdout().lock();
     write!(output, "\x1b]2;pike:cursor:boot:{}\x07", std::process::id())?;
     output.flush()?;
-    for line in io::stdin().lock().lines() {
-        let line = line?;
+    let mut input = io::stdin().lock();
+    while let Some(line) = input::command(&mut input)? {
         if let Some(state) = line.strip_prefix("state ") {
             let sequence = match state {
                 "block" => "\x1b[2 q",
@@ -156,34 +161,6 @@ fn fixture() -> io::Result<()> {
         output.flush()?;
     }
     Ok(())
-}
-
-#[cfg(windows)]
-fn no_echo() -> io::Result<()> {
-    use windows_sys::Win32::System::Console::{
-        ENABLE_ECHO_INPUT, GetConsoleMode, GetStdHandle, STD_INPUT_HANDLE, SetConsoleMode,
-    };
-    let mut mode = 0;
-    // SAFETY: borrow this controlled child's input handle; disable only echo.
-    unsafe {
-        let input = GetStdHandle(STD_INPUT_HANDLE);
-        if GetConsoleMode(input, &mut mode) == 0
-            || SetConsoleMode(input, mode & !ENABLE_ECHO_INPUT) == 0
-        {
-            return Err(io::Error::last_os_error());
-        }
-    }
-    Ok(())
-}
-#[cfg(not(windows))]
-fn no_echo() -> io::Result<()> {
-    check(
-        std::process::Command::new("/bin/stty")
-            .arg("-echo")
-            .status()?
-            .success(),
-        "could not disable synthetic command echo",
-    )
 }
 
 fn wait(executor: &SharedExecutor, terminal: &mut Terminal, title: &str) -> io::Result<String> {

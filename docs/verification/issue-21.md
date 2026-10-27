@@ -163,3 +163,32 @@ in the PR; local macOS or cross-compilation never stands in for execution there.
 Physical desktop, DPI, keyboard/IME and monitor transitions remain unmeasured;
 previously deferred #13/#14 manual checks remain parked. No new manual gate is
 introduced by this focused rendering change.
+
+## Native fixture correction
+
+The first native head `47e8569` passed all 12 existing Windows checks, but both
+new cursor jobs failed a state-only glyph crop after their 168 main pixel cases.
+Bounded diagnostics at `f807448` preserved the original failed verdict/oracles
+and captured the actual model and hidden/block/shape frames. Both renderers captured a
+case1 beam failure: hide/show/underline commands moved the cursor down rows1/2/3;
+the next command scrolled the tested Y offscreen. Shapes were correctly
+Hidden/Block/Underline/Beam. The all-black crop was missing scene text, not stale
+cursor glyph paint. Original ZIPs and their matching GitHub SHA256 digests are
+retained separately from extracted files.
+
+Microsoft Terminal `readDataCooked.cpp` at inspected immutable upstream commit
+`a65cafae07502c3ce15f6765867fd05044b41f4d` calls
+`WriteCharsLegacy(...newlineSuffix...)` on Enter outside the ECHO_INPUT check
+(lines739–767). This supports the observed cooked-input newline/scroll cause;
+this inspected source is not claimed as the exact source build of the pinned
+NuGet runtime or a captured internal interleaving.
+
+The fixture now uses raw Windows VT input (mode512, like R20's existing fixture)
+and a bounded ASCII CR/LF command reader. Actual before/after modes are retained.
+Unix retains its existing canonical/no-echo path. Every non-screen-switch
+state-only command must preserve the authoritative point and full cell data;
+requested shapes and OSC12/reset colors must match the model before the unchanged
+pixel oracles run. Two framing tests cover CR/LF/CRLF, EOF and invalid/oversized
+commands. No production rendering, protocol, timeout or lifecycle change is
+part of this fixture correction. Actual Micro still uses the real editor's input
+mode and must pass its separate native pixel/natural-exit/cleanup checks.
