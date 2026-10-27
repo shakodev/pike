@@ -240,7 +240,9 @@ impl LaunchPool {
         })
     }
 
-    fn start_with(
+    // Crate visibility lets the opt-in probe exercise the exact pool source
+    // with deterministic preparation without exposing a public injection API.
+    pub(crate) fn start_with(
         &mut self,
         prepare: impl FnOnce(SessionId) -> io::Result<PreparedTerminal> + Send + 'static,
     ) -> Result<LaunchRequest, LaunchError> {

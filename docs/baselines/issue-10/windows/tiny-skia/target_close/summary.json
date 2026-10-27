@@ -1,0 +1,51 @@
+﻿{
+    "Scenario":  "target_close",
+    "OS":  "Microsoft Windows NT 10.0.26200.0",
+    "CpuSeconds":  0.21875,
+    "WallSeconds":  5.8599381,
+    "SampleCount":  163,
+    "UnresponsiveSamples":  0,
+    "MaximumSampledPrivateBytes":  18006016,
+    "MaximumSampledWorkingSetBytes":  23609344,
+    "MaximumSampledThreads":  18,
+    "MaximumSampledHandles":  241,
+    "RecoveryByCycle":  [
+                            {
+                                "Cycle":  0,
+                                "BaselinePrivateBytes":  4313088,
+                                "RecoveredPrivateBytes":  5799936,
+                                "BaselineThreads":  11,
+                                "RecoveredThreads":  12,
+                                "BaselineHandles":  211,
+                                "RecoveredHandles":  219
+                            },
+                            {
+                                "Cycle":  1,
+                                "BaselinePrivateBytes":  5824512,
+                                "RecoveredPrivateBytes":  5558272,
+                                "BaselineThreads":  12,
+                                "RecoveredThreads":  12,
+                                "BaselineHandles":  219,
+                                "RecoveredHandles":  219
+                            },
+                            {
+                                "Cycle":  2,
+                                "BaselinePrivateBytes":  5582848,
+                                "RecoveredPrivateBytes":  5988352,
+                                "BaselineThreads":  12,
+                                "RecoveredThreads":  12,
+                                "BaselineHandles":  219,
+                                "RecoveredHandles":  219
+                            }
+                        ],
+    "FixturePids":  [
+                        22596,
+                        22736,
+                        9932,
+                        27036,
+                        25516,
+                        22680
+                    ],
+    "SurvivingFixtures":  0,
+    "ExecutableSha256":  "24B654FC8EEF61F43A617E8CE0BB67A0427BA0FF03D231121381CA6FF28E5FAD"
+}

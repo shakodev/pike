@@ -84,7 +84,7 @@ documents explicit backend completion and retained final output.
 [Resize verification](docs/verification/issue-12.md) covers cached font metrics,
 fractional cells, deduplicated native resizes and event-specific presentation work.
 [Startup verification](docs/verification/issue-10.md) covers bounded asynchronous
-preparation, cancellation, retry routing and pending native Windows validation.
+preparation, cancellation, retry routing and native Windows release measurements.
 The [Windows launch contract and checks](docs/verification/issue-9.md) cover
 executable/argument encoding, automatic shell selection, cwd validation and
 independent inherited environment overrides.

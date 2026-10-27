@@ -1,0 +1,46 @@
+﻿{
+    "Scenario":  "failure",
+    "OS":  "Microsoft Windows NT 10.0.26200.0",
+    "CpuSeconds":  1.53125,
+    "WallSeconds":  5.7720348,
+    "SampleCount":  128,
+    "UnresponsiveSamples":  0,
+    "MaximumSampledPrivateBytes":  241512448,
+    "MaximumSampledWorkingSetBytes":  224399360,
+    "MaximumSampledThreads":  36,
+    "MaximumSampledHandles":  617,
+    "RecoveryByCycle":  [
+                            {
+                                "Cycle":  0,
+                                "BaselinePrivateBytes":  240394240,
+                                "RecoveredPrivateBytes":  240525312,
+                                "BaselineThreads":  36,
+                                "RecoveredThreads":  36,
+                                "BaselineHandles":  617,
+                                "RecoveredHandles":  617
+                            },
+                            {
+                                "Cycle":  1,
+                                "BaselinePrivateBytes":  240525312,
+                                "RecoveredPrivateBytes":  240525312,
+                                "BaselineThreads":  36,
+                                "RecoveredThreads":  36,
+                                "BaselineHandles":  617,
+                                "RecoveredHandles":  617
+                            },
+                            {
+                                "Cycle":  2,
+                                "BaselinePrivateBytes":  240525312,
+                                "RecoveredPrivateBytes":  241512448,
+                                "BaselineThreads":  36,
+                                "RecoveredThreads":  36,
+                                "BaselineHandles":  617,
+                                "RecoveredHandles":  617
+                            }
+                        ],
+    "FixturePids":  [
+
+                    ],
+    "SurvivingFixtures":  0,
+    "ExecutableSha256":  "CCB973FF08C1950684C443AAAC169BBCAD770B856BC44FF0FB5EBBAD0CCC7029"
+}

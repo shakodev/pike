@@ -1,0 +1,9 @@
+
+running 1 test
+scenario,requested,admitted,rejected,max_dispatch_us,heartbeats,max_gap_ms,recovery_ms
+target_close,32,2,30,41.400,6,16.043,31.814
+window_close,32,2,30,6.900,7,16.082,31.971
+failure,32,2,30,11.800,6,16.001,0.093
+test launch::tests::measure_32_requested_launches ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.37s
