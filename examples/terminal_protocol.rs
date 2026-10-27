@@ -197,7 +197,10 @@ async fn run(terminals: &mut [Terminal], output: &Path) -> io::Result<()> {
         .collect();
     let mut events = stream::select_all(streams);
     let mut phases = [0_u8; 2];
-    let mut queries = [0_u32; 2];
+    // Count only the fixture's query phase, excluding console negotiation.
+    // Native ConPTY can answer a size query before forwarding child output;
+    // exact child-side byte comparison still verifies the complete exchange.
+    let mut queries = [[0_u32; 3]; 2];
     let mut completed = [false; 2];
     let mut record = std::fs::File::create(output.join("events.csv"))?;
     writeln!(record, "event,session,value")?;
@@ -209,15 +212,23 @@ async fn run(terminals: &mut [Terminal], output: &Path) -> io::Result<()> {
         .map_err(io::Error::other)?;
         check(index < 2, "unknown originating session")?;
         let fixture_id = index + 1;
-        if matches!(
-            command,
-            BackendCommand::ProcessAlacrittyEvent(
-                AlacrittyEvent::ColorRequest(..)
-                    | AlacrittyEvent::TextAreaSizeRequest(..)
-                    | AlacrittyEvent::PtyWrite(_)
-            )
-        ) {
-            queries[index] += 1;
+        if phases[index] == 4 {
+            match &command {
+                BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::ColorRequest(..)) => {
+                    queries[index][0] += 1
+                }
+                BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::TextAreaSizeRequest(..)) => {
+                    queries[index][1] += 1
+                }
+                BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::PtyWrite(reply)) => {
+                    check(
+                        reply.starts_with("\x1b[8;"),
+                        "unexpected forwarded protocol reply",
+                    )?;
+                    queries[index][2] += 1;
+                }
+                _ => {}
+            }
         }
         let terminal = &mut terminals[index];
         let action = terminal.handle(Command::ProxyToBackend(command));
@@ -245,7 +256,26 @@ async fn run(terminals: &mut [Terminal], output: &Path) -> io::Result<()> {
             }
             Action::ChangeTitle(value) if value == format!("pike:protocol:focus:{fixture_id}") => {
                 check(phases[index] == 4, "query fixture phase mismatch")?;
-                check(queries[index] == 19, "queries bypassed the adapter")?;
+                let [colors, pixel_size, character_size] = queries[index];
+                writeln!(record, "adapter_color_queries,{id},{colors}")?;
+                writeln!(record, "adapter_pixel_size_queries,{id},{pixel_size}")?;
+                writeln!(
+                    record,
+                    "adapter_character_size_queries,{id},{character_size}"
+                )?;
+                record.flush()?;
+                check(colors == 17, "palette queries bypassed the adapter")?;
+                if cfg!(windows) {
+                    check(
+                        pixel_size <= 1 && character_size <= 1,
+                        "duplicate native size query",
+                    )?;
+                } else {
+                    check(
+                        pixel_size == 1 && character_size == 1,
+                        "size queries bypassed the Unix adapter",
+                    )?;
+                }
                 phases[index] = 5;
                 if index == 1 {
                     terminal.set_focused(true);
@@ -258,7 +288,7 @@ async fn run(terminals: &mut [Terminal], output: &Path) -> io::Result<()> {
                         "focus reply rejected",
                     )?;
                 }
-                writeln!(record, "ordered_queries,{id},{}", queries[index])?;
+                writeln!(record, "ordered_queries,{id},19")?;
             }
             Action::ChangeTitle(value)
                 if value == format!("pike:protocol:disabled:{fixture_id}") =>

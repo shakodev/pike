@@ -82,6 +82,14 @@ focus behavior, actual exit codes 41/42 and drained natural completion. Session
 contains synthetic bytes and numeric metadata only. Cleanup is awaited after
 preparation/verification failure; completed.txt is written only after success.
 
+The byte oracle covers every reply end to end. Query-route counters are scoped
+to the fixture phase and classified separately: all 17 palette queries per child
+must reach the adapter, while native Windows may satisfy a size query in the
+console host before forwarding output. Native parser/backend regressions also
+exercise both size formatters directly. Microsoft's [console query policy](https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences#query-state)
+and [console dispatch implementation](https://github.com/microsoft/terminal/blob/main/src/terminal/adapter/adaptDispatch.cpp)
+describe host-owned query responses; native artifacts record the observed routing.
+
 Use a worktree-local CARGO_TARGET_DIR and CARGO_BUILD_JOBS=4:
 
 ```text
