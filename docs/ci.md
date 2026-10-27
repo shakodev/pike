@@ -115,3 +115,11 @@ on failure. Metadata records the tested commit, OS, renderer, executable hash
 and total probe time; only synthetic fixture data is retained. This does not
 validate physical US/AltGr/dead-key layouts, and does not assert
 hardware-dependent performance budgets. See [issue #14](verification/issue-14.md).
+
+`tools/test-keyboard-layout.ps1` additionally drives a real Iced-window fixture
+with SendInput scan codes and per-thread US, German AltGr and US International
+dead-key layouts. It checks the actual Windows/Winit/Iced/widget/ConPTY path,
+including repeated presses and Alt prefixing, and retains results under the same
+artifact's `os-layout` directory. Lack of an interactive input desktop, focus or
+layout support fails explicitly. This is OS-level synthetic input, without any
+claim of physical keyboard hardware testing.

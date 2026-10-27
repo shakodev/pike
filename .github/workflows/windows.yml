@@ -137,6 +137,11 @@ jobs:
           Get-Content -LiteralPath (Join-Path $output 'editor.txt')
           Get-Content -LiteralPath (Join-Path $output 'psreadline.txt')
 
+      - name: Check Windows layout translation through the actual Iced window
+        if: ${{ !cancelled() }}
+        timeout-minutes: 3
+        run: ./tools/test-keyboard-layout.ps1 -OutputDirectory "${{ runner.temp }}/pike-keyboard-${{ matrix.renderer }}-${{ github.run_id }}-${{ github.run_attempt }}/os-layout"
+
       - name: Retain synthetic keyboard evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

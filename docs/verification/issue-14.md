@@ -241,3 +241,15 @@ post-cancellation input, arrows, Home/End and Backspace through the real widget
 and ConPTY and checks known returned lines. It does not invoke editing methods
 directly or mock ConsoleKeyInfo. The synthetic report records actual PowerShell
 and PSReadLine versions. This check remains pending until its native run passes.
+
+An additional opt-in `keyboard_layout` Iced-window fixture is driven by
+`tools/test-keyboard-layout.ps1`. The controller verifies the HWND belongs to
+the fixture, requests US (`00000409`), German (`00000407`) and US International
+(`00020409`) layouts on its thread, then sends scan codes with SendInput.
+It checks repeated US `a`, Alt+B, German AltGr+Q and dead-apostrophe/E composition
+through the actual Windows message loop, pinned Winit/Iced conversion, terminal
+widget, bounded writer and raw ConPTY child. Exact writes and final byte/hash
+metadata are checked, with acknowledged shutdown and a child-PID check.
+Missing layouts, foreground access or an interactive input desktop fail explicitly.
+The test does not claim physical keyboard hardware coverage. Native results
+remain pending. No dependency or feature additions are required.
