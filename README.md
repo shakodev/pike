@@ -79,6 +79,10 @@ writer, retaining its Apache-2.0 license and [patch ledger](vendor/alacritty_ter
 See [input verification](docs/verification/issue-6.md) for limits, tests and
 Windows resource observations. [Shutdown verification](docs/verification/issue-7.md)
 documents explicit backend completion and retained final output.
+[History verification](docs/verification/issue-11.md) covers the default
+2,000-line history limit, viewport-only presentation and hidden-session refresh.
+[Resize verification](docs/verification/issue-12.md) covers cached font metrics,
+fractional cells, deduplicated native resizes and event-specific presentation work.
 [Startup verification](docs/verification/issue-10.md) covers bounded asynchronous
 preparation, cancellation, retry routing and native Windows release measurements.
 The [Windows launch contract and checks](docs/verification/issue-9.md) cover

@@ -1,0 +1,14 @@
+{
+    "Findings":  "Deferred layout was never replayed on post-shutdown activation; bridge failure rejected retained-model resize. Both fixed.",
+    "RedGreen":  "New regression failed on reviewed head for normal close; failed with replay-only fix for bridge failure; passed after both fixes.",
+    "Formatting":  "cargo fmt --all -- --check: passed",
+    "Clippy":  "Application and explicit iced_term all-targets with -D warnings: passed for wgpu and tiny-skia",
+    "ApplicationTestsPerRenderer":  "19 library + 2 app passed; opt-in startup probe ignored",
+    "ExampleTestsPerRenderer":  "5 passed",
+    "AdapterTestsPerRenderer":  "59 passed; opt-in history profile ignored",
+    "ReleaseBuilds":  "Application and all examples passed for wgpu and tiny-skia",
+    "NativeShutdownRegression":  "Real ConPTY joined before completion is published to UI; normal close and bridge failure; input rejected; zero hidden snapshots; activation has current 60x10 geometry and one snapshot",
+    "Idle":  "Fresh native tiny-skia release observation; raw data and summary in idle/",
+    "Execution":  "Builds, tests and profiling ran sequentially; all checks passed first full run",
+    "GitHubActionsUsed":  false
+}

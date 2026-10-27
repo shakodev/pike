@@ -5,7 +5,9 @@ pub mod settings;
 mod backend;
 mod event_bridge;
 mod font;
+mod geometry;
 mod lifecycle;
+mod snapshot;
 mod terminal;
 mod theme;
 mod view;
@@ -20,10 +22,11 @@ pub use alacritty_terminal::term::TermMode;
 #[cfg(windows)]
 pub use alacritty_terminal::tty::LaunchError;
 pub use backend::Command as BackendCommand;
-pub use backend::{LinkAction, MouseButton, RenderableContent};
+pub use backend::{LinkAction, MouseButton};
 pub use event_bridge::{EventBridgeError, EventBridgeEvent};
 pub use lifecycle::{BackendCompletion, ExitReason, ShutdownHandle};
-pub use terminal::{Command, Event, PreparedTerminal, Terminal};
+pub use snapshot::{RenderableContent, SnapshotStats, ViewportSnapshot};
+pub use terminal::{Command, Event, PreparedTerminal, Terminal, WorkStats};
 pub use theme::{ColorPalette, Theme};
 pub use view::TerminalView;
 

@@ -1,22 +1,24 @@
 use crate::actions::Action;
 use crate::event_bridge::{EventBridgeEvent, Sender};
-use crate::settings::BackendSettings;
+use crate::geometry::{same_pty_size, Geometry, TerminalSize};
+use crate::settings::{BackendSettings, HistoryLimit};
+use crate::snapshot::{RenderableContent, SnapshotStats};
 use alacritty_terminal::event::{Event, EventListener, OnResize, WindowSize};
 use alacritty_terminal::event_loop::{EventLoop, Notifier};
 use alacritty_terminal::grid::{Dimensions, Scroll};
 use alacritty_terminal::index::{Column, Direction, Line, Point, Side};
-use alacritty_terminal::selection::{Selection, SelectionRange, SelectionType};
+use alacritty_terminal::selection::{Selection, SelectionType};
 use alacritty_terminal::sync::FairMutex;
 use alacritty_terminal::term::search::{Match, RegexIter, RegexSearch};
 use alacritty_terminal::term::{
-    self, cell::Cell, test::TermSize, viewport_to_point, Term, TermMode,
+    self, test::TermSize, viewport_to_point, Term, TermMode,
 };
-use alacritty_terminal::{tty, Grid};
+use alacritty_terminal::tty;
 use iced::keyboard::Modifiers;
 use iced_core::Size;
 use std::cmp::min;
 use std::io::Result;
-use std::ops::{Index, RangeInclusive};
+use std::ops::Index;
 use std::sync::Arc;
 
 const URL_REGEX: &str = r#"(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file://|git://|ssh:|ftp://)[^\u{0000}-\u{001F}\u{007F}-\u{009F}<>"\s{-}\^⟨⟩`]+"#;
@@ -26,6 +28,7 @@ pub enum Command {
     Write(Vec<u8>),
     Scroll(i32),
     Resize(Option<Size<f32>>, Option<Size<f32>>),
+    SetHistoryLimit(HistoryLimit),
     SelectStart(SelectionType, (f32, f32)),
     SelectUpdate((f32, f32)),
     ProcessLink(LinkAction, Point),
@@ -76,70 +79,25 @@ pub enum LinkAction {
     Open,
 }
 
-#[derive(Clone, Copy, Debug)]
-pub struct TerminalSize {
-    pub cell_width: u16,
-    pub cell_height: u16,
-    num_cols: u16,
-    num_lines: u16,
-    layout_width: f32,
-    layout_height: f32,
-}
-
-impl Default for TerminalSize {
-    fn default() -> Self {
-        Self {
-            cell_width: 1,
-            cell_height: 1,
-            num_cols: 80,
-            num_lines: 50,
-            layout_width: 80.0,
-            layout_height: 50.0,
-        }
-    }
-}
-
-impl Dimensions for TerminalSize {
-    fn total_lines(&self) -> usize {
-        self.screen_lines()
-    }
-
-    fn columns(&self) -> usize {
-        self.num_cols as usize
-    }
-
-    fn last_column(&self) -> Column {
-        Column(self.num_cols as usize - 1)
-    }
-
-    fn bottommost_line(&self) -> Line {
-        Line(self.num_lines as i32 - 1)
-    }
-
-    fn screen_lines(&self) -> usize {
-        self.num_lines as usize
-    }
-}
-
-impl From<TerminalSize> for WindowSize {
-    fn from(size: TerminalSize) -> Self {
-        Self {
-            num_lines: size.num_lines,
-            num_cols: size.num_cols,
-            cell_width: size.cell_width,
-            cell_height: size.cell_height,
-        }
-    }
-}
-
 pub struct Backend {
     term: Arc<FairMutex<Term<EventProxy>>>,
     size: TerminalSize,
+    geometry: Geometry,
+    last_pty_size: WindowSize,
+    pty_resizes: u64,
+    grid_resizes: u64,
+    snapshot_dirty: bool,
+    render_dirty: bool,
     notifier: Notifier,
     last_content: RenderableContent,
     pub(crate) url_regex: RegexSearch,
     event_bridge_failed: bool,
     shutdown: crate::ShutdownHandle,
+    history_limit: HistoryLimit,
+    deferred_resize: bool,
+    visible: bool,
+    snapshots: u64,
+    cells_copied: u64,
 }
 
 impl Backend {
@@ -170,24 +128,17 @@ impl Backend {
             escape_args: settings.escape_args,
         };
 
-        let config = term::Config::default();
+        let history_limit = settings.history;
+        let config = term::Config {
+            scrolling_history: history_limit.lines(),
+            ..Default::default()
+        };
         let terminal_size = TerminalSize::default();
         let pty = tty::new(&pty_config, terminal_size.into(), id)?;
 
         let event_proxy = EventProxy(pty_event_proxy_sender.complete_on_drop());
 
-        let mut term = Term::new(config, &terminal_size, event_proxy.clone());
-
-        let cursor = term.grid_mut().cursor_cell().clone();
-
-        let initial_content = RenderableContent {
-            grid: term.grid().clone(),
-            selectable_range: None,
-            terminal_mode: *term.mode(),
-            terminal_size,
-            cursor: cursor.clone(),
-            hovered_hyperlink: None,
-        };
+        let term = Term::new(config, &terminal_size, event_proxy.clone());
 
         let term = Arc::new(FairMutex::new(term));
 
@@ -216,11 +167,22 @@ impl Backend {
         Ok(Self {
             term: term.clone(),
             size: terminal_size,
+            geometry: Geometry::default(),
+            last_pty_size: terminal_size.into(),
+            pty_resizes: 0,
+            grid_resizes: 0,
+            snapshot_dirty: true,
+            render_dirty: false,
             notifier,
-            last_content: initial_content,
+            last_content: RenderableContent::default(),
             url_regex: RegexSearch::new(URL_REGEX).expect("invalid url regexp"),
             event_bridge_failed: false,
             shutdown,
+            history_limit,
+            deferred_resize: false,
+            visible: false,
+            snapshots: 0,
+            cells_copied: 0,
         })
     }
 
@@ -241,7 +203,7 @@ impl Backend {
                 },
                 EventBridgeEvent::Completed => Action::Ignore,
                 EventBridgeEvent::BackendCompleted(completion) => {
-                    self.sync();
+                    self.snapshot_dirty = true;
                     Action::BackendCompleted(completion)
                 },
             };
@@ -251,7 +213,7 @@ impl Backend {
                 cmd,
                 Command::ProcessAlacrittyEvent(
                     Event::Exit | Event::ChildExit(_)
-                )
+                ) | Command::Resize(_, _)
             )
         {
             return if matches!(cmd, Command::Write(_)) {
@@ -278,6 +240,7 @@ impl Backend {
                     Event::Exit => {
                         // Exit describes the model, not resource completion.
                         action = Action::Shutdown;
+                        self.snapshot_dirty = true;
                     },
                     Event::Title(title) => {
                         action = Action::ChangeTitle(title);
@@ -285,13 +248,20 @@ impl Backend {
                     Event::PtyWrite(pty) => {
                         action = self.write(pty.as_bytes());
                     },
+                    Event::Wakeup
+                    | Event::MouseCursorDirty
+                    | Event::CursorBlinkingChange => {
+                        self.snapshot_dirty = true;
+                    },
                     _ => {},
                 };
             },
             Command::Write(input) => {
                 action = self.write(&input);
-                if action == Action::Ignore {
+                if action == Action::Ignore && term.grid().display_offset() != 0
+                {
                     term.scroll_display(Scroll::Bottom);
+                    self.snapshot_dirty = true;
                 }
             },
             Command::Scroll(delta) => {
@@ -300,18 +270,39 @@ impl Backend {
             Command::Resize(layout_size, font_measure) => {
                 self.resize(&mut term, layout_size, font_measure);
             },
+            Command::SetHistoryLimit(limit) => {
+                if self.history_limit != limit {
+                    term.set_options(term::Config {
+                        scrolling_history: limit.lines(),
+                        ..Default::default()
+                    });
+                    self.history_limit = limit;
+                    self.last_content.hovered_hyperlink = None;
+                    self.snapshot_dirty = true;
+                }
+            },
             Command::SelectStart(selection_type, (x, y)) => {
                 self.start_selection(&mut term, selection_type, x, y);
+                self.snapshot_dirty = true;
             },
             Command::SelectUpdate((x, y)) => {
                 self.update_selection(&mut term, x, y);
+                self.snapshot_dirty = true;
             },
             Command::ProcessLink(link_action, point) => {
+                let before = self.last_content.hovered_hyperlink.clone();
                 self.process_link_action(&term, link_action, point);
+                self.render_dirty |=
+                    before != self.last_content.hovered_hyperlink;
             },
             Command::MouseReport(button, modifiers, point, pressed) => {
-                action = self
-                    .process_mouse_report(button, modifiers, point, pressed);
+                action = self.process_mouse_report(
+                    button,
+                    modifiers,
+                    point,
+                    pressed,
+                    *term.mode(),
+                );
             },
         };
 
@@ -336,18 +327,25 @@ impl Backend {
                 self.last_content.hovered_hyperlink = None;
             },
             LinkAction::Open => {
-                self.open_link();
+                self.open_link(terminal);
             },
         };
     }
 
-    fn open_link(&self) {
+    fn open_link(&self, terminal: &Term<EventProxy>) {
         if let Some(range) = &self.last_content.hovered_hyperlink {
             let start = range.start();
             let end = range.end();
 
-            let mut url = String::from(self.last_content.grid.index(*start).c);
-            for indexed in self.last_content.grid.iter_from(*start) {
+            if start.line < terminal.topmost_line()
+                || end.line > terminal.bottommost_line()
+                || start.column > terminal.last_column()
+                || end.column > terminal.last_column()
+            {
+                return;
+            }
+            let mut url = String::from(terminal.grid().index(*start).c);
+            for indexed in terminal.grid().iter_from(*start) {
                 url.push(indexed.c);
                 if indexed.point == *end {
                     break;
@@ -366,6 +364,7 @@ impl Backend {
         modifiers: Modifiers,
         point: Point,
         pressed: bool,
+        mode: TermMode,
     ) -> Action {
         let mut mods = 0;
         if modifiers.contains(Modifiers::SHIFT) {
@@ -378,7 +377,7 @@ impl Backend {
             mods += 16;
         }
 
-        match MouseMode::from(self.last_content.terminal_mode) {
+        match MouseMode::from(mode) {
             MouseMode::Sgr => {
                 self.sgr_mouse_report(point, button as u8 + mods, pressed)
             },
@@ -492,18 +491,18 @@ impl Backend {
         terminal_size: &TerminalSize,
         display_offset: usize,
     ) -> Point {
-        let col = (x as usize) / (terminal_size.cell_width as usize);
+        let col = (x / terminal_size.cell_width).floor().max(0.0) as usize;
         let col = min(Column(col), Column(terminal_size.num_cols as usize - 1));
 
-        let line = (y as usize) / (terminal_size.cell_height as usize);
+        let line = (y / terminal_size.cell_height).floor().max(0.0) as usize;
         let line = min(line, terminal_size.num_lines as usize - 1);
 
         viewport_to_point(display_offset, Point::new(line, col))
     }
 
     fn selection_side(&self, x: f32) -> Side {
-        let cell_x = x as usize % self.size.cell_width as usize;
-        let half_cell_width = (self.size.cell_width as f32 / 2.0) as usize;
+        let cell_x = x.rem_euclid(self.size.cell_width);
+        let half_cell_width = self.size.cell_width / 2.0;
 
         if cell_x > half_cell_width {
             Side::Right
@@ -518,31 +517,40 @@ impl Backend {
         layout_size: Option<Size<f32>>,
         font_measure: Option<Size<f32>>,
     ) {
-        if self.notifier.0.input_status().closed {
+        if layout_size.is_none()
+            && font_measure.is_none()
+            && !self.deferred_resize
+        {
             return;
         }
-        if let Some(size) = layout_size {
-            self.size.layout_height = size.height;
-            self.size.layout_width = size.width;
+        let Some(next) = self.geometry.update(layout_size, font_measure) else {
+            return;
         };
-
-        if let Some(size) = font_measure {
-            self.size.cell_height = size.height as u16;
-            self.size.cell_width = size.width as u16;
+        let closed = self.notifier.0.input_status().closed;
+        // Preserve parsing geometry until the EOF drain has completed.
+        if closed && self.shutdown.completion().is_none() {
+            self.deferred_resize = true;
+            return;
         }
-
-        let lines = (self.size.layout_height / self.size.cell_height as f32)
-            .floor() as u16;
-        let cols = (self.size.layout_width / self.size.cell_width as f32)
-            .floor() as u16;
-        if lines > 0 && cols > 0 {
-            self.size.num_lines = lines;
-            self.size.num_cols = cols;
-            self.notifier.on_resize(self.size.into());
+        self.deferred_resize = false;
+        let native = WindowSize::from(next);
+        if !closed && !same_pty_size(self.last_pty_size, native) {
+            self.notifier.on_resize(native);
+            self.last_pty_size = native;
+            self.pty_resizes = self.pty_resizes.saturating_add(1);
+        }
+        if self.size.num_cols != next.num_cols
+            || self.size.num_lines != next.num_lines
+        {
             terminal.resize(TermSize::new(
-                self.size.num_cols as usize,
-                self.size.num_lines as usize,
+                next.num_cols as usize,
+                next.num_lines as usize,
             ));
+            self.grid_resizes = self.grid_resizes.saturating_add(1);
+        }
+        if self.size != next {
+            self.size = next;
+            self.snapshot_dirty = true;
         }
     }
 
@@ -599,43 +607,93 @@ impl Backend {
 
                 return self.write(&content);
             } else {
+                let before = terminal.grid().display_offset();
                 terminal.grid_mut().scroll_display(scroll);
+                self.snapshot_dirty |=
+                    before != terminal.grid().display_offset();
             }
         }
         Action::Ignore
     }
 
     pub fn selectable_content(&self) -> String {
-        let content = self.renderable_content();
-        let mut result = String::new();
-        if let Some(range) = content.selectable_range {
-            for indexed in content.grid.display_iter() {
-                if range.contains(indexed.point) {
-                    result.push(indexed.c);
-                }
-            }
-        }
-        result
+        self.term.lock().selection_to_string().unwrap_or_default()
     }
 
     pub fn sync(&mut self) {
+        if !self.visible {
+            return;
+        }
         let term = self.term.clone();
         let mut term = term.lock();
+        if self.deferred_resize && self.shutdown.completion().is_some() {
+            self.resize(&mut term, None, None);
+        }
         self.internal_sync(&mut term);
     }
 
-    fn internal_sync(&mut self, terminal: &mut Term<EventProxy>) {
-        let selectable_range = match &terminal.selection {
-            Some(s) => s.to_range(terminal),
-            None => None,
-        };
+    pub(crate) fn sync_if_dirty(&mut self) {
+        if self.snapshot_dirty
+            || (self.deferred_resize && self.shutdown.completion().is_some())
+        {
+            self.sync();
+        }
+    }
 
-        let cursor = terminal.grid_mut().cursor_cell().clone();
-        self.last_content.grid = terminal.grid().clone();
-        self.last_content.selectable_range = selectable_range;
-        self.last_content.cursor = cursor.clone();
-        self.last_content.terminal_mode = *terminal.mode();
-        self.last_content.terminal_size = self.size;
+    pub(crate) fn take_render_dirty(&mut self) -> bool {
+        std::mem::take(&mut self.render_dirty)
+    }
+
+    pub(crate) fn resize_counts(&self) -> (u64, u64) {
+        (self.pty_resizes, self.grid_resizes)
+    }
+
+    fn internal_sync(&mut self, terminal: &mut Term<EventProxy>) {
+        self.last_content.capture(terminal, self.size);
+        self.snapshot_dirty = false;
+        self.render_dirty = true;
+        self.snapshots = self.snapshots.saturating_add(1);
+        self.cells_copied = self
+            .cells_copied
+            .saturating_add(self.last_content.viewport.cells().len() as u64);
+    }
+
+    pub(crate) fn is_visible(&self) -> bool {
+        self.visible
+    }
+
+    /// Seed UI cell metrics while retaining the backend's initial row/column
+    /// count. There is no real pane layout yet, and a hidden child can already
+    /// have exited before UI attachment. Do not reflow or notify the PTY here.
+    pub(crate) fn initialize_font(&mut self, measure: Size<f32>) {
+        self.size.cell_width = measure.width;
+        self.size.cell_height = measure.height;
+        self.geometry.initialize(measure, self.size);
+    }
+
+    pub(crate) fn set_visible(&mut self, visible: bool) {
+        if self.visible == visible {
+            return;
+        }
+        self.visible = visible;
+        if visible {
+            self.sync();
+        } else {
+            self.last_content = RenderableContent::default();
+        }
+    }
+
+    pub(crate) fn snapshot_stats(&self) -> SnapshotStats {
+        let terminal = self.term.lock();
+        SnapshotStats {
+            snapshots: self.snapshots,
+            cells_copied: self.cells_copied,
+            viewport_cells: self.last_content.viewport.cells().len(),
+            history_lines: terminal.history_size(),
+            history_limit: self.history_limit,
+            columns: terminal.columns(),
+            screen_lines: terminal.screen_lines(),
+        }
     }
 
     pub fn renderable_content(&self) -> &RenderableContent {
@@ -675,28 +733,6 @@ fn visible_regex_match_iter<'a>(
         .take_while(move |rm| rm.start().line <= viewport_end)
 }
 
-pub struct RenderableContent {
-    pub grid: Grid<Cell>,
-    pub hovered_hyperlink: Option<RangeInclusive<Point>>,
-    pub selectable_range: Option<SelectionRange>,
-    pub cursor: Cell,
-    pub terminal_mode: TermMode,
-    pub terminal_size: TerminalSize,
-}
-
-impl Default for RenderableContent {
-    fn default() -> Self {
-        Self {
-            grid: Grid::new(0, 0, 0),
-            hovered_hyperlink: None,
-            selectable_range: None,
-            cursor: Cell::default(),
-            terminal_mode: TermMode::empty(),
-            terminal_size: TerminalSize::default(),
-        }
-    }
-}
-
 impl Drop for Backend {
     fn drop(&mut self) {
         self.request_shutdown();
@@ -711,6 +747,9 @@ impl EventListener for EventProxy {
         self.0.send(event);
     }
 }
+
+#[cfg(test)]
+mod history_tests;
 
 #[cfg(all(test, windows))]
 mod event_bridge_tests {

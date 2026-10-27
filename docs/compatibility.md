@@ -4,7 +4,12 @@ Issue #3 adds developer examples, not terminal functionality to the Pike app.
 The original issue #3 harness measurements use the published Iced 0.14.0 /
 iced_term 0.8.0 / Alacritty 0.25.1 graph. Issue #4 adds only an iced_term
 manifest patch, renderer profiles, and a shared executor; terminal source
-behavior remains unchanged. No second PTY implementation is used.
+behavior was unchanged at that stage. Issue #11 adds validated history limits
+and viewport-only snapshots; [its verification](verification/issue-11.md)
+records current history profiles and the remaining byte-bound limitations.
+No second PTY implementation is used.
+Issue #12 [caches font metrics and deduplicates resize work](verification/issue-12.md),
+including native size-fixture checks and explicit per-session work counters.
 
 ## Renderer and executor comparisons
 

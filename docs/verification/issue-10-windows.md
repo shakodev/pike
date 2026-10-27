@@ -7,8 +7,8 @@ were completed locally on 2026-10-26, without GitHub Actions.
 The starting revision is `dc50610`. This follow-up adds an opt-in GUI probe and
 collector, measurements, and documentation. Production startup behavior is
 unchanged. `start_with` becomes crate-visible so the standalone probe can
-compile the exact pool source with a deterministic preparer; it is not a public
-library API. The test-module path is explicit for both compilation contexts.
+compile the library sources with a deterministic preparer; it is not a public
+library API. The probe and application use the same library module structure.
 No dependency, feature, lockfile, renderer-default or vendor changes are included.
 
 ## Acceptance evidence
@@ -146,3 +146,39 @@ No workflow was edited or dispatched. The completion commit uses `[skip ci]`.
 These results cover one Windows machine, synthetic launch settings and a maximum
 of two admitted sessions per burst. Other shells/profiles, DPI combinations,
 typing/copy/paste latency and long-running saturation remain separate scenarios.
+
+## PR #58 integration review — 2026-10-27
+
+Reviewed original head `8bc77f8` against main `0a1bf7f`. Main had added shared
+identity allocation and reserved model launches since the Windows measurement.
+Merging it exposed a conflict in `LaunchPool` and made the original standalone
+launch-module import incomplete. The probe now compiles `src/lib.rs`, bringing
+in the matching identity and model modules without exposing preparation
+injection publicly. Normal library test paths work in both compilation contexts.
+The production pool retains main's reserved-launch and hidden-attachment APIs.
+
+The original Windows evidence is preserved unchanged. Every source hash in its
+provenance matches original head `8bc77f8`, accounting for the Windows checkout's
+CRLF line endings. Timing maxima, fixture counts, recovery summaries and idle
+measurements agree with the raw CSV/JSON files. The retained screenshots show
+the Starting state and acknowledged cleanup. Those measurements describe that
+recorded revision, not a fresh Windows run of the integration changes.
+
+Checks on the review host (aarch64 macOS, pinned Rust 1.97.1):
+
+- `cargo fmt --all -- --check` passed.
+- Denied-warning all-target Clippy passed for wgpu and tiny-skia, both locally
+  and with `--target x86_64-pc-windows-msvc`.
+- Application tests passed for both renderers: 39 library tests and two
+  application tests; the default-profile compile-fail doctests also passed.
+- Example tests passed for both renderers: five compatibility tests and 39
+  tests through the probe's library-source import. The opt-in timing test
+  remains ignored in ordinary suites.
+- Explicit `iced_term` library tests passed for both profiles: 70 passed and
+  one opt-in profile ignored per renderer.
+- Release builds of `startup_lifecycle` passed for both renderer profiles.
+
+This host has no Windows runtime or PowerShell. Native ConPTY execution, the
+PowerShell collector and Windows GUI/idle profiling were not rerun during this
+review. Cross-target Clippy checks compilation only. No Actions were dispatched
+or edited; the integration and merge commits retain `[skip ci]`.

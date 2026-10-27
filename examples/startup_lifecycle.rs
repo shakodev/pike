@@ -1,9 +1,12 @@
 //! Opt-in native Iced/ConPTY startup probe. Never launches a user's shell.
-// Compile the production pool source so deterministic delay injection remains
-// crate-private, with no probe feature or additional production API/dependency.
-#[path = "../src/launch.rs"]
-#[allow(dead_code)] // The probe deliberately exercises cancellation without UI attachment.
-mod launch;
+// Compile the production library source so the pool shares its identity and
+// model modules, while deterministic preparation remains crate-private.
+#[path = "../src/lib.rs"]
+#[allow(dead_code, unused_imports)] // The probe uses only part of the library API.
+mod probe_pike;
+#[cfg(test)]
+use probe_pike::workspace;
+use probe_pike::{executor, identity, launch, layout, session};
 #[path = "compatibility/report.rs"]
 mod report;
 
@@ -11,7 +14,6 @@ use iced::widget::{column, container, text};
 use iced::{Element, Fill, Subscription, Task, window};
 use iced_term::{ExitReason, PreparedTerminal, ShutdownHandle};
 use launch::{CancelLaunch, LaunchError, LaunchLimits, LaunchPool, PreparedSession};
-use pike::executor;
 use std::io::{self, Write};
 use std::num::NonZeroU16;
 use std::path::PathBuf;

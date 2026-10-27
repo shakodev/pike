@@ -1,9 +1,8 @@
-use crate::backend::{
-    Backend, Command, LinkAction, MouseButton, RenderableContent,
-};
+use crate::backend::{Backend, Command, LinkAction, MouseButton};
 use crate::bindings::{BindingAction, BindingsLayout, InputKind};
 use crate::terminal::{Event, Terminal};
 use crate::theme::TerminalStyle;
+use crate::RenderableContent;
 use alacritty_terminal::index::Point as TerminalGridPoint;
 use alacritty_terminal::selection::SelectionType;
 use alacritty_terminal::term::{cell, TermMode};
@@ -79,10 +78,9 @@ impl<'a> TerminalView<'a> {
         let layout_size = layout.bounds().size();
         if state.size != layout_size {
             state.size = layout_size;
-            let cmd = Command::Resize(
-                Some(layout_size),
-                Some(self.term.font.measure),
-            );
+            // Font settings update cached backend metrics independently. Do not
+            // queue a captured (and potentially stale) font alongside layout.
+            let cmd = Command::Resize(Some(layout_size), None);
             shell.publish(Event::BackendCall(self.term.id, cmd));
         }
     }
@@ -220,7 +218,7 @@ impl<'a> TerminalView<'a> {
             cursor_x,
             cursor_y,
             &terminal_content.terminal_size,
-            terminal_content.grid.display_offset(),
+            terminal_content.viewport.display_offset(),
         );
 
         // Handle command or selection update based on terminal mode and modifiers
@@ -439,8 +437,8 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         let state = tree.state.downcast_ref::<TerminalViewState>();
         let content = self.term.backend.renderable_content();
         let term_size = content.terminal_size;
-        let cell_width = term_size.cell_width as f32;
-        let cell_height = term_size.cell_height as f32;
+        let cell_width = term_size.cell_width;
+        let cell_height = term_size.cell_height;
         let font_size = self.term.font.size;
         let font_scale_factor = self.term.font.scale_factor;
         let layout_offset_x = layout.position().x;
@@ -448,7 +446,7 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
 
         let geom = self.term.cache.draw(renderer, viewport.size(), |frame| {
             // Precompute constants used in the inner loop
-            let display_offset = content.grid.display_offset() as f32;
+            let display_offset = content.viewport.display_offset() as f32;
             let cell_size = Size::new(cell_width, cell_height);
             let half_w = cell_width * 0.5;
             let half_h = cell_height * 0.5;
@@ -462,7 +460,7 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
             let mut last_line: Option<i32> = None;
             let mut bg_batch_rect = BackgroundRect::default();
 
-            for indexed in content.grid.display_iter() {
+            for indexed in content.viewport.display_iter() {
                 // Compute per-cell geometry cheaply
                 let line = indexed.point.line.0;
                 let col = indexed.point.column.0 as f32;
@@ -566,7 +564,7 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                 }
 
                 // Handle cursor rendering
-                if content.grid.cursor.point == indexed.point
+                if content.cursor_point == indexed.point
                     && content.terminal_mode.contains(TermMode::SHOW_CURSOR)
                 {
                     let cursor_color =
@@ -578,7 +576,7 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
 
                 // Draw text
                 if indexed.c != ' ' && indexed.c != '\t' {
-                    if content.grid.cursor.point == indexed.point
+                    if content.cursor_point == indexed.point
                         && content.terminal_mode.contains(TermMode::APP_CURSOR)
                     {
                         fg = bg;

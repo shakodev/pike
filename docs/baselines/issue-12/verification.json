@@ -1,0 +1,16 @@
+{
+    "Formatting":  "passed: cargo fmt --all -- --check",
+    "Clippy":  "passed: application and explicit iced_term all-targets, denied warnings, each renderer",
+    "ApplicationTestsPerRenderer":  "39 library + 2 app + 2 compile-fail doctests passed; opt-in startup probe ignored",
+    "ExampleTestsPerRenderer":  "5 passed",
+    "AdapterTestsPerRenderer":  "70 passed; opt-in history profile ignored",
+    "ReleaseBuilds":  "application and all examples passed for wgpu and tiny-skia",
+    "SupportChecks":  "renderer/runtime feature isolation, feature-guard regressions and compatibility measurement/trace-support checks passed",
+    "NativeResizeProbe":  "12 stages passed: child sizes at 4 logical scales, 1000 sub-cell drags with no extra work, invalid/minimize/restore, 100 repeated settings per font change, 4096-line visible/hidden floods, exit 41 and joined/drained completion",
+    "NativeGuiSmoke":  "cmd and PowerShell 2-session traces and owned-fixture cleanup passed",
+    "Idle":  "61 samples over 61.39 seconds; 0% measured one-core CPU; 12.52 MiB maximum private bytes; responsive windows and successful fixture cleanup",
+    "Execution":  "builds, tests and profiling sequential; final complete suites passed without retries",
+    "Unavailable":  "physical monitor DPI transitions and GUI minimize/restore notifications not automated; logical-size/zero/tiny restoration verified through public resize API on native ConPTY",
+    "KnownSeparateLimitations":  "issue #13 absolute-position pane cache and issue #18 Unicode drawing; history remains a line cap with residual per-cell byte limits",
+    "GitHubActionsUsed":  false
+}

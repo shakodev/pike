@@ -37,7 +37,17 @@ fn run() -> io::Result<u8> {
         let command = line.strip_suffix(b"\n").unwrap_or(&line);
         let command = command.strip_suffix(b"\r").unwrap_or(command);
         match command {
-            b"size" => report_size(&mut output, id)?,
+            b"size" => report_size(&mut output, id, None)?,
+            command if command.starts_with(b"size ") => {
+                report_size(&mut output, id, Some(nonce(&command[5..])?))?;
+            }
+            command if command.starts_with(b"flood ") => {
+                let nonce = nonce(&command[6..])?;
+                for _ in 0..4096 {
+                    writeln!(output, "PIKE synthetic resize-work flood")?;
+                }
+                write!(output, "\x1b]2;pike:flood:{id}:{nonce}\x07")?;
+            }
             b"render" => writeln!(
                 output,
                 "SESSION {id} | wide: \u{754c} | combining: e\u{301} | \x1b[7mreverse\x1b[0m"
@@ -57,10 +67,21 @@ fn run() -> io::Result<u8> {
     }
 }
 
-fn report_size(output: &mut impl Write, id: u8) -> io::Result<()> {
+fn nonce(bytes: &[u8]) -> io::Result<u64> {
+    std::str::from_utf8(bytes)
+        .ok()
+        .and_then(|text| text.parse().ok())
+        .ok_or_else(|| io::Error::other("expected numeric fixture nonce"))
+}
+
+fn report_size(output: &mut impl Write, id: u8, nonce: Option<u64>) -> io::Result<()> {
     let (cols, rows) = console_size()?;
     writeln!(output, "PIKE SIZE session={id} cols={cols} rows={rows}")?;
-    write!(output, "\x1b]2;pike:size:{id}:{cols}:{rows}\x07")
+    write!(output, "\x1b]2;pike:size:{id}:{cols}:{rows}")?;
+    if let Some(nonce) = nonce {
+        write!(output, ":{nonce}")?;
+    }
+    write!(output, "\x07")
 }
 
 #[cfg(windows)]

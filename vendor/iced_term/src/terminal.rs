@@ -35,6 +35,18 @@ pub struct Terminal {
     pub(crate) bindings: BindingsLayout,
     pub(crate) backend: backend::Backend,
     backend_event_rx: Arc<Receiver>,
+    cache_invalidations: u64,
+}
+
+/// Per-session metadata counters; no sampling task or terminal text is retained.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct WorkStats {
+    pub font_measurements: u64,
+    /// Calls to the native notifier, not acknowledgements from the child.
+    pub pty_resizes: u64,
+    pub grid_resizes: u64,
+    /// Explicit clears; Iced also regenerates geometry when layer size changes.
+    pub cache_invalidations: u64,
 }
 
 /// PTY/session state only. Prepare on a blocking worker, then attach on the UI
@@ -62,15 +74,38 @@ impl PreparedTerminal {
 
     /// Call on the UI thread; font/cache construction is deliberately deferred.
     pub fn attach(self, font: FontSettings, theme: ThemeSettings) -> Terminal {
+        self.attach_with_visibility(font, theme, true)
+    }
+
+    /// UI-only attachment for a background session: no initial viewport copy.
+    pub fn attach_hidden(
+        self,
+        font: FontSettings,
+        theme: ThemeSettings,
+    ) -> Terminal {
+        self.attach_with_visibility(font, theme, false)
+    }
+
+    fn attach_with_visibility(
+        mut self,
+        font: FontSettings,
+        theme: ThemeSettings,
+        visible: bool,
+    ) -> Terminal {
+        let font = TermFont::new(font);
+        self.backend.initialize_font(font.measure);
+        self.backend.set_visible(visible);
+        self.backend.take_render_dirty();
         Terminal {
             id: self.id,
             widget_id: iced::widget::Id::unique(),
-            font: TermFont::new(font),
+            font,
             theme: Theme::new(theme),
             bindings: BindingsLayout::default(),
             cache: Cache::default(),
             backend: self.backend,
             backend_event_rx: self.backend_event_rx,
+            cache_invalidations: 0,
         }
     }
 }
@@ -97,11 +132,60 @@ impl Terminal {
     }
 
     /// Refresh the retained read-only model after backend completion, even when
-    /// no event subscription was active. No terminal contents are logged.
+    /// no event subscription was active. Returns None while hidden: activate
+    /// first to obtain the final viewport. No terminal contents are logged.
     pub fn final_content(&mut self) -> Option<&crate::RenderableContent> {
         self.backend.shutdown_handle().completion()?;
+        if !self.is_visible() {
+            return None;
+        }
         self.backend.sync();
+        self.backend.take_render_dirty();
+        self.redraw();
         Some(self.backend.renderable_content())
+    }
+
+    /// Hidden sessions still require their event subscription and handle calls
+    /// for protocol/lifecycle delivery. Hiding releases their cached viewport;
+    /// activation refreshes it once, including after the backend has exited.
+    pub fn set_visible(&mut self, visible: bool) {
+        if self.backend.is_visible() == visible {
+            return;
+        }
+        self.backend.set_visible(visible);
+        self.backend.take_render_dirty();
+        self.redraw();
+    }
+
+    pub fn is_visible(&self) -> bool {
+        self.backend.is_visible()
+    }
+
+    /// Explicit presentation refresh. Hidden calls do no snapshot work.
+    pub fn refresh(&mut self) {
+        if self.is_visible() {
+            self.backend.sync();
+            self.backend.take_render_dirty();
+            self.redraw();
+        }
+    }
+
+    pub fn renderable_content(&self) -> Option<&crate::RenderableContent> {
+        self.is_visible().then(|| self.backend.renderable_content())
+    }
+
+    pub fn snapshot_stats(&self) -> crate::SnapshotStats {
+        self.backend.snapshot_stats()
+    }
+
+    pub fn work_stats(&self) -> WorkStats {
+        let (pty_resizes, grid_resizes) = self.backend.resize_counts();
+        WorkStats {
+            font_measurements: self.font.measurements(),
+            pty_resizes,
+            grid_resizes,
+            cache_invalidations: self.cache_invalidations,
+        }
     }
 
     pub fn input_status(&self) -> crate::InputStatus {
@@ -127,13 +211,21 @@ impl Terminal {
 
     pub fn handle(&mut self, cmd: Command) -> Action {
         let mut action = Action::default();
+        let mut repaint = false;
 
         match cmd {
             Command::ChangeTheme(color_pallete) => {
                 self.theme = Theme::new(ThemeSettings::new(color_pallete));
+                repaint = true;
             },
             Command::ChangeFont(font_settings) => {
-                self.font = TermFont::new(font_settings);
+                if self.font.update(font_settings) {
+                    self.backend.handle(backend::Command::Resize(
+                        None,
+                        Some(self.font.measure),
+                    ));
+                    repaint = true;
+                }
             },
             Command::AddBindings(bindings) => {
                 self.bindings.add_bindings(bindings);
@@ -144,25 +236,18 @@ impl Terminal {
         };
 
         if !matches!(action, Action::InputRejected(_)) {
-            self.sync_and_redraw();
+            self.backend.sync_if_dirty();
+            let changed = self.backend.take_render_dirty();
+            if self.is_visible() && (changed || repaint) {
+                self.redraw();
+            }
         }
         action
     }
 
-    fn sync_and_redraw(&mut self) {
-        self.sync_font();
-        self.backend.sync();
-        self.redraw();
-    }
-
-    fn sync_font(&mut self) {
-        self.font.sync();
-        self.backend
-            .handle(backend::Command::Resize(None, Some(self.font.measure)));
-    }
-
     fn redraw(&mut self) {
         self.cache.clear();
+        self.cache_invalidations = self.cache_invalidations.saturating_add(1);
     }
 }
 
@@ -193,6 +278,9 @@ fn terminal_subscription_stream(
     .fuse()
     .boxed()
 }
+
+#[cfg(test)]
+mod work_tests;
 
 #[cfg(test)]
 mod tests {

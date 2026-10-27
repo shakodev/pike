@@ -88,7 +88,7 @@ fn main() -> io::Result<()> {
                 let text: String = terminal
                     .final_content()
                     .ok_or_else(|| io::Error::other("missing final model"))?
-                    .grid
+                    .viewport
                     .display_iter()
                     .map(|cell| cell.c)
                     .collect();

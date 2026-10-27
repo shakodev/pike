@@ -1,0 +1,10 @@
+﻿{
+    "Scope":  "Headless adapter + real ConPTY; synthetic size queries/floods; excludes GUI rendering and child-process resources",
+    "Cases":  14,
+    "WallSeconds":  0.6404757,
+    "CpuSeconds":  0.1875,
+    "MaximumSampledPrivateBytes":  9990144,
+    "MaximumSampledWorkingSetBytes":  11636736,
+    "ExecutableSha256":  "9E85C41DA0BDB479D293E31C1C343448DC781B89CF7BF95049FBF27951F24CD1",
+    "FixtureSha256":  "E9AA2D3FA3C1B533AA60DCED3738FA4A908BCAD47EB2A97F70885B47026012CB"
+}

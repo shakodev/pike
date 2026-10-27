@@ -1,0 +1,2 @@
+mode,history_limit,retained_history,columns,rows,combining_per_cell,iterations,logical_cells_per_snapshot,p50_us,p95_us,viewport_allocation_reused
+full,10000,10000,120,30,0,100,1203600,9959.000,15607.300,false
