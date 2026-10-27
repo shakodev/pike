@@ -122,6 +122,24 @@ impl Terminal {
         &self.widget_id
     }
 
+    /// Copy this session's authoritative selection on explicit user request.
+    ///
+    /// No selection or empty extracted text returns `None` without invoking the
+    /// writer. The writer runs after releasing the model lock and owns the one
+    /// extracted String; its result (including any clipboard error) is returned
+    /// unchanged. Selection, viewport, input and other sessions are untouched.
+    /// Menu callers can return an Iced clipboard Task; fallible hosts can return
+    /// a Result. No copied contents are logged or retained by the adapter.
+    pub fn copy_selection<T>(
+        &self,
+        write: impl FnOnce(String) -> T,
+    ) -> Option<T> {
+        self.backend
+            .selectable_content()
+            .filter(|text| !text.is_empty())
+            .map(write)
+    }
+
     /// Completion survives subscription cancellation and Terminal destruction.
     pub fn shutdown_handle(&self) -> crate::ShutdownHandle {
         self.backend.shutdown_handle()

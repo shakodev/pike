@@ -55,6 +55,7 @@ enum Message {
 enum Control {
     Open,
     Close,
+    CopySelection(u64),
 }
 
 impl App {
@@ -99,10 +100,24 @@ impl App {
         self.notice = None;
     }
 
+    fn copy_target(&self, id: u64) -> Option<&Terminal> {
+        match &self.target {
+            Target::Running(terminal) if !self.exiting && terminal.id == id => Some(terminal),
+            _ => None,
+        }
+    }
+
     fn update(&mut self, message: Message) -> Task<Message> {
         match message {
             Message::Control(Control::Open) => return self.open(),
             Message::Control(Control::Close) => self.close_target(),
+            Message::Control(Control::CopySelection(id)) => {
+                if let Some(terminal) = self.copy_target(id) {
+                    return terminal
+                        .copy_selection(iced::clipboard::write)
+                        .unwrap_or_else(Task::none);
+                }
+            }
             Message::Launched(request, session, result) => {
                 if self.exiting
                     || !matches!(&self.target,
@@ -185,6 +200,10 @@ impl App {
     }
 
     fn view(&self) -> Element<'_, Message> {
+        let copy = match &self.target {
+            Target::Running(terminal) if !self.exiting => Some(Control::CopySelection(terminal.id)),
+            _ => None,
+        };
         let status: Element<'_, Message> = match &self.target {
             Target::Closed => text(if self.exiting {
                 "Closing terminals…"
@@ -207,6 +226,7 @@ impl App {
                     && matches!(self.target, Target::Starting { .. } | Target::Running(_)))
                 .then_some(Control::Close)
             ),
+            button("Copy selection").on_press_maybe(copy),
         ]
         .spacing(12)
         .into();
@@ -277,6 +297,40 @@ mod tests {
         );
         drop(retry);
         app.close_target();
+        executor.block_on(async {
+            tokio::time::timeout(Duration::from_secs(10), app.launches.shutdown())
+                .await
+                .unwrap();
+        });
+    }
+
+    #[test]
+    fn copy_menu_targets_only_the_current_stable_session_and_skips_no_selection() {
+        let executor = SharedExecutor::new().unwrap();
+        let mut app = App::default();
+        let first = starting(&mut app, &executor);
+        let old = first.session.get();
+        drop(first);
+        app.close_target();
+        let current = starting(&mut app, &executor);
+        let ids = (current.request, current.session);
+        let ready = executor.block_on(current.receive()).unwrap();
+        drop(app.update(Message::Launched(ids.0, ids.1, Ok(ready))));
+        assert_ne!(old, ids.1.get());
+        assert!(app.copy_target(old).is_none());
+        assert_eq!(app.copy_target(ids.1.get()).unwrap().id, ids.1.get());
+        assert_eq!(
+            app.update(Message::Control(Control::CopySelection(old)))
+                .units(),
+            0
+        );
+        assert_eq!(
+            app.update(Message::Control(Control::CopySelection(ids.1.get())))
+                .units(),
+            0
+        );
+        app.exiting = true;
+        assert!(app.copy_target(ids.1.get()).is_none());
         executor.block_on(async {
             tokio::time::timeout(Duration::from_secs(10), app.launches.shutdown())
                 .await

@@ -708,8 +708,8 @@ impl Backend {
         Action::Ignore
     }
 
-    pub fn selectable_content(&self) -> String {
-        self.term.lock().selection_to_string().unwrap_or_default()
+    pub fn selectable_content(&self) -> Option<String> {
+        self.term.lock().selection_to_string()
     }
 
     pub fn sync(&mut self) {
@@ -842,6 +842,8 @@ impl EventListener for EventProxy {
 
 #[cfg(test)]
 mod history_tests;
+#[cfg(test)]
+mod selection_tests;
 
 #[cfg(test)]
 mod protocol_tests;
