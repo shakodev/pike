@@ -1,5 +1,9 @@
 # Issue #13 — widget identity and moved-pane geometry
 
+Native Windows synthetic verification now passes for both renderer profiles;
+see the final section for exact source SHA, run links and retained evidence.
+Earlier Windows-blocker notes below describe the original macOS-only reviews.
+
 Implementation starts at `fb9e5fc`. Read AGENTS.md and issue #13 with comments
 (none). The referenced uncommitted PLAN.md was not present in the checkout or
 Documents/Downloads planning folders; the issue declares its body self-contained.
@@ -209,8 +213,45 @@ permissions are read-only, and builds use four jobs and locked dependencies.
 No production dependency, feature or runtime behavior changes accompany this
 verification workflow. `actionlint` validates its syntax before dispatch.
 
-Workflow execution results will be recorded after the first pushed follow-up
-head. Hosted offscreen screenshots at fractional scales exercise native ConPTY,
-Windows fonts and the chosen renderer; they do not simulate a physical monitor
-transition or establish application idle memory/CPU or interactive latency.
-Interactive monitor-DPI compatibility checks still require a Windows desktop.
+The [native widget run](https://github.com/shakodev/pike/actions/runs/40486889935)
+passed both profiles at exact source
+`3228f47d4e0b9f803e640e81cd74d1edc622fb82`, using Rust 1.97.1 on native
+`x86_64-pc-windows-msvc`, Windows Server 2025 build 26100 and pinned ConPTY
+1.25.260930003. Each adapter suite passed 77 tests with one existing profile
+test ignored. Both release probes passed all pixel and widget-event checks,
+acknowledged three requested backend completions, and independently checked
+that all three fixture PIDs had exited. The retained
+[Windows evidence](../baselines/issue-13/windows/) includes the raw compiler,
+runtime, source/executable hashes, adapter results, event/cleanup records and
+selected PNGs converted losslessly from the uploaded PPM screenshots; both
+original and converted image hashes are in `provenance.json`.
+
+| Renderer | 125% translation max/mean channel delta | 150% | 200% |
+| --- | --- | --- | --- |
+| wgpu | 0 / 0 | 0 / 0 | 0 / 0 |
+| tiny-skia | 0 / 0 | 29 / 0.042373 | 0 / 0 |
+
+The existing antialiasing tolerance described above is unchanged. Pane and
+ancestor clipping checks passed at each scale. Inspected Windows frames show
+the moved terminal, nested swap, maximize, opaque modal, ancestor viewport and
+font/theme change; headers, adjacent panes and the modal remain unobscured.
+These are synthetic fixture contents only.
+
+The [full Windows CI run](https://github.com/shakodev/pike/actions/runs/40486889924)
+also passed both renderer profiles: formatting, denied-warning all-target
+application and explicit vendor Clippy, 39 library tests, two application tests,
+two compile-fail doctests, compatibility/example tests, both vendor suites,
+release builds/packaging and the native launch, input and shutdown probes.
+The [ConPTY audit](https://github.com/shakodev/pike/actions/runs/40486889948)
+passed on both Windows 2022 and 2025. Locally, formatting, application/example
+tests, denied-warning application/adapter Clippy and 75 explicit adapter tests
+per renderer passed again; both macOS release probes passed with all six
+synthetic fixture PIDs absent. `actionlint` 1.7.12 passed the added workflow.
+
+This closes the earlier missing native synthetic evidence for issue #13.
+Hosted offscreen screenshots at fractional scales exercise native ConPTY,
+Windows fonts and each renderer, while the public widget probe injects Iced's
+Rescaled event. They do not simulate real WM_DPICHANGED or a physical monitor
+transition, or establish application idle memory/CPU or interactive latency.
+Those physical-desktop checks remain unverified release-matrix work; they are
+not claimed by this issue's synthetic acceptance evidence. No merge was made.

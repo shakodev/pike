@@ -1,0 +1,1 @@
+All three synthetic fixture PIDs absent after cleanup.
