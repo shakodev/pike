@@ -187,3 +187,30 @@ ConPTY and monitor-DPI checks remain unavailable on the macOS review host.
 Issue #13 explicitly requires affected Windows behavior to be validated with
 synthetic fixtures. This is still a merge blocker: PR #62 remains draft and
 unmerged until that evidence is supplied. No Actions were dispatched or edited.
+
+## Native Windows follow-up — 2026-10-27
+
+The current authorization permits Windows GitHub Actions; the earlier `[skip ci]`
+notes above describe historical runs. Repository Actions are enabled and the
+existing Windows workflow supplies native MSVC/ConPTY checks. The issue-specific
+[widget geometry workflow](../../.github/workflows/widget-geometry.yml) now runs
+the exact requested PR head on `windows-2025` for both renderer profiles without
+changing the shared Windows workflow. It stages the pinned ConPTY runtime into
+an isolated target directory, runs the adapter suite explicitly, builds the
+release probe and executes its synthetic pixel and input checks. A bounded
+90-second process wait terminates the synthetic process tree on timeout.
+
+Each artifact records the source SHA/hashes, native OS/compiler, runtime hash,
+executable hash, renderer name, event log, screenshots and cleanup results.
+Success requires three requested backend completions, the probe's passed marker
+and absence of all three fixture PIDs. Outputs live in a fresh runner-temporary
+directory outside the build cache. Official actions are pinned, repository
+permissions are read-only, and builds use four jobs and locked dependencies.
+No production dependency, feature or runtime behavior changes accompany this
+verification workflow. `actionlint` validates its syntax before dispatch.
+
+Workflow execution results will be recorded after the first pushed follow-up
+head. Hosted offscreen screenshots at fractional scales exercise native ConPTY,
+Windows fonts and the chosen renderer; they do not simulate a physical monitor
+transition or establish application idle memory/CPU or interactive latency.
+Interactive monitor-DPI compatibility checks still require a Windows desktop.
