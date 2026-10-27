@@ -1,0 +1,14 @@
+{
+  "Package": "Microsoft.Windows.Console.ConPTY",
+  "Version": "1.25.260930003",
+  "PackageSHA256": "02b07b349af66d801159bdf9e440d4a1ce78bb951f37fc8609731665afdae7ee",
+  "NativeBytes": 1208984.0,
+  "Destinations": [
+    "target\\issue-18\\debug",
+    "target\\issue-18\\debug\\deps",
+    "target\\issue-18\\debug\\examples",
+    "target\\issue-18\\release",
+    "target\\issue-18\\release\\deps",
+    "target\\issue-18\\release\\examples"
+  ]
+}

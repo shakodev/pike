@@ -1,0 +1,298 @@
+{
+  "Platform": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+  "Machine": "arm64",
+  "Scope": "Offscreen synthetic Unicode/copy fixture; no GUI idle or physical monitor/keyboard claim",
+  "SourceSha256": {
+    "Cargo.lock": "f2499ce171f71875ac098ef7b52161139645cf5f6fa81ac2c778bcffa2f8b367",
+    "vendor/iced_term/src/view.rs": "8476a6e143778d7a22e32d9e46dea6ca03c26f0da0dd99f32df76ad0c29d77c2",
+    "vendor/iced_term/src/view/glyphs.rs": "b18030bf021f2ef9fb5f710e0c37a94eba510cab72f17a6f3027b1ea0063e47c",
+    "vendor/iced_term/src/view/glyphs/tests.rs": "0fc84d1781700e214b49fe36d016f87be2064d433ff60ac5bfdd17b549a71b3f",
+    "examples/unicode_cells.rs": "cf077f40043a47b5ae13afc7c972f62705d60db95af9baa31bdfd0f6480b548d",
+    ".github/workflows/unicode-cells.yml": "9136a2d898609ff0d889180e76d037e8a16e3c7d4a41071493372efde6451be2"
+  },
+  "Artifacts": {
+    "docs/baselines/issue-18/local/wgpu/font-0/selection.png": {
+      "SourcePpmSha256": "1cc7d425c252f5ee35a6710c65edb0d0faf6772ca25a3ebfa4dddceb07168a75",
+      "PngSha256": "3ebd425f073153ffc51254802a43ea725edc0a56a427d59f1157da5a24e30fb3",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-0/grid-2.png": {
+      "SourcePpmSha256": "6c191940216304928d0e5145c33ca7538ffcb7cb4a024a1047ac164762c8ca72",
+      "PngSha256": "ac97aaad7356a07330952139af0f43d609669efb2de588e7e09f683e21311330",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-0/grid-1.png": {
+      "SourcePpmSha256": "cb00deeeb8f89a7c2379355fc8a3c3b0012033208f200908460eae03e061fd75",
+      "PngSha256": "279924b493cda0fffa1e403cf355110337b6081bc68681c3c77012652ec55948",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-0/translated.png": {
+      "SourcePpmSha256": "207df08c2327d565fa3f281e532bb11c92e6dc10ea2043a84486eb6915cb8ceb",
+      "PngSha256": "22adc2613a15ff07c544499c7f5342d9e840da73f939e508e88bd876f12d78fc",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-0/wrap-6.png": {
+      "SourcePpmSha256": "f3422f037c3847677bb120f22841a1c1543ac2c20237887df16775016e79058a",
+      "PngSha256": "914bebe2f60df118460d434d00a2f16272a8a50a3d081fd138372601cb722289",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-0/grid-1.25.png": {
+      "SourcePpmSha256": "5f2928409154f8acefb6d320189df2233c0b3bae487880a38648a73a90cb5aeb",
+      "PngSha256": "0e8456207cca963c2d1d84ccd0943853cf8f61a61e78bdc2330ed03ce03f4ba9",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-0/clipped.png": {
+      "SourcePpmSha256": "8555c8de28f610f7b9113771a470300b9c091f13e418f36004e18d62459ab4ad",
+      "PngSha256": "398aedf5a7196954458dc3f99d288e1b2cc75de92ab0edda043bb24666524703",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-0/wrap-8.png": {
+      "SourcePpmSha256": "70f3e946497debb031f02d2d0c33ab216f6579aa44efbcdbbc9a3cf3fcbca3fd",
+      "PngSha256": "6c554c9af1e9b66c83f288ed105865281223a7c8f9c191b8414c8441be4df394",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-0/grid-1.5.png": {
+      "SourcePpmSha256": "5699b02d898ff499f27463857838ef126abe131677270d55cfdd56f870f876b0",
+      "PngSha256": "7b8ee9cd9fb032b242bebf1c6a5128a98e9bbece9aed1537fde5003a6b932859",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-1/selection.png": {
+      "SourcePpmSha256": "cd2aff9730f3c0dee8e3eee8c6840640c5ca9c8097a55ac1eddb35afef3bb1b6",
+      "PngSha256": "7a07e73338b9f7e521558194e39dce51f73c721cf7114f1e5becd43a71895c0c",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-1/grid-2.png": {
+      "SourcePpmSha256": "2798451ba67cecb58c1ff7a9e685f7d6401024edfca95bd4ad7a70a8b26f3b1a",
+      "PngSha256": "7d059effd5ba3dcd9b2eac71c285da365d7159a6dbeb616908d2e9923b3c692e",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-1/grid-1.png": {
+      "SourcePpmSha256": "01296d309bb5bee5bc25a956b09dfa5779c660ac752678c21bcf9b9c74fae46d",
+      "PngSha256": "2af42fdd6534a628ca79884e17f17e8ad7bc232f4c8eabcded6248b572e2e0f5",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-1/translated.png": {
+      "SourcePpmSha256": "00a461daffa5e1163fda7fcb6af363861f2f7b257b70d511ee67c7cf8bc327a7",
+      "PngSha256": "206837250578330d8bc512ee2c0e0175564130fcb7512ea237f881442b64f302",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-1/wrap-6.png": {
+      "SourcePpmSha256": "bf00d81f4073d58dfc9aa2c462978800039ef9bb14dc2bb0d90d906a3663476f",
+      "PngSha256": "91c5351c4d2005deb4731e31c70a03ba1332521280dbf1bef7544df1b82cf575",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-1/grid-1.25.png": {
+      "SourcePpmSha256": "d9e6933d3c808a4080d944f46326baabd2a60b6425aa8c05ea977c7c4aed690a",
+      "PngSha256": "6edf9743d163aa4590912c110f95f324c90c06fc510381c7f9a6fee1d0503154",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-1/clipped.png": {
+      "SourcePpmSha256": "f28757242aece1e87ae581665b7cf3a90a48494279a31ce9ef5dbcbd46791bd6",
+      "PngSha256": "cdc6c9a5b5c9f670f420c90b7b72aa862fd705e1ee413541ea9f0f05329838da",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-1/wrap-8.png": {
+      "SourcePpmSha256": "ee3a83289a26b732f3e0b5310bf2d46aceab0ce2d25d3774154230db770afceb",
+      "PngSha256": "3a621426ffadf8f6a1a82773b354a37e06c3893652c390a737c315cea975a67c",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/wgpu/font-1/grid-1.5.png": {
+      "SourcePpmSha256": "520b0d9a2d64a5d2b03a93ce684a246753a3b6c9b965c85c239685882e205d33",
+      "PngSha256": "02367f7d63afebb7344f89b59f5c3eb0ec3212ee6e77e55a9cf3d424dcb4765b",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-0/selection.png": {
+      "SourcePpmSha256": "a46b93dde63b7f6da5c6fa1d4659da318c2ddd82875accd7e284c4570791f4f6",
+      "PngSha256": "cbf5814d521deee2fe646f16c7636f22893d01a1a725bcec6fd3064dc90f994a",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-0/grid-2.png": {
+      "SourcePpmSha256": "9be0baa664aeae81c9fff6fceef3082b3cfcc2c130ddb430b20e566ada0e9289",
+      "PngSha256": "333465a16da5cb272dda728a7041b5d08057fade5dcf9c04afddbb5167d61ee5",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-0/grid-1.png": {
+      "SourcePpmSha256": "229f61073ad9866f595b4132f7302f9ab1a47dbb2be870405f7b3fcbae7fdffc",
+      "PngSha256": "48178ff387460c087b390f0086bddf0d8643249db595927b6e65ccf482d679ef",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-0/translated.png": {
+      "SourcePpmSha256": "e3713219cd99c74bfdb43ecf663db50508a5ddb5bd9d5e98b3ec626bc836c72b",
+      "PngSha256": "442fcccd6680e9f1533156079c19f61f1306eaec8e21bf99ebba92bcbd5327d3",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-0/wrap-6.png": {
+      "SourcePpmSha256": "6016eaee43c5a4a7e4d8c77542c8a7256ae525a626b0d03943661a9f633f3c96",
+      "PngSha256": "cdb28121b019edaf4f55cbcbf451fc6a803cab182ea3dede49ebcc62bcdd4127",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-0/grid-1.25.png": {
+      "SourcePpmSha256": "ea91a6211df0eb30ae745080e26ee1bd819f2ae696d7fe43fb511c0e372b0301",
+      "PngSha256": "494eb2ea8aa403f20984c28d1a62deea269079544fbe3f21505177bbb0981603",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-0/clipped.png": {
+      "SourcePpmSha256": "a72c2caec68cb19726670166d94dcca889580643fd37ffd723f64c4993b31d6d",
+      "PngSha256": "3d053b8108a25edc74b4a21585a9006aef523ecff87a615325ea4f73ff72bf23",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-0/wrap-8.png": {
+      "SourcePpmSha256": "21e1c24314fac91f3d34c780d24314443e48ce435672d5debc8f6ff5210e8835",
+      "PngSha256": "fcbf768ae5e56e0f7446415e74eabad03db57ee4cdcac5f10643745c37237af5",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-0/grid-1.5.png": {
+      "SourcePpmSha256": "064a00bbfdceea763b878cbffd347c940dac410589aacc7fd7b1803a869378ec",
+      "PngSha256": "dd0bc1da3784fd79a56d7e212b539b6d6673f2c4909bf1fadf83b21bf0c6e2c5",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-1/selection.png": {
+      "SourcePpmSha256": "35521108b68d019fb00be128dd60e1cdb90068dbe80f1e2a85d619e4c9c29ee2",
+      "PngSha256": "9ae7fc97ed761ba1f19ff7cfc86c30c744434d9f0bb3ef760001b952364f51e1",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-1/grid-2.png": {
+      "SourcePpmSha256": "4c47450f81cf41bc83b33da09a4103a7efe0ac96ce334f6f4fe7e0632a9afe7f",
+      "PngSha256": "368a0f60793c3845d521dab581cbefa604bb090e231ef4d8da8fc0bc2523bae2",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-1/grid-1.png": {
+      "SourcePpmSha256": "e706bf17e4c96a1e4a0206478f1fd2e29b7f93f078ef90029fb4b593f72f46ad",
+      "PngSha256": "5364be29229e4e4fbb10385b02b17fcd1cc233167a5c1de053f4a36f2d571616",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-1/translated.png": {
+      "SourcePpmSha256": "2fba8901b9e754889b33c50ce800bd29df0178600f9d6a2615bf25411968057e",
+      "PngSha256": "e5175d695d375afde970e7ad4e25ba05fbde0f0747927761b0e2de283c4f55ee",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-1/wrap-6.png": {
+      "SourcePpmSha256": "8b5844e11c0c1ff48b9ad8945486bf9fbec45d2c04f088ce58a6d46b402556e1",
+      "PngSha256": "a9d358436e0c3ae6218fdecf2478691e72bba8f2c24a43ad6b4c08f71c8d4e23",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-1/grid-1.25.png": {
+      "SourcePpmSha256": "f67c38cebd6771318b9353b4708c403d63f46fd2e49f3f24d05b44eff8f43970",
+      "PngSha256": "6789546401ef5f6118d515ea63a477d3589247a41152f48087f9fea2c2177d67",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-1/clipped.png": {
+      "SourcePpmSha256": "e8ad41c3629d1016c990212d26f93a56874114803d564cd72a514679adedd5c2",
+      "PngSha256": "e08f24101c187d38a9bfc3dd84b1579d91107da58370b28e3b98908a097cc644",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-1/wrap-8.png": {
+      "SourcePpmSha256": "ca12962959d3860742bd58285a6f6509184f8b56138d49c1a183c07c10155b73",
+      "PngSha256": "0ae867d5cdf4345113ecacad91f259a1a129147e9ab53e922d56d299794f81c2",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/local/tiny-skia/font-1/grid-1.5.png": {
+      "SourcePpmSha256": "52140912d90f62f978fdff7d15600f093a7711fa82af6d9a071c4964938e9605",
+      "PngSha256": "7f2a6836c670d38e0ac7a9434fb3c9677248a9000d19ff5c85f39905aa8b4655",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/windows-initial-tiny-skia/font-0/grid-2.png": {
+      "SourcePpmSha256": "fff8abe6f6903e779b8bced2b05f2031f9f893899cc0d4be7a77c576c42d80d5",
+      "PngSha256": "00b5bf02db60c9d9c74fde6558e63099be38470a7927c2033397c5463a052d6c",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/windows-initial-tiny-skia/font-0/grid-1.png": {
+      "SourcePpmSha256": "eefef5ee7cdb6a4ce2163130cde868590356ea1559935ac71cd5a5b7f4ec7963",
+      "PngSha256": "9ff723224032c3fc65eaa250f4ffd2282d0c2f629bd11e39a530e662c9b6e78e",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/windows-initial-tiny-skia/font-0/grid-1.25.png": {
+      "SourcePpmSha256": "7e6858f4de223e36c17973a9f3eda99a91d9c637ec1d358546ce893e6b0e524f",
+      "PngSha256": "5e4ef575e654292dd0972c916a5146c012f5697094505a209534ca3d0437c465",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/windows-initial-tiny-skia/font-0/grid-1.5.png": {
+      "SourcePpmSha256": "698bb14a66ae6fb82d1f1c1f6edba557d0c4a905ad02a67e684601ff9d656d1e",
+      "PngSha256": "512aea35d05fbd39bf8b69fec02f7fdf7e4da23874b3c908fd001f3af48a9414",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/windows-initial-tiny-skia/font-1/grid-2.png": {
+      "SourcePpmSha256": "c612c38f5a9a591fe95a663ede6135df80f1e0e5e6cfc867b52bafdbe677bc6d",
+      "PngSha256": "7720977a2e70632665e6c023f9b7612f61cca76237f7665b52d1a49dd49cc333",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/windows-initial-tiny-skia/font-1/grid-1.png": {
+      "SourcePpmSha256": "267ec009de77d1d549cc4395e5b71777a4048addbb4cc78a3738b3216536b51a",
+      "PngSha256": "5afcb02ba422b2927c395d40d71f72568709e7ff2d548939c47436ec83a74704",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/windows-initial-tiny-skia/font-1/grid-1.25.png": {
+      "SourcePpmSha256": "df07f5331e5b4881bad0fd92ff5d7ababb9195de2bdbe8c491aeb1cabedd2af0",
+      "PngSha256": "eb72d716f6a143f2604921553b1adedba045b83056bdafd740d4d1f84dcd57b6",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/windows-initial-tiny-skia/font-1/grid-1.5.png": {
+      "SourcePpmSha256": "e490a96c70a977c9be9593aa03da80b203e4238823ea9df5792264d8ab4d49b3",
+      "PngSha256": "00948dfd892d74c1dfb235ab143e352f18be47c9668ae3c95ad11f4371635912",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/windows-initial-wgpu/font-0/grid-2.png": {
+      "SourcePpmSha256": "e6cfee89752961e0b1e1da1fe1e10a6bbe2cdc1dd6b0c203ad855d42ba096cef",
+      "PngSha256": "6054159722dd4237c07181b764ab9eef05f09c9472e3c48a8c120cb950f63450",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/windows-initial-wgpu/font-0/grid-1.png": {
+      "SourcePpmSha256": "1e5062083b3e497987da7971c8d3a96baba1e21e8db0e3bbe14667e6547b7d8d",
+      "PngSha256": "cceb83ab77daf65bd43aa864437724df4fc4b5cbe54e5588c6a0bca4b76b9159",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/windows-initial-wgpu/font-0/grid-1.25.png": {
+      "SourcePpmSha256": "2704a13c6b077d3a664a2723694e123afd358b3a25831d5c98c5445dce6a4a08",
+      "PngSha256": "36a6ff9280f6e6c9b823f921d91c17c75dc0fc7b73b0c10173849bef4f0d9a68",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/windows-initial-wgpu/font-0/grid-1.5.png": {
+      "SourcePpmSha256": "7baff4f206de02a6bbd71e4e544252002130c3f8829aa16d72acfa5899c9464f",
+      "PngSha256": "77702b18f890ce4f0fdfa288c827fb961626a7aac9f9bed68c293d93bd5960bb",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/windows-initial-wgpu/font-1/grid-2.png": {
+      "SourcePpmSha256": "bfc53c1311f06ba237e35731b052807fe81516e3703897a6b8f61b1466ed87fa",
+      "PngSha256": "d50de9295de85c9d2bf7bec9cb292a73e67bf430aba49ffbe068cd0d7dacc3ad",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/windows-initial-wgpu/font-1/grid-1.png": {
+      "SourcePpmSha256": "e91bd1a4c4996f9eff72f9682fc63eca5cd386efe3565bde8d890945c899df2b",
+      "PngSha256": "3adc8520ff3f1bd87d15d0b659cd2e3e848067746dd3f455b7ab2da627b1bca4",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/windows-initial-wgpu/font-1/grid-1.25.png": {
+      "SourcePpmSha256": "e9de81dd71f6343350741d055943ba082d73d616e1791260c6bcf80c8de4ddd0",
+      "PngSha256": "49652310eb3fd5e235fb1a5c70508868a37fbce341067fb9b5827b4f76744dc5",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    },
+    "docs/baselines/issue-18/windows-initial-wgpu/font-1/grid-1.5.png": {
+      "SourcePpmSha256": "15773e9246f8eacadb68a16b0561e2133b70cfbba1388a321b024b085ea1b116",
+      "PngSha256": "a5f719b47275ad34093901b25c99c2d27907ddacbd28a650b0049ddc5e80e9fe",
+      "Conversion": "Lossless RGB8 PPM to PNG; exact source pixel bytes"
+    }
+  },
+  "LocalFixturePidsAbsent": [
+    38970,
+    38972,
+    40104,
+    40106
+  ],
+  "NativeInitial": {
+    "SourceCommit": "7e1fcc5e07695260d8b2580e2d9b0e662fc10a1f",
+    "WorkflowRun": "https://github.com/shakodev/pike/actions/runs/40494268548",
+    "Renderer": "wgpu and tiny-skia",
+    "Status": "Passed first fixture; later-added ancestor/translation regression is NOT included",
+    "LaterClipFixNativeStatus": "Pending",
+    "AdapterTestsPerProfile": 84,
+    "FixturePidsCheckedAbsent": 4
+  },
+  "GeometryFixturePidsAbsent": [
+    39014,
+    39015,
+    39016,
+    40109,
+    40110,
+    40111
+  ]
+}
