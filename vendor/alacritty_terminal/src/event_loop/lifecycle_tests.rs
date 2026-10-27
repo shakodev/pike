@@ -24,25 +24,25 @@ impl Read for TestReader {
     }
 }
 
-struct FailedPty {
+struct FailedPty<W = io::Sink> {
     reader: TestReader,
-    writer: io::Sink,
+    writer: W,
     dropping: mpsc::Sender<ThreadId>,
     release: mpsc::Receiver<()>,
     panic: bool,
 }
-impl Drop for FailedPty {
+impl<W> Drop for FailedPty<W> {
     fn drop(&mut self) {
         self.dropping.send(std::thread::current().id()).unwrap();
         self.release.recv_timeout(Duration::from_secs(5)).unwrap();
     }
 }
-impl event::OnResize for FailedPty {
+impl<W> event::OnResize for FailedPty<W> {
     fn on_resize(&mut self, _: WindowSize) {}
 }
-impl EventedReadWrite for FailedPty {
+impl<W: Write> EventedReadWrite for FailedPty<W> {
     type Reader = TestReader;
-    type Writer = io::Sink;
+    type Writer = W;
     unsafe fn register(
         &mut self,
         _: &Arc<polling::Poller>,
@@ -70,10 +70,221 @@ impl EventedReadWrite for FailedPty {
         &mut self.writer
     }
 }
-impl EventedPty for FailedPty {
+impl<W: Write> EventedPty for FailedPty<W> {
     fn next_child_event(&mut self) -> Option<ChildEvent> {
         None
     }
+}
+
+#[test]
+fn input_admission_wake_progresses_with_writable_interest_already_enabled() {
+    let (dropping, _dropped) = mpsc::channel();
+    let (release, gate) = mpsc::channel();
+    let terminal =
+        Arc::new(FairMutex::new(Term::new(Default::default(), &TermSize::new(80, 24), Listener)));
+    let pty = FailedPty {
+        reader: TestReader { bytes: io::Cursor::new(Vec::new()), pending: true },
+        writer: io::sink(),
+        dropping,
+        release: gate,
+        panic: false,
+    };
+    let mut event_loop = EventLoop::new(terminal, Listener, pty, true, false).unwrap();
+    let sender = event_loop.channel();
+    let mut state = State::default();
+    let mut interest = PollingEvent::readable(0);
+    interest.writable = true;
+    // Reproduce the observed turn boundary without a scheduling race: a
+    // notify-only admission wake, queued bytes and already-enabled interest.
+    // No separate writable event is supplied. The nonblocking sink is ready.
+    sender.send_input(&[b'x'; 148]).unwrap();
+    let mut notifications = Events::new();
+    event_loop.poll.wait(&mut notifications, Some(Duration::from_secs(1))).unwrap();
+    assert!(notifications.is_empty(), "admission notify is not a writable readiness event");
+    event_loop.update_write_interest(&mut state, &mut interest, false).unwrap();
+    let status = sender.input_status();
+    release.send(()).unwrap();
+    assert_eq!(status.queued_bytes, 0, "admitted replies stranded after notification");
+    assert_eq!(status.written_bytes, 148);
+    assert_eq!(status.outstanding_bytes, 0);
+}
+
+struct ScriptedWriter {
+    steps: std::collections::VecDeque<Result<usize, ErrorKind>>,
+    bytes: Vec<u8>,
+    calls: usize,
+    blocked: Option<mpsc::Sender<()>>,
+    release_error: Option<Arc<AtomicBool>>,
+}
+impl Write for ScriptedWriter {
+    fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+        self.calls += 1;
+        if self.calls > 2
+            && self.release_error.as_ref().is_some_and(|ready| !ready.load(Ordering::Acquire))
+        {
+            return Ok(0);
+        }
+        let count = self.steps.pop_front().unwrap_or(Ok(usize::MAX))?.min(bytes.len());
+        self.bytes.extend_from_slice(&bytes[..count]);
+        if count == 0
+            && let Some(blocked) = self.blocked.take()
+        {
+            blocked.send(()).unwrap();
+        }
+        Ok(count)
+    }
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
+}
+
+#[test]
+fn admission_wake_keeps_bounded_order_and_returns_on_backpressure_without_idle_writes() {
+    let (dropping, _dropped) = mpsc::channel();
+    let (release, gate) = mpsc::channel();
+    let terminal =
+        Arc::new(FairMutex::new(Term::new(Default::default(), &TermSize::new(80, 24), Listener)));
+    let pty = FailedPty {
+        reader: TestReader { bytes: io::Cursor::new(Vec::new()), pending: true },
+        writer: ScriptedWriter {
+            steps: [Ok(2), Ok(0), Err(ErrorKind::WouldBlock)].into(),
+            bytes: Vec::new(),
+            calls: 0,
+            blocked: None,
+            release_error: None,
+        },
+        dropping,
+        release: gate,
+        panic: false,
+    };
+    let mut event_loop = EventLoop::new(terminal, Listener, pty, true, false).unwrap();
+    let sender = event_loop.channel();
+    let mut state = State::default();
+    let mut interest = PollingEvent::readable(0);
+    interest.writable = true;
+    let mut expected = vec![b'x'; crate::input::INPUT_BYTE_LIMIT];
+    sender.send_input(&expected).unwrap();
+    release.send(()).unwrap();
+
+    event_loop.update_write_interest(&mut state, &mut interest, true).unwrap();
+    assert_eq!(event_loop.pty.writer.calls, 0, "EOF must not admit late replies to the PTY");
+    event_loop.update_write_interest(&mut state, &mut interest, false).unwrap();
+    assert_eq!(event_loop.pty.writer.calls, 2, "zero write must return, not spin");
+    assert_eq!(sender.input_status().written_bytes, 2);
+    sender.send_input(b"YZ").unwrap();
+    assert!(matches!(sender.send_input(b"overflow"), Err(InputError::Full { .. })));
+
+    event_loop.update_write_interest(&mut state, &mut interest, false).unwrap();
+    assert_eq!(event_loop.pty.writer.calls, 3, "WouldBlock must return, not spin");
+    assert_eq!(sender.input_status().written_bytes, 2);
+    event_loop.update_write_interest(&mut state, &mut interest, false).unwrap();
+    expected.extend_from_slice(b"YZ");
+    assert_eq!(event_loop.pty.writer.bytes, expected);
+    assert_eq!(sender.input_status().outstanding_bytes, 0);
+    assert_eq!(sender.input_status().queued_bytes, 0);
+    assert!(!interest.writable);
+    let calls = event_loop.pty.writer.calls;
+    event_loop.update_write_interest(&mut state, &mut interest, false).unwrap();
+    assert_eq!(event_loop.pty.writer.calls, calls, "idle wake must not call the writer");
+    sender.send(Msg::Shutdown).unwrap();
+    event_loop.update_write_interest(&mut state, &mut interest, false).unwrap();
+    assert_eq!(event_loop.pty.writer.calls, calls, "closed session must not write");
+    assert_eq!(sender.send_input(b"late"), Err(InputError::Closed));
+}
+
+struct NotifyOnlyPty {
+    reader: TestReader,
+    writer: ScriptedWriter,
+    disposed: mpsc::Sender<ThreadId>,
+}
+impl Drop for NotifyOnlyPty {
+    fn drop(&mut self) {
+        self.disposed.send(std::thread::current().id()).unwrap();
+    }
+}
+impl event::OnResize for NotifyOnlyPty {
+    fn on_resize(&mut self, _: WindowSize) {}
+}
+impl EventedReadWrite for NotifyOnlyPty {
+    type Reader = TestReader;
+    type Writer = ScriptedWriter;
+    unsafe fn register(
+        &mut self,
+        poll: &Arc<polling::Poller>,
+        _: PollingEvent,
+        _: PollMode,
+    ) -> io::Result<()> {
+        poll.notify()
+    }
+    fn reregister(
+        &mut self,
+        _: &Arc<polling::Poller>,
+        _: PollingEvent,
+        _: PollMode,
+    ) -> io::Result<()> {
+        Ok(())
+    }
+    fn deregister(&mut self, _: &Arc<polling::Poller>) -> io::Result<()> {
+        Ok(())
+    }
+    fn reader(&mut self) -> &mut Self::Reader {
+        &mut self.reader
+    }
+    fn writer(&mut self) -> &mut Self::Writer {
+        &mut self.writer
+    }
+}
+impl EventedPty for NotifyOnlyPty {
+    fn next_child_event(&mut self) -> Option<ChildEvent> {
+        None
+    }
+}
+
+#[test]
+fn notify_only_wake_resumes_partial_write_then_reports_error_after_disposal() {
+    let (disposed, disposal) = mpsc::channel();
+    let (blocked, waiting) = mpsc::channel();
+    let release_error = Arc::new(AtomicBool::new(false));
+    let terminal =
+        Arc::new(FairMutex::new(Term::new(Default::default(), &TermSize::new(80, 24), Listener)));
+    let pty = NotifyOnlyPty {
+        reader: TestReader { bytes: io::Cursor::new(Vec::new()), pending: true },
+        writer: ScriptedWriter {
+            steps: [Ok(2), Ok(0), Err(ErrorKind::BrokenPipe)].into(),
+            bytes: Vec::new(),
+            calls: 0,
+            blocked: Some(blocked),
+            release_error: Some(release_error.clone()),
+        },
+        disposed,
+    };
+    let event_loop = EventLoop::new(terminal, Listener, pty, true, false).unwrap();
+    let sender = event_loop.channel();
+    sender.send_input(b"abcde").unwrap();
+    let (complete, completed) = mpsc::channel();
+    event_loop.spawn_disposing(|| {}, move |result| complete.send(result).unwrap());
+    waiting.recv_timeout(Duration::from_secs(5)).unwrap();
+    // All remaining bytes belong to the retained partial write, with no
+    // queued input or control message. A bare notification must service them.
+    let status = sender.input_status();
+    assert_eq!(status.written_bytes, 2);
+    assert_eq!(status.queued_bytes, 0);
+    assert_eq!(status.outstanding_bytes, 3);
+    release_error.store(true, Ordering::Release);
+    sender.poller.upgrade().unwrap().notify().unwrap();
+    let result = completed.recv_timeout(Duration::from_secs(5)).unwrap();
+    assert_eq!(result.reason, ExitReason::IoError(ErrorKind::BrokenPipe));
+    assert!(!result.output_drained);
+    assert_eq!(result.exit_code, None);
+    let status = sender.input_status();
+    assert!(status.closed);
+    assert_eq!(status.written_bytes, 2);
+    assert_eq!(status.cancelled_bytes, 3);
+    assert_eq!(status.outstanding_bytes, 0);
+    assert_eq!(status.queued_bytes, 0);
+    assert_eq!(sender.send_input(b"late"), Err(InputError::Closed));
+    assert_ne!(disposal.recv_timeout(Duration::from_secs(5)).unwrap(), std::thread::current().id());
+    assert!(sender.poller.upgrade().is_none());
 }
 
 #[test]

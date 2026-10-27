@@ -276,3 +276,65 @@ omits the success marker and acknowledges cleanup; that negative experiment
 is labeled macOS and makes no native Windows claim. No failing byte trace or
 production repair has been established. The original native timeout remains
 an explicit verification blocker pending independent review; the PR stays draft.
+
+The automatic native run on documentation-only source `5997177` then
+[reproduced the failure with buffered diagnostics](https://github.com/shakodev/pike/actions/runs/40503069279):
+wgpu stopped at trial 01; all ten tiny-skia launches passed. The
+[complete attempted-launch record](../baselines/issue-20/windows-buffered-failure/)
+preserves all eleven launches and original artifact hashes. This time session
+20002 stalled, despite formatting all nine initial responses. Before failed-
+verdict diagnostic padding, it still had 148 bytes in the bounded input FIFO,
+55 acknowledged OS-written bytes, and open admission. Session 20001 fully
+passed and completed status 41/drained. The failed origin acknowledged requested
+cleanup without natural exit/output drain; no child trace was persisted, so
+its actual consumption and console mode remain unknown. This is actionable
+evidence of queued writer nonprogress; the exact interleaving and any remedy
+still require a deterministic regression and independent review.
+
+## Queued-writer correction
+
+The captured 148-byte FIFO remainder led to a deterministic portable regression:
+with writable interest already enabled, consume an actual `Poller::notify()`
+and its empty readiness batch, then finish the original event-loop turn with
+148 admitted bytes and a ready nonblocking sink. The original block leaves
+all 148 bytes queued. The [red patch/log/provenance](../baselines/issue-20/windows-buffered-failure/)
+reconstruct this without relying on thread timing. Pinned polling documents
+that notifications return no readiness events; pinned piper removes its writer
+waker when not full. A queue admission during an already-writable turn could
+therefore leave no writable event to service its bytes.
+
+The correction attempts pending nonblocking writes on the existing event-loop
+wake before updating interest, including a retained partial write when deciding
+whether a wake is idle. Capacity exhaustion preserves bytes and waits for the
+existing readiness signal. Idle/closed/EOF sessions do no writes. The original
+bounded queue, atomic acceptance, error/cancellation and disposing-worker paths
+remain in use; no thread, timer, polling loop or dependency is added.
+
+Three deterministic regressions cover the captured phase state, full-capacity
+FIFO order across partial/zero/WouldBlock writes, idle/closed/EOF no-write and
+notify-only retained-partial progress followed by a propagated write error with
+exact cancellation and disposal-before-completion. This corrects a demonstrated
+progress defect; the old `938a48b` trace still does not reveal its actual bytes
+or interleaving. Native validation of the concrete candidate and independent
+review are required before declaring issue acceptance satisfied.
+
+During local candidate checks, the wgpu adapter suite reported five macOS
+font/work-test cleanup timeouts (85 passed, five failed, one ignored). The
+focused `font_changes_measure_once_and_paint_only_changes_do_not_snapshot`
+test failed at the same five-second completion wait with both the candidate
+and exact unmodified `5997177` event-loop source, using the identical command.
+The original candidate file was restored in `finally`. This establishes an
+existing local cleanup limitation; no timeout or Unix lifecycle code is changed
+by the writer correction. The complete check result is reported separately
+from the deterministic writer regression and native Windows evidence.
+
+Local final candidate checks pass formatting, denied-warning application/
+adapter/Alacritty Clippy, application/example/doc tests, all 152 Alacritty unit,
+45 reference and one documentation test, and protocol/widget/Unicode release
+probes for both renderers. All fourteen owned synthetic fixture PIDs were
+absent after acknowledged cleanup. The tiny-skia adapter run reports 87 passed,
+three cleanup timeouts and one ignored, alongside the wgpu result above.
+The focused original-source control establishes that particular existing
+cleanup failure; no claim is made that every failing scheduling interleaving
+was independently reproduced. [Candidate checks and control logs](../baselines/issue-20/windows-buffered-failure/)
+retain exact counts, restored-source hashes, fixture events/cleanup and PIDs.

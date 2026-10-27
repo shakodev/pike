@@ -234,6 +234,32 @@ where
         Ok(())
     }
 
+    fn update_write_interest(
+        &mut self,
+        state: &mut State,
+        interest: &mut PollingEvent,
+        read_eof: bool,
+    ) -> io::Result<()> {
+        if read_eof {
+            return Ok(());
+        }
+        // Input admission wakes Poller::wait without a readiness event. On
+        // Windows, piper keeps a writer waker only while full, so a previous
+        // writable event is not continuously level-triggered. Service pending
+        // bytes on this wake even when writable interest is already enabled.
+        // The PTY writer is nonblocking; backpressure retains current bytes
+        // and waits for capacity readiness, with no timer or polling loop.
+        if state.needs_write(&self.input) {
+            self.pty_write(state)?;
+        }
+        let needs_write = state.needs_write(&self.input);
+        if needs_write != interest.writable {
+            interest.writable = needs_write;
+            self.pty.reregister(&self.poll, *interest, PollMode::Level)?;
+        }
+        Ok(())
+    }
+
     /// Compatibility entry point: ownership of returned backend state belongs
     /// to the caller. UI adapters should use `spawn_disposing` instead.
     pub fn spawn(self) -> JoinHandle<(Self, State)> {
@@ -313,7 +339,7 @@ where
             {
                 continue;
             }
-            if events.is_empty() && self.rx.peek().is_none() && self.input.is_empty() {
+            if events.is_empty() && self.rx.peek().is_none() && !state.needs_write(&self.input) {
                 state.parser.stop_sync(&mut *self.terminal.lock());
                 self.event_proxy.send_event(Event::Wakeup);
                 continue;
@@ -378,24 +404,14 @@ where
                                 },
                             }
                         }
-                        if event.writable && !event.is_interrupt() {
-                            if let Err(err) = self.pty_write(&mut state) {
-                                error!("Error writing to PTY in event loop: {err}");
-                                completion.reason = ExitReason::IoError(err.kind());
-                                break 'event_loop;
-                            }
-                        }
                     },
                     _ => (),
                 }
             }
-            let needs_write = state.needs_write(&self.input);
-            if !read_eof && needs_write != interest.writable {
-                interest.writable = needs_write;
-                if let Err(err) = self.pty.reregister(&self.poll, interest, poll_opts) {
-                    completion.reason = ExitReason::IoError(err.kind());
-                    break;
-                }
+            if let Err(err) = self.update_write_interest(&mut state, &mut interest, read_eof) {
+                error!("Error servicing PTY input in event loop: {err}");
+                completion.reason = ExitReason::IoError(err.kind());
+                break;
             }
         }
         if completion.reason == ExitReason::Requested

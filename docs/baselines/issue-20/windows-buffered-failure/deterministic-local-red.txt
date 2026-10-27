@@ -1,0 +1,24 @@
+   Compiling alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/alacritty_terminal)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.78s
+     Running unittests src/lib.rs (target/issue-20/debug/deps/alacritty_terminal-49523ea75508f8ef)
+
+running 1 test
+test event_loop::lifecycle_tests::input_admission_wake_progresses_with_writable_interest_already_enabled ... FAILED
+
+failures:
+
+---- event_loop::lifecycle_tests::input_admission_wake_progresses_with_writable_interest_already_enabled stdout ----
+
+thread 'event_loop::lifecycle_tests::input_admission_wake_progresses_with_writable_interest_already_enabled' (2262991) panicked at vendor/alacritty_terminal/src/event_loop/lifecycle_tests.rs:107:5:
+assertion `left == right` failed: admitted replies stranded after notification
+  left: 148
+ right: 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    event_loop::lifecycle_tests::input_admission_wake_progresses_with_writable_interest_already_enabled
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 149 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p alacritty_terminal --lib`

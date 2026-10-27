@@ -1,0 +1,25 @@
+   Compiling alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/alacritty_terminal)
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_term)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.78s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/issue-20/debug/deps/iced_term-9ce3d5d08dfd63b8)
+
+running 1 test
+test terminal::work_tests::font_changes_measure_once_and_paint_only_changes_do_not_snapshot ... FAILED
+
+failures:
+
+---- terminal::work_tests::font_changes_measure_once_and_paint_only_changes_do_not_snapshot stdout ----
+
+thread 'terminal::work_tests::font_changes_measure_once_and_paint_only_changes_do_not_snapshot' (2297936) panicked at vendor/iced_term/src/terminal/work_tests.rs:20:18:
+called `Result::unwrap()` on an `Err` value: Elapsed(())
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    terminal::work_tests::font_changes_measure_once_and_paint_only_changes_do_not_snapshot
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 90 filtered out; finished in 5.19s
+
+error: test failed, to rerun pass `-p iced_term --lib`

@@ -1,0 +1,54 @@
+{
+  "local_platform": "macOS; not Windows verification",
+  "runtime_sha256": "2970503ee2a0c21ddf88a7fa0253f094106d5d0b1fb8564550dec4dd9a9bc354",
+  "baseline599_runtime_sha256": "62b249bb1257bda2692e8ab0e478d234bce1ca3404a535961ad993be46286022",
+  "candidate_restored_after_control": true,
+  "alacritty": {
+    "unit": 152,
+    "reference": 45,
+    "doc": 1,
+    "result": "passed"
+  },
+  "adapter_wgpu": {
+    "passed": 85,
+    "failed_cleanup_timeouts": 5,
+    "ignored": 1
+  },
+  "adapter_tiny_skia": {
+    "passed": 87,
+    "failed_cleanup_timeouts": 3,
+    "ignored": 1
+  },
+  "application_both_profiles": "39 passed,1 existing ignored; example/doc tests passed",
+  "clippy": "Application, adapter and Alacritty all-targets deny warnings passed both relevant renderer profiles",
+  "release_probes_both_profiles": [
+    "terminal_protocol",
+    "widget_geometry",
+    "unicode_cells"
+  ],
+  "fixture_pids_checked_absent": [
+    92968,
+    92983,
+    92994,
+    92995,
+    92996,
+    93009,
+    93011,
+    93723,
+    93728,
+    93734,
+    93740,
+    93741,
+    93770,
+    93772
+  ],
+  "controls": "Identical focused font cleanup wait timed out on candidate and exact unmodified599 runtime. This establishes that focused pre-existing limitation; other failed cases are reported without claiming every interleaving independently reproduced.",
+  "logs": [
+    "candidate-alacritty-tests",
+    "candidate-alacritty-clippy",
+    "candidate-wgpu-adapter-tests",
+    "candidate-tiny-skia-adapter-tests",
+    "candidate-focused-macos-cleanup",
+    "baseline599-focused-macos-cleanup"
+  ]
+}

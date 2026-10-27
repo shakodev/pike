@@ -1,0 +1,13 @@
+{
+  "base": "59971770792cd5c9eb6436d7599fca4f9c11a58f",
+  "change": "Faithful extraction of existing end-of-turn interest block plus notify-only state regression; no functional correction.",
+  "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=\"$PWD/target/issue-20\" cargo test --locked -p alacritty_terminal input_admission_wake_progresses_with_writable_interest_already_enabled",
+  "exit": 101,
+  "platform": "macOS; portable state regression, not native Windows verification",
+  "sha256": {
+    "vendor/alacritty_terminal/src/event_loop.rs": "615985481b597f936696d32a5256e4505dc0dfc90b0d7504651a1dae89ddfd18",
+    "vendor/alacritty_terminal/src/event_loop/lifecycle_tests.rs": "5c291d81f00e25bef06ba0fecc0f75d5f3f0e05f6eb4dd63abcb9064e906dc86",
+    "docs/baselines/issue-20/windows-buffered-failure/deterministic-red.patch": "10924e0a5f0de7503def7eb7ad86b0432f388f4641d563a9f721d0ef246a7b88"
+  },
+  "reconstruct": "On base5997177 apply deterministic-red.patch with git apply --unidiff-zero; zero context removes patch-only trailing whitespace. Reconstructed files verified byte-identical to recorded red-source hashes."
+}

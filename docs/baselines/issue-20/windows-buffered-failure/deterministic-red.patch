@@ -1,0 +1,66 @@
+diff --git a/vendor/alacritty_terminal/src/event_loop.rs b/vendor/alacritty_terminal/src/event_loop.rs
+--- a/vendor/alacritty_terminal/src/event_loop.rs
++++ b/vendor/alacritty_terminal/src/event_loop.rs
+@@ -233,0 +234,14 @@
++        Ok(())
++    }
++
++    fn update_write_interest(
++        &mut self,
++        state: &mut State,
++        interest: &mut PollingEvent,
++        read_eof: bool,
++    ) -> io::Result<()> {
++        let needs_write = state.needs_write(&self.input);
++        if !read_eof && needs_write != interest.writable {
++            interest.writable = needs_write;
++            self.pty.reregister(&self.poll, *interest, PollMode::Level)?;
++        }
+@@ -392,7 +406,3 @@
+-            let needs_write = state.needs_write(&self.input);
+-            if !read_eof && needs_write != interest.writable {
+-                interest.writable = needs_write;
+-                if let Err(err) = self.pty.reregister(&self.poll, interest, poll_opts) {
+-                    completion.reason = ExitReason::IoError(err.kind());
+-                    break;
+-                }
++            if let Err(err) = self.update_write_interest(&mut state, &mut interest, read_eof) {
++                completion.reason = ExitReason::IoError(err.kind());
++                break;
+diff --git a/vendor/alacritty_terminal/src/event_loop/lifecycle_tests.rs b/vendor/alacritty_terminal/src/event_loop/lifecycle_tests.rs
+--- a/vendor/alacritty_terminal/src/event_loop/lifecycle_tests.rs
++++ b/vendor/alacritty_terminal/src/event_loop/lifecycle_tests.rs
+@@ -76,0 +77,33 @@
++}
++
++#[test]
++fn input_admission_wake_progresses_with_writable_interest_already_enabled() {
++    let (dropping, _dropped) = mpsc::channel();
++    let (release, gate) = mpsc::channel();
++    let terminal =
++        Arc::new(FairMutex::new(Term::new(Default::default(), &TermSize::new(80, 24), Listener)));
++    let pty = FailedPty {
++        reader: TestReader { bytes: io::Cursor::new(Vec::new()), pending: true },
++        writer: io::sink(),
++        dropping,
++        release: gate,
++        panic: false,
++    };
++    let mut event_loop = EventLoop::new(terminal, Listener, pty, true, false).unwrap();
++    let sender = event_loop.channel();
++    let mut state = State::default();
++    let mut interest = PollingEvent::readable(0);
++    interest.writable = true;
++    // Reproduce the observed turn boundary without a scheduling race: a
++    // notify-only admission wake, queued bytes and already-enabled interest.
++    // No separate writable event is supplied. The nonblocking sink is ready.
++    sender.send_input(&[b'x'; 148]).unwrap();
++    let mut notifications = Events::new();
++    event_loop.poll.wait(&mut notifications, Some(Duration::from_secs(1))).unwrap();
++    assert!(notifications.is_empty(), "admission notify is not a writable readiness event");
++    event_loop.update_write_interest(&mut state, &mut interest, false).unwrap();
++    let status = sender.input_status();
++    release.send(()).unwrap();
++    assert_eq!(status.queued_bytes, 0, "admitted replies stranded after notification");
++    assert_eq!(status.written_bytes, 148);
++    assert_eq!(status.outstanding_bytes, 0);

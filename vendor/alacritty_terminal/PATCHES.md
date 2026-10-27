@@ -250,6 +250,16 @@ checks and ConPTY probe described in
 - TextAreaSizeRequest now formats aggregate TextAreaSize virtual pixel fields
   rather than multiplying native integer cell dimensions. This keeps 8.5-pixel
   cells accurate while preserving the existing OnResize/WindowSize PTY contract.
+- Service bounded pending input on an event-loop wake even when writable
+  interest is already enabled. Poller notifications contain no readiness event,
+  and pinned Windows piper retains a writer waker only while full; queued
+  replies could otherwise stall with free writer capacity. Include a retained
+  partial write when deciding whether a wake is idle. Backpressure keeps the
+  current bytes and waits for capacity readiness without timers or extra work.
+- Preserve a native 148-byte queued-reply failure, deterministic red/green
+  admission regression, full-capacity FIFO ordering/zero/WouldBlock coverage,
+  and a notify-only partial-write error/disposal test. No dependency or worker
+  changes; native candidate validation is recorded in the issue verification.
 
 
 ## R09 PR review — remove ambient drive state from executable lookup
