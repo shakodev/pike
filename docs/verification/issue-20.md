@@ -1,5 +1,8 @@
 # Issue #20 — terminal protocol and metadata policies
 
+Both review-corrected native Windows profiles pass at source `187f6e6`;
+exact run links, source hashes and retained evidence are in the final section.
+
 The issue is the self-contained plan; PLAN.md is absent. Work started from
 merged #5/#11/#12 main and incorporated merged #13 (`0ae689c`). No dependency,
 feature, lockfile, additional PTY or workspace UI integration is added.
@@ -132,7 +135,7 @@ The isolated [Windows workflow](../../.github/workflows/terminal-protocol.yml)
 runs the adapter suite and release probe for both renderers, retaining source,
 compiler/runtime/executable hashes, checking both fixture PIDs disappear and
 recording externally sampled short-probe CPU/private/working-set metadata.
-Native evidence/run links will follow the first execution. These headless
+The final section records native evidence and exact run links. These headless
 observations do not establish GUI idle budgets, input/render latency or physical
 Windows desktop/DPI behavior; none of those is claimed.
 
@@ -154,3 +157,62 @@ the two-session release probe now uses 8.5-pixel cells in session 20002 and expe
 exactly 80x20 characters / 680x320 virtual pixels. The widget event probe verifies
 that Rescaled(1.5) leaves protocol pixels unchanged, with no font/grid/native
 resize work. These fixes do not claim physical desktop/DPI verification.
+
+## Native Windows review evidence — 2026-10-27
+
+All eight jobs passed at exact source
+`187f6e68ecdcec0e6bb6473308fe9125147e1f56`:
+
+- [Protocol probes, both renderers](https://github.com/shakodev/pike/actions/runs/40496875553): 85 adapter tests per profile (one existing profile test ignored), exact 17+1+1 query routing and complete reply bytes/order for each ID, title/reset/bell, 20,000 total metadata changes, focus gating, statuses 41/42 and drained natural cleanup.
+- [Public widget probes, both renderers](https://github.com/shakodev/pike/actions/runs/40496875706): the exact unfocused replacement/new-tree regression, normal focused creation, no duplicate redraw report, one real blur report, virtual query pixels unchanged at Rescaled(1.5), plus preserved 125/150/200% translation/clipping and modal coverage.
+- [Full Windows CI, both renderers](https://github.com/shakodev/pike/actions/runs/40496875528): formatting, denied-warning app/vendor Clippy, application/example/doc tests, explicit vendor suites, release builds/package and native launch/input/shutdown probes.
+- [ConPTY audit, Windows 2022/2025](https://github.com/shakodev/pike/actions/runs/40496875642): both cohorts passed the existing native ownership/resource/lifecycle suite.
+
+The host is native x64 MSVC, Rust 1.97.1, Windows Server 2025 build 26100 with
+pinned ConPTY 1.25.260930003. [Retained evidence](../baselines/issue-20/windows/)
+contains compiler/runtime/source/executable hashes, adapter results, exact reply
+bytes encoded losslessly as hex, event/cleanup records and source provenance.
+Text records are normalized to LF with original artifact hashes preserved in
+provenance.json. Both protocol child PIDs and all three widget child PIDs were
+absent after acknowledged cleanup in each renderer run (ten fixtures total).
+
+The native second session uses 80 columns with fractional 8.5-pixel cells and
+verifies CSI 14t returns 680x320, while CSI 18t returns 80x20. The source-level
+fractional regression and public non-1x rescale check pass on both platforms.
+Locally, both profiles passed required formatting, denied-warning application/
+adapter/Alacritty Clippy, application/example tests, 83 adapter tests, and both
+release probes; the explicit Alacritty suite passed 149 unit, 45 reference and
+one documentation test. All ten local review-fixture PIDs also exited.
+
+The opt-in collector sampled the short release protocol parent every 10 ms;
+these observations include parent initialization, protocol/flood handling and
+shutdown and exclude compilation, synthetic child resources and all GUI work:
+
+| Profile | Wall seconds | Last sampled process CPU seconds | Samples | Maximum sampled private MiB | Maximum sampled working set MiB |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| wgpu | 0.118624 | 0.1250 | 2 | 13.18 | 10.42 |
+| tiny-skia | 0.111539 | 0.0625 | 5 | 13.17 | 10.90 |
+
+These sparse samples are not lifetime peaks, idle budgets, responsiveness
+percentiles or a causal renderer comparison. Last sampled process CPU can
+span multiple threads; no one-core utilization claim is inferred. Source
+bounds are tested directly rather than inferred from these brief measurements.
+Real physical monitor transitions and interactive Windows desktop behavior
+remain unverified release-matrix work, with no claim of physical DPI testing.
+
+## Integration with merged Unicode rendering
+
+After the review evidence above, main merged #18 at
+`487f5bca537d9810b971b5bd04b2b6d3edd9bf26`. Local integration source
+`bab757360db9eab72f815bc71c18a2c586884cf8` retains its shaped Unicode buffers,
+wide cursor, cache generations and explicit cell/ancestor clips. Conflicts were
+resolved by retaining the merged drawing implementation and changing only its
+palette accesses to the approved single Backend theme owner; R20 focus routing
+remains outside drawing. No glyph helper or snapshot/cell interface was changed.
+
+Formatting, denied-warning app/adapter Clippy, application/example tests and
+90 explicit adapter tests (including the seven merged Unicode regressions) pass
+for both local renderer profiles. Protocol, public-widget geometry/focus and
+Unicode two-font/four-scale release probes are repeated on the combined source.
+The 187f6e6 native evidence above is preserved with its original exact source;
+combined-head native reruns are pending until the integration is pushed.
