@@ -230,3 +230,30 @@ and API/overload policy details.
 - No dependencies, lockfile, feature, renderer default or Alacritty changes.
   Remove when upstream offers equivalent cached logical metrics, validated
   geometry and mutation-specific presentation invalidation.
+
+## R13 / issue #13 — widget identity and pane-local geometry
+
+- Backport the terminal-ID-aware `TerminalView::diff` from
+  [upstream PR 70](https://github.com/kemokempo/iced_term/pull/70), head
+  `d9b343fdd5362979c61be307cdd0fa4ab301ef80`, onto the patched 0.8.0 view.
+  Replace transient state when the session ID changes, including focus,
+  dragging, click history, scroll remainder, modifiers and the first-layout
+  marker. Session-owned selection, scrollback, cache and PTY stay with Terminal.
+- Track current widget bounds to cancel obsolete pointer gestures on a move or
+  resize. Same-size origin changes never send native resize commands. Unfocus,
+  window focus loss and releases outside the pane also cancel transient drags.
+- Cache geometry in local pane coordinates and key the canvas cache by pane
+  size. Apply the current layout origin when drawing, and clip all glyphs,
+  cursor, selection and background runs to the pane/ancestor viewport
+  intersection. Moving a pane can reuse its cached geometry.
+- Explicit DPI events clear the canvas once without font measurement, model
+  reflow or PTY resizing when logical bounds are unchanged. Font/theme changes
+  retain their R12 invalidation paths. `redraw` uses existing cache interior
+  mutability and a Cell counter so widget-triggered invalidation is included
+  in WorkStats. No new public API, dependencies, tasks, timers or unsafe code.
+- Four focused adapter tests plus a real-PTY/offscreen example exercise
+  equal-sized replacement, focus and drag isolation, initial layout delivery,
+  nested swaps, maximize/restore, theme/font changes and 125/150/200% pixel
+  clipping. See [verification and Windows limitations](../../docs/verification/issue-13.md).
+  Remove this patch when upstream provides equivalent identity, local geometry
+  and clipping behavior; PR 70 alone covers only the ID reset.
