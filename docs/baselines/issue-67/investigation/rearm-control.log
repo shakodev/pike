@@ -1,0 +1,26 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running unittests src/lib.rs (target/debug/deps/pike_read_progress_investigation-d5ebbf5a1ec5dad3)
+
+running 2 tests
+test below_service_cap_progresses_without_rearm ... read n=65534 buffered=0 destination=65535 control_repost=false
+observation reply=true consumed=65534 buffered=0 reads=2 pending=1 posts=1 registrations=1 input=InputStatus { outstanding_bytes: 0, queued_bytes: 0, written_bytes: 0, cancelled_bytes: 0, closed: false }
+cleanup=Completion { reason: Requested, exit_code: None, output_drained: false }
+ok
+test buffered_output_must_progress_without_new_readiness ... read n=65535 buffered=131074 destination=65535 control_repost=true
+read n=65535 buffered=65539 destination=65535 control_repost=true
+read n=65535 buffered=4 destination=65535 control_repost=true
+read n=4 buffered=0 destination=65535 control_repost=true
+observation reply=true consumed=196609 buffered=0 reads=5 pending=1 posts=4 registrations=1 input=InputStatus { outstanding_bytes: 0, queued_bytes: 0, written_bytes: 0, cancelled_bytes: 0, closed: false }
+cleanup=Completion { reason: Requested, exit_code: None, output_drained: false }
+ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests pike_read_progress_investigation
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+ACTUAL_EXIT_CODE=0

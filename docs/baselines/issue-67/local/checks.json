@@ -1,0 +1,176 @@
+{
+  "final-wgpu-app-clippy.log": {
+    "exit": 0,
+    "results": []
+  },
+  "wgpu-app-tests.log": {
+    "exit": 0,
+    "results": [
+      "test result: ok. 39 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.24s",
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s",
+      "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s"
+    ]
+  },
+  "wgpu-adapter-clippy.log": {
+    "exit": 0,
+    "results": []
+  },
+  "final-tiny-skia-app-clippy.log": {
+    "exit": 0,
+    "results": []
+  },
+  "baseline-tiny-skia-adapter-tests.log": {
+    "exit": 101,
+    "results": [
+      "test result: FAILED. 80 passed; 7 failed; 1 ignored; 0 measured; 0 filtered out; finished in 5.48s"
+    ]
+  },
+  "baseline-wgpu-adapter-tests.log": {
+    "exit": 101,
+    "results": [
+      "test result: FAILED. 81 passed; 6 failed; 1 ignored; 0 measured; 0 filtered out; finished in 5.47s"
+    ]
+  },
+  "final-alacritty-windows-clippy.log": {
+    "exit": 0,
+    "results": []
+  },
+  "alacritty-tests.log": {
+    "exit": 0,
+    "results": [
+      "test result: ok. 151 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.52s",
+      "test result: ok. 45 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.59s",
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s"
+    ]
+  },
+  "tiny-skia-adapter-clippy.log": {
+    "exit": 0,
+    "results": []
+  },
+  "comparison-candidate-repeated_close_during_output_has_one_backend_result_and_fused_stream.log": {
+    "exit": 101,
+    "results": [
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 87 filtered out; finished in 5.10s"
+    ]
+  },
+  "wgpu-adapter-tests.log": {
+    "exit": 101,
+    "results": [
+      "test result: FAILED. 80 passed; 7 failed; 1 ignored; 0 measured; 0 filtered out; finished in 5.50s"
+    ]
+  },
+  "final-alacritty-clippy.log": {
+    "exit": 0,
+    "results": []
+  },
+  "comparison-baseline-repeated_close_during_output_has_one_backend_result_and_fused_stream.log": {
+    "exit": 101,
+    "results": [
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 87 filtered out; finished in 5.18s"
+    ]
+  },
+  "final-tiny-skia-app-tests.log": {
+    "exit": 0,
+    "results": [
+      "test result: ok. 39 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.23s",
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s",
+      "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s"
+    ]
+  },
+  "wgpu-app-clippy.log": {
+    "exit": 0,
+    "results": []
+  },
+  "wgpu-example-tests.log": {
+    "exit": 0,
+    "results": [
+      "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 39 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.26s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+    ]
+  },
+  "comparison-candidate-font_changes_measure_once_and_paint_only_changes_do_not_snapshot.log": {
+    "exit": 101,
+    "results": [
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 87 filtered out; finished in 5.11s"
+    ]
+  },
+  "final-alacritty-tests.log": {
+    "exit": 0,
+    "results": [
+      "test result: ok. 151 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.52s",
+      "test result: ok. 45 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.58s",
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s"
+    ]
+  },
+  "tiny-skia-app-tests.log": {
+    "exit": 0,
+    "results": [
+      "test result: ok. 39 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.24s",
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s",
+      "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s"
+    ]
+  },
+  "root-format.log": {
+    "exit": 0,
+    "results": []
+  },
+  "tiny-skia-adapter-tests.log": {
+    "exit": 101,
+    "results": [
+      "test result: FAILED. 79 passed; 8 failed; 1 ignored; 0 measured; 0 filtered out; finished in 5.51s"
+    ]
+  },
+  "comparison-baseline-font_changes_measure_once_and_paint_only_changes_do_not_snapshot.log": {
+    "exit": 101,
+    "results": [
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 87 filtered out; finished in 5.11s"
+    ]
+  },
+  "tiny-skia-example-tests.log": {
+    "exit": 0,
+    "results": [
+      "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 39 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.24s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+    ]
+  },
+  "tiny-skia-app-clippy.log": {
+    "exit": 0,
+    "results": []
+  },
+  "final-wgpu-app-tests.log": {
+    "exit": 0,
+    "results": [
+      "test result: ok. 39 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.32s",
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s",
+      "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s"
+    ]
+  },
+  "source_sha256": {
+    "vendor/alacritty_terminal/src/event_loop.rs": "3d98ad4c73574be0c5097857b567876f3bc7de6463fb6e20a3e5f39dffa8168b",
+    "vendor/alacritty_terminal/src/event_loop/read_tests.rs": "4c0c53bc5fdb570cf2ab9b18d0e8b9f42ba1f7a63276c7a0f7feaa46cf58d7a9",
+    "vendor/alacritty_terminal/src/tty/windows/blocking/read_tests.rs": "c5b6f05965ef3e52fdfa34f876fafb54c0a7eaf133661116fc9ee5119408a393"
+  },
+  "baseline_sha": "103e29552148aeb2273996e0d178fa781f6ec680",
+  "host": "aarch64-apple-darwin Rust1.97.1",
+  "scope": "No native execution claim; Windows-target Clippy is type checking only"
+}

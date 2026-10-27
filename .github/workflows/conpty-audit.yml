@@ -12,6 +12,8 @@ jobs:
   resources:
     name: ConPTY audit (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    env:
+      CARGO_BUILD_JOBS: '4'
     timeout-minutes: 15
     strategy:
       fail-fast: false

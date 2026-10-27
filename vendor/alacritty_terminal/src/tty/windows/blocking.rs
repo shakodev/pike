@@ -428,3 +428,6 @@ impl Wake for Registration {
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod read_tests;
