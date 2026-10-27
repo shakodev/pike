@@ -338,3 +338,25 @@ The focused original-source control establishes that particular existing
 cleanup failure; no claim is made that every failing scheduling interleaving
 was independently reproduced. [Candidate checks and control logs](../baselines/issue-20/windows-buffered-failure/)
 retain exact counts, restored-source hashes, fixture events/cleanup and PIDs.
+
+## Final integration with approved selection copy
+
+Merged exact main `103e29552148aeb2273996e0d178fa781f6ec680` (PR #66) into
+the local writer candidate without conflicts. The copy sink, captured keyboard
+binding/modifiers and stable-ID menu checks compose with the existing shared
+window focus and single backend palette owner. Writer code/tests are byte-
+identical to local candidate `e5f236e`; the strict protocol fixture is unchanged
+from `5997177`. Only its workflow provenance list additionally hashes the
+changed writer source and regression tests.
+
+Combined local source `6f3e07f` passes formatting, both application/adapter
+denied-warning Clippy profiles, application/example/doc tests and all eight
+protocol/widget/Unicode/selection-copy release probes. All eighteen synthetic
+fixture PIDs are absent after acknowledged cleanup. Alacritty source/tests are
+unchanged from the passed 152-unit/45-reference/one-doc suite. The combined
+adapter runs report wgpu 92 passed/three cleanup timeouts/one ignored and
+tiny-skia 89 passed/six cleanup timeouts/one ignored; these local failures remain
+explicitly reported alongside the original-source cleanup control. The
+[combined records](../baselines/issue-20/windows-buffered-failure/local-combined-checks.json)
+retain source hashes, counts and controlled process identities. This concrete
+candidate requires its own native Windows validation and independent review.
