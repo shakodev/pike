@@ -282,3 +282,11 @@ and API/overload policy details.
   probe verify bytes/order/identity, hidden metadata, metadata floods, focus and
   natural drained cleanup. See [verification](../../docs/verification/issue-20.md).
   No dependencies, features, lockfiles, polling tasks or additional PTY code.
+- Review fixes: one owner-bound WindowFocus per actual window survives terminal
+  replacement/new widget trees; unknown focus stays unfocused. The existing
+  single-window app records actual focus during startup and binds it before
+  showing a terminal. Public widget regressions check admitted CSI-I/O bytes.
+- CSI 14t now uses aggregate virtual logical-grid pixels, rounding the product
+  once (80x8.5 = 680). The Alacritty formatter accepts TextAreaSize separately
+  from native integer WindowSize. DPI rescale leaves these virtual units and
+  native PTY cell-count dedup unchanged; no physical-monitor claim is made.

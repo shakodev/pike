@@ -47,7 +47,7 @@ jobs:
           rustc --version --verbose | Tee-Object "$env:EVIDENCE/compiler.txt"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber | ConvertTo-Json | Set-Content "$env:EVIDENCE/os.json"
-          Get-FileHash Cargo.lock, vendor/iced_term/src/view.rs, vendor/iced_term/src/backend.rs, vendor/iced_term/src/event_bridge.rs, vendor/alacritty_terminal/src/event.rs, vendor/alacritty_terminal/src/term/mod.rs, examples/terminal_protocol.rs | Format-Table -AutoSize | Out-String -Width 240 | Set-Content "$env:EVIDENCE/source-hashes.txt"
+          Get-FileHash Cargo.lock, src/main.rs, vendor/iced_term/src/window_focus.rs, examples/support/widget_events.rs, examples/widget_geometry.rs, vendor/iced_term/src/view.rs, vendor/iced_term/src/backend.rs, vendor/iced_term/src/event_bridge.rs, vendor/alacritty_terminal/src/event.rs, vendor/alacritty_terminal/src/term/mod.rs, examples/terminal_protocol.rs | Format-Table -AutoSize | Out-String -Width 240 | Set-Content "$env:EVIDENCE/source-hashes.txt"
 
       - name: Cache dependencies and isolated fixture build
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
@@ -82,7 +82,7 @@ jobs:
           $lastCpuSeconds = 0.0
           $samples = 0
           try {
-              while (-not $process.WaitForExit(100)) {
+              while (-not $process.WaitForExit(10)) {
                   if ($watch.Elapsed.TotalSeconds -gt 90) {
                       $process.Kill($true)
                       $process.WaitForExit()
@@ -107,7 +107,7 @@ jobs:
                   LastSampleCpuSeconds = $(if ($samples) { $lastCpuSeconds } else { $null })
                   MaximumSampledPrivateBytes = $(if ($samples) { $maximumPrivate } else { $null })
                   MaximumSampledWorkingSetBytes = $(if ($samples) { $maximumWorkingSet } else { $null })
-                  SamplingMilliseconds = 100
+                  SamplingMilliseconds = 10
               } | ConvertTo-Json | Set-Content "$env:EVIDENCE/resources.json"
           } finally {
               if (-not $process.HasExited) { $process.Kill($true); $process.WaitForExit() }

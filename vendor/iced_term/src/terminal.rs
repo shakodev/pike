@@ -205,12 +205,25 @@ impl Terminal {
         self.backend.exit_code()
     }
 
-    /// Effective application focus, independent of a visible viewport. The
-    /// workspace owner must route pane/window changes, including hidden tabs.
+    /// Pane focus, gated by visibility and the actual owner's WindowFocus.
+    /// Workspace owners must route activation/removal, including hidden tabs.
     pub fn set_focused(&mut self, focused: bool) -> Action {
         self.handle(Command::ProxyToBackend(backend::Command::FocusChanged(
-            focused && self.is_visible(),
+            focused
+                && self.is_visible()
+                && self.backend.window_focus.is_focused(),
         )))
+    }
+
+    /// Bind the actual window owner's authority before showing/activating a
+    /// terminal. Share this handle with hidden sessions and later attachments.
+    pub fn set_window_focus(&mut self, focus: crate::WindowFocus) -> Action {
+        self.backend.window_focus = focus;
+        if !self.backend.window_focus.is_focused() {
+            self.set_focused(false)
+        } else {
+            Action::Ignore
+        }
     }
 
     /// Advisory whole-input check. Admission repeats it atomically when handled.

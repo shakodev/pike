@@ -17,7 +17,7 @@ in the same ID context. Workspace SessionId/metadata integration remains #23.
 | Exit | Return Shutdown { exit_code }; absent status remains None, never invented success; backend completion remains separate |
 | PtyWrite | Admit the entire reply through the existing ordered input path without scrolling to bottom |
 | ColorRequest | Resolve indexed 0–255, foreground, background and cursor using the current configured palette and parser-ordered OSC override; cursor falls back to foreground |
-| TextAreaSizeRequest | Format current applied rows/columns and bounded native cell-pixel metadata without grid copying, font shaping or native resizing |
+| TextAreaSizeRequest | Format aggregate virtual-grid pixels, rounding rows/columns times fractional logical cell metrics once; native integer cell metadata and physical DPI are separate |
 | Title | Sanitize controls/bidi overrides and bound to 4,096 UTF-8 bytes before model, bridge and application retention; return ChangeTitle |
 | ResetTitle | Return ResetTitle; VT reset now emits it as well as resetting the model |
 | Bell | Return Bell; bursts coalesce to one pending notification; no sound or host notification is installed |
@@ -51,17 +51,29 @@ than promising a graceful flush. Post-close queries are rejected.
 
 ## Focus ownership
 
-`Terminal::set_focused(bool)` supplies effective pane AND window focus. Backend
-state deduplicates actual transitions against the model and sends CSI I/O only
-while DEC private mode 1004 is enabled. Enabling the mode is not a transition.
-Hidden sessions cannot gain focus; hiding a focused session emits its one
-focus-out report before releasing the viewport. Workspace activation/removal
-must route focus/visibility through these APIs.
+The actual window owner creates one `WindowFocus`, shares it with all of that
+window's terminals (including hidden/new sessions), and records real Focused/
+Unfocused events. Default/unknown focus is unfocused. Bind it with
+`Terminal::set_window_focus` before showing a terminal. The current single-window
+application retains this authority during asynchronous startup and binds it on
+attachment; no workspace UI is added.
 
-The widget routes mouse/operation and window focus through the same command,
-publishing only when effective state differs. There is no polling or independent
-report queue. The geometry probe now routes these focus commands before checking
-its gesture/resize messages; no drawing, clipping or cell interface changes.
+`Terminal::set_focused(bool)` supplies pane focus, gated by the shared window
+state and visibility. Backend state deduplicates transitions and sends CSI I/O
+only with DEC private mode 1004 enabled. Enabling the mode is not a transition.
+Hiding a focused session emits its one focus-out report before releasing the
+viewport; set_visible returns any scoped admission rejection.
+
+The widget updates that same window authority from real window events. Neither
+terminal-ID diff nor new tree creation invents window focus. Mouse/operation
+focus stays transient per widget, and report dedup stays session-owned. No
+polling or independent report queue is installed.
+
+CSI 14t uses virtual logical-grid pixels, matching the existing cell units:
+80 columns with 8.5-pixel cells report width 680. `TextAreaSize` carries aggregate
+u32 dimensions independently of native `WindowSize`; products are computed in
+f64, rounded once and bounded to 1..u32::MAX. PTY resize/count dedup is unchanged.
+Monitor rescaling does not multiply these virtual units or reshape fonts.
 
 ## Verification and reproduction
 
@@ -83,12 +95,11 @@ contains synthetic bytes and numeric metadata only. Cleanup is awaited after
 preparation/verification failure; completed.txt is written only after success.
 
 The byte oracle covers every reply end to end. Query-route counters are scoped
-to the fixture phase and classified separately: all 17 palette queries per child
-must reach the adapter, while native Windows may satisfy a size query in the
-console host before forwarding output. Native parser/backend regressions also
-exercise both size formatters directly. Microsoft's [console query policy](https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences#query-state)
-and [console dispatch implementation](https://github.com/microsoft/terminal/blob/main/src/terminal/adapter/adaptDispatch.cpp)
-describe host-owned query responses; native artifacts record the observed routing.
+to the fixture phase and require exactly 17 palette, one pixel-size and one
+character-size request per child on BOTH platforms. Native Windows source
+`31aa375` passed these counts, focus and drained exits; the initial fixture
+failure counted out-of-phase console negotiation. No query-byte/order/origin
+oracle was relaxed. Review corrections described below require fresh native runs.
 
 Use a worktree-local CARGO_TARGET_DIR and CARGO_BUILD_JOBS=4:
 
@@ -112,7 +123,7 @@ and adapter checks with `--no-default-features --features iced/tiny-skia,iced/to
 The Unix fixture uses system stty raw -echo for its inherited PTY input only.
 
 Local wgpu formatting, denied-warning app/adapter/Alacritty Clippy, application/
-example tests, 82 adapter tests and the Alacritty suite (149 unit, 45 reference,
+example tests, 83 adapter tests and the Alacritty suite (149 unit, 45 reference,
 one doctest) pass on macOS. The real-PTY release probe passes both identities,
 all 38 queries, 20,000 metadata changes, focus reports and drained exits. Its
 first run reproduced the missing RIS ResetTitle, now fixed with a regression.
@@ -124,3 +135,22 @@ recording externally sampled short-probe CPU/private/working-set metadata.
 Native evidence/run links will follow the first execution. These headless
 observations do not establish GUI idle budgets, input/render latency or physical
 Windows desktop/DPI behavior; none of those is claimed.
+
+## Initial independent review corrections
+
+Review reproduced a false CSI-I after Window::Unfocused on A, replacing the ID
+with B, programmatic focus and redraw without a real Window::Focused. The shared
+owner-bound WindowFocus fixes replacement and completely new trees. The public
+real-renderer widget probe now enables mode 1004 in its controlled children and
+checks admitted bytes: no report for unknown/unfocused replacement/new trees,
+exactly one CSI-I for real focus/normal focused creation, no repeated redraw
+report, and one CSI-O for actual blur. Its children consume these synthetic
+reports until requested cleanup.
+
+The other reproduced bug was per-cell rounding: 80 times rounded(8.5) reported
+720 instead of 680. Aggregate TextAreaSize removes that conversion from protocol
+formatting. A direct VT regression checks 680x320 and another fractional grid;
+the two-session release probe now uses 8.5-pixel cells in session 20002 and expects
+exactly 80x20 characters / 680x320 virtual pixels. The widget event probe verifies
+that Rescaled(1.5) leaves protocol pixels unchanged, with no font/grid/native
+resize work. These fixes do not claim physical desktop/DPI verification.

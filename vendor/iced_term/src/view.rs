@@ -684,7 +684,7 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         self.handle_resize(state, layout, shell);
         match event {
             iced::Event::Window(iced::window::Event::Focused) => {
-                state.window_focused = true;
+                self.term.backend.window_focus.set_focused(true);
             },
             iced::Event::Window(iced::window::Event::Rescaled(_)) => {
                 // Iced layout/cells stay in logical pixels; force the renderer
@@ -693,7 +693,7 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                 shell.request_redraw();
             },
             iced::Event::Window(iced::window::Event::Unfocused) => {
-                state.window_focused = false;
+                self.term.backend.window_focus.set_focused(false);
                 state.reset_pointer();
                 state.keyboard_modifiers = Modifiers::empty();
             },
@@ -702,7 +702,8 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
 
         let is_cursor_in_layout = self.is_cursor_in_layout(cursor, layout);
         self.handle_focus(event, state, is_cursor_in_layout);
-        let focused = state.is_focused() && state.window_focused;
+        let focused =
+            state.is_focused() && self.term.backend.window_focus.is_focused();
         if focused != self.term.backend.is_focused() {
             shell.publish(Event::BackendCall(
                 self.term.id,
@@ -785,7 +786,6 @@ impl<'a> From<TerminalView<'a>> for Element<'a, Event, Theme, iced::Renderer> {
 struct TerminalViewState {
     terminal_id: u64,
     focus: bool,
-    window_focused: bool,
     is_dragged: bool,
     last_click: Option<mouse::Click>,
     scroll_pixels: f32,
@@ -799,7 +799,6 @@ impl TerminalViewState {
         Self {
             terminal_id,
             focus: false,
-            window_focused: true,
             is_dragged: false,
             last_click: None,
             scroll_pixels: 0.0,

@@ -60,7 +60,7 @@ pub enum Event {
     PtyWrite(String),
 
     /// Request to write the text area size.
-    TextAreaSizeRequest(Arc<dyn Fn(WindowSize) -> String + Sync + Send + 'static>),
+    TextAreaSizeRequest(Arc<dyn Fn(TextAreaSize) -> String + Sync + Send + 'static>),
 
     /// Cursor blinking state has changed.
     CursorBlinkingChange,
@@ -112,6 +112,14 @@ pub struct WindowSize {
     pub num_cols: u16,
     pub cell_width: u16,
     pub cell_height: u16,
+}
+
+/// Aggregate virtual grid pixels for a protocol response, independent of the
+/// native PTY's integer cell metadata and the monitor's physical DPI.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub struct TextAreaSize {
+    pub width: u32,
+    pub height: u32,
 }
 
 /// Types that are interested in when the display is resized.

@@ -85,6 +85,7 @@ pub enum LinkAction {
 
 pub struct Backend {
     pub(crate) theme: Theme,
+    pub(crate) window_focus: crate::WindowFocus,
     term: Arc<FairMutex<Term<EventProxy>>>,
     size: TerminalSize,
     geometry: Geometry,
@@ -173,6 +174,7 @@ impl Backend {
 
         Ok(Self {
             theme: Theme::default(),
+            window_focus: crate::WindowFocus::default(),
             term: term.clone(),
             size: terminal_size,
             geometry: Geometry::default(),
@@ -276,7 +278,7 @@ impl Backend {
                     },
                     Event::TextAreaSizeRequest(formatter) => {
                         action = self.protocol_reply(
-                            formatter(self.size.into()).as_bytes(),
+                            formatter(self.text_area_size()).as_bytes(),
                         );
                     },
                     Event::ClipboardStore(..) | Event::ClipboardLoad(..) => {
@@ -325,7 +327,8 @@ impl Backend {
                 }
             },
             Command::FocusChanged(focused) => {
-                let focused = focused && self.visible;
+                let focused =
+                    focused && self.visible && self.window_focus.is_focused();
                 if term.is_focused != focused {
                     term.is_focused = focused;
                     if term.mode().contains(TermMode::FOCUS_IN_OUT) {
@@ -652,6 +655,21 @@ impl Backend {
 
     pub(crate) fn is_focused(&self) -> bool {
         self.term.lock().is_focused
+    }
+
+    fn text_area_size(&self) -> alacritty_terminal::event::TextAreaSize {
+        // CSI 14t reports virtual grid pixels in the same logical units as
+        // cells, independently of monitor DPI. Round the aggregate once;
+        // native per-cell integer metadata would distort fractional cells.
+        let pixels = |cells: u16, cell: f32| {
+            (f64::from(cells) * f64::from(cell))
+                .round()
+                .clamp(1.0, f64::from(u32::MAX)) as u32
+        };
+        alacritty_terminal::event::TextAreaSize {
+            width: pixels(self.size.num_cols, self.size.cell_width),
+            height: pixels(self.size.num_lines, self.size.cell_height),
+        }
     }
 
     fn scroll(

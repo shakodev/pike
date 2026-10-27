@@ -247,6 +247,9 @@ checks and ConPTY probe described in
   exact VT and verify delayed color formatting and title-reset events. Both
   workspace dependency suites run explicitly; see
   [issue #20 verification](../../docs/verification/issue-20.md).
+- TextAreaSizeRequest now formats aggregate TextAreaSize virtual pixel fields
+  rather than multiplying native integer cell dimensions. This keeps 8.5-pixel
+  cells accurate while preserving the existing OnResize/WindowSize PTY contract.
 
 
 ## R09 PR review — remove ambient drive state from executable lookup

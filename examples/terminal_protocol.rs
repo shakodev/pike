@@ -36,6 +36,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .ok_or("non-Unicode fixture path")?
         .to_owned();
     let mut terminals = Vec::new();
+    let window_focus = iced_term::WindowFocus::default();
+    window_focus.set_focused(true); // Controlled headless window owner.
     let result = (|| -> io::Result<()> {
         for id in 1..=2 {
             let prepared = PreparedTerminal::new(
@@ -51,6 +53,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 },
             )?;
             let mut terminal = prepared.attach_hidden(Default::default(), Default::default());
+            terminal.set_window_focus(window_focus.clone());
             terminal.handle(Command::ChangeTheme(Box::new(iced_term::ColorPalette {
                 foreground: foreground(id).into(),
                 background: "#654321".into(),
@@ -58,8 +61,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ..Default::default()
             })));
             terminal.handle(Command::ProxyToBackend(BackendCommand::Resize(
-                Some(Size::new(720.0, 480.0)),
-                Some(Size::new(8.0, 16.0)),
+                Some(if id == 1 {
+                    Size::new(720.0, 480.0)
+                } else {
+                    Size::new(680.0, 320.0)
+                }),
+                Some(Size::new(if id == 1 { 8.0 } else { 8.5 }, 16.0)),
             )));
             terminal.set_visible(id == 1);
             terminals.push(terminal);
@@ -106,7 +113,12 @@ fn expected_replies(id: u8) -> Vec<u8> {
     } else {
         "fefe/dcdc/baba"
     };
-    format!("\x1b[8;30;90t\x1b[4;480;720t\x1b]10;rgb:{fg}\x07\x1b]11;rgb:6565/4343/2121\x07\x1b]12;rgb:{fg}\x07\x1b]4;1;rgb:1111/2222/3333\x07\x1b]4;196;rgb:ffff/0000/0000\x07\x1b]10;rgb:abab/cdcd/efef\x07\x1b]10;rgb:{fg}\x07").into_bytes()
+    let geometry = if id == 1 {
+        "\x1b[8;30;90t\x1b[4;480;720t"
+    } else {
+        "\x1b[8;20;80t\x1b[4;320;680t"
+    };
+    format!("{geometry}\x1b]10;rgb:{fg}\x07\x1b]11;rgb:6565/4343/2121\x07\x1b]12;rgb:{fg}\x07\x1b]4;1;rgb:1111/2222/3333\x07\x1b]4;196;rgb:ffff/0000/0000\x07\x1b]10;rgb:abab/cdcd/efef\x07\x1b]10;rgb:{fg}\x07").into_bytes()
 }
 
 fn expect(input: &mut impl Read, expected: &[u8]) -> io::Result<()> {
@@ -198,8 +210,7 @@ async fn run(terminals: &mut [Terminal], output: &Path) -> io::Result<()> {
     let mut events = stream::select_all(streams);
     let mut phases = [0_u8; 2];
     // Count only the fixture's query phase, excluding console negotiation.
-    // Native ConPTY can answer a size query before forwarding child output;
-    // exact child-side byte comparison still verifies the complete exchange.
+    // Console startup negotiation is not one of the fixture's requests.
     let mut queries = [[0_u32; 3]; 2];
     let mut completed = [false; 2];
     let mut record = std::fs::File::create(output.join("events.csv"))?;
@@ -265,17 +276,10 @@ async fn run(terminals: &mut [Terminal], output: &Path) -> io::Result<()> {
                 )?;
                 record.flush()?;
                 check(colors == 17, "palette queries bypassed the adapter")?;
-                if cfg!(windows) {
-                    check(
-                        pixel_size <= 1 && character_size <= 1,
-                        "duplicate native size query",
-                    )?;
-                } else {
-                    check(
-                        pixel_size == 1 && character_size == 1,
-                        "size queries bypassed the Unix adapter",
-                    )?;
-                }
+                check(
+                    pixel_size == 1 && character_size == 1,
+                    "fixture size queries bypassed the adapter",
+                )?;
                 phases[index] = 5;
                 if index == 1 {
                     terminal.set_focused(true);
