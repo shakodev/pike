@@ -1,0 +1,9 @@
+warning: unused import: `Read`
+ --> /private/tmp/pike-reviewer2-sync-deadline-probe.rs:3:21
+  |
+3 | use std::{io::{self,Read,Write},sync::{Arc,atomic::{AtomicUsize,Ordering},mpsc},net::{TcpListener,TcpStream,Ipv4Addr},time::Duration};
+  |                     ^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: 1 warning emitted

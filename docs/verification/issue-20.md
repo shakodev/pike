@@ -394,3 +394,33 @@ profiles and application/example/doc tests. Earlier macOS adapter cleanup
 failures remain reported. No timer, polling loop, self-notification, new thread
 or reader-continuation production change is added. Pushes remain held until
 the separate prerequisite and independent review permit final validation.
+
+## Fourth candidate: merged reader prerequisite
+
+PR #68 merged as exact main `1dfeba4992e8c99f18487d621fe99279571d5dcb`,
+closing #67. It is integrated into local source `6b5bc81`. The sole event-loop
+conflict is resolved by always calling `prepare_io_turn`, then skipping an
+idle turn only when both its result and pending read continuation are false.
+Thus productive More turns still expire sync deadlines. The approved bounded
+read continuation, duplicate-read suppression, channel/child/resize fairness,
+EOF/error handling and `finish_io_turn` writer path are preserved. Both of C's
+portable/native regression files are byte-identical to the merged base.
+
+[Final local records](../baselines/issue-20/final-issue-67-integration/)
+retain exact selected Cargo rlib paths/hashes and commands. Formatting,
+denied-warning Alacritty/application/adapter Clippy, application/example/doc
+tests and all 159 Alacritty unit / 45 reference / one doc tests pass. Both
+renderer profiles pass all eight protocol/widget/Unicode/copy release probes;
+all eighteen owned fixture PIDs are absent after acknowledged cleanup.
+The unchanged independent public probes record three writer attempts with
+sync output flushed, and four reader attempts with the buffered tail visible,
+after 300ms; both acknowledge requested cleanup. These remain macOS contract
+checks, not Windows execution claims.
+
+The final macOS adapter runs explicitly report wgpu 90 passes/five cleanup
+timeouts/one ignored and tiny-skia 89 passes/six cleanup timeouts/one ignored.
+Complete logs preserve the existing bounded cleanup limitation and earlier
+unchanged-source controls; no deadlines/assertions are weakened. This is the
+fourth candidate for independent review and strict combined Windows acceptance,
+with all three prior unsuccessful review rounds retained. No historical native
+interleaving or physical Windows desktop/idle/latency claim is inferred.
