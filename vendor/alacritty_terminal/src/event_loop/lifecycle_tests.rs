@@ -101,7 +101,7 @@ fn input_admission_wake_progresses_with_writable_interest_already_enabled() {
     let mut notifications = Events::new();
     event_loop.poll.wait(&mut notifications, Some(Duration::from_secs(1))).unwrap();
     assert!(notifications.is_empty(), "admission notify is not a writable readiness event");
-    event_loop.update_write_interest(&mut state, &mut interest, false).unwrap();
+    event_loop.finish_io_turn(&mut state, &mut interest, false).unwrap();
     let status = sender.input_status();
     release.send(()).unwrap();
     assert_eq!(status.queued_bytes, 0, "admitted replies stranded after notification");
@@ -166,28 +166,28 @@ fn admission_wake_keeps_bounded_order_and_returns_on_backpressure_without_idle_w
     sender.send_input(&expected).unwrap();
     release.send(()).unwrap();
 
-    event_loop.update_write_interest(&mut state, &mut interest, true).unwrap();
+    event_loop.finish_io_turn(&mut state, &mut interest, true).unwrap();
     assert_eq!(event_loop.pty.writer.calls, 0, "EOF must not admit late replies to the PTY");
-    event_loop.update_write_interest(&mut state, &mut interest, false).unwrap();
+    event_loop.finish_io_turn(&mut state, &mut interest, false).unwrap();
     assert_eq!(event_loop.pty.writer.calls, 2, "zero write must return, not spin");
     assert_eq!(sender.input_status().written_bytes, 2);
     sender.send_input(b"YZ").unwrap();
     assert!(matches!(sender.send_input(b"overflow"), Err(InputError::Full { .. })));
 
-    event_loop.update_write_interest(&mut state, &mut interest, false).unwrap();
+    event_loop.finish_io_turn(&mut state, &mut interest, false).unwrap();
     assert_eq!(event_loop.pty.writer.calls, 3, "WouldBlock must return, not spin");
     assert_eq!(sender.input_status().written_bytes, 2);
-    event_loop.update_write_interest(&mut state, &mut interest, false).unwrap();
+    event_loop.finish_io_turn(&mut state, &mut interest, false).unwrap();
     expected.extend_from_slice(b"YZ");
     assert_eq!(event_loop.pty.writer.bytes, expected);
     assert_eq!(sender.input_status().outstanding_bytes, 0);
     assert_eq!(sender.input_status().queued_bytes, 0);
     assert!(!interest.writable);
     let calls = event_loop.pty.writer.calls;
-    event_loop.update_write_interest(&mut state, &mut interest, false).unwrap();
+    event_loop.finish_io_turn(&mut state, &mut interest, false).unwrap();
     assert_eq!(event_loop.pty.writer.calls, calls, "idle wake must not call the writer");
     sender.send(Msg::Shutdown).unwrap();
-    event_loop.update_write_interest(&mut state, &mut interest, false).unwrap();
+    event_loop.finish_io_turn(&mut state, &mut interest, false).unwrap();
     assert_eq!(event_loop.pty.writer.calls, calls, "closed session must not write");
     assert_eq!(sender.send_input(b"late"), Err(InputError::Closed));
 }
@@ -285,6 +285,162 @@ fn notify_only_wake_resumes_partial_write_then_reports_error_after_disposal() {
     assert_eq!(sender.send_input(b"late"), Err(InputError::Closed));
     assert_ne!(disposal.recv_timeout(Duration::from_secs(5)).unwrap(), std::thread::current().id());
     assert!(sender.poller.upgrade().is_none());
+}
+
+#[test]
+fn expired_sync_deadline_is_cleared_while_partial_input_remains_blocked() {
+    let (dropping, _dropped) = mpsc::channel();
+    let (release, gate) = mpsc::channel();
+    let terminal =
+        Arc::new(FairMutex::new(Term::new(Default::default(), &TermSize::new(80, 24), Listener)));
+    let pty = FailedPty {
+        reader: TestReader { bytes: io::Cursor::new(Vec::new()), pending: true },
+        writer: ScriptedWriter {
+            steps: [Ok(0)].into(),
+            bytes: Vec::new(),
+            calls: 0,
+            blocked: None,
+            release_error: None,
+        },
+        dropping,
+        release: gate,
+        panic: false,
+    };
+    let mut event_loop = EventLoop::new(terminal.clone(), Listener, pty, true, false).unwrap();
+    let sender = event_loop.channel();
+    let mut state = State::default();
+    state.parser.advance(&mut *terminal.lock(), b"\x1b[?2026hSYNC_WAIT");
+    let deadline = state.parser.sync_timeout().sync_timeout().unwrap();
+    sender.send_input(b"x").unwrap();
+    state.ensure_next(&event_loop.input);
+    assert_eq!(sender.input_status().queued_bytes, 0);
+    assert!(state.needs_write(&event_loop.input));
+    assert!(event_loop.prepare_io_turn(&mut state, &Events::new(), deadline));
+    let mut interest = PollingEvent::readable(0);
+    interest.writable = true;
+    event_loop.finish_io_turn(&mut state, &mut interest, false).unwrap();
+    release.send(()).unwrap();
+    assert!(
+        state.parser.sync_timeout().sync_timeout().is_none(),
+        "an expired deadline must not force zero-timeout polls under input backpressure"
+    );
+    assert_eq!(event_loop.pty.writer.calls, 1);
+    assert_eq!(sender.input_status().outstanding_bytes, 1);
+    let text: String = terminal.lock().grid().display_iter().map(|cell| cell.c).collect();
+    assert!(text.contains("SYNC_WAIT"));
+}
+
+#[derive(Clone)]
+struct WakeCounter(Arc<std::sync::atomic::AtomicUsize>);
+impl EventListener for WakeCounter {
+    fn send_event(&self, event: Event) {
+        if matches!(event, Event::Wakeup) {
+            self.0.fetch_add(1, Ordering::Relaxed);
+        }
+    }
+}
+
+fn actual_readiness_batch(poll: &Arc<polling::Poller>) -> Events {
+    struct Registration {
+        socket: std::net::TcpStream,
+        poll: Arc<polling::Poller>,
+    }
+    impl Drop for Registration {
+        fn drop(&mut self) {
+            let _ = self.poll.delete(&self.socket);
+        }
+    }
+    let (socket, mut peer) = socket_pair();
+    let source = Registration { socket, poll: poll.clone() };
+    // SAFETY: Registration removes its owned socket before the socket drops,
+    // including when a test assertion unwinds.
+    unsafe { poll.add_with_mode(&source.socket, PollingEvent::readable(77), PollMode::Level) }
+        .unwrap();
+    peer.write_all(b"ready").unwrap();
+    let mut events = Events::new();
+    let deadline = Instant::now() + Duration::from_secs(1);
+    while events.is_empty() {
+        // Poller permits spurious/notification-only returns. Wait on the
+        // actual ready socket with one bounded deadline instead of assuming
+        // the first wake contains readiness.
+        poll.wait(&mut events, Some(deadline.saturating_duration_since(Instant::now()))).unwrap();
+        assert!(
+            !events.is_empty() || Instant::now() < deadline,
+            "fixture must provide actual socket readiness"
+        );
+    }
+    events
+}
+
+#[test]
+fn sync_deadlines_respect_future_and_expiry_for_idle_queued_partial_and_readiness() {
+    for expired in [false, true] {
+        for input in 0..3 {
+            for readiness in [false, true] {
+                let (dropping, _dropped) = mpsc::channel();
+                let (release, gate) = mpsc::channel();
+                let wakeups = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+                let listener = WakeCounter(wakeups.clone());
+                let terminal = Arc::new(FairMutex::new(Term::new(
+                    Default::default(),
+                    &TermSize::new(80, 24),
+                    listener.clone(),
+                )));
+                let pty = FailedPty {
+                    reader: TestReader { bytes: io::Cursor::new(Vec::new()), pending: true },
+                    writer: ScriptedWriter {
+                        steps: [Ok(0)].into(),
+                        bytes: Vec::new(),
+                        calls: 0,
+                        blocked: None,
+                        release_error: None,
+                    },
+                    dropping,
+                    release: gate,
+                    panic: false,
+                };
+                let mut event_loop =
+                    EventLoop::new(terminal.clone(), listener, pty, true, false).unwrap();
+                let sender = event_loop.channel();
+                let mut state = State::default();
+                state.parser.advance(&mut *terminal.lock(), b"\x1b[?2026hSYNC_MATRIX");
+                let deadline = state.parser.sync_timeout().sync_timeout().unwrap();
+                if input != 0 {
+                    sender.send_input(b"x").unwrap();
+                    if input == 2 {
+                        state.ensure_next(&event_loop.input);
+                    }
+                } else {
+                    event_loop.poll.notify().unwrap();
+                }
+                let mut events = Events::new();
+                event_loop.poll.wait(&mut events, Some(Duration::from_secs(1))).unwrap();
+                assert!(events.is_empty(), "admission/idle notification has no readiness event");
+                if readiness {
+                    events = actual_readiness_batch(&event_loop.poll);
+                }
+                let before = wakeups.load(Ordering::Relaxed);
+                // Inject the observation instant to avoid scheduling-dependent
+                // sleeps around vte's real 150ms deadline.
+                let now = if expired { deadline } else { deadline - Duration::from_nanos(1) };
+                let active = event_loop.prepare_io_turn(&mut state, &events, now);
+                release.send(()).unwrap();
+                assert_eq!(active, readiness || input != 0);
+                assert_eq!(state.parser.sync_timeout().sync_timeout().is_none(), expired);
+                assert_eq!(wakeups.load(Ordering::Relaxed) - before, usize::from(expired));
+                let text: String =
+                    terminal.lock().grid().display_iter().map(|cell| cell.c).collect();
+                assert_eq!(text.contains("SYNC_MATRIX"), expired);
+                if active {
+                    let mut interest = PollingEvent::readable(0);
+                    interest.writable = true;
+                    event_loop.finish_io_turn(&mut state, &mut interest, false).unwrap();
+                }
+                assert_eq!(event_loop.pty.writer.calls, usize::from(input != 0));
+                assert_eq!(sender.input_status().outstanding_bytes, usize::from(input != 0));
+            }
+        }
+    }
 }
 
 #[test]

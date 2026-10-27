@@ -260,6 +260,11 @@ checks and ConPTY probe described in
   admission regression, full-capacity FIFO ordering/zero/WouldBlock coverage,
   and a notify-only partial-write error/disposal test. No dependency or worker
   changes; native candidate validation is recorded in the issue verification.
+- Expire the existing synchronized-output deadline before the idle decision,
+  independently of queued/partial input and readiness. Preserve future
+  deadlines without early output/wakeups. Deterministic notification/readiness
+  cases and the independent public-API probe verify bounded attempts/output
+  release under WouldBlock; no extra timer, thread or self-notification.
 
 
 ## R09 PR review — remove ambient drive state from executable lookup

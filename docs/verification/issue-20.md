@@ -360,3 +360,37 @@ explicitly reported alongside the original-source cleanup control. The
 [combined records](../baselines/issue-20/windows-buffered-failure/local-combined-checks.json)
 retain source hashes, counts and controlled process identities. This concrete
 candidate requires its own native Windows validation and independent review.
+
+## Third review: independent sync deadline and flood-read blockers
+
+Native writer candidate `d405c6d` passed full Windows CI, widget geometry,
+Unicode, selection-copy and ConPTY audits, but
+[protocol run 40507568597](https://github.com/shakodev/pike/actions/runs/40507568597)
+failed wgpu trial 06 after five passes; all ten tiny-skia launches passed.
+Both failing origins received the exact initial nine responses and then stalled
+in the metadata flood. Writer queues/outstanding counts were zero, with 347 /
+323 bytes OS-written; only six / five flood queries reached formatting.
+Both raw child streams and mode-512 snapshots are retained in
+[all sixteen attempted launches](../baselines/issue-20/windows-writer-candidate-failure/).
+This is distinct from the earlier queued-writer failure. The fixture emits no
+BSU, so this native failure is not attributed to the sync deadline below.
+Implementer C owns the separate reader-continuation prerequisite investigation;
+R20 does not introduce a concurrent reader patch.
+
+Reviewer 2 independently reproduced a sync deadline spin at d405 through the
+public EventLoop API: a partial writer followed by WouldBlock made 10,392
+attempts after 300ms and left synchronized output buffered. The correction now
+expires the existing deadline before the idle decision, independently of input
+and readiness. Future deadlines do not flush early or emit idle wakeups. The
+same independent probe records three attempts, output flushed and requested
+cleanup on corrected local source. Its exact source/runner/link provenance is
+retained and labeled macOS; no native Windows claim is inferred.
+
+The deterministic matrix covers future/expired deadlines with idle, queued and
+retained-partial input, notification-only wakeups and actual socket readiness.
+All ten lifecycle tests and the complete 154-unit / 45-reference / one-doc
+Alacritty suite pass, alongside formatting, both application/adapter Clippy
+profiles and application/example/doc tests. Earlier macOS adapter cleanup
+failures remain reported. No timer, polling loop, self-notification, new thread
+or reader-continuation production change is added. Pushes remain held until
+the separate prerequisite and independent review permit final validation.

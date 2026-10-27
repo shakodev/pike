@@ -1,0 +1,17 @@
+{
+  "platform": "macOS public-API regression; not native Windows verification",
+  "base": "d405c6dfac2a82eb11434de27aa1bf59162eb701",
+  "source_scope": "Existing sync expiration handled before input/readiness idle decision, no read-continuation production edits; C exclusively owns reader prerequisite.",
+  "checks": "fmt, app/adapter Clippy both profiles, app/example/doc tests and Alacritty Clippy/full suite passed;154units/45refs/1doc. Earlier adapter cleanup baseline explicitly retained.",
+  "independent_probe": "Same reviewer source/runner and compile/link invocation retained;3writes after300ms,queued0/outstanding2,sentinel flushed,Requested cleanup; originald40510392calls/no flush preserved separately.",
+  "sha256": {
+    "vendor/alacritty_terminal/src/event_loop.rs": "bf9ea936f8106e8ca7c28d06e87fc9d38dad11b88f729b80e972ea07054e7c95",
+    "vendor/alacritty_terminal/src/event_loop/lifecycle_tests.rs": "14e93f7c6873030782b625068d52a5cf7f08a17bd0159ef79c808913f53218db",
+    "/private/tmp/pike-reviewer2-sync-deadline-probe.rs": "ea3117432e91b1fb0ddb58b4b8b1c5b1ab7b39de2e3582095fcce068e4aff3c6",
+    "/private/tmp/pike-reviewer2-run-sync-probe.py": "a28d896add6ad04209a0d2fa68fa712382fe61f83b2d88bdde2458f78ff6f9e4",
+    "target/issue-20/debug/deps/libalacritty_terminal-0f1d80b8df714eff.rlib": "73117fbaf96e1cd343e4651341e078f23bfb5831d264f687bfdd7c8d6227d30f",
+    "target/issue-20/debug/deps/libpolling-b442832dbb4641b3.rlib": "d3d9e4b0f222df7ebee6892856de73b9d451d65242fb40f654396617a2a53c60",
+    "target/issue-20/sync-deadline-review-probe-corrected-local": "d0eae1e60358ccde4474e9dbdf76fe488db2cb4d67992e71c49e52089f29dc02"
+  },
+  "red_reconstruct": "Apply sync-backpressure-red.patch onto base d405c6d with git apply --unidiff-zero; reproduces original retained-partial expiry failure."
+}

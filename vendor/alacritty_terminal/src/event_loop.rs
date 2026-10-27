@@ -234,7 +234,18 @@ where
         Ok(())
     }
 
-    fn update_write_interest(
+    fn prepare_io_turn(&mut self, state: &mut State, events: &Events, now: Instant) -> bool {
+        // Sync expiration must not depend on input being empty. Retaining an
+        // expired deadline under backpressure would make subsequent waits
+        // return immediately instead of sleeping for writer capacity.
+        if state.parser.sync_timeout().sync_timeout().is_some_and(|deadline| deadline <= now) {
+            state.parser.stop_sync(&mut *self.terminal.lock());
+            self.event_proxy.send_event(Event::Wakeup);
+        }
+        !events.is_empty() || self.rx.peek().is_some() || state.needs_write(&self.input)
+    }
+
+    fn finish_io_turn(
         &mut self,
         state: &mut State,
         interest: &mut PollingEvent,
@@ -339,9 +350,7 @@ where
             {
                 continue;
             }
-            if events.is_empty() && self.rx.peek().is_none() && !state.needs_write(&self.input) {
-                state.parser.stop_sync(&mut *self.terminal.lock());
-                self.event_proxy.send_event(Event::Wakeup);
+            if !self.prepare_io_turn(&mut state, &events, Instant::now()) {
                 continue;
             }
             if !self.drain_recv_channel(read_eof) {
@@ -408,7 +417,7 @@ where
                     _ => (),
                 }
             }
-            if let Err(err) = self.update_write_interest(&mut state, &mut interest, read_eof) {
+            if let Err(err) = self.finish_io_turn(&mut state, &mut interest, read_eof) {
                 error!("Error servicing PTY input in event loop: {err}");
                 completion.reason = ExitReason::IoError(err.kind());
                 break;

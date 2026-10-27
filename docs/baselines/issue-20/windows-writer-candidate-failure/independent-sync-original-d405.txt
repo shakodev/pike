@@ -1,0 +1,6 @@
+write_calls_after_300ms=10392; queued=0; outstanding=2; sync_sentinel_flushed=false
+cleanup=Requested
+
+thread 'main' (2382727) panicked at <anon>:27:2:
+busy loop: expired sync deadline retried blocked writer 10392 times
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
