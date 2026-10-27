@@ -1,0 +1,12 @@
+{
+  "source_sha": "7ac940ed82e536bcdae376c5737183b55301d8ef",
+  "run_url": "https://github.com/shakodev/pike/actions/runs/40499476379",
+  "profiles": [
+    "wgpu",
+    "tiny-skia"
+  ],
+  "native_clipboard": "CF_UNICODETEXT round trips and failed acquisition with competing thread",
+  "cases_per_profile": 11,
+  "fixture_cleanup_per_profile": 2,
+  "text_metadata": "UTF-8, normalized to LF; no copied text"
+}

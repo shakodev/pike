@@ -262,6 +262,32 @@ and API/overload policy details.
   Remove this patch when upstream provides equivalent identity, local geometry
   and clipping behavior; PR 70 alone covers only the ID reset.
 
+## R15 / issue #15 — authoritative selection and explicit copy
+
+- Preserve R11's Alacritty `selection_to_string` delegation, also used by
+  upstream PR90 (`f5b49232dededd266feafd27f1e2c67c5c3e416c`). Keep its
+  `Option` instead of replacing no selection with empty text.
+- `Terminal::copy_selection(writer)` extracts only on explicit request, skips
+  empty text, releases the model lock before invoking the writer once and
+  returns its result. No selection, viewport, input or other session mutation.
+- Capture Copy even when empty/unavailable; use each character event's own
+  modifiers for bindings. Add Ctrl+Shift+C on macOS while retaining Command+C.
+  The app menu carries the current stable terminal ID and rejects stale IDs.
+- Exact VT tests and an opt-in real-PTY/widget probe cover hard/soft lines,
+  padding, wide/combining cells, history, session swaps and unavailable sinks.
+  Windows-only fixture APIs perform actual CF_UNICODETEXT round trips and a
+  competing-thread clipboard lock; no production clipboard implementation.
+  Native OS readback references only its initialized prefix in the same open
+  write transaction. Later bounded receipts validate owner/sequence/identity
+  without dereferencing clipboard memory; foreign data never gains Rust references.
+- Pinned Alacritty preserves no-op/height-only selection and invalidates it on
+  column reflow. Follow this policy; never cache/resurrect stale copied text.
+  Iced's unit-returning clipboard facade cannot expose OS errors. See
+  [verification and limitations](../../docs/verification/issue-15.md).
+- No production dependency, lockfile, transcript/cache or background work.
+  Remove when upstream offers equivalent extraction, explicit action and
+  handled-key semantics; PR90 alone covers only extraction delegation.
+
 ## R18 / issue #18 — wide/combining cell rendering
 
 - Draw authoritative base+zerowidth text in one/two-column spans, skip both
