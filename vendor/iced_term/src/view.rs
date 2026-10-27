@@ -330,6 +330,7 @@ impl<'a> TerminalView<'a> {
         state: &mut TerminalViewState,
         clipboard: &mut dyn iced_graphics::core::Clipboard,
         event: &iced::keyboard::Event,
+        shell: &mut iced_core::Shell<'_, Event>,
     ) -> Option<Command> {
         let mut binding_action = BindingAction::Ignore;
         let last_content = self.term.backend.renderable_content();
@@ -357,7 +358,7 @@ impl<'a> TerminalView<'a> {
                     let lower = k.to_ascii_lowercase();
                     binding_action = self.term.bindings.get_action(
                         InputKind::Char(lower),
-                        state.keyboard_modifiers,
+                        *modifiers,
                         last_content.terminal_mode,
                     );
 
@@ -400,10 +401,12 @@ impl<'a> TerminalView<'a> {
                 }
             },
             BindingAction::Copy => {
-                clipboard.write(
-                    ClipboardKind::Standard,
-                    self.term.backend.selectable_content(),
-                );
+                self.term.copy_selection(|text| {
+                    clipboard.write(ClipboardKind::Standard, text);
+                });
+                // Copy is handled even with no selection or an unavailable
+                // clipboard; it must never reach an ancestor or terminal text.
+                shell.capture_event();
             },
             _ => {},
         };
@@ -711,9 +714,14 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                     return;
                 }
 
-                self.handle_keyboard_event(state, clipboard, keyboard_event)
-                    .into_iter()
-                    .collect()
+                self.handle_keyboard_event(
+                    state,
+                    clipboard,
+                    keyboard_event,
+                    shell,
+                )
+                .into_iter()
+                .collect()
             },
             _ => Vec::new(),
         };
