@@ -284,3 +284,23 @@ and API/overload policy details.
 - No production dependency, lockfile, transcript/cache or background work.
   Remove when upstream offers equivalent extraction, explicit action and
   handled-key semantics; PR90 alone covers only extraction delegation.
+
+## R18 / issue #18 — wide/combining cell rendering
+
+- Draw authoritative base+zerowidth text in one/two-column spans, skip both
+  continuation flags, and clip Unicode ink to its cell span/row without moving
+  adjacent ASCII. Wide cursor blocks normalize continuation positions and use
+  the lead width. Paint all backgrounds before glyphs/cursor.
+- Preserve cached ASCII/pane geometry. Pinned tiny-skia canvas text omits
+  per-text clip bounds, so Unicode uses clipped core-renderer shaped buffers cached in
+  widget state by snapshot/style generation, bounded to one viewport. Session
+  identity reset drops obsolete spans; ordinary redraws do not rebuild them.
+- Bound extra shaping/text to 32 combining scalars per cell; authoritative
+  model/copy data stays intact. Document pathological mark stacks, cross-cell
+  contextual shaping and complex/color emoji as unsupported display cases.
+- Seven VT/model/cache regressions plus the real-PTY `unicode_cells` release
+  fixture cover positions, reflow/wrap, cursor, fallback, cell clipping and
+  actual widget copy across two fonts/four scales and both lean renderers.
+  Run explicit vendor suites for `iced/wgpu,iced/tokio` and
+  `iced/tiny-skia,iced/tokio`; see `docs/verification/issue-18.md` for native
+  evidence and limits. No dependency/feature or production background work.

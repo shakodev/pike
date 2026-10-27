@@ -8,7 +8,6 @@ use alacritty_terminal::selection::SelectionType;
 use alacritty_terminal::term::{cell, TermMode};
 use alacritty_terminal::vte::ansi::{self as ansi, NamedColor};
 use iced::alignment::Vertical;
-use iced::font::{Style as FontStyle, Weight as FontWeight};
 use iced::mouse::{Cursor, ScrollDelta};
 use iced::widget::canvas::{Path, Text};
 use iced::widget::container;
@@ -17,6 +16,8 @@ use iced_core::clipboard::Kind as ClipboardKind;
 use iced_core::keyboard::{Key, Modifiers};
 use iced_core::mouse::{self, Click};
 use iced_core::text::{Alignment, LineHeight, Shaping};
+
+mod glyphs;
 use iced_core::widget::operation::{self, Focusable};
 use iced_graphics::core::widget::{tree, Tree};
 use iced_graphics::core::Widget;
@@ -67,6 +68,30 @@ impl<'a> TerminalView<'a> {
         }
 
         false
+    }
+
+    fn cell_colors(
+        &self,
+        content: &RenderableContent,
+        cell: &cell::Cell,
+        point: TerminalGridPoint,
+    ) -> (Color, Color) {
+        let mut fg = self.term.theme.get_color(cell.fg);
+        let mut bg = self.term.theme.get_color(cell.bg);
+        if cell
+            .flags
+            .intersects(cell::Flags::DIM | cell::Flags::DIM_BOLD)
+        {
+            fg.a *= 0.7;
+        }
+        if cell.flags.contains(cell::Flags::INVERSE)
+            || content
+                .selectable_range
+                .is_some_and(|range| range.contains(point))
+        {
+            std::mem::swap(&mut fg, &mut bg);
+        }
+        (fg, bg)
     }
 
     fn handle_resize(
@@ -487,13 +512,18 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         let cell_height = term_size.cell_height;
         let font_size = self.term.font.size;
         let font_scale_factor = self.term.font.scale_factor;
+        let mut cursor_point = content.cursor_point;
+        if content.cursor.flags.contains(cell::Flags::WIDE_CHAR_SPACER)
+            && cursor_point.column.0 > 0
+        {
+            cursor_point.column.0 -= 1;
+        }
         // Cache only pane-local geometry. Repositioning reuses the same cache;
         // translation and clipping always come from the current layout.
         let geom = self.term.cache.draw(renderer, bounds.size(), |frame| {
             // Precompute constants used in the inner loop
             let display_offset = content.viewport.display_offset() as f32;
             let cell_size = Size::new(cell_width, cell_height);
-            let half_w = cell_width * 0.5;
             let half_h = cell_height * 0.5;
             // We use the background pallete color as a default
             // because the widget global background color must be the same
@@ -512,13 +542,8 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
 
                 // Resolve position point for this cell
                 let x = col * cell_width;
-                let y = ((line as f32) + display_offset) * cell_height;
-                let cell_center_y = y + half_h;
-                let cell_center_x = x + half_w;
-
-                // Resolve colors for this cell
-                let mut fg = self.term.theme.get_color(indexed.fg);
-                let mut bg = self.term.theme.get_color(indexed.bg);
+                let (_, bg) =
+                    self.cell_colors(content, indexed.cell, indexed.point);
 
                 // If the new line was detected,
                 // need to flush pending background rect and init the new one
@@ -535,22 +560,6 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                     bg_batch_rect = BackgroundRect::default()
                         .with_cell_height(cell_height)
                         .with_display_offset(display_offset);
-                }
-
-                // Handle dim, inverse, and selected text
-                if indexed
-                    .cell
-                    .flags
-                    .intersects(cell::Flags::DIM | cell::Flags::DIM_BOLD)
-                {
-                    fg.a *= 0.7;
-                }
-                if indexed.cell.flags.contains(cell::Flags::INVERSE)
-                    || content
-                        .selectable_range
-                        .is_some_and(|r| r.contains(indexed.point))
-                {
-                    std::mem::swap(&mut fg, &mut bg);
                 }
 
                 // Batch draw backgrounds: skip default background (container already paints it)
@@ -584,7 +593,30 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                         .with_cell_height(cell_height)
                         .with_display_offset(display_offset);
                 }
+            }
 
+            // Flush any remaining background run at the end
+            if bg_batch_rect.can_flush() {
+                frame.fill(
+                    &bg_batch_rect.build(last_line.unwrap_or(0)),
+                    bg_batch_rect.color,
+                );
+            }
+
+            // Backgrounds precede all glyphs, including wide spans and cursor.
+            for indexed in content.viewport.display_iter() {
+                let x = indexed.point.column.0 as f32 * cell_width;
+                let y = (indexed.point.line.0 as f32 + display_offset)
+                    * cell_height;
+                let cell_center_y = y + half_h;
+                let (mut fg, bg) =
+                    self.cell_colors(content, indexed.cell, indexed.point);
+                let columns = glyphs::columns(
+                    indexed.cell,
+                    content.viewport.columns() - indexed.point.column.0,
+                );
+                let is_cursor = cursor_point == indexed.point
+                    && content.terminal_mode.contains(TermMode::SHOW_CURSOR);
                 // Draw hovered hyperlink underline (rare; keep per-cell for correctness)
                 if content.hovered_hyperlink.as_ref().is_some_and(|range| {
                     range.contains(&indexed.point)
@@ -605,39 +637,39 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                 }
 
                 // Handle cursor rendering
-                if content.cursor_point == indexed.point
-                    && content.terminal_mode.contains(TermMode::SHOW_CURSOR)
-                {
+                if is_cursor {
                     let cursor_color =
                         self.term.theme.get_color(content.cursor.fg);
-                    let cursor_rect =
-                        Path::rectangle(Point::new(x, y), cell_size);
+                    let cursor_rect = Path::rectangle(
+                        Point::new(x, y),
+                        Size::new(
+                            cell_width * columns.max(1) as f32,
+                            cell_height,
+                        ),
+                    );
                     frame.fill(&cursor_rect, cursor_color);
                 }
 
-                // Draw text
-                if indexed.c != ' ' && indexed.c != '\t' {
-                    if content.cursor_point == indexed.point
-                        && content.terminal_mode.contains(TermMode::APP_CURSOR)
-                    {
+                // ASCII retains the existing pane geometry cache. Unicode uses
+                // the core text renderer below: tiny-skia canvas text ignores
+                // per-text clip bounds in the pinned Iced implementation.
+                if columns > 0
+                    && glyphs::visible(indexed.cell)
+                    && !glyphs::clipped(indexed.cell)
+                {
+                    if is_cursor {
                         fg = bg;
                     }
-                    // Resolve font style (bold/italic) from cell flags
-                    let mut font = self.term.font.font_type;
-                    if indexed
-                        .cell
-                        .flags
-                        .intersects(cell::Flags::BOLD | cell::Flags::DIM_BOLD)
-                    {
-                        font.weight = FontWeight::Bold;
-                    }
-                    if indexed.cell.flags.contains(cell::Flags::ITALIC) {
-                        font.style = FontStyle::Italic;
-                    }
-                    let text = Text {
-                        content: indexed.cell.c.to_string(),
-                        position: Point::new(cell_center_x, cell_center_y),
-                        font,
+                    frame.fill_text(Text {
+                        content: glyphs::text(indexed.cell),
+                        position: Point::new(
+                            x + cell_width * 0.5,
+                            cell_center_y,
+                        ),
+                        font: glyphs::font(
+                            self.term.font.font_type,
+                            indexed.flags,
+                        ),
                         size: iced_core::Pixels(font_size),
                         color: fg,
                         align_x: Alignment::Center,
@@ -645,17 +677,8 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                         shaping: Shaping::Advanced,
                         line_height: LineHeight::Relative(font_scale_factor),
                         ..Default::default()
-                    };
-                    frame.fill_text(text);
+                    });
                 }
-            }
-
-            // Flush any remaining background run at the end
-            if bg_batch_rect.can_flush() {
-                frame.fill(
-                    &bg_batch_rect.build(last_line.unwrap_or(0)),
-                    bg_batch_rect.color,
-                );
             }
         });
 
@@ -666,6 +689,46 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                 Vector::new(bounds.x, bounds.y),
                 |renderer| {
                     renderer.draw_geometry(geom);
+                    use iced_graphics::text::Renderer as _;
+                    let mut cache = state.glyphs.borrow_mut();
+                    let generation = (
+                        self.term.snapshot_stats().snapshots,
+                        self.term.work_stats().cache_invalidations,
+                    );
+                    cache.update(generation, |glyphs| {
+                        glyphs::build(
+                            content,
+                            &self.term.font,
+                            cursor_point,
+                            |cell, point| {
+                                self.cell_colors(content, cell, point)
+                            },
+                            glyphs,
+                        );
+                    });
+                    // Iced's layer stack replaces, rather than intersects,
+                    // the parent clip. Preserve the current pane/ancestor
+                    // viewport when applying each cached local cell clip.
+                    let ancestor = Rectangle::new(
+                        Point::new(clip.x - bounds.x, clip.y - bounds.y),
+                        clip.size(),
+                    );
+                    for glyph in &cache.glyphs {
+                        let Some(clip) = glyph.clip.intersection(&ancestor)
+                        else {
+                            continue;
+                        };
+                        renderer.with_layer(clip, |renderer| {
+                            renderer.fill_raw(iced_graphics::text::Raw {
+                                buffer: std::sync::Arc::downgrade(
+                                    &glyph.buffer,
+                                ),
+                                position: glyph.position,
+                                color: glyph.color,
+                                clip_bounds: clip,
+                            });
+                        });
+                    }
                 },
             );
         });
@@ -780,6 +843,7 @@ impl<'a> From<TerminalView<'a>> for Element<'a, Event, Theme, iced::Renderer> {
 #[derive(Debug, Clone)]
 struct TerminalViewState {
     terminal_id: u64,
+    glyphs: std::cell::RefCell<glyphs::Cache>,
     focus: bool,
     is_dragged: bool,
     last_click: Option<mouse::Click>,
@@ -793,6 +857,7 @@ impl TerminalViewState {
     fn new(terminal_id: u64) -> Self {
         Self {
             terminal_id,
+            glyphs: Default::default(),
             focus: false,
             is_dragged: false,
             last_click: None,
