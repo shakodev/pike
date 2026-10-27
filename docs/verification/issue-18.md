@@ -61,7 +61,10 @@ It captures 100%, 125%, 150% and 200% offscreen scales and compares:
   ASCII rows also detect pathological accent ink escaping its own row.
 - Distinct CJK glyphs to reject identical missing-glyph boxes.
 - Combining overlays and a wide cursor against adjacent ASCII cell crops.
-- Cursor placement on a wide lead versus its continuation.
+- Cursor placement on a wide lead versus its continuation, a two-column cursor
+  block, translated Unicode pane pixels and clipping by a partial ancestor
+  viewport. Iced layers replace parent clips, so each local cell clip is
+  explicitly intersected with the current pane/ancestor clip before drawing.
 - The actual Copy binding with a synthetic clipboard, before and after wide
   wrapping at eight/six columns, without copying continuation padding.
 
@@ -80,8 +83,54 @@ compiler, OS, runtime and executable hashes. It runs explicit adapter tests and
 both renderer release probes natively on Windows Server 2025. It does not claim
 physical monitor transitions or keyboard input coverage.
 
-Check results and measurements will be appended after execution. No native
-Windows or resource-budget pass is inferred from macOS/cross compilation.
+## Results (2026-10-27)
+
+Local checks passed for both lean renderer profiles: formatting; denied-warning
+all-target application and explicit adapter Clippy; application/example suites
+(39 library, two application, five compatibility and 39 source-import tests);
+two compile-fail doctests; and 82 explicit adapter tests per profile (one existing
+profiling test ignored). Windows MSVC cross-target application Clippy passed for
+both profiles as compilation only. Locked manifests and dependency graphs are
+unchanged. Actionlint 1.7.12 passed the dedicated workflow.
+
+Both final local Unicode probes passed all two-font/four-scale pixel, copy,
+wide-cursor, translated-pane and ancestor-clip checks. The new ancestor clip
+assertion failed on initial `7e1fcc5` before the explicit clip intersection;
+it passed on both local renderers after the fix. Existing R13 geometry probes
+also passed for both renderers. All four Unicode and six geometry child PIDs
+were checked absent after acknowledged backend completion. The retained
+[evidence](../baselines/issue-18/) includes 52 losslessly converted RGB8 PNGs,
+raw reports, source/image hashes and initial native Windows provenance. Initial
+native evidence is kept distinct from the later ancestor-clip fix.
+
+The [first native Unicode run](https://github.com/shakodev/pike/actions/runs/40494268548)
+passed both profiles at exact source `7e1fcc5e07695260d8b2580e2d9b0e662fc10a1f`:
+84 explicit adapter tests/profile, Consolas and Courier New with native fallback,
+all four scales, exact cell/copy assertions and four independently absent child
+PIDs. Compiler/OS/runtime/executable/source provenance is retained. The same head
+also passed [full Windows CI](https://github.com/shakodev/pike/actions/runs/40494268468),
+[widget geometry](https://github.com/shakodev/pike/actions/runs/40494268547) and
+[ConPTY audit](https://github.com/shakodev/pike/actions/runs/40494268458).
+Those initial checks do not include the later-added Unicode ancestor/translation
+regression; the follow-up head runs those natively again through PR checks.
+
+One complete final local probe per renderer measured the following with
+`/usr/bin/time -l`, outside a debugger on macOS arm64 / Rust 1.97.1. Each includes
+renderer initialization, two PTY children, four-scale readback screenshots,
+Unicode move/clip/copy/wrap checks and cleanup:
+
+| Renderer | Wall s | Reported user/system CPU s | Maximum RSS MiB |
+| --- | ---: | ---: | ---: |
+| wgpu | 0.81 | 0.08 / 0.11 | 62.00 |
+| tiny-skia | 0.73 | 0.10 / 0.09 | 50.16 |
+
+These are single-run offscreen test-program observations, not GUI idle/private
+memory, latency percentiles, Windows measurements or a resource-budget
+improvement claim. Paint checks leave font-measurement, grid/native-resize,
+explicit invalidation and snapshot counters unchanged. Cache regressions verify
+32 unchanged-generation calls do not execute the shaping builder, repeated
+Unicode shares one shaped buffer, and each raw buffer retains its clip guard.
+No physical monitor transition, keyboard or emoji-color acceptance is inferred.
 
 ## Explicit limitations
 

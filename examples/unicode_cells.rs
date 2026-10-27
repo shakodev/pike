@@ -295,6 +295,27 @@ fn same(a: &[u8], b: &[u8]) -> bool {
     a.len() == b.len() && a.iter().zip(b).all(|(a, b)| a.abs_diff(*b) <= 2)
 }
 
+fn sample(shot: &iced::window::Screenshot, point: Point) -> &[u8] {
+    let x = (point.x * shot.scale_factor) as usize;
+    let y = (point.y * shot.scale_factor) as usize;
+    let offset = (y * shot.size.width as usize + x) * 4;
+    &shot.rgba[offset..offset + 4]
+}
+
+fn pane(shot: &iced::window::Screenshot, bounds: Rectangle) -> io::Result<Vec<u8>> {
+    let scale = shot.scale_factor;
+    Ok(shot
+        .crop(Rectangle {
+            x: (bounds.x * scale) as u32 + 1,
+            y: (bounds.y * scale) as u32 + 1,
+            width: (bounds.width * scale) as u32 - 2,
+            height: (bounds.height * scale) as u32 - 2,
+        })
+        .map_err(io::Error::other)?
+        .rgba
+        .to_vec())
+}
+
 fn copy(
     terminal: &Terminal,
     renderer: &iced::Renderer,
@@ -489,6 +510,58 @@ fn run(
             ),
             "wide cursor/glyph escaped into following ASCII",
         )?;
+        let cursor_first = sample(
+            &shot,
+            Point::new(bounds.x + cell.width * 1.5, bounds.y + cell.height * 4.95),
+        );
+        let cursor_second = sample(
+            &shot,
+            Point::new(bounds.x + cell.width * 2.5, bounds.y + cell.height * 4.95),
+        );
+        let background = sample(
+            &shot,
+            Point::new(bounds.x + cell.width * 1.5, bounds.y + cell.height * 1.95),
+        );
+        check(
+            cursor_first == cursor_second && cursor_second != background,
+            "wide cursor did not cover both terminal columns",
+        )?;
+        let moved_bounds = Rectangle::new(Point::new(80.0, 52.0), bounds.size());
+        let moved = render(
+            terminal,
+            renderer,
+            &mut tree,
+            moved_bounds,
+            Rectangle::with_size(SCREEN),
+            scale,
+        );
+        check(
+            same(&pane(&shot, bounds)?, &pane(&moved, moved_bounds)?),
+            "cached Unicode shifted while moving pane geometry",
+        )?;
+        let viewport = Rectangle::new(
+            Point::new(bounds.x + cell.width * 1.5, bounds.y + cell.height * 0.5),
+            Size::new(cell.width * 4.0, cell.height * 4.0),
+        );
+        let clipped = render(terminal, renderer, &mut tree, bounds, viewport, scale);
+        for (index, pixel) in clipped.rgba.chunks_exact(4).enumerate() {
+            let point = Point::new(
+                (index % clipped.size.width as usize) as f32 / scale,
+                (index / clipped.size.width as usize) as f32 / scale,
+            );
+            if bounds.shrink(1.0 / scale).contains(point)
+                && !viewport.expand(1.0 / scale).contains(point)
+            {
+                check(
+                    pixel == [255, 255, 255, 255] || pixel == background,
+                    "Unicode ink escaped ancestor viewport",
+                )?;
+            }
+        }
+        if scale == 1.5 {
+            report::screenshot(&output.join("translated.ppm"), moved)?;
+            report::screenshot(&output.join("clipped.ppm"), clipped)?;
+        }
         check(
             terminal.work_stats() == before && terminal.snapshot_stats().snapshots == snapshots,
             "painting remeasured fonts, resized or captured a snapshot",

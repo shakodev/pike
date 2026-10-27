@@ -703,15 +703,26 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                             glyphs,
                         );
                     });
+                    // Iced's layer stack replaces, rather than intersects,
+                    // the parent clip. Preserve the current pane/ancestor
+                    // viewport when applying each cached local cell clip.
+                    let ancestor = Rectangle::new(
+                        Point::new(clip.x - bounds.x, clip.y - bounds.y),
+                        clip.size(),
+                    );
                     for glyph in &cache.glyphs {
-                        renderer.with_layer(glyph.clip, |renderer| {
+                        let Some(clip) = glyph.clip.intersection(&ancestor)
+                        else {
+                            continue;
+                        };
+                        renderer.with_layer(clip, |renderer| {
                             renderer.fill_raw(iced_graphics::text::Raw {
                                 buffer: std::sync::Arc::downgrade(
                                     &glyph.buffer,
                                 ),
                                 position: glyph.position,
                                 color: glyph.color,
-                                clip_bounds: glyph.clip,
+                                clip_bounds: clip,
                             });
                         });
                     }
