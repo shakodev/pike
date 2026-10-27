@@ -70,7 +70,7 @@ pub fn verify(
     bounds: Rectangle,
 ) -> io::Result<()> {
     let mut tree = Tree::empty();
-    let cursor = Point::new(bounds.x + 10.0, bounds.y + 10.0);
+    let cursor = Point::new(bounds.x + 45.0, bounds.y + 60.0);
     let click = || Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left));
     for index in 0..32 {
         let terminal = &terminals[index % 2];
@@ -92,7 +92,22 @@ pub fn verify(
             !focused(terminal, &mut tree, renderer, bounds),
             "replacement inherited keyboard focus",
         )?;
-        dispatch(terminal, &mut tree, renderer, bounds, click(), cursor);
+        let events = dispatch(terminal, &mut tree, renderer, bounds, click(), cursor);
+        if terminal.id == 2 {
+            // This fresh widget has not processed a focused CursorMoved. Its
+            // first press still has to target the current cell, not grid 0,0.
+            let content = terminal.renderable_content().unwrap();
+            let cell = content.terminal_size;
+            check(
+                matches!(events.as_slice(),
+                [iced_term::Event::BackendCall(id, BackendCommand::MouseReport(
+                    iced_term::MouseButton::LeftButton, _, point, true))]
+                if *id == terminal.id
+                    && point.line.0 == (60.0 / cell.cell_height).floor() as i32
+                    && point.column.0 == (45.0 / cell.cell_width).floor() as usize),
+                "first mouse press after tab replacement used a stale grid position",
+            )?;
+        }
         check(
             focused(terminal, &mut tree, renderer, bounds),
             "fixture click did not focus the terminal",

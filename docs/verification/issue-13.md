@@ -5,6 +5,8 @@ Implementation starts at `fb9e5fc`. Read AGENTS.md and issue #13 with comments
 Documents/Downloads planning folders; the issue declares its body self-contained.
 Dependencies #11 and #12 are closed and merged in starting main (`fa8023d` and
 `0a1bf7f`). No application workspace/session changes are needed for this patch.
+The initial measurements below belong to head `0dd6ec1`; review corrections and
+their separate evidence are recorded at the end of this document.
 
 ## Implementation and API review
 
@@ -145,3 +147,43 @@ observations. Before marking Windows verification complete, run both native
 probe profiles and inspect the screenshots, then exercise the compatibility
 harness on a fractional-DPI desktop. No GitHub Actions were dispatched or
 modified; the implementation commit uses `[skip ci]`.
+
+## PR #62 review — 2026-10-27
+
+The review reproduced a missing case in the original widget-state reset:
+a relayout can precede a button press without an intervening CursorMoved event.
+The widget correctly forgot its old mouse position, but mouse reports still
+used that reset point. A focused regression failed on `0dd6ec1`, reporting
+grid (0,0) for a click at (2,3). Presses and releases now derive their grid
+position from the current Iced cursor and layout origin. This adds no state,
+task, allocation or PTY operation; it computes coordinates on button events.
+
+The public event probe now also enables mouse reporting in synthetic fixture 2
+and checks the actual first-press MouseReport after each equal-size replacement.
+Readiness explicitly refreshes the retained model and verifies each fixture's
+known text prefix and reporting mode. A title is a control event and can be
+delivered ahead of a coalesced Wakeup, so merely observing the readiness title
+was insufficient to guarantee the screenshot snapshot was current.
+
+Formatting, application and explicit adapter Clippy passed for both renderer
+profiles on macOS and the Windows MSVC target. Root application/all-example
+tests passed for both profiles, as did the two compile-fail doctests. Explicit
+adapter suites now pass 75 tests per renderer, with the existing profile test
+ignored. Both release probes passed their pixel, pointer/focus and DPI-event
+checks. All six review fixture PIDs were absent after acknowledged shutdown.
+
+The original evidence is preserved. [Review evidence](../baselines/issue-13/review/)
+contains source hashes, event/cleanup records, selected screenshots and another
+single-run resource observation under the same offscreen methodology:
+
+| Renderer | Wall s | User CPU s | System CPU s | Reported maximum RSS MiB |
+| --- | ---: | ---: | ---: | ---: |
+| wgpu | 0.73 | 0.08 | 0.11 | 78.02 |
+| tiny-skia | 1.16 | 0.75 | 0.09 | 66.75 |
+
+These observations retain the original limits: they do not measure Windows,
+application idle memory or interactive input/render latency. Native Windows
+ConPTY and monitor-DPI checks remain unavailable on the macOS review host.
+Issue #13 explicitly requires affected Windows behavior to be validated with
+synthetic fixtures. This is still a merge blocker: PR #62 remains draft and
+unmerged until that evidence is supplied. No Actions were dispatched or edited.

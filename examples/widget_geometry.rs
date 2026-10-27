@@ -104,6 +104,9 @@ fn fixture(id: &str) -> io::Result<()> {
     for row in 1..=40 {
         write!(output, "\x1b[{row};1HSESSION {id} {}", "X".repeat(60))?;
     }
+    if id == "2" {
+        write!(output, "\x1b[?1000h")?;
+    }
     write!(
         output,
         "\x1b[0m\x1b[2;2H\x1b[?25h\x1b]2;pike:geometry:{id}:{}\x07",
@@ -132,6 +135,28 @@ async fn ready(terminal: &mut Terminal) -> io::Result<u32> {
         };
         terminal.handle(Command::ProxyToBackend(command));
         if let Some(pid) = pid {
+            // A title is a control event and may be delivered before the
+            // coalesced Wakeup. Synchronize the fixture output/modes explicitly.
+            terminal.refresh();
+            let content = terminal.renderable_content().unwrap();
+            let expected = format!("SESSION {}", terminal.id);
+            check(
+                content
+                    .viewport
+                    .display_iter()
+                    .take(expected.len())
+                    .map(|cell| cell.c)
+                    .eq(expected.chars()),
+                "fixture output was not synchronized at readiness",
+            )?;
+            if terminal.id == 2 {
+                check(
+                    content
+                        .terminal_mode
+                        .intersects(iced_term::TermMode::MOUSE_MODE),
+                    "synthetic mouse reporting mode was not synchronized",
+                )?;
+            }
             return Ok(pid);
         }
     }

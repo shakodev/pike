@@ -121,6 +121,21 @@ impl<'a> TerminalView<'a> {
         let terminal_content = self.term.backend.renderable_content();
         let terminal_mode = terminal_content.terminal_mode;
 
+        // Button events carry no position of their own. Use the current Iced
+        // cursor, not a remembered grid point: a diff/relayout may have reset
+        // that point without an intervening CursorMoved event.
+        if matches!(
+            event,
+            mouse::Event::ButtonPressed(_) | mouse::Event::ButtonReleased(_)
+        ) {
+            state.mouse_position_on_grid = Backend::selection_point(
+                cursor_position.x - layout_position.x,
+                cursor_position.y - layout_position.y,
+                &terminal_content.terminal_size,
+                terminal_content.viewport.display_offset(),
+            );
+        }
+
         match event {
             iced_core::mouse::Event::ButtonPressed(
                 iced_core::mouse::Button::Left,

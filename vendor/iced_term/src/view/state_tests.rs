@@ -181,3 +181,50 @@ fn focus_loss_cannot_leave_a_drag_or_modifiers_for_later_reentry() {
     assert_eq!(state.keyboard_modifiers, Modifiers::empty());
     assert_eq!(state.scroll_pixels, 0.0);
 }
+
+#[test]
+fn first_click_and_release_after_a_move_use_current_grid_coordinates() {
+    let session = Session::new(13007);
+    let mut view = TerminalView { term: &session.0 };
+    let mut tree = tree(&view);
+    let size = Size::new(400.0, 240.0);
+    let original = Rectangle::new(Point::new(4.0, 30.0), size);
+    resize(&mut view, &mut tree, original);
+    tree.state.downcast_mut::<TerminalViewState>().focus();
+    // A relayout can precede a button event without an intervening CursorMoved.
+    let moved = Rectangle::new(Point::new(210.5, 90.25), size);
+    resize(&mut view, &mut tree, moved);
+    let content = session.0.backend.renderable_content();
+    let cell = content.terminal_size;
+    let local = Point::new(cell.cell_width * 3.25, cell.cell_height * 2.25);
+    let cursor = Point::new(moved.x + local.x, moved.y + local.y);
+    let expected = Backend::selection_point(
+        local.x,
+        local.y,
+        &cell,
+        content.viewport.display_offset(),
+    );
+    let state = tree.state.downcast_mut::<TerminalViewState>();
+    view.handle_mouse_event(
+        state,
+        moved.position(),
+        cursor,
+        &mouse::Event::ButtonPressed(mouse::Button::Left),
+    );
+    assert_eq!(state.mouse_position_on_grid, expected);
+    let local = Point::new(cell.cell_width * 5.25, cell.cell_height * 4.25);
+    let cursor = Point::new(moved.x + local.x, moved.y + local.y);
+    let expected = Backend::selection_point(
+        local.x,
+        local.y,
+        &cell,
+        content.viewport.display_offset(),
+    );
+    view.handle_mouse_event(
+        state,
+        moved.position(),
+        cursor,
+        &mouse::Event::ButtonReleased(mouse::Button::Left),
+    );
+    assert_eq!(state.mouse_position_on_grid, expected);
+}

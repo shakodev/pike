@@ -251,7 +251,11 @@ and API/overload policy details.
   retain their R12 invalidation paths. `redraw` uses existing cache interior
   mutability and a Cell counter so widget-triggered invalidation is included
   in WorkStats. No new public API, dependencies, tasks, timers or unsafe code.
-- Four focused adapter tests plus a real-PTY/offscreen example exercise
+- Button presses/releases recompute their grid point from the current cursor.
+  A diff or move can reset the remembered point without a CursorMoved event;
+  the first subsequent click must still target the correct cell. A regression
+  reproduces the old (0,0) report and checks both press and release coordinates.
+- Five focused adapter tests plus a real-PTY/offscreen example exercise
   equal-sized replacement, focus and drag isolation, initial layout delivery,
   nested swaps, maximize/restore, theme/font changes and 125/150/200% pixel
   clipping. See [verification and Windows limitations](../../docs/verification/issue-13.md).
