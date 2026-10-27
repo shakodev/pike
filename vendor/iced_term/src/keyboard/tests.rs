@@ -316,3 +316,50 @@ fn clipboard_shortcuts_do_not_steal_ctrl_c_and_logo_fallback_is_silent() {
         KeyAction::Unhandled
     ));
 }
+
+#[test]
+fn command_h_remains_available_to_the_host_without_terminal_bytes() {
+    for text in [None, Some("h")] {
+        assert!(matches!(
+            action(
+                &character("h", Modifiers::LOGO, text),
+                &BindingsLayout::new(),
+                TermMode::empty()
+            ),
+            KeyAction::Unhandled
+        ));
+    }
+}
+
+#[test]
+fn return_obeys_newline_mode_but_ctrl_m_remains_carriage_return() {
+    for cursor in [TermMode::empty(), TermMode::APP_CURSOR] {
+        for (newline, expected) in [
+            (TermMode::empty(), b"\r".as_slice()),
+            (TermMode::LINE_FEED_NEW_LINE, b"\r\n".as_slice()),
+        ] {
+            let mode = cursor | newline;
+            for modifiers in
+                [Modifiers::empty(), Modifiers::SHIFT, Modifiers::CTRL]
+            {
+                assert_eq!(
+                    bytes(&named(Named::Enter, modifiers), mode),
+                    expected
+                );
+                let mut alt_expected = vec![0x1b];
+                alt_expected.extend_from_slice(expected);
+                assert_eq!(
+                    bytes(
+                        &named(Named::Enter, modifiers | Modifiers::ALT),
+                        mode
+                    ),
+                    alt_expected
+                );
+            }
+            assert_eq!(
+                bytes(&character("m", Modifiers::CTRL, None), mode),
+                b"\r"
+            );
+        }
+    }
+}

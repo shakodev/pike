@@ -43,7 +43,10 @@ Precedence is explicit:
    available to the host without terminal text fallback.
 
 Repeat presses encode once per event. Releases emit no legacy bytes. Enter,
-Shift+Enter and Ctrl+Enter share CR; Ctrl+Tab shares Tab, and Ctrl+Shift+Tab
+Shift+Enter and Ctrl+Enter send CR by default, or CR LF when the child enables
+ANSI newline mode (LNM / CSI 20 h); Ctrl+M remains CR. This follows the
+[VT100 Return/LNM contract](https://vt100.net/docs/vt100-ug/chapter3.html).
+Ctrl+Tab shares Tab, and Ctrl+Shift+Tab
 shares back-tab. Shift+Backspace shares DEL; Ctrl+Backspace sends BS. Legacy
 encoding cannot distinguish all modifier combinations. Application keypad,
 modifyOtherKeys, kitty event types/releases and IME composition are not added
@@ -54,7 +57,8 @@ missing binding. The widget captures it, Copy, and Paste even if they emit no
 command, so text cannot leak through to the terminal. A host can reserve an app
 key with an Ignore binding while it handles the application action separately;
 complete app-shortcut routing remains #26. Windows/Linux clipboard defaults are
-Ctrl+Shift+C/V; macOS defaults remain Command+C/V. Ctrl+C stays terminal ETX.
+Ctrl+Shift+C/V; macOS defaults are Command+C/V. Command+H is unbound so
+it cannot send DEL while the host handles the shortcut. Ctrl+C stays terminal ETX.
 
 Only platform/custom overrides are retained in a per-session vector; the large
 allocated default table is gone. Committed text/custom sequences are borrowed
@@ -78,8 +82,8 @@ enable or advertise a protocol the encoder does not implement.
   application, five compatibility and 39 source-import probe tests. Two
   compile-fail doctests passed; existing opt-in timing tests remain ignored.
 - Release application and keyboard/child example builds passed for both renderers.
-- Explicit adapter suites passed for both renderers: 79 passed, one existing
-  profiling test ignored. Eight new encoder regressions plus a backend policy
+- Explicit adapter suites passed for both renderers: 81 passed, one existing
+  profiling test ignored. Ten new encoder regressions plus a backend policy
   test cover control letters, modes, modified keys, Unicode/AltGr/dead keys,
   repeat, overrides/Ignore, clipboard defaults and disabled kitty/link behavior.
 - Equivalent Cargo graph checks passed for both Windows profiles: renderer
@@ -88,16 +92,19 @@ enable or advertise a protocol the encoder does not implement.
 
 The `keyboard_input` example exercises the **actual widget update path**, event
 capture, command routing, R06 writer and the existing raw child fixture. Each
-profile runs 166 literal-oracle cases in normal mode and again in application
-cursor mode. It deliberately sends stale modifier notifications before key
+profile runs 168 literal-oracle cases in all four combinations of normal/
+application cursor mode and reset/set newline mode. The child emits each mode
+sequence before the ready marker, and the probe checks the emulator flags. It deliberately sends stale modifier notifications before key
 events. Each produced command must match its exact expected bytes and session;
-consumed, clipboard and release cases must produce none. It also injects an
+consumed, clipboard, unbound host-shortcut and release cases must produce none. It also injects an
 oversized text event and checks whole-input rejection and unchanged work counters.
 
 After a final FIFO sentinel, each raw child reports length/hash metadata. Both
-modes receive exactly 338 bytes (including the sentinel). Normal mode hashes to
-6240427134811137018; application mode hashes to 14833512360581434354. All four
-recorded raw fixture PIDs were absent after Requested shutdown acknowledgement.
+cursor modes receive exactly 338 bytes with newline mode reset (including the
+sentinel), or 340 with it set. Normal/application mode hashes with LNM reset are
+6240427134811137018 / 14833512360581434354; with LNM set they are
+15479964774545947290 / 2903191449820718642. All eight review-run raw fixture
+PIDs were absent after Requested shutdown acknowledgement.
 No arbitrary terminal transcripts or real key input are recorded.
 
 A separate profile-free Vim 9.1 session enters insert mode, inserts `ab`, moves
@@ -118,7 +125,7 @@ Raw reports, synthetic editor output, resource counters and source hashes are in
 
 ## Release observations
 
-One complete run per renderer on macOS 26.7.1 arm64 / Rust 1.97.1, outside a
+Original implementation: one complete run per renderer on macOS 26.7.1 arm64 / Rust 1.97.1, outside a
 debugger. `/usr/bin/time -l` includes renderer initialization, two raw fixtures,
 the oversized-event check, Vim and teardown. The renderer supplies the widget
 API; this probe does not draw a GUI or measure keyboard-to-render latency.
@@ -135,6 +142,37 @@ reported test-program high-water value, not application idle/private memory.
 All matrix key events leave font, PTY/grid resize, cache and snapshot counters
 unchanged after initial layout. No application memory-budget improvement is
 inferred from this offscreen test.
+
+## Review of PR #63
+
+Review of `b16b6c9` reproduced two defects before applying fixes:
+
+- The inherited macOS Command+H override emitted DEL instead of leaving the
+  host shortcut available. It is now unbound; regressions cover absent and
+  present event text, including the actual widget capture path.
+- Return always emitted CR even after a child enabled ANSI newline mode.
+  The encoder now borrows CR LF in that mode. Unit cases cover normal and
+  application cursor modes, Shift/Ctrl/Alt combinations and unchanged Ctrl+M.
+  Raw fixtures enable/reset LNM before readiness to verify mode propagation
+  through the emulator, widget, bounded writer and PTY.
+
+Both renderer suites, explicit adapter suites (81 passed, one existing ignored),
+native and Windows-cross all-target Clippy, formatting and release builds passed
+after the fixes. No dependencies or production background work were added.
+
+[Review evidence](../baselines/issue-14/review/) preserves source hashes, all four
+mode reports per renderer, cleanup metadata and the synthetic Vim result. The
+original two-mode reports above remain unchanged. One complete review run per
+renderer, including four raw fixtures and Vim, measured:
+
+| Renderer | Wall s | Reported user/system CPU s | Maximum RSS MiB | Max synthetic dispatch µs |
+| --- | ---: | ---: | ---: | ---: |
+| wgpu | 0.99 | 0.06 / 0.13 | 29.48 | 20.000 |
+| tiny-skia | 0.76 | 0.04 / 0.08 | 20.05 | 5.542 |
+
+The same single-run/offscreen measurement limits apply. Native Windows transport,
+physical layouts and PSReadLine remain unavailable, so the review does not clear
+the native acceptance criteria or authorize treating the issue as complete.
 
 ## Reproduction and remaining Windows verification
 
@@ -162,7 +200,7 @@ Supply a Vim executable as the second probe argument on Windows to run its edito
 check. Without one, `editor.txt` explicitly records that it was skipped. On macOS
 omit `.exe`; `/usr/bin/vim` is selected if available. Wgpu needs graphics-device
 access even for this offscreen widget API. A successful run has completed.txt,
-two summary rows, and matching raw result records.
+four summary rows, and matching raw result records.
 
 This host has no Windows runtime or PowerShell, so **native ConPTY key transport,
 physical US/AltGr/dead-key layouts and PSReadLine remain unverified**. Cross-target

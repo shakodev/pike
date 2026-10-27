@@ -34,7 +34,7 @@ pub fn named(key: Named, modifiers: M) -> Event {
     }
 }
 
-pub fn cases(application: bool) -> Vec<Case> {
+pub fn cases(application: bool, newline: bool) -> Vec<Case> {
     let mut cases = Vec::new();
     for (key, expected) in (b'a'..=b'z').zip(1_u8..=26) {
         cases.push(Case {
@@ -104,8 +104,16 @@ pub fn cases(application: bool) -> Vec<Case> {
         (Named::Insert, M::ALT, "\x1b[2;3~"),
         (Named::Delete, M::CTRL, "\x1b[3;5~"),
         (Named::PageDown, M::CTRL | M::ALT, "\x1b[6;7~"),
-        (Named::Enter, M::empty(), "\r"),
-        (Named::Enter, M::ALT, "\x1b\r"),
+        (
+            Named::Enter,
+            M::empty(),
+            if newline { "\r\n" } else { "\r" },
+        ),
+        (
+            Named::Enter,
+            M::ALT,
+            if newline { "\x1b\r\n" } else { "\x1b\r" },
+        ),
         (Named::Backspace, M::empty(), "\x7f"),
         (Named::Backspace, M::CTRL, "\x08"),
         (Named::Tab, M::SHIFT, "\x1b[Z"),
@@ -155,6 +163,14 @@ pub fn cases(application: bool) -> Vec<Case> {
             event,
             expected: b"r".to_vec(),
             captured: true,
+        });
+    }
+    // Unbound host shortcuts must produce neither terminal bytes nor capture.
+    for text in [None, Some("h")] {
+        cases.push(Case {
+            event: character("h", M::LOGO, text),
+            expected: vec![],
+            captured: false,
         });
     }
     // Installed by the probe as an app interception, Copy and empty Paste.

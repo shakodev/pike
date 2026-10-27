@@ -171,7 +171,6 @@ fn platform_keyboard_bindings() -> Vec<(Binding<InputKind>, BindingAction)> {
         KeyboardBinding;
         "c", Modifiers::COMMAND; BindingAction::Copy;
         "v", Modifiers::COMMAND; BindingAction::Paste;
-        "h", Modifiers::COMMAND; BindingAction::Char('\x7f');
     )
 }
 

@@ -160,7 +160,16 @@ fn named_action(
     use Named::*;
     let alt = modifiers.alt();
     match named {
-        Enter => return KeyAction::bytes(b"\r", alt),
+        Enter => {
+            return KeyAction::bytes(
+                if mode.contains(TermMode::LINE_FEED_NEW_LINE) {
+                    b"\r\n"
+                } else {
+                    b"\r"
+                },
+                alt,
+            )
+        },
         Escape => return KeyAction::bytes(b"\x1b", alt),
         Backspace => {
             return KeyAction::bytes(

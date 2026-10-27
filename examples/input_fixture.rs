@@ -33,9 +33,15 @@ fn run() -> io::Result<()> {
     );
     let keyboard = args.next();
     if args.next().is_some()
-        || keyboard
-            .as_deref()
-            .is_some_and(|mode| !["keyboard-normal", "keyboard-app"].contains(&mode))
+        || keyboard.as_deref().is_some_and(|mode| {
+            ![
+                "keyboard-normal",
+                "keyboard-app",
+                "keyboard-newline",
+                "keyboard-app-newline",
+            ]
+            .contains(&mode)
+        })
     {
         return Err(io::Error::other("invalid keyboard fixture mode"));
     }
@@ -45,8 +51,13 @@ fn run() -> io::Result<()> {
         let mut output = io::stdout().lock();
         write!(
             output,
-            "\x1b[?1{}\x1b[?u\x1b[>31u\x1b]2;pike:keys-ready\x07",
-            if mode == "keyboard-app" { 'h' } else { 'l' }
+            "\x1b[?1{}\x1b[20{}\x1b[?u\x1b[>31u\x1b]2;pike:keys-ready\x07",
+            if mode.starts_with("keyboard-app") {
+                'h'
+            } else {
+                'l'
+            },
+            if mode.ends_with("newline") { 'h' } else { 'l' }
         )?;
         output.flush()?;
     }

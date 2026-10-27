@@ -255,8 +255,10 @@ and API/overload policy details.
   Published archive files and original manifest/lockfile remain provenance.
 - Set Alacritty kitty configuration explicitly false during preparation and
   history changes. Do not advertise or encode negotiated kitty behavior (R45).
-- Eight keyboard regressions and one backend policy regression extend the
-  adapter suite to 79 passing tests per profile. The raw-byte widget/PTY probe
-  exercises 166 cases in each cursor mode, byte admission, and a synthetic Vim
+- Honor ANSI newline mode for Return without changing Ctrl+M; remove the
+  inherited macOS Command+H-to-DEL binding so the host shortcut emits no bytes.
+- Ten keyboard regressions and one backend policy regression extend the
+  adapter suite to 81 passing tests per profile. The raw-byte widget/PTY probe
+  exercises 168 cases in all four cursor/newline modes, byte admission, and a synthetic Vim
   edit/save/exit. No production polling/tasks or new dependencies are introduced.
   See [verification, policy and native limitations](../../docs/verification/issue-14.md).

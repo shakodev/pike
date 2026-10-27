@@ -47,34 +47,35 @@ fn main() -> io::Result<()> {
     let mut report = fs::File::create(output.join("summary.csv"))?;
     writeln!(
         report,
-        "application_cursor,cases,bytes,hash,max_dispatch_us,fixture_pid,cleanup"
+        "application_cursor,newline,cases,bytes,hash,max_dispatch_us,fixture_pid,cleanup"
     )?;
-    for application in [false, true] {
-        let cases = cases::cases(application);
+    for (application, newline) in [(false, false), (true, false), (false, true), (true, true)] {
+        let cases = cases::cases(application, newline);
         let mut expected: Vec<_> = cases
             .iter()
             .flat_map(|case| case.expected.iter().copied())
             .collect();
         expected.push(b'!'); // FIFO sentinel after all positive/negative cases.
-        let directory = output.join(if application { "application" } else { "normal" });
+        let (directory_name, fixture_mode) = match (application, newline) {
+            (false, false) => ("normal", "keyboard-normal"),
+            (true, false) => ("application", "keyboard-app"),
+            (false, true) => ("newline", "keyboard-newline"),
+            (true, true) => ("application-newline", "keyboard-app-newline"),
+        };
+        let directory = output.join(directory_name);
         let settings = iced_term::settings::BackendSettings {
             program: path_string(&fixture)?,
             args: vec![
                 "echo".into(),
                 expected.len().to_string(),
                 path_string(&directory)?,
-                if application {
-                    "keyboard-app"
-                } else {
-                    "keyboard-normal"
-                }
-                .into(),
+                fixture_mode.into(),
             ],
             ..Default::default()
         };
         let ((pid, maximum), completion) = with_terminal(
             &executor,
-            14001 + u64::from(application),
+            14001 + u64::from(application) + 2 * u64::from(newline),
             settings,
             |terminal| {
                 wait(&executor, terminal, |terminal, command| {
@@ -85,6 +86,10 @@ fn main() -> io::Result<()> {
                 check(
                     mode.contains(TermMode::APP_CURSOR) == application,
                     "cursor mode did not reach the emulator",
+                )?;
+                check(
+                    mode.contains(TermMode::LINE_FEED_NEW_LINE) == newline,
+                    "newline mode did not reach the emulator",
                 )?;
                 check(
                     !mode.intersects(TermMode::KITTY_KEYBOARD_PROTOCOL),
@@ -177,7 +182,7 @@ fn main() -> io::Result<()> {
         )?;
         writeln!(
             report,
-            "{application},{},{},{},{:.3},{pid},Requested",
+            "{application},{newline},{},{},{},{:.3},{pid},Requested",
             cases.len(),
             expected.len(),
             hash(&expected),
