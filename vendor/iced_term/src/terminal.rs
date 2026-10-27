@@ -32,6 +32,8 @@ pub struct Terminal {
     widget_id: iced::widget::Id,
     pub(crate) font: TermFont,
     pub(crate) cache: Cache,
+    // Paint focus belongs to the session canvas cache, across widget trees.
+    pub(crate) cursor_focused: Cell<Option<bool>>,
     pub(crate) bindings: BindingsLayout,
     pub(crate) backend: backend::Backend,
     backend_event_rx: Arc<Receiver>,
@@ -103,6 +105,7 @@ impl PreparedTerminal {
             font,
             bindings: BindingsLayout::default(),
             cache: Cache::default(),
+            cursor_focused: Cell::new(None),
             backend: self.backend,
             backend_event_rx: self.backend_event_rx,
             cache_invalidations: Cell::new(0),

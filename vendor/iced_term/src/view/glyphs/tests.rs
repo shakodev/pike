@@ -145,7 +145,7 @@ fn unchanged_generation_never_rebuilds_or_reshapes_unicode_spans() {
         cache.update((4, 8), |_| panic!("unrelated redraw reshaped glyphs"));
     }
     cache.update((5, 8), |_| builds += 1); // New viewport snapshot.
-    cache.update((5, 9), |_| builds += 1); // Style/font/cache invalidation.
+    cache.update((5, 9), |_| builds += 1); // Actual font measurement change.
     assert_eq!(builds, 3);
     assert!(Cache::default().generation.is_none()); // Session-ID diff resets it.
 }
@@ -157,13 +157,7 @@ fn repeated_unicode_shares_one_bounded_shaped_buffer_and_keeps_clip_guards() {
     content.capture(&term, crate::geometry::TerminalSize::default());
     let style = crate::font::TermFont::new(Default::default());
     let mut glyphs = Vec::new();
-    build(
-        &content,
-        &style,
-        term.grid().cursor.point,
-        |_, _| (iced::Color::WHITE, iced::Color::BLACK),
-        &mut glyphs,
-    );
+    build(&content, &style, &mut glyphs);
     assert_eq!(glyphs.len(), 3);
     assert!(Arc::ptr_eq(&glyphs[0].buffer, &glyphs[1].buffer));
     assert!(Arc::ptr_eq(&glyphs[1].buffer, &glyphs[2].buffer));

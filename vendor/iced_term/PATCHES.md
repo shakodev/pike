@@ -336,3 +336,23 @@ and API/overload policy details.
   once (80x8.5 = 680). The Alacritty formatter accepts TextAreaSize separately
   from native integer WindowSize. DPI rescale leaves these virtual units and
   native PTY cell-count dedup unchanged; no physical-monitor claim is made.
+
+## R21 / issue #21 — steady cursor shapes and contrast
+
+- Render authoritative shape/show state and OSC12/reset color; blinking variants
+  deliberately use steady counterparts with no cursor timer or redraw loop.
+  Focused block/underline/beam/hollow and inactive hollow use the R20 owner focus.
+- Preserve R18 background-first drawing, wide-lead cursor geometry and all cell,
+  pane and ancestor clips. Resolve contrast against effective inverse/selected
+  backgrounds and keep a block's covered glyph legible, including equal colors.
+- Separate raw Unicode shaping generations from paint colors: focus/theme paint
+  reuses buffers and resolves current glyph colors when drawing. Focus metadata
+  changes paint without snapshots/font measurement; input/copy handlers stay intact.
+- Four parser/model regressions and the public real-PTY `steady_cursor` fixture
+  cover shapes, state-only changes, pixels, idle counters and official Micro.
+  Both native renderer jobs retain controlled screenshots and cleanup evidence.
+  See [verification and limits](../../docs/verification/issue-21.md), including
+  existing macOS cancellation timeouts and deferred physical desktop checks.
+- No dependencies, features, lockfiles, tasks, timers or PTY implementation added.
+  Remove when upstream provides equivalent steady shapes, focus/contrast behavior
+  and cached Unicode paint invalidation; PR86 alone covers draw ordering only.

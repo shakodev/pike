@@ -5,6 +5,7 @@ use alacritty_terminal::grid::{Dimensions, Indexed};
 use alacritty_terminal::index::{Column, Line, Point};
 use alacritty_terminal::selection::SelectionRange;
 use alacritty_terminal::term::{cell::Cell, Term, TermMode};
+use alacritty_terminal::vte::ansi::{CursorShape, NamedColor, Rgb};
 use std::ops::RangeInclusive;
 
 #[derive(Default)]
@@ -63,6 +64,10 @@ pub struct RenderableContent {
     pub cursor: Cell,
     /// Absolute terminal coordinates, also when scrolled into history.
     pub cursor_point: Point,
+    /// Shape requests are rendered steadily, including blinking variants.
+    pub cursor_shape: CursorShape,
+    pub cursor_color: Option<Rgb>,
+    pub focused: bool,
     pub terminal_mode: TermMode,
     pub terminal_size: TerminalSize,
 }
@@ -75,6 +80,9 @@ impl Default for RenderableContent {
             selectable_range: None,
             cursor: Cell::default(),
             cursor_point: Point::default(),
+            cursor_shape: CursorShape::Hidden,
+            cursor_color: None,
+            focused: false,
             terminal_mode: TermMode::empty(),
             terminal_size: TerminalSize::default(),
         }
@@ -82,7 +90,7 @@ impl Default for RenderableContent {
 }
 
 impl RenderableContent {
-    pub(crate) fn capture<T>(
+    pub(crate) fn capture<T: alacritty_terminal::event::EventListener>(
         &mut self,
         terminal: &Term<T>,
         size: TerminalSize,
@@ -94,6 +102,9 @@ impl RenderableContent {
             .and_then(|s| s.to_range(terminal));
         self.cursor_point = terminal.grid().cursor.point;
         self.cursor = terminal.grid()[self.cursor_point].clone();
+        self.cursor_shape = terminal.renderable_content().cursor.shape;
+        self.cursor_color = terminal.colors()[NamedColor::Cursor];
+        self.focused = terminal.is_focused;
         self.terminal_mode = *terminal.mode();
         self.terminal_size = size;
     }

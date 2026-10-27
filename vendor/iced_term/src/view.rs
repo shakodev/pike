@@ -17,6 +17,7 @@ use iced_core::keyboard::{Key, Modifiers};
 use iced_core::mouse::{self, Click};
 use iced_core::text::{Alignment, LineHeight, Shaping};
 
+mod cursor;
 mod glyphs;
 use iced_core::widget::operation::{self, Focusable};
 use iced_graphics::core::widget::{tree, Tree};
@@ -499,6 +500,9 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         viewport: &Rectangle,
     ) {
         let bounds = layout.bounds();
+        if !self.term.is_visible() {
+            return;
+        }
         let Some(clip) = bounds.intersection(viewport) else {
             return;
         };
@@ -512,12 +516,22 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         let cell_height = term_size.cell_height;
         let font_size = self.term.font.size;
         let font_scale_factor = self.term.font.scale_factor;
-        let mut cursor_point = content.cursor_point;
-        if content.cursor.flags.contains(cell::Flags::WIDE_CHAR_SPACER)
-            && cursor_point.column.0 > 0
+        let focused =
+            content.focused && self.term.backend.window_focus.is_focused();
+        if self
+            .term
+            .cursor_focused
+            .replace(Some(focused))
+            .is_some_and(|previous| previous != focused)
         {
-            cursor_point.column.0 -= 1;
+            self.term.redraw();
         }
+        let cursor = cursor::Cursor::new(
+            content,
+            &self.term.backend.theme,
+            focused,
+            |cell, point| self.cell_colors(content, cell, point),
+        );
         // Cache only pane-local geometry. Repositioning reuses the same cache;
         // translation and clipping always come from the current layout.
         let geom = self.term.cache.draw(renderer, bounds.size(), |frame| {
@@ -610,14 +624,12 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                 let y = (indexed.point.line.0 as f32 + display_offset)
                     * cell_height;
                 let cell_center_y = y + half_h;
-                let (mut fg, bg) =
+                let (fg, _) =
                     self.cell_colors(content, indexed.cell, indexed.point);
                 let columns = glyphs::columns(
                     indexed.cell,
                     content.viewport.columns() - indexed.point.column.0,
                 );
-                let is_cursor = cursor_point == indexed.point
-                    && content.terminal_mode.contains(TermMode::SHOW_CURSOR);
                 // Draw hovered hyperlink underline (rare; keep per-cell for correctness)
                 if content.hovered_hyperlink.as_ref().is_some_and(|range| {
                     range.contains(&indexed.point)
@@ -638,17 +650,10 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                 }
 
                 // Handle cursor rendering
-                if is_cursor {
-                    let cursor_color =
-                        self.term.backend.theme.get_color(content.cursor.fg);
-                    let cursor_rect = Path::rectangle(
-                        Point::new(x, y),
-                        Size::new(
-                            cell_width * columns.max(1) as f32,
-                            cell_height,
-                        ),
-                    );
-                    frame.fill(&cursor_rect, cursor_color);
+                if let Some(cursor) =
+                    cursor.filter(|cursor| cursor.point == indexed.point)
+                {
+                    cursor.draw(frame);
                 }
 
                 // ASCII retains the existing pane geometry cache. Unicode uses
@@ -658,9 +663,9 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                     && glyphs::visible(indexed.cell)
                     && !glyphs::clipped(indexed.cell)
                 {
-                    if is_cursor {
-                        fg = bg;
-                    }
+                    let fg = cursor.map_or(fg, |cursor| {
+                        cursor.glyph_color(indexed.point, fg)
+                    });
                     frame.fill_text(Text {
                         content: glyphs::text(indexed.cell),
                         position: Point::new(
@@ -694,18 +699,10 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                     let mut cache = state.glyphs.borrow_mut();
                     let generation = (
                         self.term.snapshot_stats().snapshots,
-                        self.term.work_stats().cache_invalidations,
+                        self.term.work_stats().font_measurements,
                     );
                     cache.update(generation, |glyphs| {
-                        glyphs::build(
-                            content,
-                            &self.term.font,
-                            cursor_point,
-                            |cell, point| {
-                                self.cell_colors(content, cell, point)
-                            },
-                            glyphs,
-                        );
+                        glyphs::build(content, &self.term.font, glyphs);
                     });
                     // Iced's layer stack replaces, rather than intersects,
                     // the parent clip. Preserve the current pane/ancestor
@@ -715,6 +712,24 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                         clip.size(),
                     );
                     for glyph in &cache.glyphs {
+                        let Some(cell) =
+                            content.viewport.cells().get(glyph.cell_index)
+                        else {
+                            continue;
+                        };
+                        let point = TerminalGridPoint::new(
+                            alacritty_terminal::index::Line(
+                                (glyph.cell_index / content.viewport.columns())
+                                    as i32
+                                    - content.viewport.display_offset() as i32,
+                            ),
+                            alacritty_terminal::index::Column(
+                                glyph.cell_index % content.viewport.columns(),
+                            ),
+                        );
+                        let (fg, _) = self.cell_colors(content, cell, point);
+                        let fg = cursor
+                            .map_or(fg, |cursor| cursor.glyph_color(point, fg));
                         let Some(clip) = glyph.clip.intersection(&ancestor)
                         else {
                             continue;
@@ -725,7 +740,7 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                                     &glyph.buffer,
                                 ),
                                 position: glyph.position,
-                                color: glyph.color,
+                                color: fg,
                                 clip_bounds: clip,
                             });
                         });
