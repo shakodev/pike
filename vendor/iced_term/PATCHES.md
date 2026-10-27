@@ -261,3 +261,24 @@ and API/overload policy details.
   clipping. See [verification and Windows limitations](../../docs/verification/issue-13.md).
   Remove this patch when upstream provides equivalent identity, local geometry
   and clipping behavior; PR 70 alone covers only the ID reset.
+
+## R20 / issue #20 — explicit protocol and metadata contract
+
+- Exhaustively handle all pinned Alacritty events: current size/color replies,
+  title/reset, coalesced bell, cursor state, actual ChildExit/Shutdown status and
+  separate backend completion. Subscription events keep their origin ID even
+  while hidden; workspace metadata UI remains issue #23.
+- Use the existing bounded ordered input writer for replies and mode-gated
+  effective focus transitions. Reply rejection closes only its origin session;
+  visibility/focus no-ops do not send reports. No reply path scrolls to bottom.
+- Disable OSC52 explicitly in initial and history-update parser configuration,
+  drop injected clipboard requests before bridge retention, and invoke no
+  system clipboard access. Titles share Alacritty's bounded sanitizer.
+- Share the existing theme object between rendering and query resolution;
+  metadata/query handling does not mark the viewport dirty. Cursor blink state
+  is exposed without a production timer. See the Alacritty patch ledger for
+  source-level title bounds, RIS reset notification and ordered color overrides.
+- Explicit adapter regressions plus a two-session synthetic real-PTY release
+  probe verify bytes/order/identity, hidden metadata, metadata floods, focus and
+  natural drained cleanup. See [verification](../../docs/verification/issue-20.md).
+  No dependencies, features, lockfiles, polling tasks or additional PTY code.

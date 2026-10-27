@@ -8,7 +8,7 @@ use iced_term::{BackendCommand, Terminal, TerminalView};
 use std::io;
 
 fn dispatch(
-    terminal: &Terminal,
+    terminal: &mut Terminal,
     tree: &mut Tree,
     renderer: &iced::Renderer,
     bounds: Rectangle,
@@ -36,6 +36,18 @@ fn dispatch(
         &mut Shell::new(&mut events),
         &bounds,
     );
+    drop(view);
+    // Route session focus commands as an application does. This probe's
+    // returned messages check geometry/gestures; terminal_protocol checks the
+    // resulting focus bytes and duplicate suppression under real PTY input.
+    events.retain(|event| {
+        if let iced_term::Event::BackendCall(_, command @ BackendCommand::FocusChanged(_)) = event {
+            terminal.handle(iced_term::Command::ProxyToBackend(command.clone()));
+            false
+        } else {
+            true
+        }
+    });
     events
 }
 
@@ -66,14 +78,14 @@ fn focused(
 
 pub fn verify(
     renderer: &iced::Renderer,
-    terminals: &[Terminal],
+    terminals: &mut [Terminal],
     bounds: Rectangle,
 ) -> io::Result<()> {
     let mut tree = Tree::empty();
     let cursor = Point::new(bounds.x + 45.0, bounds.y + 60.0);
     let click = || Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left));
     for index in 0..32 {
-        let terminal = &terminals[index % 2];
+        let terminal = &mut terminals[index % 2];
         let events = dispatch(
             terminal,
             &mut tree,
@@ -113,7 +125,7 @@ pub fn verify(
             "fixture click did not focus the terminal",
         )?;
     }
-    let terminal = &terminals[1];
+    let terminal = &mut terminals[1];
     let moved = Rectangle::new(Point::new(280.0, 160.0), bounds.size());
     let cursor = Point::new(moved.x + 10.0, moved.y + 10.0);
     let movement = || Event::Mouse(mouse::Event::CursorMoved { position: cursor });

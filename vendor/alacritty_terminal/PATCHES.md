@@ -231,6 +231,23 @@ checks and ConPTY probe described in
   resolution does not add it. The explicit application-name argument still
   prevents command-line executable ambiguity.
 
+## R20 / issue #20 — bound retained metadata and preserve protocol order
+
+- Sanitize titles before model/title-stack retention: at most 4,096 UTF-8 bytes,
+  no C0/C1 controls or directional formatting overrides. Cap saved titles at 64
+  (256 KiB payload bound), independently preserving the keyboard-mode limit.
+  Remove title-bearing trace output and redact Event Debug payloads for titles,
+  replies and clipboard stores; no transcript is retained by this patch.
+- RIS reset now sends ResetTitle instead of silently clearing only model state.
+  A real-PTY fixture reproduced the missing application notification.
+- Capture an OSC color override in its deferred response formatter at parser
+  position. Later set/reset operations cannot change an earlier queued query;
+  the adapter still supplies its current configured fallback palette.
+- Add source-level title bound/stack/privacy regressions; adapter tests replay
+  exact VT and verify delayed color formatting and title-reset events. Both
+  workspace dependency suites run explicitly; see
+  [issue #20 verification](../../docs/verification/issue-20.md).
+
 
 ## R09 PR review — remove ambient drive state from executable lookup
 

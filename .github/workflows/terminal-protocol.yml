@@ -1,0 +1,141 @@
+name: Windows terminal protocol
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  protocol:
+    name: Native protocol fixture (${{ matrix.renderer }})
+    runs-on: windows-2025
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        renderer: [wgpu, tiny-skia]
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      CARGO_BUILD_JOBS: '4'
+      CARGO_INCREMENTAL: '0'
+      CARGO_TERM_COLOR: always
+      CARGO_TARGET_DIR: target/issue-20
+
+    steps:
+      - name: Check out the exact requested head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Record native provenance
+        run: |
+          $env:EVIDENCE = Join-Path $env:RUNNER_TEMP 'terminal-protocol-${{ matrix.renderer }}-${{ github.run_id }}-${{ github.run_attempt }}'
+          "EVIDENCE=$env:EVIDENCE" | Out-File -FilePath $env:GITHUB_ENV -Append
+          New-Item -ItemType Directory -Path $env:EVIDENCE | Out-Null
+          git rev-parse HEAD | Set-Content "$env:EVIDENCE/source-sha.txt"
+          rustup show
+          rustc --version --verbose | Tee-Object "$env:EVIDENCE/compiler.txt"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber | ConvertTo-Json | Set-Content "$env:EVIDENCE/os.json"
+          Get-FileHash Cargo.lock, vendor/iced_term/src/view.rs, vendor/iced_term/src/backend.rs, vendor/iced_term/src/event_bridge.rs, vendor/alacritty_terminal/src/event.rs, vendor/alacritty_terminal/src/term/mod.rs, examples/terminal_protocol.rs | Format-Table -AutoSize | Out-String -Width 240 | Set-Content "$env:EVIDENCE/source-hashes.txt"
+
+      - name: Cache dependencies and isolated fixture build
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            target/issue-20
+          key: Windows-2025-${{ runner.arch }}-protocol-v1-${{ matrix.renderer }}-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.lock', 'Cargo.toml', 'vendor/iced_term/Cargo.toml', 'vendor/alacritty_terminal/Cargo.toml') }}
+
+      - name: Prepare pinned ConPTY runtime
+        run: ./tools/prepare-conpty.ps1 -TargetDirectory $env:CARGO_TARGET_DIR | ConvertTo-Json -Depth 4 | Set-Content "$env:EVIDENCE/runtime.json"
+
+      - name: Test adapter regressions natively
+        run: |
+          cargo test --locked -p iced_term --lib --no-default-features --features iced/${{ matrix.renderer }},iced/tokio 2>&1 | Tee-Object "$env:EVIDENCE/adapter-tests.txt"
+          exit $LASTEXITCODE
+
+      - name: Build synthetic release probe
+        run: cargo build --release --locked --example terminal_protocol --no-default-features --features renderer-${{ matrix.renderer }}
+
+      - name: Check ordered native replies, hidden identity, metadata flood and cleanup
+        run: |
+          $exe = (Resolve-Path "$env:CARGO_TARGET_DIR/release/examples/terminal_protocol.exe").Path
+          Get-FileHash -LiteralPath $exe | Format-List | Out-String | Set-Content "$env:EVIDENCE/executable-hash.txt"
+          $probeOutput = Join-Path $env:EVIDENCE 'probe'
+          $watch = [Diagnostics.Stopwatch]::StartNew()
+          $process = Start-Process -FilePath $exe -ArgumentList ('"{0}"' -f $probeOutput) -NoNewWindow -PassThru -RedirectStandardOutput "$env:EVIDENCE/stdout.txt" -RedirectStandardError "$env:EVIDENCE/stderr.txt"
+          $maximumPrivate = 0L
+          $maximumWorkingSet = 0L
+          $lastCpuSeconds = 0.0
+          $samples = 0
+          try {
+              while (-not $process.WaitForExit(100)) {
+                  if ($watch.Elapsed.TotalSeconds -gt 90) {
+                      $process.Kill($true)
+                      $process.WaitForExit()
+                      throw 'Protocol probe timed out; terminated its synthetic process tree.'
+                  }
+                  $process.Refresh()
+                  if ($process.HasExited) { break }
+                  try {
+                      $maximumPrivate = [Math]::Max($maximumPrivate, $process.PrivateMemorySize64)
+                      $maximumWorkingSet = [Math]::Max($maximumWorkingSet, $process.WorkingSet64)
+                      $lastCpuSeconds = $process.TotalProcessorTime.TotalSeconds
+                      $samples++
+                  } catch {
+                      if (-not $process.HasExited) { throw }
+                  }
+              }
+              if ($process.ExitCode -ne 0) { throw "Protocol probe failed with exit $($process.ExitCode)." }
+              [ordered]@{
+                  Scope = 'Short release protocol probe parent only; excludes synthetic child resources, GUI, idle budgets and interactive latency'
+                  WallSeconds = $watch.Elapsed.TotalSeconds
+                  Samples = $samples
+                  LastSampleCpuSeconds = $(if ($samples) { $lastCpuSeconds } else { $null })
+                  MaximumSampledPrivateBytes = $(if ($samples) { $maximumPrivate } else { $null })
+                  MaximumSampledWorkingSetBytes = $(if ($samples) { $maximumWorkingSet } else { $null })
+                  SamplingMilliseconds = 100
+              } | ConvertTo-Json | Set-Content "$env:EVIDENCE/resources.json"
+          } finally {
+              if (-not $process.HasExited) { $process.Kill($true); $process.WaitForExit() }
+              $process.Dispose()
+          }
+          if ((Get-Content "$probeOutput/completed.txt" -Raw).Trim() -ne 'passed') { throw 'Missing successful completion marker.' }
+          $events = @(Import-Csv "$probeOutput/events.csv")
+          if (@($events | Where-Object event -eq 'completed').Count -ne 2) { throw 'Missing protocol and lifecycle checks.' }
+          $cleanup = @(Import-Csv "$probeOutput/cleanup.csv")
+          if ($cleanup.Count -ne 2 -or @($cleanup | Where-Object { $_.reason -ne 'ChildExit' -or $_.output_drained -ne 'true' }).Count -ne 0) { throw 'Missing two drained natural backend completions.' }
+          foreach ($fixtureId in 1..2) {
+              $fixturePid = [int](Get-Content "$probeOutput/fixture-$fixtureId.pid" -Raw)
+              $child = Get-Process -Id $fixturePid -ErrorAction SilentlyContinue
+              if ($child) {
+                  try { if ($child.ProcessName -eq 'terminal_protocol') { throw 'Fixture remained after acknowledged completion.' } }
+                  finally { $child.Dispose() }
+              }
+          }
+          'Both synthetic fixture PIDs absent after cleanup.' | Set-Content "$env:EVIDENCE/process-cleanup.txt"
+          Get-Content "$probeOutput/events.csv", "$probeOutput/cleanup.csv", "$env:EVIDENCE/resources.json"
+
+      - name: Verify dependency inputs are unchanged
+        run: git diff --exit-code -- Cargo.toml Cargo.lock rust-toolchain.toml vendor/iced_term/Cargo.toml vendor/iced_term/Cargo.lock vendor/alacritty_terminal/Cargo.toml vendor/alacritty_terminal/Cargo.lock
+
+      - name: Retain synthetic evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: terminal-protocol-${{ matrix.renderer }}
+          path: ${{ env.EVIDENCE }}
+          if-no-files-found: error

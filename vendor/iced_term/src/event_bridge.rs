@@ -9,7 +9,8 @@ use tokio::sync::Notify;
 
 const CONTROL_LIMIT: usize = 256;
 const PAYLOAD_LIMIT: usize = 64 * 1024;
-const TITLE_LIMIT: usize = 4096;
+#[cfg(test)]
+const TITLE_LIMIT: usize = alacritty_terminal::event::TITLE_BYTE_LIMIT;
 
 /// Redacted, session-scoped failure; never includes terminal/clipboard text.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -195,26 +196,21 @@ impl Sender {
             Event::Bell => state.bell = true,
             Event::ResetTitle => state.title = Some(Event::ResetTitle),
             Event::Title(title) => {
-                let mut end = title.len().min(TITLE_LIMIT);
-                while !title.is_char_boundary(end) {
-                    end -= 1;
-                }
-                // Copy a bounded slice, not an arbitrarily large allocation's
-                // capacity. Titles are latest-value presentation state.
-                state.title = Some(Event::Title(title[..end].to_owned()));
+                state.title = Some(Event::Title(
+                    alacritty_terminal::event::sanitize_title(&title),
+                ));
             },
+            // Disabled even for injected events: never retain clipboard data
+            // or let an unsupported OSC52 flood consume control capacity.
+            Event::ClipboardStore(..) | Event::ClipboardLoad(..) => return,
             event @ (Event::PtyWrite(_)
-            | Event::ClipboardStore(..)
-            | Event::ClipboardLoad(..)
             | Event::ColorRequest(..)
             | Event::TextAreaSizeRequest(..)) => {
                 // Count retained String capacity, not just its current length.
                 // Upstream formatter Arcs capture only fixed protocol metadata;
                 // their inline event storage is bounded by CONTROL_LIMIT.
                 let bytes = match &event {
-                    Event::PtyWrite(text) | Event::ClipboardStore(_, text) => {
-                        text.capacity()
-                    },
+                    Event::PtyWrite(text) => text.capacity(),
                     _ => 0,
                 };
                 if state.controls.len() == CONTROL_LIMIT {
