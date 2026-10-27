@@ -1,0 +1,116 @@
+name: Windows Unicode cells
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  geometry:
+    name: Native Unicode cell fixture (${{ matrix.renderer }})
+    runs-on: windows-2025
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        renderer: [wgpu, tiny-skia]
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      CARGO_BUILD_JOBS: '4'
+      CARGO_INCREMENTAL: '0'
+      CARGO_TERM_COLOR: always
+      CARGO_TARGET_DIR: target/issue-18
+
+    steps:
+      - name: Check out the exact requested head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Record native provenance
+        run: |
+          $env:EVIDENCE = Join-Path $env:RUNNER_TEMP 'unicode-cells-${{ matrix.renderer }}-${{ github.run_id }}-${{ github.run_attempt }}'
+          "EVIDENCE=$env:EVIDENCE" | Out-File -FilePath $env:GITHUB_ENV -Append
+          New-Item -ItemType Directory -Path $env:EVIDENCE | Out-Null
+          git rev-parse HEAD | Set-Content "$env:EVIDENCE/source-sha.txt"
+          rustup show
+          rustc --version --verbose | Tee-Object "$env:EVIDENCE/compiler.txt"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber | ConvertTo-Json | Set-Content "$env:EVIDENCE/os.json"
+          Get-FileHash Cargo.lock, vendor/iced_term/src/view.rs, vendor/iced_term/src/view/glyphs.rs, examples/unicode_cells.rs | Format-Table -AutoSize | Out-String -Width 240 | Set-Content "$env:EVIDENCE/source-hashes.txt"
+
+      - name: Cache dependencies and isolated fixture build
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            target/issue-18
+          key: Windows-2025-${{ runner.arch }}-unicode-v1-${{ matrix.renderer }}-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.lock', 'Cargo.toml', 'vendor/iced_term/Cargo.toml', 'vendor/alacritty_terminal/Cargo.toml') }}
+
+      - name: Prepare pinned ConPTY runtime
+        run: ./tools/prepare-conpty.ps1 -TargetDirectory $env:CARGO_TARGET_DIR | ConvertTo-Json -Depth 4 | Set-Content "$env:EVIDENCE/runtime.json"
+
+      - name: Test adapter regressions natively
+        run: |
+          cargo test --locked -p iced_term --lib --no-default-features --features iced/${{ matrix.renderer }},iced/tokio 2>&1 | Tee-Object "$env:EVIDENCE/adapter-tests.txt"
+          exit $LASTEXITCODE
+
+      - name: Build synthetic release probe
+        run: cargo build --release --locked --example unicode_cells --no-default-features --features renderer-${{ matrix.renderer }}
+
+      - name: Check native ConPTY, Unicode pixels, cell clips, wrap and widget copy
+        run: |
+          $exe = (Resolve-Path "$env:CARGO_TARGET_DIR/release/examples/unicode_cells.exe").Path
+          Get-FileHash -LiteralPath $exe | Format-List | Out-String | Set-Content "$env:EVIDENCE/executable-hash.txt"
+          $probeOutput = Join-Path $env:EVIDENCE 'probe'
+          $process = Start-Process -FilePath $exe -ArgumentList ('"{0}"' -f $probeOutput) -NoNewWindow -PassThru -RedirectStandardOutput "$env:EVIDENCE/stdout.txt" -RedirectStandardError "$env:EVIDENCE/stderr.txt"
+          try {
+              if (-not $process.WaitForExit(90000)) {
+                  $process.Kill($true)
+                  $process.WaitForExit()
+                  throw 'Unicode cell probe timed out; terminated its synthetic process tree.'
+              }
+              if ($process.ExitCode -ne 0) { throw "Unicode cell probe failed with exit $($process.ExitCode)." }
+          } finally {
+              $process.Dispose()
+          }
+          if ((Get-Content "$probeOutput/completed.txt" -Raw).Trim() -ne 'passed') { throw 'Missing successful completion marker.' }
+          $events = @(Import-Csv "$probeOutput/events.csv")
+          if (@($events | Where-Object event -eq 'passed').Count -ne 1) { throw 'Missing Unicode pixel/copy checks.' }
+          $cleanup = @(Import-Csv "$probeOutput/cleanup.csv")
+          if ($cleanup.Count -ne 2 -or @($cleanup | Where-Object reason -ne 'Requested').Count -ne 0) { throw 'Missing two acknowledged backend cleanups.' }
+          $fixtures = @($events | Where-Object event -eq 'fixture')
+          if ($fixtures.Count -ne 2) { throw 'Missing two native fixture identities.' }
+          $remaining = @($fixtures | ForEach-Object {
+              $child = Get-Process -Id ([int]$_.a) -ErrorAction SilentlyContinue
+              if ($child) {
+                  try { if ($child.ProcessName -eq 'unicode_cells') { $child.Id } }
+                  finally { $child.Dispose() }
+              }
+          })
+          if ($remaining.Count -ne 0) { throw 'Synthetic fixture processes remained after acknowledged cleanup.' }
+          'Both synthetic fixture PIDs absent after cleanup.' | Set-Content "$env:EVIDENCE/process-cleanup.txt"
+          Get-Content "$probeOutput/renderer.txt", "$probeOutput/events.csv", "$probeOutput/cleanup.csv"
+
+      - name: Verify dependency inputs are unchanged
+        run: git diff --exit-code -- Cargo.toml Cargo.lock rust-toolchain.toml vendor/iced_term/Cargo.toml vendor/iced_term/Cargo.lock vendor/alacritty_terminal/Cargo.toml vendor/alacritty_terminal/Cargo.lock
+
+      - name: Retain synthetic evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: unicode-cells-${{ matrix.renderer }}
+          path: ${{ env.EVIDENCE }}
+          if-no-files-found: error
