@@ -221,6 +221,29 @@ impl Terminal {
         self.backend.input_status()
     }
 
+    /// Shared menu/shortcut paste path. Pass the clipboard read result and
+    /// preserve the originating session ID across any asynchronous read.
+    /// None returns ClipboardUnavailable. No contents are logged or retained.
+    ///
+    /// At admission: reject original UTF-8 over 1 MiB; normalize CRLF/CR/LF to
+    /// LF with bracketed paste enabled, CR otherwise; retain tabs/printable
+    /// Unicode and strip all other C0/C1 controls/DEL. Never append Enter.
+    /// Bracket markers and content enter the bounded FIFO atomically together.
+    pub fn paste(&mut self, text: Option<String>) -> Action {
+        let receipt = self.backend.queue_paste(text);
+        self.handle(Command::ProxyToBackend(receipt))
+    }
+
+    /// Advisory allocation-free whole-paste check for hosts. It reserves no
+    /// credit. Actual admission repeats it using the current model mode and
+    /// current remaining input credit, so stale checks cannot admit a prefix.
+    pub fn preflight_paste(
+        &self,
+        text: &str,
+    ) -> std::result::Result<(), crate::PasteError> {
+        self.backend.preflight_paste(text)
+    }
+
     /// Actual status when known; explicit cancellation/signals may have none.
     pub fn exit_code(&self) -> Option<i32> {
         self.backend.exit_code()
@@ -291,7 +314,10 @@ impl Terminal {
             },
         };
 
-        if !matches!(action, Action::InputRejected(_)) {
+        if !matches!(
+            action,
+            Action::InputRejected(_) | Action::PasteRejected(_)
+        ) {
             self.backend.sync_if_dirty();
             let changed = self.backend.take_render_dirty();
             if self.is_visible() && (changed || repaint) {

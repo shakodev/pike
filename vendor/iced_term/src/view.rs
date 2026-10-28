@@ -20,6 +20,8 @@ use iced_core::text::{Alignment, LineHeight, Shaping};
 mod cursor;
 mod glyphs;
 mod pointer;
+#[cfg(test)]
+mod paste_tests;
 use iced_core::widget::operation::{self, Focusable};
 use iced_graphics::core::widget::{tree, Tree};
 use iced_graphics::core::Widget;
@@ -205,14 +207,8 @@ impl<'a> TerminalView<'a> {
                 return Some(Command::Write(seq.as_bytes().to_vec()));
             },
             BindingAction::Paste => {
-                if let Some(data) = clipboard.read(ClipboardKind::Standard) {
-                    if let Err(error) =
-                        self.term.backend.preflight_input(data.len())
-                    {
-                        return Some(Command::InputRejected(error));
-                    }
-                    return Some(Command::Write(data.into_bytes()));
-                }
+                let data = clipboard.read(ClipboardKind::Standard);
+                return Some(self.term.backend.queue_paste(data));
             },
             BindingAction::ScrollHistory(scroll) => {
                 shell.capture_event();

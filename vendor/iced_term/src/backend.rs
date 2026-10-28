@@ -39,6 +39,9 @@ const URL_REGEX: &str = r#"(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|http
 #[derive(Debug, Clone)]
 pub enum Command {
     Write(Vec<u8>),
+    /// Bounded, owner-bound pending request. Accept only when handled in order.
+    Paste(crate::PasteRequest),
+    PasteRejected(crate::PasteError),
     Scroll(i32),
     ScrollHistory(HistoryScroll),
     Resize(Option<Size<f32>>, Option<Size<f32>>),
@@ -81,6 +84,8 @@ pub enum LinkAction {
 }
 
 pub struct Backend {
+    id: u64,
+    pending_paste: Arc<crate::paste::PasteSlot>,
     pub(crate) theme: Theme,
     pub(crate) window_focus: crate::WindowFocus,
     term: Arc<FairMutex<Term<EventProxy>>>,
@@ -155,22 +160,28 @@ impl Backend {
 
         let notifier = Notifier(pty_event_loop.channel());
 
+        let pending_paste = Arc::new(crate::paste::PasteSlot::default());
         let (completed, completion) = tokio::sync::watch::channel(None);
         let shutdown = crate::ShutdownHandle::new(
             notifier.0.clone(),
             completion_proxy.0.clone(),
             completion,
+            pending_paste.clone(),
         );
         let stopped_proxy = completion_proxy.clone();
+        let completed_paste = pending_paste.clone();
         pty_event_loop.spawn_disposing(
             move || stopped_proxy.0.complete_source(),
             move |result| {
+                completed_paste.cancel();
                 completed.send_replace(Some(result));
                 completion_proxy.0.backend_completed(result);
             },
         );
 
         Ok(Self {
+            id,
+            pending_paste,
             theme: Theme::default(),
             window_focus: crate::WindowFocus::default(),
             term: term.clone(),
@@ -204,6 +215,9 @@ impl Backend {
         if let Command::InputRejected(error) = cmd {
             return Action::InputRejected(error);
         }
+        if let Command::PasteRejected(error) = cmd {
+            return Action::PasteRejected(error);
+        }
         if let Command::EventBridge(event) = cmd {
             return match event {
                 EventBridgeEvent::Error(error) => {
@@ -227,7 +241,10 @@ impl Backend {
                 ) | Command::Resize(_, _)
             )
         {
-            return if matches!(cmd, Command::Write(_)) {
+            return if matches!(cmd, Command::Paste(_)) {
+                self.pending_paste.cancel();
+                Action::PasteRejected(crate::InputError::Closed.into())
+            } else if matches!(cmd, Command::Write(_)) {
                 Action::InputRejected(crate::InputError::Closed)
             } else {
                 Action::Ignore
@@ -241,6 +258,9 @@ impl Backend {
                 unreachable!("handled before terminal lock")
             },
             Command::InputRejected(_) => {
+                unreachable!("handled before terminal lock")
+            },
+            Command::PasteRejected(_) => {
                 unreachable!("handled before terminal lock")
             },
             Command::EventBridge(_) => {
@@ -310,6 +330,39 @@ impl Backend {
                 {
                     term.scroll_display(Scroll::Bottom);
                     self.snapshot_dirty = true;
+                }
+            },
+            Command::Paste(request) => {
+                match request.take(self.id) {
+                    Ok(Some(text)) => {
+                        let bracketed =
+                            term.mode().contains(TermMode::BRACKETED_PASTE);
+                        action = match crate::paste::prepare(
+                            &text,
+                            bracketed,
+                            |len| self.preflight_input(len),
+                        ) {
+                            Ok(bytes) => {
+                                match self.notifier.0.send_input(&bytes) {
+                                    Ok(()) => {
+                                        if !bytes.is_empty()
+                                            && term.grid().display_offset() != 0
+                                        {
+                                            term.scroll_display(Scroll::Bottom);
+                                            self.snapshot_dirty = true;
+                                        }
+                                        Action::Ignore
+                                    },
+                                    Err(error) => {
+                                        Action::PasteRejected(error.into())
+                                    },
+                                }
+                            },
+                            Err(error) => Action::PasteRejected(error),
+                        };
+                    },
+                    Ok(None) => {}, // replayed or cancelled request
+                    Err(error) => action = Action::PasteRejected(error),
                 }
             },
             Command::Scroll(delta) => {
@@ -539,6 +592,30 @@ impl Backend {
         bytes: usize,
     ) -> std::result::Result<(), crate::InputError> {
         self.notifier.0.preflight_input(bytes)
+    }
+
+    pub(crate) fn preflight_paste(
+        &self,
+        text: &str,
+    ) -> std::result::Result<(), crate::PasteError> {
+        let bracketed =
+            self.term.lock().mode().contains(TermMode::BRACKETED_PASTE);
+        let len = crate::paste::wire_len(text, bracketed)?;
+        self.preflight_input(len).map_err(Into::into)
+    }
+
+    /// Bound pending UI payloads separately; this is not writer admission.
+    pub(crate) fn queue_paste(&self, text: Option<String>) -> Command {
+        let result = (|| -> std::result::Result<crate::PasteRequest, crate::PasteError> {
+            let text = text.ok_or(crate::PasteError::ClipboardUnavailable)?;
+            if self.event_bridge_failed { return Err(crate::InputError::Closed.into()); }
+            self.preflight_paste(&text)?;
+            self.pending_paste.stage(self.id, text)
+        })();
+        match result {
+            Ok(request) => Command::Paste(request),
+            Err(error) => Command::PasteRejected(error),
+        }
     }
 
     fn request_shutdown(&self) {

@@ -14,6 +14,7 @@ pub enum Action {
     CursorBlinkingChanged(bool),
     EventBridgeError(crate::EventBridgeError),
     InputRejected(crate::InputError),
+    PasteRejected(crate::PasteError),
     #[default]
     Ignore,
 }

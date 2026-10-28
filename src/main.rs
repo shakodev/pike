@@ -147,6 +147,9 @@ impl App {
                         Action::InputRejected(error) => {
                             self.notice = Some(format!("Input was not sent: {error}"));
                         }
+                        Action::PasteRejected(error) => {
+                            self.notice = Some(error.to_string());
+                        }
                         Action::EventBridgeError(_) => {
                             self.notice = Some(
                                 "Terminal output stopped. Close and reopen the terminal.".into(),
@@ -331,6 +334,57 @@ mod tests {
         );
         app.exiting = true;
         assert!(app.copy_target(ids.1.get()).is_none());
+        executor.block_on(async {
+            tokio::time::timeout(Duration::from_secs(10), app.launches.shutdown())
+                .await
+                .unwrap();
+        });
+    }
+
+    #[test]
+    fn failed_keyboard_paste_is_visible_without_changing_session_or_input() {
+        let executor = SharedExecutor::new().unwrap();
+        let mut app = App::default();
+        let launch = starting(&mut app, &executor);
+        let ids = (launch.request, launch.session);
+        let ready = executor.block_on(launch.receive()).unwrap();
+        drop(app.update(Message::Launched(ids.0, ids.1, Ok(ready))));
+        let id = ids.1.get();
+        let before = app.copy_target(id).unwrap().input_status();
+        // These are the same session-scoped commands published by the widget
+        // for failed Ctrl+Shift+V / Shift+Insert clipboard reads or preflight.
+        for error in [
+            iced_term::PasteError::ClipboardUnavailable,
+            iced_term::PasteError::TooLarge {
+                bytes: iced_term::PASTE_BYTE_LIMIT + 1,
+                limit: iced_term::PASTE_BYTE_LIMIT,
+            },
+            iced_term::PasteError::Pending,
+            iced_term::PasteError::Input(iced_term::InputError::Full {
+                requested: 1024,
+                available: 0,
+            }),
+            iced_term::PasteError::Input(iced_term::InputError::Closed),
+        ] {
+            drop(app.update(Message::Terminal(Event::BackendCall(
+                id,
+                iced_term::BackendCommand::PasteRejected(error),
+            ))));
+            assert_eq!(app.notice.as_deref(), Some(error.to_string().as_str()));
+            let terminal = app.copy_target(id).unwrap();
+            assert_eq!(terminal.id, id);
+            assert_eq!(terminal.input_status(), before);
+        }
+        let visible = app.notice.clone();
+        drop(app.update(Message::Terminal(Event::BackendCall(
+            id + 1,
+            iced_term::BackendCommand::PasteRejected(iced_term::PasteError::ClipboardUnavailable),
+        ))));
+        assert_eq!(
+            app.notice, visible,
+            "stale-session paste must not replace the notice"
+        );
+        app.close_target();
         executor.block_on(async {
             tokio::time::timeout(Duration::from_secs(10), app.launches.shutdown())
                 .await
