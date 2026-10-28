@@ -66,9 +66,11 @@ redacted errors; full menu chrome remains #33.
 ## Targeted local verification
 
 Use stable Rust, `CARGO_BUILD_JOBS=4` and this worktree's existing target directory.
-The relevant checks are the application controller/focus tests, its binary and
-the opt-in fixture; unchanged workspace/launch/vendor suites are not repeated.
-The exact commands/results and final source head are recorded in the PR/report:
+The original host integration checks cover the application controller/focus
+tests, its binary and the opt-in fixture; unchanged workspace/launch/vendor
+suites were not repeated for that integration. The cancellation correction below
+also changes and checks the launch pool. Commands/results and source heads are
+recorded in the reports:
 
 ```sh
 cargo fmt --package pike -- --check
@@ -121,3 +123,67 @@ An initial macOS token fixture canceled a child with a partial tty line and hit
 its unchanged10s cleanup deadline. The passing fixture completes that synthetic
 line before awaiting native completion; partial-line Unix cancellation remains
 a limitation, with no timeout increase or unrelated Unix repair in this change.
+
+## PR72 cancellation correction — author round 1
+
+The [independent review](https://github.com/shakodev/pike/pull/72#issuecomment-6481193167)
+reproduced cancellation during native preparation: `LaunchPool` returned
+`Err(Canceled)` before `ShutdownHandle::wait`, so the host removed its Closing
+reservation and owner while native disposal was still pending. The pool's native
+permits and aggregate shutdown were already correct; this was premature host
+acknowledgement, not an unbounded orphan or global shutdown failure.
+
+The canceled-success branch now awaits the existing native disposal handle and
+releases its job/session permits before sending that cancellation result. Thus
+the host keeps its Starting owner and Closing model slot until the receipt is
+safe to acknowledge, and a retry can acquire the released capacity. Cancellation
+before native creation and genuine preparation failures retain their immediate
+error path. No timer, polling, queue, runtime, vendor patch or PTY implementation
+is added to production; other handoff and attachment paths are unchanged.
+
+`src/app/tests/cancellation.rs` exercises the real pool, model and native backend
+through a test-only preparation gate. Its Unix child opens a FIFO, ignores HUP,
+then announces readiness. The test closes the pane during preparation and holds
+native cleanup until it closes the FIFO's sole writer; fixture teardown also
+releases that gate on unwind. This proves delayed disposal without depending on
+a fixed child sleep. While cleanup is pending, the result remains pending, both
+host entries and the sole model/native capacity slots remain owned, and wrong
+request/premature disposal receipts cannot release them. After actual completion,
+the error settles once, duplicate/late receipts leave the replacement untouched,
+retry receives fresh IDs, and aggregate shutdown leaves both registries empty.
+The test keeps the existing ten-second deadline; readiness sampling and the
+100ms pending-result observation exist only in the test.
+
+Local verification on macOS arm64, stable Rust, `CARGO_BUILD_JOBS=4`, default wgpu,
+and this worktree's target directory:
+
+```sh
+cargo test --locked --lib app::tests::cancellation:: -- --test-threads=1 --nocapture
+cargo test --locked --lib app:: -- --test-threads=1
+cargo test --locked --lib launch:: -- --test-threads=1
+cargo clippy --locked --lib --tests -- -D warnings
+cargo check --locked --lib --target x86_64-pc-windows-msvc
+cargo fmt --package pike -- --check
+git diff --check
+```
+
+The first command failed on the old worker ordering with “cancellation was
+delivered before disposal,” after releasing and awaiting native cleanup. After
+the fix, the host run passed 15 tests, including the new regression; its one
+graphics test stayed ignored here. All 21 regular launch tests passed, including
+pre-creation cancellation, actual preparation failure, delayed success, retry,
+reservation identity, attachment races and aggregate shutdown; the one opt-in
+performance measurement stayed ignored. Affected library/test Clippy,
+Windows-target library compilation, formatting and whitespace checks passed.
+Logs and exact head provenance are retained under `target/issue-23/fix-round1/`.
+
+The earlier real-widget paste test, four GUI scenarios, binary/example lint and
+release-build evidence are reused for their unchanged paths; they were not rerun
+or relabeled as new-head evidence. No vendor code changed, so no vendor suite was
+required. No Actions run was enabled, dispatched or rerun. The FIFO regression
+is Unix-only and Windows-target compilation is not native ConPTY verification;
+Windows runtime/physical keyboard/DPI and release resource budgets remain
+unmeasured for this correction. The reviewer also reproduced the partial-line
+Unix timeout on the equivalent main shutdown path and classified it as a
+pre-existing intermittent limitation; this correction does not repair it or
+increase its deadline. #13/#14 physical holds remain nonblocking.

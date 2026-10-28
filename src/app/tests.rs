@@ -8,6 +8,8 @@ use std::time::Duration;
 
 const DEADLINE: Duration = Duration::from_secs(10);
 
+#[cfg(unix)]
+mod cancellation;
 mod paste;
 
 fn profile(script: &str) -> BackendSettings {
