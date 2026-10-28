@@ -58,6 +58,7 @@ jobs:
             ~/.cargo/git/db
             target
           key: Windows-2025-${{ runner.arch }}-msvc-v2-${{ matrix.renderer }}-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.lock', 'Cargo.toml', 'vendor/iced_term/Cargo.toml', 'vendor/alacritty_terminal/Cargo.toml') }}
+          restore-keys: Windows-2025-${{ runner.arch }}-msvc-v2-${{ matrix.renderer }}-${{ hashFiles('rust-toolchain.toml') }}-
 
       - name: Verify renderer and runtime feature isolation
         run: ./tools/test-feature-profiles.ps1

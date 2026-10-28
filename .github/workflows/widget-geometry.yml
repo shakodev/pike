@@ -58,6 +58,7 @@ jobs:
             ~/.cargo/git/db
             target/issue-13
           key: Windows-2025-${{ runner.arch }}-widget-v1-${{ matrix.renderer }}-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.lock', 'Cargo.toml', 'vendor/iced_term/Cargo.toml', 'vendor/alacritty_terminal/Cargo.toml') }}
+          restore-keys: Windows-2025-${{ runner.arch }}-widget-v1-${{ matrix.renderer }}-${{ hashFiles('rust-toolchain.toml') }}-
 
       - name: Prepare pinned ConPTY runtime
         run: ./tools/prepare-conpty.ps1 -TargetDirectory $env:CARGO_TARGET_DIR | ConvertTo-Json -Depth 4 | Set-Content "$env:EVIDENCE/runtime.json"

@@ -99,6 +99,23 @@ waits for the target thread's verified active layout before any scan code.
 specifies a posted message with an ignored return value. The five-second layout
 verification deadline and all byte expectations remain unchanged.
 
+Posting alone did not fix wgpu: [run 40752360287](https://github.com/shakodev/pike/actions/runs/40752360287)
+still hung after switching to German, with the five-byte US/Alt prefix received
+and no AltGr write. Tiny-skia passed the entire run. This exposed the pinned
+wgpu WGL backend's hidden window thread, which waits on a channel without a
+message pump (`wgpu-hal 27.0.4`, `src/gles/wgl.rs:359–417`). This matches
+[upstream's native language-switch hang](https://github.com/gfx-rs/wgpu/issues/10504)
+and [the proposed upstream fix](https://github.com/gfx-rs/wgpu/pull/10505).
+
+The native wgpu profile now uses Iced's existing `wgpu-bare` feature and an
+optional exact-pinned feature anchor to the already resolved wgpu 27.0.1.
+DX12, Vulkan and Metal remain enabled; GLES/WGL and browser backends are disabled.
+No new package/version or vendored renderer fork is introduced. The lockfile
+adds only the root dependency edge. Feature guards reject defaults/GLES/OpenGL
+leakage and require the native renderer features. This fixes the application
+profile too, rather than masking the failure with a test-only environment override.
+The earlier wgpu idle numbers above describe the pre-fix all-backend profile.
+
 Both [native geometry jobs](https://github.com/shakodev/pike/actions/runs/40750252425)
 pass, as do the [Windows 2022/2025 ConPTY audits](https://github.com/shakodev/pike/actions/runs/40750256974).
 Local bounded-input/stalled-reader and 30-scenario shutdown probes pass as well:

@@ -1,5 +1,8 @@
 # Issue #14 — legacy keyboard encoding and binding precedence
 
+See the [2026-10-28 native follow-up](issues-13-14-follow-up.md) for corrected
+Windows writer/probe races, repeated native results and remaining verification.
+
 Based on main `fb9e5fc`, independently of draft PR #62. AGENTS.md and issue #14
 with comments (none) were read. The referenced PLAN.md was absent from the
 checkout and Documents/Downloads planning folders; the issue is self-contained.
