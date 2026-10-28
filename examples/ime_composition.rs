@@ -293,12 +293,16 @@ fn verify(
             renderer,
             iced::Event::Window(iced::window::Event::Rescaled(scale)),
         )?;
-        let InputMethod::Enabled { cursor, .. } = scene.route(a, renderer, redraw())? else {
+        let InputMethod::Enabled { cursor, preedit: Some(preedit), .. } = scene.route(a, renderer, redraw())? else {
             return Err(io::Error::other("DPI IME disabled"));
         };
         check(
             cursor == resized,
             "logical IME anchor applied monitor scale twice",
+        )?;
+        check(
+            preedit.content == "ni" && a.is_composing() && admitted(a) == 0,
+            "scale refresh cancelled or wrote active composition",
         )?;
     }
     scene.route(a, renderer, ime(Ime::Preedit(String::new(), None)))?;
