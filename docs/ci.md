@@ -24,9 +24,10 @@ application's user data. Its key contains the Windows image family, runner
 architecture, target ABI, cache schema version, renderer, and `hashFiles`
 digests of `rust-toolchain.toml`, `Cargo.lock`, and root/vendor manifests.
 
-Changing these dependency inputs invalidates the key. There are no broad restore
-prefixes across different lockfiles or toolchains. Cargo still checks inputs
-and recompiles changed application sources after a cache hit. Bump `v2` in
+Changing these dependency inputs invalidates the exact key. A fallback prefix
+allows reuse within the same image, architecture, ABI, renderer and toolchain;
+Cargo still checks dependency/features/source fingerprints and recompiles
+changed inputs after a cache restore. Bump `v2` in
 the key if the cache layout or build settings change. GitHub's normal branch
 and pull-request cache scoping applies.
 
@@ -69,6 +70,12 @@ another session, and cancellation/cleanup under ConPTY on CI as well.
 `tools/test-feature-profile-guard.ps1` supplies synthetic Cargo trees to verify
 that features on earlier package versions cannot be hidden by later entries,
 and that renderer dependencies leaking into the other profile are rejected.
+
+The native wgpu profile uses `iced/wgpu-bare` with exact-pinned wgpu feature
+selection for DX12, Vulkan and Metal. The feature guard requires DX12/Vulkan/WGSL
+and rejects defaults, GLES/WGL and OpenGL dependency leakage. This prevents the
+pinned WGL worker's input-language-change deadlock; see the
+[native keyboard follow-up](verification/issues-13-14-follow-up.md).
 
 Alacritty 0.25.1 is another explicit workspace member, patched for actual-writer
 byte accounting. CI runs `cargo test --locked -p alacritty_terminal` (145 unit,
