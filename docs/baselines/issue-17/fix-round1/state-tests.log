@@ -9,4 +9,3 @@ test view::state_tests::same_sized_tab_replacements_reset_all_input_state_and_re
 test view::state_tests::tab_replacement_does_not_discard_session_selection_or_viewport ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 105 filtered out; finished in 0.15s
-

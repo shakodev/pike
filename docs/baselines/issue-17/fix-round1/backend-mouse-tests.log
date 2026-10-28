@@ -15,4 +15,3 @@ test backend::mouse_history_tests::local_history_is_no_input_in_alternate_screen
 test backend::mouse_history_tests::legacy_wide_release_and_encoding_transition_cleanup_are_exactly_once ... ok
 
 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 100 filtered out; finished in 0.62s
-

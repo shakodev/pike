@@ -13,4 +13,3 @@ test view::pointer_tests::fractional_wheel_is_captured_and_hover_does_not_change
 test view::pointer_tests::all_three_buttons_pair_motion_and_clamped_outside_releases_without_orphans ... ok
 
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 101 filtered out; finished in 0.15s
-
