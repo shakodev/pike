@@ -3,9 +3,13 @@
 #[path = "support/cursor_input.rs"]
 #[allow(dead_code)]
 mod console_input;
+#[path = "mouse_history/release_bounds.rs"]
+mod release_bounds;
 #[path = "compatibility/report.rs"]
 #[allow(dead_code)]
 mod report;
+#[path = "mouse_history/row.rs"]
+mod row;
 use iced::advanced::renderer::Headless;
 use iced::advanced::subscription::into_recipes;
 use iced::advanced::widget::{Tree, operation};
@@ -47,17 +51,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ))
         .ok_or("no event-fixture renderer")?;
     fs::write(out.join("renderer.txt"), renderer.name())?;
-    let mut term = Terminal::new(
-        170001,
-        iced_term::settings::Settings {
-            backend: iced_term::settings::BackendSettings {
-                program: std::env::current_exe()?.to_string_lossy().into_owned(),
-                args: vec!["--fixture".into()],
-                ..Default::default()
-            },
-            ..Default::default()
-        },
-    )?;
+    let mut term = raw_terminal(170001)?;
     let mut pid = 0;
     let result = run(&ex, &renderer, &mut term, &out, &mut pid);
     let shutdown = term.shutdown_handle();
@@ -73,6 +67,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         format!("session,reason,pid\n170001,Requested,{pid}\n"),
     )?;
     result?;
+    row::run(&ex, &renderer, &out)?;
     if let Some(vim) = args.get(2) {
         vim_probe(&ex, &renderer, &out, Path::new(vim))?;
     } else {
@@ -83,6 +78,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     fs::write(out.join("completed.txt"), "passed\n")?;
     Ok(())
+}
+fn raw_terminal(id: u64) -> io::Result<Terminal> {
+    Terminal::new(
+        id,
+        iced_term::settings::Settings {
+            backend: iced_term::settings::BackendSettings {
+                program: std::env::current_exe()?.to_string_lossy().into_owned(),
+                args: vec!["--fixture".into()],
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+    )
 }
 fn fixture() -> io::Result<()> {
     #[cfg(windows)]
@@ -255,6 +263,10 @@ fn result(ex: &SharedExecutor, term: &mut Terminal, id: usize) -> io::Result<()>
         reply.ends_with(":ok"),
         "raw-byte fixture disagreed with exact oracle",
     )
+}
+fn accepted_bytes(term: &Terminal) -> usize {
+    let status = term.input_status();
+    status.written_bytes + status.outstanding_bytes
 }
 fn resize(term: &mut Terminal, cols: usize, rows: usize) -> Rectangle {
     let c = term.renderable_content().unwrap().terminal_size;
@@ -438,6 +450,7 @@ fn run(
         result(ex, term, tag)?;
         writeln!(log, "{mode},{},passed", expected.len())?;
     }
+    release_bounds::run(ex, r, term, &mut serial, &mut log)?;
     b = resize(term, 12, 5);
     control(ex, term, &mut serial, "mode sgr")?;
     let expected = b"\x1b[<0;4;3MK\x1b[<0;4;3m";
@@ -529,7 +542,7 @@ fn run(
     )?;
     control(ex, term, &mut serial, "mode sgr")?;
     control(ex, term, &mut serial, "quiet")?;
-    let before = term.input_status().queued_bytes;
+    let before = accepted_bytes(term);
     scene.queue(
         term,
         r,
@@ -558,7 +571,7 @@ fn run(
     );
     scene.apply(term)?;
     check(
-        term.input_status().queued_bytes == before,
+        accepted_bytes(term) == before,
         "Shift selection sent TUI bytes",
     )?;
     check(

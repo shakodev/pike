@@ -32,6 +32,10 @@ impl Session {
         b.fixture_vt(vt.as_bytes());
         Self(Some(b))
     }
+    fn accepted_bytes(&self) -> usize {
+        let status = self.input_status();
+        status.written_bytes + status.outstanding_bytes
+    }
     fn first_row(&self) -> String {
         self.term
             .lock()
@@ -114,7 +118,7 @@ fn output_retains_scrolled_content_and_accepted_typing_returns_to_bottom() {
 fn local_history_is_no_input_in_alternate_screen_and_wheel_arrows_are_bounded()
 {
     let mut b = Session::new("\x1b[?1049h\x1b[?1007h");
-    let queued = b.input_status().queued_bytes;
+    let queued = b.accepted_bytes();
     for scroll in [
         HistoryScroll::Lines(20),
         HistoryScroll::PageUp,
@@ -124,10 +128,10 @@ fn local_history_is_no_input_in_alternate_screen_and_wheel_arrows_are_bounded()
     ] {
         b.handle(Command::ScrollHistory(scroll));
     }
-    assert_eq!(b.input_status().queued_bytes, queued);
+    assert_eq!(b.accepted_bytes(), queued);
     assert_eq!(b.term.lock().grid().display_offset(), 0);
     b.handle(Command::Scroll(i32::MAX));
-    assert_eq!(b.input_status().queued_bytes - queued, 256 * 3);
+    assert_eq!(b.accepted_bytes() - queued, 256 * 3);
 }
 #[test]
 fn paired_releases_and_focus_hide_cleanup_are_idempotent_and_session_owned() {
@@ -140,9 +144,9 @@ fn paired_releases_and_focus_hide_cleanup_are_idempotent_and_session_owned() {
         point,
         true,
     ));
-    let before = b.input_status().queued_bytes;
+    let before = b.accepted_bytes();
     assert_eq!(b.handle(Command::FocusChanged(false)), Action::Ignore);
-    let after = b.input_status().queued_bytes;
+    let after = b.accepted_bytes();
     assert_eq!(after - before, b"\x1b[<18;4;3m".len());
     b.handle(Command::FocusChanged(false));
     b.handle(Command::MouseReport(
@@ -151,10 +155,10 @@ fn paired_releases_and_focus_hide_cleanup_are_idempotent_and_session_owned() {
         point,
         false,
     ));
-    assert_eq!(b.input_status().queued_bytes, after);
-    assert_eq!(other.input_status().queued_bytes, 0);
+    assert_eq!(b.accepted_bytes(), after);
+    assert_eq!(other.accepted_bytes(), 0);
     other.handle(Command::FocusChanged(false));
-    assert_eq!(other.input_status().queued_bytes, 0);
+    assert_eq!(other.accepted_bytes(), 0);
 }
 #[test]
 fn mouse_tracking_enablement_and_invalid_coordinates_cannot_write_or_wrap() {
@@ -166,7 +170,7 @@ fn mouse_tracking_enablement_and_invalid_coordinates_cannot_write_or_wrap() {
         p,
         true,
     ));
-    assert_eq!(b.input_status().queued_bytes, 0);
+    assert_eq!(b.accepted_bytes(), 0);
     b.fixture_vt(b"\x1b[?1000h");
     b.handle(Command::MouseReport(
         MouseButton::LeftButton,
@@ -174,12 +178,48 @@ fn mouse_tracking_enablement_and_invalid_coordinates_cannot_write_or_wrap() {
         Point::new(Line(-1), Column(0)),
         true,
     ));
-    assert_eq!(b.input_status().queued_bytes, 0);
+    assert_eq!(b.accepted_bytes(), 0);
     b.handle(Command::MouseReport(
         MouseButton::LeftButton,
         Modifiers::empty(),
         Point::new(Line(i32::MAX), Column(usize::MAX)),
         true,
     ));
-    assert_eq!(b.input_status().queued_bytes, b"\x1b[<0;12;4M".len());
+    assert_eq!(b.accepted_bytes(), b"\x1b[<0;12;4M".len());
+}
+
+#[test]
+fn legacy_wide_release_and_encoding_transition_cleanup_are_exactly_once() {
+    let mut b = Session::new("\x1b[?1000h");
+    b.handle(Command::Resize(Some(Size::new(300.0, 230.0)), None));
+    let inside = Point::new(Line(2), Column(3));
+    let outside = Point::new(Line(229), Column(299));
+    let report = |point, pressed| {
+        Command::MouseReport(
+            MouseButton::LeftButton,
+            Modifiers::empty(),
+            point,
+            pressed,
+        )
+    };
+    // Unsupported presses must not synthesize an orphan release at the edge.
+    b.handle(report(outside, true));
+    b.handle(report(outside, false));
+    assert_eq!(b.accepted_bytes(), 0);
+    b.handle(report(inside, true));
+    b.handle(report(outside, false));
+    assert_eq!(b.accepted_bytes(), 12);
+    b.handle(report(outside, false));
+    b.handle(Command::FocusChanged(false));
+    assert_eq!(b.accepted_bytes(), 12);
+    // A valid SGR press may be outside the subsequently selected encoding.
+    b.fixture_vt(b"\x1b[?1006h");
+    b.handle(report(outside, true));
+    let before = b.accepted_bytes();
+    b.fixture_vt(b"\x1b[?1006l");
+    b.handle(Command::FocusChanged(false));
+    assert_eq!(b.accepted_bytes(), before + 6);
+    b.handle(report(outside, false));
+    b.handle(Command::FocusChanged(false));
+    assert_eq!(b.accepted_bytes(), before + 6);
 }

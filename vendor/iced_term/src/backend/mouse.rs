@@ -24,7 +24,7 @@ fn index(button: MouseButton) -> Option<u8> {
 pub(super) fn encode(
     button: MouseButton,
     modifiers: Modifiers,
-    point: Point,
+    mut point: Point,
     pressed: bool,
     mode: TermMode,
 ) -> Option<Vec<u8>> {
@@ -75,8 +75,16 @@ pub(super) fn encode(
     }
     let utf8 = mode.contains(TermMode::UTF8_MOUSE);
     let limit = if utf8 { 2015 } else { 223 };
-    if point.line.0 >= limit || point.column.0 >= limit as usize {
-        return None;
+    if pressed {
+        if point.line.0 >= limit || point.column.0 >= limit as usize {
+            return None;
+        }
+    } else {
+        // An admitted press needs a representable release even after a drag
+        // beyond legacy bounds or an SGR -> legacy encoding change. Clamp only
+        // releases; unsupported presses/motion/wheel must remain unreported.
+        point.line.0 = point.line.0.min(limit - 1);
+        point.column.0 = point.column.0.min(limit as usize - 1);
     }
     let button = if pressed { code } else { 3 };
     let mut bytes = vec![b'\x1b', b'[', b'M', 32 + button + mods];
@@ -388,5 +396,42 @@ mod tests {
             TermMode::MOUSE_DRAG
         )
         .is_none());
+    }
+
+    #[test]
+    fn mandatory_release_clamps_both_legacy_limits_without_changing_presses() {
+        for (flags, expected) in [
+            (TermMode::empty(), &b"\x1b[M#\xff\xff"[..]),
+            (TermMode::UTF8_MOUSE, &b"\x1b[M#\xdf\xbf\xdf\xbf"[..]),
+        ] {
+            let mode = TermMode::MOUSE_MOTION | flags;
+            let outside = point(usize::MAX, i32::MAX);
+            for button in [
+                MouseButton::LeftButton,
+                MouseButton::LeftMove,
+                MouseButton::NoneMove,
+                MouseButton::ScrollDown,
+            ] {
+                assert!(encode(
+                    button,
+                    Modifiers::empty(),
+                    outside,
+                    true,
+                    mode
+                )
+                .is_none());
+            }
+            assert_eq!(
+                encode(
+                    MouseButton::LeftButton,
+                    Modifiers::empty(),
+                    outside,
+                    false,
+                    mode
+                )
+                .unwrap(),
+                expected
+            );
+        }
     }
 }

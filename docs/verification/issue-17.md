@@ -119,3 +119,93 @@ adapter behavior, not hardware/OS delivery. No Windows claim is inferred from
 earlier issue artifacts or Mac execution. Actions was not enabled, dispatched
 or rerun; unavailable Windows/manual coverage remains explicit for review.
 No idle CPU, RAM or latency improvement is claimed without measurements.
+
+## PR71 author fix round 1
+
+Independent review of `11f01214afabd120694d6b40f85c8a9e110ea001` found two
+blocking counterexamples despite the initial scoped tests passing: the actual
+Iced Row could retain focus in both children after a left-child click, and a
+legacy release beyond column 222 could be discarded after an admitted press.
+The review's public probe sources/evidence were inspected read-only; its old-head
+verdict and retained artifacts are preserved. No claim is made that the fixes
+have already received independent review.
+
+This round integrates merged main
+`713020604d2df41de84d31797eb7128818521eff` (R16 paste). The merge conflicts only
+required retaining both the pointer/paste test module declarations and patch
+ledger entries. Existing paste behavior remains intact. Main was fetched again
+before final validation and remained at that SHA. Issue 13/14 refs, retained
+artifacts, physical holds, and the owner's scheduling waiver are unchanged.
+
+The pinned `iced_widget` 0.14.2 Row iterates every child with the same Shell.
+Previously, the captured-event return skipped the later child's outside-click
+unfocus. The widget now permits focus/release cleanup despite capture, while a
+consumed inside click cannot acquire focus or begin a new unowned gesture.
+Input remains deferred through the existing ordered BackendCall path; keyboard
+encoding, focus/window ownership, selection authority and hovered-wheel policy
+are preserved.
+
+Mandatory legacy/UTF8 release encoding clamps to the protocol's last
+representable column/row (zero-based 222/2014). This applies both to UI release
+and session-owned focus cleanup, including an SGR-to-legacy encoding transition.
+Accepted presses therefore terminate immediately at the peer. Normal reports
+are unchanged, unsupported presses/motion/wheels are still rejected, orphan
+releases remain silent, and admission failures still use the scoped existing
+protocol-reply shutdown policy. No local-only clearing, second queue, new task,
+production timer or dependency was introduced.
+
+Public regression modules in `examples/mouse_history/` exercise:
+
+- The actual two-terminal Row, public focus operations, one shared window owner,
+  and a raw PTY peer per session. Both child orders cover local selection and
+  SGR tracking, deferred click→key→release, consumed inside clicks, consumed
+  outside cleanup, and hovered-wheel routing. Each plain `k` has exactly the
+  expected single session target; the peer also checks exact bytes and absence
+  of stray input.
+- A 300-column, 230-row pane with legacy releases outside both encoding bounds,
+  CursorLeft cleanup, rejected unsupported press/wheel and orphan release,
+  and SGR-to-legacy UI release/backend focus cleanup. The peer requires an
+  immediate exact release; subsequent releases/blur cannot add bytes.
+
+The new backend test exposed a test-only race in older assertions that compared
+currently queued bytes while the real writer could drain them. The affected
+mouse tests/fixture now compare accepted bytes (written + outstanding from one
+status snapshot), with raw-peer byte assertions retained. The initial targeted
+run failed that assertion; the corrected assertions and implementation passed.
+
+### Local checks for this round
+
+All verification ran locally on macOS 26.7.1, aarch64, stable rustc 1.97.1,
+`CARGO_BUILD_JOBS=4`, `CARGO_TARGET_DIR="$PWD/target/issue-18"`.
+
+```sh
+cargo fmt -p iced_term -p pike -- --check
+cargo clippy --locked -p iced_term --lib --tests --no-default-features --features iced/tiny-skia,iced/tokio -- -D warnings
+cargo clippy --locked --example mouse_history --no-default-features --features renderer-tiny-skia -- -D warnings
+cargo test --locked -p iced_term --lib --no-default-features --features iced/tiny-skia,iced/tokio backend::mouse
+cargo test --locked -p iced_term --lib --no-default-features --features iced/tiny-skia,iced/tokio view::pointer
+cargo test --locked -p iced_term --lib --no-default-features --features iced/tiny-skia,iced/tokio view::state_tests
+cargo test --locked -p iced_term --lib --no-default-features --features iced/tiny-skia,iced/tokio view::paste_tests
+cargo build --locked --release --example mouse_history --no-default-features --features renderer-tiny-skia
+./target/issue-18/release/examples/mouse_history "$PWD/target/issue-17/fix-round1/public-probe" /usr/bin/vim
+```
+
+Formatting and both scoped Clippy checks passed. Explicit affected vendor test
+filters passed **10 + 9 + 5 + 1 = 25 tests**. The last filter verifies the merged
+paste widget path after conflict resolution. The release fixture passed **18
+raw/history cases and 12 Row cases**; actual Vim wrote exactly
+`alpha\nbeta!\ngamma\n` and exited with code 0. All three raw peers acknowledged
+Requested completion; Vim acknowledged ChildExit; all four recorded PIDs were
+checked absent. [Retained round-1 results, source hashes and cleanup evidence](../baselines/issue-17/fix-round1/)
+identify the source used for these checks. Original round-0 evidence is retained.
+
+Scope remains mouse/focus event routing and byte encoding, so no unrelated
+workspace/Alacritty suite, renderer matrix, release-app benchmark, or Rust
+rebuild for the subsequent documentation-only update was needed. The source
+checks were not rerun after passing without a relevant change. CI stayed OFF:
+no Actions enablement, dispatch, rerun, or replacement remote CI.
+
+Current-head Windows/ConPTY, physical keyboard/mouse/wheel, monitor DPI,
+touchpad natural-scroll preferences and real OS window leave/release delivery
+remain **unverified**. Mac headless public-widget events and raw PTY/Vim results
+do not establish those behaviors. No RAM/CPU/latency improvement is claimed.

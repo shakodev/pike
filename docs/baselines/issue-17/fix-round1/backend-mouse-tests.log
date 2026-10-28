@@ -1,0 +1,18 @@
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/vendor/iced_term)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.12s
+     Running unittests src/lib.rs (target/issue-18/debug/deps/iced_term-6820d860b1c553f1)
+
+running 10 tests
+test backend::mouse::tests::encoding_flags_alone_do_not_enable_tracking_or_drag ... ok
+test backend::mouse::tests::mandatory_release_clamps_both_legacy_limits_without_changing_presses ... ok
+test backend::mouse::tests::exact_sgr_buttons_modifiers_motion_release_and_wheel ... ok
+test backend::mouse::tests::legacy_utf8_boundaries_and_negative_history_coordinates ... ok
+test backend::mouse_history_tests::mouse_tracking_enablement_and_invalid_coordinates_cannot_write_or_wrap ... ok
+test backend::mouse_history_tests::output_retains_scrolled_content_and_accepted_typing_returns_to_bottom ... ok
+test backend::mouse_history_tests::history_pages_bounds_and_extreme_lines_use_the_authoritative_model ... ok
+test backend::mouse_history_tests::paired_releases_and_focus_hide_cleanup_are_idempotent_and_session_owned ... ok
+test backend::mouse_history_tests::local_history_is_no_input_in_alternate_screen_and_wheel_arrows_are_bounded ... ok
+test backend::mouse_history_tests::legacy_wide_release_and_encoding_transition_cleanup_are_exactly_once ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 100 filtered out; finished in 0.62s
+

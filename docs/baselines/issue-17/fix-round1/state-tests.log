@@ -1,0 +1,12 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+     Running unittests src/lib.rs (target/issue-18/debug/deps/iced_term-6820d860b1c553f1)
+
+running 5 tests
+test view::state_tests::focus_loss_cannot_leave_a_drag_or_modifiers_for_later_reentry ... ok
+test view::state_tests::first_click_and_release_after_a_move_use_current_grid_coordinates ... ok
+test view::state_tests::same_session_reconciliation_preserves_focus_and_move_resets_only_pointer_state ... ok
+test view::state_tests::same_sized_tab_replacements_reset_all_input_state_and_receive_their_own_layout ... ok
+test view::state_tests::tab_replacement_does_not_discard_session_selection_or_viewport ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 105 filtered out; finished in 0.15s
+

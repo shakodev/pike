@@ -1,0 +1,8 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.21s
+     Running unittests src/lib.rs (target/issue-18/debug/deps/iced_term-6820d860b1c553f1)
+
+running 1 test
+test view::paste_tests::paste_shortcuts_share_commands_and_report_unavailable_or_oversize_text ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 109 filtered out; finished in 0.12s
+

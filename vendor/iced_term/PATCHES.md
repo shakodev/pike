@@ -371,6 +371,12 @@ and API/overload policy details.
   focus loss. Session-owned held buttons deduplicate release after widget loss;
   required release failure uses existing scoped reply/close policy. Deferred
   event order, authoritative selection and all R18/R21 drawing remain intact.
+- PR71 review fixes: outside-click unfocus/cleanup runs despite an earlier
+  Row child's shared-Shell capture, without granting focus to consumed inside
+  clicks. Mandatory legacy/UTF8 releases clamp encoding coordinates after wide
+  drags or encoding changes; unsupported presses/motion/wheel still reject.
+  Public two-pane Row/raw-peer regressions cover both dispatch orders, exact
+  bytes, deferred input, consumed clicks, hover focus and exactly-once cleanup.
 - Reviewed upstream PR71 head da0d79c94d1ea945420391b714146523e7b4eaef and PR85
   head 38085160c1b4de91fee311b86810ac0d6521ee31. Retain until upstream supplies
   equivalent routing, bounds and cleanup; PR85 alone leaves click-only local

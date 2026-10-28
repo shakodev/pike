@@ -19,9 +19,9 @@ use iced_core::text::{Alignment, LineHeight, Shaping};
 
 mod cursor;
 mod glyphs;
-mod pointer;
 #[cfg(test)]
 mod paste_tests;
+mod pointer;
 use iced_core::widget::operation::{self, Focusable};
 use iced_graphics::core::widget::{tree, Tree};
 use iced_graphics::core::Widget;
@@ -582,12 +582,7 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
 
         let is_cursor_in_layout = self.is_cursor_in_layout(cursor, layout);
         let captured = Self::has_pointer_capture(state) || !cleanup.is_empty();
-        if matches!(event, iced::Event::Mouse(_))
-            && shell.is_event_captured()
-            && !captured
-        {
-            return;
-        }
+        let mouse_blocked = shell.is_event_captured() && !captured;
         if matches!(
             event,
             iced::Event::Mouse(mouse::Event::ButtonPressed(
@@ -597,7 +592,12 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         {
             cleanup.extend(Self::cancel_pointer(state));
         }
-        self.handle_focus(event, state, is_cursor_in_layout);
+        // Row dispatches to every child with one shared Shell. An earlier
+        // child's capture must not suppress this pane's outside-click unfocus
+        // or release cleanup. A consumed inside click must not acquire focus.
+        if !shell.is_event_captured() || !is_cursor_in_layout {
+            self.handle_focus(event, state, is_cursor_in_layout);
+        }
         let focused =
             state.is_focused() && self.term.backend.window_focus.is_focused();
         if focused != self.term.backend.is_focused() {
@@ -609,13 +609,14 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
 
         let commands = match event {
             iced::Event::Mouse(mouse_event)
-                if is_cursor_in_layout
-                    || (captured
-                        && matches!(
-                            mouse_event,
-                            mouse::Event::CursorMoved { .. }
-                                | mouse::Event::ButtonReleased(_)
-                        )) =>
+                if !mouse_blocked
+                    && (is_cursor_in_layout
+                        || (captured
+                            && matches!(
+                                mouse_event,
+                                mouse::Event::CursorMoved { .. }
+                                    | mouse::Event::ButtonReleased(_)
+                            ))) =>
             {
                 self.handle_mouse_event(
                     state,
