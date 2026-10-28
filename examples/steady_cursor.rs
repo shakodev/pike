@@ -3,6 +3,8 @@
 mod input;
 #[path = "support/cursor_micro.rs"]
 mod micro;
+#[path = "support/cursor_micro_status.rs"]
+mod micro_status;
 #[path = "support/cursor_pixels.rs"]
 mod pixels;
 #[path = "compatibility/report.rs"]

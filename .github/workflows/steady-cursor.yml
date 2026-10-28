@@ -47,7 +47,7 @@ jobs:
           rustc --version --verbose | Tee-Object "$env:EVIDENCE/compiler.txt"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber | ConvertTo-Json | Set-Content "$env:EVIDENCE/os.json"
-          Get-FileHash Cargo.lock, vendor/iced_term/src/view.rs, vendor/iced_term/src/view/cursor.rs, vendor/iced_term/src/view/glyphs.rs, vendor/iced_term/src/snapshot.rs, vendor/iced_term/src/backend.rs, vendor/iced_term/src/terminal.rs, examples/steady_cursor.rs, examples/support/cursor_input.rs, examples/support/cursor_pixels.rs, examples/support/cursor_micro.rs, examples/support/cursor_transitions.rs | Format-Table -AutoSize | Out-String -Width 240 | Set-Content "$env:EVIDENCE/source-hashes.txt"
+          Get-FileHash Cargo.lock, vendor/iced_term/src/view.rs, vendor/iced_term/src/view/cursor.rs, vendor/iced_term/src/view/glyphs.rs, vendor/iced_term/src/snapshot.rs, vendor/iced_term/src/backend.rs, vendor/iced_term/src/terminal.rs, examples/steady_cursor.rs, examples/support/cursor_input.rs, examples/support/cursor_pixels.rs, examples/support/cursor_micro.rs, examples/support/cursor_micro_status.rs, examples/support/cursor_transitions.rs | Format-Table -AutoSize | Out-String -Width 240 | Set-Content "$env:EVIDENCE/source-hashes.txt"
 
       - name: Cache dependencies and isolated fixture build
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5

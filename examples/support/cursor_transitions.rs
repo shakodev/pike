@@ -123,6 +123,63 @@ pub fn verify(
     );
     for case in [1, 5] {
         send(executor, terminal, case, 2, true, false)?;
+        let initial = terminal.renderable_content().unwrap();
+        let cells = initial.viewport.cells();
+        let expected = if case == 1 {
+            ['X', 'Y', 'Z']
+        } else {
+            ['A', 'e', 'B']
+        };
+        check(
+            initial.cursor_point.line.0 == 0 && initial.cursor_point.column.0 == 1,
+            "initial cursor does not target the known glyph",
+        )?;
+        check(
+            format!("{:?}", initial.cursor_shape) == "Block" && initial.focused,
+            "initial cursor is not the requested focused block",
+        )?;
+        check(
+            initial
+                .cursor_color
+                .map(|color| (color.r, color.g, color.b))
+                == Some((0, 255, 0)),
+            "initial OSC12 color differs from the requested green",
+        )?;
+        check(
+            cells.len() == 48
+                && cells.iter().take(3).map(|cell| cell.c).eq(expected)
+                && cells
+                    .iter()
+                    .skip(3)
+                    .all(|cell| cell.c == ' ' && cell.zerowidth().is_none()),
+            "initial full viewport differs from the known synthetic scene",
+        )?;
+        check(
+            cells.iter().all(|cell| {
+                format!("{:?}", cell.fg) == "Named(Foreground)"
+                    && format!("{:?}", cell.bg) == "Named(Background)"
+            }),
+            "initial cells retain unexpected color attributes",
+        )?;
+        check(
+            cells.iter().enumerate().all(|(index, cell)| {
+                format!("{:?}", cell.flags)
+                    == if case == 1 && index == 1 {
+                        "Flags(INVERSE)"
+                    } else {
+                        "Flags(0x0)"
+                    }
+            }),
+            "initial full cell flags differ from the requested scene",
+        )?;
+        check(
+            if case == 5 {
+                cells[1].zerowidth() == Some(&['\u{301}'][..])
+            } else {
+                cells.iter().all(|cell| cell.zerowidth().is_none())
+            },
+            "initial combining extras differ from the requested scene",
+        )?;
         let fonts = terminal.work_stats().font_measurements;
         let original: Vec<_> = terminal
             .renderable_content()

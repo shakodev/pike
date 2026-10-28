@@ -192,3 +192,45 @@ pixel oracles run. Two framing tests cover CR/LF/CRLF, EOF and invalid/oversized
 commands. No production rendering, protocol, timeout or lifecycle change is
 part of this fixture correction. Actual Micro still uses the real editor's input
 mode and must pass its separate native pixel/natural-exit/cleanup checks.
+
+## Actual Micro cursor mode and failure reporting
+
+At `7d29d3d`, both Windows renderers record raw mode503→512, all168 pixel
+checks, all state-only predicates, all seven zero-work idle phases and synthetic
+requested cleanup passing. The next failure is an anonymous timeout before the
+first actual Micro screenshot; the old helper can mask its primary readiness
+failure with the later shutdown timeout. These original failures remain retained;
+they are not a continuation of the earlier cooked-input scroll failure.
+
+Pinned official Micro source at
+[`04c577049ca898f097cd6a2dae69af0b4d4493e1`](https://github.com/micro-editor/micro/blob/04c577049ca898f097cd6a2dae69af0b4d4493e1/internal/util/util.go)
+sets `FakeCursor` on Windows when `WT_SESSION` is absent. Its
+[screen code](https://github.com/micro-editor/micro/blob/04c577049ca898f097cd6a2dae69af0b4d4493e1/internal/screen/screen.go)
+uses that value OR the `fakecursor` option; ordinary Windows Micro therefore
+may deliberately keep the hardware cursor hidden. A readiness predicate requiring
+SHOW_CURSOR cannot accept that configured behavior. A controlled run of the same
+official macOS executable with `-fakecursor true` reproduces a15s readiness
+failure despite the complete known fixture text being present and shapeHidden.
+The revised helper retains this failed verdict and records a natural exit0,
+drained cleanup after real Ctrl-Q; cleanup never converts the red into a pass.
+This proves the unsupported readiness assumption, not an uncaptured internal
+interleaving of the earlier Windows run.
+
+The actual-editor fixture explicitly selects Micro's hardware-cursor path with
+child-only `WT_SESSION=pike-issue-21-synthetic` and `-fakecursor false`. This
+presence check is implemented by that pinned editor; the fixture is not claiming
+its owner is Windows Terminal, or testing default Windows Micro's software cursor
+or a physical desktop. It still requires the real known text, visible terminal
+cursor at the first glyph, row highlight, covered-glyph pixels and natural
+exit0/drained completion with all recorded PIDs absent. Its separate policy file
+retains this condition. Official executable/archive bytes are unchanged.
+
+Bounded stage/model/failure-frame diagnostics identify readiness, pixel and
+completion boundaries. The primary and cleanup results are retained together;
+two regression tests ensure a cleanup timeout cannot hide the primary error and
+successful cleanup cannot turn a failed pixel verdict green. Existing15s
+readiness and10s completion deadlines are unchanged. The existing subscription
+continues delivering protocol/lifecycle commands while waiting for completion;
+there is no polling, new task or successful retry. State-only tests also assert
+the expected initial full viewport, point, colors, flags/combining extras and
+focused block before their unchanged per-transition and pixel checks.

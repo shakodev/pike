@@ -1,9 +1,13 @@
 //! Run the pinned official editor inside the existing PTY. The helper process
 //! only inherits that PTY; it records both PIDs and waits for Micro's real exit.
-use crate::{SCREEN, check, pixels, report};
+use crate::{SCREEN, check, micro_status, pixels, report};
 use iced::advanced::subscription::into_recipes;
 use iced::advanced::widget::Tree;
-use iced::futures::{StreamExt, stream};
+use iced::futures::{
+    StreamExt,
+    future::{Either, select},
+    stream,
+};
 use iced::{Executor, Point, Rectangle, Size};
 use iced_term::{BackendCommand, Command, Terminal};
 use pike::executor::SharedExecutor;
@@ -33,6 +37,8 @@ pub fn fixture(args: &[String]) -> io::Result<()> {
             "-syntax",
             "false",
             "-savehistory",
+            "false",
+            "-fakecursor",
             "false",
             file,
         ])
@@ -98,6 +104,14 @@ fn verify_scene(
         "could not read pinned Micro version",
     )?;
     fs::write(output.join("micro-version.txt"), version.stdout)?;
+    fs::write(
+        output.join("micro-cursor-policy.txt"),
+        if cfg!(windows) {
+            "Controlled hardware-cursor path: child-only WT_SESSION=pike-issue-21-synthetic and -fakecursor false. Official Micro2.0.14 otherwise forces a fake cursor on Windows without WT_SESSION; this is not default Windows editor or Windows Terminal desktop evidence.\n"
+        } else {
+            "Hardware-cursor path: -fakecursor false. Official Micro2.0.14, isolated synthetic editor data.\n"
+        },
+    )?;
     let own = std::env::current_exe()?;
     let string = |path: &Path| {
         path.to_str()
@@ -126,12 +140,17 @@ fn verify_scene(
                     ("TERM".into(), "xterm-256color".into()),
                     ("COLORTERM".into(), "truecolor".into()),
                     ("MICRO_TRUECOLOR".into(), "1".into()),
+                    // Pinned Micro's util.init selects its hardware cursor when
+                    // this key exists. A child-only fixture control, not a
+                    // claim that the owner is Windows Terminal.
+                    ("WT_SESSION".into(), "pike-issue-21-synthetic".into()),
                 ]),
                 ..Default::default()
             },
         },
     )?;
     let shutdown = terminal.shutdown_handle();
+    let mut stage = "configure";
     let result = (|| -> io::Result<()> {
         let window = iced_term::WindowFocus::default();
         window.set_focused(true);
@@ -146,6 +165,8 @@ fn verify_scene(
             Some(bounds.size()),
             None,
         )));
+        stage = "readiness";
+        micro_status::record(output, stage, &terminal)?;
         executor.block_on(async {
             let mut events = into_recipes(terminal.subscription())
                 .pop()
@@ -168,8 +189,10 @@ fn verify_scene(
                 Err(io::Error::other("Micro ended before rendering its fixture"))
             })
             .await
-            .map_err(io::Error::other)?
+            .map_err(|_| io::Error::other("actual Micro readiness timed out after 15s"))?
         })?;
+        stage = "pixel checks";
+        micro_status::record(output, stage, &terminal)?;
         let content = terminal.renderable_content().unwrap();
         let point = content.cursor_point;
         check(
@@ -204,17 +227,67 @@ fn verify_scene(
             output.join("micro-result.txt"),
             "Official Micro2.0.14, real PTY, custom cursor-line theme, first glyph/cursor legible.\n",
         )?;
-        terminal.handle(Command::ProxyToBackend(BackendCommand::Write(vec![0x11]))); // Real Ctrl+Q; file unmodified.
+        stage = "request natural exit";
         Ok(())
     })();
+    let _ = micro_status::record(output, stage, &terminal);
     if result.is_err() {
+        // Preserve the failed readiness/pixel verdict and its last observed
+        // model. A real Ctrl-Q still gives this unmodified editor a chance to
+        // exit naturally; no successful retry or timeout increase is involved.
+        let content = terminal.renderable_content().unwrap();
+        let size = content.terminal_size;
+        let bounds = Rectangle::new(
+            Point::new(24.0, 32.0),
+            Size::new(size.cell_width * 36.0 + 0.01, size.cell_height * 8.0 + 0.01),
+        );
+        let mut tree = Tree::empty();
+        let shot = pixels::render(
+            &terminal,
+            renderer,
+            &mut tree,
+            bounds,
+            Rectangle::with_size(SCREEN),
+            1.5,
+        );
+        let _ = report::screenshot(&output.join("micro-failed.ppm"), shot);
+    }
+    let quit = terminal.handle(Command::ProxyToBackend(BackendCommand::Write(vec![0x11])));
+    fs::write(
+        output.join("micro-primary.txt"),
+        format!("stage={stage} primary={result:?} quit={quit:?}\n"),
+    )?;
+    let cleanup = executor.block_on(async {
+        let mut events = into_recipes(terminal.subscription())
+            .pop()
+            .unwrap()
+            .stream(stream::pending().boxed());
+        let completion = shutdown.wait();
+        iced::futures::pin_mut!(completion);
+        tokio::time::timeout(Duration::from_secs(10), async {
+            loop {
+                match select(completion.as_mut(), events.next()).await {
+                    Either::Left((done, _)) => return done,
+                    Either::Right((Some(iced_term::Event::BackendCall(_, command)), _)) => {
+                        terminal.handle(Command::ProxyToBackend(command));
+                    }
+                    Either::Right((None, _)) => return completion.await,
+                }
+            }
+        })
+        .await
+        .map_err(|_| io::Error::other("actual Micro backend completion timed out after 10s"))
+    });
+    let _ = micro_status::record(output, "completion", &terminal);
+    fs::write(
+        output.join("micro-completion.txt"),
+        format!("primary={result:?} cleanup={cleanup:?}\n"),
+    )?;
+    if cleanup.is_err() {
         terminal.request_close();
     }
-    let completed = executor
-        .block_on(async { tokio::time::timeout(Duration::from_secs(10), shutdown.wait()).await })
-        .map_err(io::Error::other)?;
     drop(terminal);
-    result?;
+    let completed = micro_status::finish(result, cleanup)?;
     check(
         completed.reason == iced_term::ExitReason::ChildExit
             && completed.exit_code == Some(0)
