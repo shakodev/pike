@@ -13,7 +13,8 @@ backend policy. `None` yields `PasteError::ClipboardUnavailable`; an empty or
 fully filtered string emits no bytes or markers. `Terminal::preflight_paste(&str)`
 is advisory only and reserves nothing. Hosts must capture the originating stable
 session ID during an async read and reject stale/hidden/closing/exited results.
-C owns the R23 host/menu/error wiring; this PR does not change app/session code.
+C owns the R23 session-host/menu wiring. The current host also displays every
+`Action::PasteRejected` notice so shortcut failures are visible before R23 lands.
 
 | Input | Policy |
 | --- | --- |
@@ -145,4 +146,22 @@ The same opt-in fixture includes the existing pinned Windows raw-console setup
 and is ready for a future authorized local native run with a fresh output path;
 that path has not been executed here. No Actions were enabled, dispatched or rerun.
 R23 owns actual session-host/menu integration; this PR supplies its tested shared
-paste API and typed errors without prematurely implementing the app host.
+paste API and typed errors, plus the current single-terminal host notice handling.
+
+## PR70 host feedback follow-up
+
+Review found the current host handled InputRejected but discarded PasteRejected.
+The terminal event handler now puts PasteRejected's metadata-only Display text in
+the existing visible notice, preserving the session and input. The focused host
+regression routes widget-shaped unavailable/oversized/pending/full/closed paste
+commands through `Message::Terminal`, checks visible feedback and unchanged
+input/session identity, and confirms stale-session failures cannot overwrite it.
+
+Only this host changed after the adapter/native evidence above; no repeated vendor,
+renderer or fixture round was needed. Additional targeted local checks passed:
+
+```sh
+rustfmt --edition 2024 --check src/main.rs
+cargo test --locked --no-default-features --features renderer-tiny-skia --bin pike failed_keyboard_paste_is_visible
+cargo clippy --locked --no-default-features --features renderer-tiny-skia --bin pike -- -D warnings
+```

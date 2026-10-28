@@ -383,7 +383,9 @@ and API/overload policy details.
   marker-breaking ESC/ETX filtering and normal-mode newline intent. Unlike
   their separated/raw writes, Pike validates the whole frame, uses stricter
   control filtering and canonical bracketed LF, and applies one atomic send.
-- No dependencies/features/lockfile, mouse/history behavior or app-host edits.
+- No dependencies/features/lockfile or mouse/history behavior changes. The
+  current app host surfaces PasteRejected in its existing notice; R23 owns
+  the full session host/menu integration.
   Remove this patch when upstream provides equivalent bounded, owner-bound,
   ordered paste with the same byte/control/error contract. See
   [targeted local evidence and limitations](../../docs/verification/issue-16.md).
