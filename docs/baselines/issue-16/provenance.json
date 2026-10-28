@@ -1,0 +1,27 @@
+{
+  "base_main": "8d9d8be177db88434e731a0a0557dddb502e7c68",
+  "os": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "renderer": "tiny-skia",
+  "binary_sha256": "6203d5fddd27d49757e3e8ac1d2b7b7de435621ee087d423ecdb47aba4d8eff7",
+  "source_sha256": {
+    "examples/bounded_paste.rs": "26cf8259845ea3d3f7b265dfce5296078ca4cd0c9368c6e4a4d61d9cdb3b0dcf",
+    "vendor/iced_term/src/paste.rs": "e21c31021cab635730837c9d979740bfc9465a93c46ada7c199e466cb47dc1e8",
+    "vendor/iced_term/src/backend.rs": "ff806e19f11e43f201794a8773844bc49e2d30e0c116fefa7ad23af6275f754c",
+    "vendor/iced_term/src/lifecycle.rs": "f11c5dfc5df0480b79651db82acbcea5fb969786492d22d08bdfd2a2db1096f8",
+    "vendor/iced_term/src/view.rs": "fa7080b440fcac9e5e11d6036f770bcd804cfa1d7262263f660e21abe290e9f4",
+    "vendor/iced_term/src/terminal.rs": "27bc3366b4bd46b1472d529393613259fbaeeebd60e0a54392f5824fc6a28af8",
+    "vendor/iced_term/src/bindings.rs": "dabb9043282a3ea4c7c64a7901a23565e1cff45188d37a8d78418703e29de907",
+    "vendor/iced_term/src/actions.rs": "8cfe231448e7e737f138edc73517a99f699e0e9f189353a4b8c9081a185f72cf",
+    "vendor/iced_term/src/lib.rs": "14997f67cfe6848fa10f57e962f5b72072bcbdeddcbbe5c662d5e85630e270cf",
+    "vendor/iced_term/src/view/paste_tests.rs": "a3292f02a6a3f74164953903bde2af7fa8b52e8277d846c119a8c9c1b8409553",
+    "vendor/iced_term/src/backend/history_tests.rs": "1ebcd8ec583b31bed8b79526088a2050d3f9125e4f5f2cfaf0fff0bf7bc05516"
+  },
+  "fixture_pids_absent": [
+    80041,
+    80110,
+    80056
+  ],
+  "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=\"$PWD/target/issue-20\" cargo build --release --locked --no-default-features --features renderer-tiny-skia --example bounded_paste; target/issue-20/release/examples/bounded_paste target/issue-16-paste/probe-5",
+  "notes": "Mac synthetic byte/VT/widget fixture; separate external ps RSS observer; no native Windows, physical input, or CI"
+}

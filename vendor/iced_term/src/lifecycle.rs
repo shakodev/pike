@@ -17,6 +17,7 @@ pub struct ShutdownHandle {
     events: Sender,
     requested: Arc<AtomicBool>,
     completion: watch::Receiver<Option<BackendCompletion>>,
+    pending_paste: Arc<crate::paste::PasteSlot>,
 }
 
 impl ShutdownHandle {
@@ -24,12 +25,14 @@ impl ShutdownHandle {
         notifier: EventLoopSender,
         events: Sender,
         completion: watch::Receiver<Option<BackendCompletion>>,
+        pending_paste: Arc<crate::paste::PasteSlot>,
     ) -> Self {
         Self {
             notifier,
             events,
             requested: Arc::new(AtomicBool::new(false)),
             completion,
+            pending_paste,
         }
     }
 
@@ -37,6 +40,7 @@ impl ShutdownHandle {
     /// The return value says whether this handle initiated the request, not
     /// whether backend cleanup has completed. Observe `wait`/`completion` for that.
     pub fn request_close(&self) -> bool {
+        self.pending_paste.cancel();
         if self.completion().is_some()
             || self.requested.swap(true, Ordering::AcqRel)
         {

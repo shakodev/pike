@@ -98,6 +98,11 @@ impl BindingsLayout {
             layout: default_keyboard_bindings(),
         };
         layout.add_bindings(platform_keyboard_bindings());
+        layout.add_bindings(generate_bindings!(
+            KeyboardBinding;
+            "v", Modifiers::CTRL | Modifiers::SHIFT; BindingAction::Paste;
+            Insert, Modifiers::SHIFT; BindingAction::Paste;
+        ));
         layout.add_bindings(mouse_default_bindings());
         layout
     }
