@@ -357,6 +357,34 @@ and API/overload policy details.
   Remove when upstream provides equivalent steady shapes, focus/contrast behavior
   and cached Unicode paint invalidation; PR86 alone covers draw ordering only.
 
+## R17 / issue #17 — mouse ownership and local history navigation
+
+- Normalize line/logical-pixel wheel sign and per-pane fractional accumulation,
+  bounded to 256 steps/axis/event. Hovered wheel does not focus; Shift uses
+  local history and bypasses tracking/alternate input. Explicit HistoryScroll
+  lines/page/top/bottom uses pinned Term::scroll_display with safe history bounds.
+- Separate local selection and reported gestures at press. Track three buttons,
+  1000 click-only, 1002 held drag and 1003 any-motion without duplicate selection;
+  preserve screen coordinates while scrolled. Encode SGR/legacy/UTF8 Ctrl/Alt/Shift
+  reports, checked coordinates, wheel buttons and matching releases.
+- Clamp captured drag-out/release; clear on blur/leave/pane movement and session
+  focus loss. Session-owned held buttons deduplicate release after widget loss;
+  required release failure uses existing scoped reply/close policy. Deferred
+  event order, authoritative selection and all R18/R21 drawing remain intact.
+- PR71 review fixes: outside-click unfocus/cleanup runs despite an earlier
+  Row child's shared-Shell capture, without granting focus to consumed inside
+  clicks. Mandatory legacy/UTF8 releases clamp encoding coordinates after wide
+  drags or encoding changes; unsupported presses/motion/wheel still reject.
+  Public two-pane Row/raw-peer regressions cover both dispatch orders, exact
+  bytes, deferred input, consumed clicks, hover focus and exactly-once cleanup.
+- Reviewed upstream PR71 head da0d79c94d1ea945420391b714146523e7b4eaef and PR85
+  head 38085160c1b4de91fee311b86810ac0d6521ee31. Retain until upstream supplies
+  equivalent routing, bounds and cleanup; PR85 alone leaves click-only local
+  selection competing with TUI input.
+- Targeted adapter tests and the public mouse_history widget/raw-PTY/actual-Vim
+  fixture passed locally with tiny-skia; see
+  [verification and Windows/manual limits](../../docs/verification/issue-17.md).
+  No dependencies, features, lockfiles, polling, timers or second queue added.
 ## R16 / issue #16 — bounded mode-aware paste
 
 - Add one shared `Terminal::paste(Option<String>)` path for menu clipboard

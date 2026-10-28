@@ -1,0 +1,15 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.19s
+     Running unittests src/lib.rs (target/issue-18/debug/deps/iced_term-6820d860b1c553f1)
+
+running 9 tests
+test view::pointer::tests::route_changes_reset_fraction_and_extreme_values_have_bounded_work ... ok
+test view::pointer::tests::fractional_line_and_logical_pixel_deltas_agree_in_both_directions ... ok
+test view::pointer_tests::shift_drag_owns_local_selection_through_modifier_change_and_release_outside ... ok
+test view::pointer_tests::blur_window_leave_and_move_cleanup_are_single_release_and_no_stale_drag ... ok
+test view::pointer_tests::history_shortcut_is_captured_locally_and_ignored_by_unfocused_pane ... ok
+test view::pointer_tests::click_only_never_selects_locally_and_any_motion_reports_without_button ... ok
+test view::pointer_tests::wheel_reports_use_viewport_coordinates_and_shift_bypasses_alt_and_mouse ... ok
+test view::pointer_tests::fractional_wheel_is_captured_and_hover_does_not_change_keyboard_focus ... ok
+test view::pointer_tests::all_three_buttons_pair_motion_and_clamped_outside_releases_without_orphans ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 101 filtered out; finished in 0.15s

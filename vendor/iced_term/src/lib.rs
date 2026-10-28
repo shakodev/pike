@@ -25,7 +25,7 @@ pub use alacritty_terminal::term::TermMode;
 #[cfg(windows)]
 pub use alacritty_terminal::tty::LaunchError;
 pub use backend::Command as BackendCommand;
-pub use backend::{LinkAction, MouseButton};
+pub use backend::{HistoryScroll, LinkAction, MouseButton};
 pub use event_bridge::{EventBridgeError, EventBridgeEvent};
 pub use ime::{ImeCommit, ImeError, PREEDIT_BYTE_LIMIT};
 pub use lifecycle::{BackendCompletion, ExitReason, ShutdownHandle};
