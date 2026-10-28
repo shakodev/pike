@@ -356,3 +356,34 @@ and API/overload policy details.
 - No dependencies, features, lockfiles, tasks, timers or PTY implementation added.
   Remove when upstream provides equivalent steady shapes, focus/contrast behavior
   and cached Unicode paint invalidation; PR86 alone covers draw ordering only.
+
+## R16 / issue #16 — bounded mode-aware paste
+
+- Add one shared `Terminal::paste(Option<String>)` path for menu clipboard
+  results and widget Ctrl+Shift+V/Shift+Insert (plus existing platform Paste).
+  Clipboard failure/oversize/pending/input rejection returns redacted
+  `Action::PasteRejected(PasteError)`; ordinary copy and Ctrl+C are unchanged.
+- Widget messages carry `BackendCommand::Paste(PasteRequest)`, an owner-bound,
+  redacted, cloneable single-use token. A separate pending slot retains at most
+  one original <=1 MiB UTF-8 payload per session as a boxed string. Queueing is
+  not acceptance or writer reservation. A second pending request fails visibly;
+  last-token drop, explicit cancel, wrong-owner handling, close and completion
+  release the payload. Replayed/cancelled requests cannot write again.
+- Keep existing deferred keyboard/mouse/focus/close ordering. At ordered handling,
+  read the current emulator mode and preflight the complete encoded frame before
+  allocation/write; atomically send it through R06's existing 2 MiB FIFO and
+  8 KiB chunks. Budget changes after advisory queue preflight can reject the
+  entire request, never a prefix or a lone opening marker. No Alacritty change.
+- Normalize CRLF/lone CR/LF to LF in bracketed mode, CR otherwise. Preserve tabs
+  and printable Unicode; strip other C0/C1 controls and DEL in both modes.
+  Bracket only when enabled, suppress empty frames, never append Enter.
+- Reviewed upstream PR91 at `ea95f8edd29fdd4d0e093fd3b528a3ea8902f4ec`
+  and Alacritty UI paste at pinned crate revision
+  `12082407d9cb3384a2bd83c578e556ec3faa2c4d`: retain its mode gating,
+  marker-breaking ESC/ETX filtering and normal-mode newline intent. Unlike
+  their separated/raw writes, Pike validates the whole frame, uses stricter
+  control filtering and canonical bracketed LF, and applies one atomic send.
+- No dependencies/features/lockfile, mouse/history behavior or app-host edits.
+  Remove this patch when upstream provides equivalent bounded, owner-bound,
+  ordered paste with the same byte/control/error contract. See
+  [targeted local evidence and limitations](../../docs/verification/issue-16.md).
