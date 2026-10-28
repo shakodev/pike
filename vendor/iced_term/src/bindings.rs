@@ -8,6 +8,7 @@ use iced_core::{
 pub enum BindingAction {
     Copy,
     Paste,
+    ScrollHistory(crate::HistoryScroll),
     Char(char),
     Esc(String),
     LinkOpen,
@@ -186,6 +187,11 @@ fn default_keyboard_bindings() -> Vec<(Binding<InputKind>, BindingAction)> {
         ArrowDown,  +TermMode::APP_CURSOR; BindingAction::Esc("\x1bOB".into());
         ArrowLeft,  +TermMode::APP_CURSOR; BindingAction::Esc("\x1bOD".into());
         ArrowRight, +TermMode::APP_CURSOR; BindingAction::Esc("\x1bOC".into());
+        // Local normal-screen history; alternate-screen modified keys stay TUI input.
+        PageUp, Modifiers::SHIFT, ~TermMode::ALT_SCREEN; BindingAction::ScrollHistory(crate::HistoryScroll::PageUp);
+        PageDown, Modifiers::SHIFT, ~TermMode::ALT_SCREEN; BindingAction::ScrollHistory(crate::HistoryScroll::PageDown);
+        Home, Modifiers::SHIFT, ~TermMode::ALT_SCREEN; BindingAction::ScrollHistory(crate::HistoryScroll::Top);
+        End, Modifiers::SHIFT, ~TermMode::ALT_SCREEN; BindingAction::ScrollHistory(crate::HistoryScroll::Bottom);
         // CTRL
         ArrowUp,    Modifiers::COMMAND; BindingAction::Esc("\x1b[1;5A".into());
         ArrowDown,  Modifiers::COMMAND; BindingAction::Esc("\x1b[1;5B".into());
@@ -496,6 +502,38 @@ mod tests {
                 bind.terminal_mode_include,
             );
             assert_eq!(action, &found_action);
+        }
+    }
+}
+
+#[cfg(test)]
+mod history_tests {
+    use super::*;
+    #[test]
+    fn shift_navigation_is_local_only_on_normal_screen() {
+        let layout = BindingsLayout::new();
+        for (key, scroll, alt) in [
+            (Named::PageUp, crate::HistoryScroll::PageUp, "\x1b[5;2~"),
+            (Named::PageDown, crate::HistoryScroll::PageDown, "\x1b[6;2~"),
+            (Named::Home, crate::HistoryScroll::Top, "\x1b[1;2H"),
+            (Named::End, crate::HistoryScroll::Bottom, "\x1b[1;2F"),
+        ] {
+            assert_eq!(
+                layout.get_action(
+                    InputKind::KeyCode(key),
+                    Modifiers::SHIFT,
+                    TermMode::empty()
+                ),
+                BindingAction::ScrollHistory(scroll)
+            );
+            assert_eq!(
+                layout.get_action(
+                    InputKind::KeyCode(key),
+                    Modifiers::SHIFT,
+                    TermMode::ALT_SCREEN
+                ),
+                BindingAction::Esc(alt.into())
+            );
         }
     }
 }

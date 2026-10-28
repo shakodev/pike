@@ -1,0 +1,14 @@
+[
+  {
+    "session": "170001",
+    "reason": "Requested",
+    "pid": "86168",
+    "absent": true
+  },
+  {
+    "session": "170002",
+    "reason": "ChildExit",
+    "pid": "86170",
+    "absent": true
+  }
+]

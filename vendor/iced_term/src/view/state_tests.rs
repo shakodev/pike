@@ -85,7 +85,7 @@ fn same_sized_tab_replacements_reset_all_input_state_and_receive_their_own_layou
         assert!(!state.is_focused());
         assert!(!state.is_dragged);
         assert!(state.last_click.is_none());
-        assert_eq!(state.scroll_pixels, 0.0);
+        assert_eq!(state.pointer.wheel.y, 0.0);
         assert_eq!(state.keyboard_modifiers, Modifiers::empty());
         assert_eq!(state.mouse_position_on_grid, TerminalGridPoint::default());
         assert!(matches!(
@@ -99,7 +99,7 @@ fn same_sized_tab_replacements_reset_all_input_state_and_receive_their_own_layou
         state.is_dragged = true;
         state.last_click =
             Some(Click::new(Point::ORIGIN, mouse::Button::Left, None));
-        state.scroll_pixels = 0.75;
+        state.pointer.wheel.y = 0.75;
         state.keyboard_modifiers = Modifiers::CTRL;
         state.mouse_position_on_grid = TerminalGridPoint::new(
             alacritty_terminal::index::Line(2),
@@ -120,7 +120,7 @@ fn same_session_reconciliation_preserves_focus_and_move_resets_only_pointer_stat
     let state = tree.state.downcast_mut::<TerminalViewState>();
     state.focus();
     state.is_dragged = true;
-    state.scroll_pixels = 0.5;
+    state.pointer.wheel.y = 0.5;
     view.diff(&mut tree);
     assert!(resize(&mut view, &mut tree, bounds).is_empty());
     let state = tree.state.downcast_ref::<TerminalViewState>();
@@ -131,7 +131,7 @@ fn same_session_reconciliation_preserves_focus_and_move_resets_only_pointer_stat
     let state = tree.state.downcast_ref::<TerminalViewState>();
     assert!(state.is_focused());
     assert!(!state.is_dragged);
-    assert_eq!(state.scroll_pixels, 0.0);
+    assert_eq!(state.pointer.wheel.y, 0.0);
     assert_eq!(session.0.work_stats(), before);
     assert!(session.0.shutdown_handle().completion().is_none());
 }
@@ -174,12 +174,12 @@ fn focus_loss_cannot_leave_a_drag_or_modifiers_for_later_reentry() {
     state.focus();
     state.is_dragged = true;
     state.keyboard_modifiers = Modifiers::COMMAND;
-    state.scroll_pixels = 0.5;
+    state.pointer.wheel.y = 0.5;
     state.unfocus();
     state.focus();
     assert!(!state.is_dragged);
     assert_eq!(state.keyboard_modifiers, Modifiers::empty());
-    assert_eq!(state.scroll_pixels, 0.0);
+    assert_eq!(state.pointer.wheel.y, 0.0);
 }
 
 #[test]
