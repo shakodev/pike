@@ -291,6 +291,11 @@ impl Backend {
                     },
                     Event::CursorBlinkingChange => {
                         self.last_content.terminal_mode = *term.mode();
+                        let shape = term.renderable_content().cursor.shape;
+                        if self.last_content.cursor_shape != shape {
+                            self.last_content.cursor_shape = shape;
+                            self.render_dirty |= self.visible;
+                        }
                         action = Action::CursorBlinkingChanged(
                             term.cursor_style().blinking,
                         );
@@ -331,6 +336,8 @@ impl Backend {
                     focused && self.visible && self.window_focus.is_focused();
                 if term.is_focused != focused {
                     term.is_focused = focused;
+                    self.last_content.focused = focused;
+                    self.render_dirty |= self.visible;
                     if term.mode().contains(TermMode::FOCUS_IN_OUT) {
                         action = self.protocol_reply(if focused {
                             b"\x1b[I"

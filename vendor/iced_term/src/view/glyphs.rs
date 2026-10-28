@@ -1,7 +1,7 @@
 //! A terminal cell owns its text span; shaping must not choose grid positions.
 use alacritty_terminal::term::cell::{Cell, Flags};
 use iced::font::{Style, Weight};
-use iced::{Color, Font, Point, Rectangle};
+use iced::{Font, Point, Rectangle};
 use iced_graphics::text::{self as text_engine, cosmic_text};
 use std::sync::Arc;
 
@@ -9,7 +9,7 @@ use std::sync::Arc;
 pub(super) struct Glyph {
     pub buffer: Arc<cosmic_text::Buffer>,
     pub position: Point,
-    pub color: Color,
+    pub cell_index: usize,
     pub clip: Rectangle,
 }
 
@@ -86,15 +86,13 @@ pub(super) fn font(mut font: Font, flags: Flags) -> Font {
 pub(super) fn build(
     content: &crate::RenderableContent,
     style: &crate::font::TermFont,
-    cursor: alacritty_terminal::index::Point,
-    colors: impl Fn(&Cell, alacritty_terminal::index::Point) -> (Color, Color),
     glyphs: &mut Vec<Glyph>,
 ) {
     let cell = content.terminal_size;
     // Only this viewport rebuild owns these keys; repeated characters share
     // shaped buffers without a process-wide or growing history cache.
     let mut shapes = std::collections::HashMap::new();
-    for indexed in content.viewport.display_iter() {
+    for (cell_index, indexed) in content.viewport.display_iter().enumerate() {
         let width = columns(
             indexed.cell,
             content.viewport.columns() - indexed.point.column.0,
@@ -110,12 +108,6 @@ pub(super) fn build(
             Point::new(x, y),
             iced::Size::new(width as f32 * cell.cell_width, cell.cell_height),
         );
-        let (mut fg, bg) = colors(indexed.cell, indexed.point);
-        if cursor == indexed.point
-            && content.terminal_mode.contains(crate::TermMode::SHOW_CURSOR)
-        {
-            fg = bg;
-        }
         let key = (
             font(style.font_type, indexed.flags),
             text(indexed.cell),
@@ -131,7 +123,7 @@ pub(super) fn build(
                 x + (span.width - measured.width) * 0.5,
                 y + (cell.cell_height - measured.height) * 0.5,
             ),
-            color: fg,
+            cell_index,
             clip: span,
         });
     }

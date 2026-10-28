@@ -1,0 +1,127 @@
+name: Windows steady cursor
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cursor:
+    name: Native steady cursor fixture (${{ matrix.renderer }})
+    runs-on: windows-2025
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        renderer: [wgpu, tiny-skia]
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      CARGO_BUILD_JOBS: '4'
+      CARGO_INCREMENTAL: '0'
+      CARGO_TERM_COLOR: always
+      CARGO_TARGET_DIR: target/issue-21
+
+    steps:
+      - name: Check out the exact requested head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Record native provenance
+        run: |
+          $env:EVIDENCE = Join-Path $env:RUNNER_TEMP 'steady-cursor-${{ matrix.renderer }}-${{ github.run_id }}-${{ github.run_attempt }}'
+          "EVIDENCE=$env:EVIDENCE" | Out-File -FilePath $env:GITHUB_ENV -Append
+          New-Item -ItemType Directory -Path $env:EVIDENCE | Out-Null
+          git rev-parse HEAD | Set-Content "$env:EVIDENCE/source-sha.txt"
+          rustup show
+          rustc --version --verbose | Tee-Object "$env:EVIDENCE/compiler.txt"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber | ConvertTo-Json | Set-Content "$env:EVIDENCE/os.json"
+          Get-FileHash Cargo.lock, vendor/iced_term/src/view.rs, vendor/iced_term/src/view/cursor.rs, vendor/iced_term/src/view/glyphs.rs, vendor/iced_term/src/snapshot.rs, vendor/iced_term/src/backend.rs, vendor/iced_term/src/terminal.rs, examples/steady_cursor.rs, examples/support/cursor_input.rs, examples/support/cursor_pixels.rs, examples/support/cursor_micro.rs, examples/support/cursor_micro_status.rs, examples/support/cursor_transitions.rs | Format-Table -AutoSize | Out-String -Width 240 | Set-Content "$env:EVIDENCE/source-hashes.txt"
+
+      - name: Cache dependencies and isolated fixture build
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            target/issue-21
+          key: Windows-2025-${{ runner.arch }}-cursor-v1-${{ matrix.renderer }}-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.lock', 'Cargo.toml', 'vendor/iced_term/Cargo.toml', 'vendor/alacritty_terminal/Cargo.toml') }}
+
+      - name: Prepare pinned ConPTY runtime
+        run: ./tools/prepare-conpty.ps1 -TargetDirectory $env:CARGO_TARGET_DIR | ConvertTo-Json -Depth 4 | Set-Content "$env:EVIDENCE/runtime.json"
+
+      - name: Prepare pinned official Micro 2.0.14
+        run: |
+          $archive = Join-Path $env:RUNNER_TEMP 'micro-2.0.14-win64.zip'
+          $url = 'https://github.com/micro-editor/micro/releases/download/v2.0.14/micro-2.0.14-win64.zip'
+          Invoke-WebRequest -Uri $url -OutFile $archive
+          $hash = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($hash -ne 'ef95e181249d0547942558d65b73cf484d6e06490bcfc0c540085a04f1ee00f8') { throw 'Pinned official Micro archive hash mismatch.' }
+          $destination = Join-Path $env:RUNNER_TEMP 'pike-cursor-micro'
+          Expand-Archive -LiteralPath $archive -DestinationPath $destination
+          $micro = Join-Path $destination 'micro-2.0.14/micro.exe'
+          "MICRO_EXE=$micro" | Out-File -FilePath $env:GITHUB_ENV -Append
+          [ordered]@{ Version = '2.0.14'; Url = $url; ArchiveSHA256 = $hash; ExecutableSHA256 = (Get-FileHash $micro -Algorithm SHA256).Hash } | ConvertTo-Json | Set-Content "$env:EVIDENCE/micro-provenance.json"
+          & $micro -version | Set-Content "$env:EVIDENCE/micro-version.txt"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Test adapter regressions natively
+        run: |
+          cargo test --locked -p iced_term --lib --no-default-features --features iced/${{ matrix.renderer }},iced/tokio 2>&1 | Tee-Object "$env:EVIDENCE/adapter-tests.txt"
+          exit $LASTEXITCODE
+
+      - name: Build the public cursor and actual Micro probe
+        run: cargo build --release --locked --example steady_cursor --no-default-features --features renderer-${{ matrix.renderer }}
+
+      - name: Verify cursor pixels, state-only transitions, idle counters and actual Micro
+        run: |
+          $exe = (Resolve-Path "$env:CARGO_TARGET_DIR/release/examples/steady_cursor.exe").Path
+          Get-FileHash -LiteralPath $exe | Format-List | Out-String | Set-Content "$env:EVIDENCE/executable-hash.txt"
+          $probeOutput = Join-Path $env:EVIDENCE 'probe'
+          $arguments = '"{0}" "{1}"' -f $probeOutput, $env:MICRO_EXE
+          $process = Start-Process -FilePath $exe -ArgumentList $arguments -NoNewWindow -PassThru -RedirectStandardOutput "$env:EVIDENCE/stdout.txt" -RedirectStandardError "$env:EVIDENCE/stderr.txt"
+          try {
+              if (-not $process.WaitForExit(90000)) {
+                  $process.Kill($true)
+                  $process.WaitForExit()
+                  throw 'Cursor probe timed out; terminated its controlled process tree.'
+              }
+              if ($process.ExitCode -ne 0) { throw "Cursor probe failed with exit $($process.ExitCode)." }
+          } finally {
+              $process.Dispose()
+          }
+          if ((Get-Content "$probeOutput/fixture-input.txt" -Raw) -notmatch 'after=512') { throw 'Fixture did not record raw Windows VT input mode.' }
+          if ((Get-Content "$probeOutput/completed.txt" -Raw).Trim() -ne 'passed') { throw 'Missing successful completion marker.' }
+          if (-not (Test-Path "$probeOutput/state-only.txt") -or -not (Test-Path "$probeOutput/micro-result.txt")) { throw 'Missing state-only or actual Micro results.' }
+          $cleanup = @(Import-Csv "$probeOutput/cleanup.csv")
+          if ($cleanup.Count -ne 3 -or @($cleanup | Where-Object reason -eq 'Requested').Count -ne 1 -or @($cleanup | Where-Object reason -eq 'ChildExit').Count -ne 2) { throw 'Missing synthetic and natural Micro backend cleanups.' }
+          $pids = @($cleanup | ForEach-Object { [int]$_.pid }) + @('highlighted', 'equal-color' | ForEach-Object { [int](Get-Content "$probeOutput/micro-$_/micro-parent.pid" -Raw) })
+          foreach ($fixturePid in $pids) {
+              $child = Get-Process -Id $fixturePid -ErrorAction SilentlyContinue
+              if ($child) {
+                  try { if ($child.ProcessName -in @('steady_cursor', 'micro')) { throw 'Fixture remained after acknowledged completion.' } }
+                  finally { $child.Dispose() }
+              }
+          }
+          'Synthetic child, both Micro processes and both wrappers absent after acknowledged cleanup.' | Set-Content "$env:EVIDENCE/process-cleanup.txt"
+          Get-Content "$probeOutput/work.csv", "$probeOutput/cleanup.csv", "$probeOutput/state-only.txt", "$probeOutput/micro-result.txt"
+
+      - name: Retain controlled evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: steady-cursor-${{ matrix.renderer }}
+          path: ${{ env.EVIDENCE }}
+          if-no-files-found: error
