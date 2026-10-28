@@ -85,6 +85,10 @@ documents explicit backend completion and retained final output.
 fractional cells, deduplicated native resizes and event-specific presentation work.
 [Widget verification](docs/verification/issue-13.md) covers terminal identity,
 pane-local cached drawing and clipping, with fractional-scale fixture screenshots.
+
+[Keyboard verification](docs/verification/issue-14.md) documents legacy byte
+encoding, binding precedence, consumed keys and remaining Windows layout checks.
+
 [Unicode verification](docs/verification/issue-18.md) covers wide/combining cell
 spans, fallback rendering, clipping and model/copy agreement.
 

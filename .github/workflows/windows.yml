@@ -58,6 +58,7 @@ jobs:
             ~/.cargo/git/db
             target
           key: Windows-2025-${{ runner.arch }}-msvc-v2-${{ matrix.renderer }}-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.lock', 'Cargo.toml', 'vendor/iced_term/Cargo.toml', 'vendor/alacritty_terminal/Cargo.toml') }}
+          restore-keys: Windows-2025-${{ runner.arch }}-msvc-v2-${{ matrix.renderer }}-${{ hashFiles('rust-toolchain.toml') }}-
 
       - name: Verify renderer and runtime feature isolation
         run: ./tools/test-feature-profiles.ps1
@@ -104,6 +105,51 @@ jobs:
 
       - name: Build compatibility examples
         run: cargo build --release --locked --examples --no-default-features --features renderer-${{ matrix.renderer }}
+
+      - name: Check legacy keyboard bytes and editor with Windows ConPTY
+        timeout-minutes: 3
+        run: |
+          $output = "${{ runner.temp }}/pike-keyboard-${{ matrix.renderer }}-${{ github.run_id }}-${{ github.run_attempt }}"
+          $vim = Join-Path $env:ProgramFiles 'Git/usr/bin/vim.exe'
+          if (-not (Test-Path -LiteralPath $vim)) { throw 'Git for Windows Vim is required for the synthetic editor check.' }
+          $timer = [Diagnostics.Stopwatch]::StartNew()
+          & ./target/release/examples/keyboard_input.exe $output $vim (Join-Path $PSHOME 'pwsh.exe')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $timer.Stop()
+          foreach ($mode in @('normal', 'application', 'newline', 'application-newline')) {
+            $fixtureId = [int](Get-Content -LiteralPath (Join-Path $output "$mode/ready") -Raw)
+            $child = Get-Process -Id $fixtureId -ErrorAction SilentlyContinue
+            if ($child) {
+              try {
+                if ($child.ProcessName -eq 'input_fixture') { throw "Keyboard fixture $fixtureId survived acknowledged cleanup." }
+              } finally { $child.Dispose() }
+            }
+          }
+          [ordered]@{
+            Commit = '${{ github.sha }}'
+            Renderer = '${{ matrix.renderer }}'
+            RunnerOS = (Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber)
+            ExecutableSha256 = (Get-FileHash ./target/release/examples/keyboard_input.exe -Algorithm SHA256).Hash
+            ElapsedMilliseconds = $timer.Elapsed.TotalMilliseconds
+            Scope = 'Synthetic Iced events through widget, bounded writer, native ConPTY, Vim and profile-free PowerShell/PSReadLine; excludes physical layouts.'
+            FixtureCleanup = 'All four fixture PIDs absent after acknowledged shutdown.'
+          } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $output 'provenance.json') -Encoding UTF8
+          Get-Content -LiteralPath (Join-Path $output 'summary.csv')
+          Get-Content -LiteralPath (Join-Path $output 'editor.txt')
+          Get-Content -LiteralPath (Join-Path $output 'psreadline.txt')
+
+      - name: Check Windows layout translation through the actual Iced window
+        if: ${{ !cancelled() }}
+        timeout-minutes: 3
+        run: ./tools/test-keyboard-layout.ps1 -OutputDirectory "${{ runner.temp }}/pike-keyboard-${{ matrix.renderer }}-${{ github.run_id }}-${{ github.run_attempt }}/os-layout"
+
+      - name: Retain synthetic keyboard evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: keyboard-input-${{ matrix.renderer }}
+          path: ${{ runner.temp }}/pike-keyboard-${{ matrix.renderer }}-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: warn
 
       - name: Check Windows launch arguments, shells, cwd and environment
         run: |

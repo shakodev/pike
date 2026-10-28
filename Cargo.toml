@@ -12,12 +12,15 @@ resolver = "3"
 
 [features]
 default = ["renderer-wgpu"]
-renderer-wgpu = ["iced/wgpu"]
+renderer-wgpu = ["iced/wgpu-bare", "dep:wgpu"]
 renderer-tiny-skia = ["iced/tiny-skia"]
 
 [dependencies]
 iced = { version = "=0.14.0", default-features = false, features = ["tokio", "crisp"] }
 iced_term = { version = "=0.8.0", default-features = false }
+# Feature anchor for the existing renderer dependency. WGL's hidden worker
+# window deadlocks native input-language changes; keep native backends only.
+wgpu = { version = "=27.0.1", optional = true, default-features = false, features = ["std", "parking_lot", "dx12", "metal", "vulkan", "wgsl"] }
 tokio = { version = "=1.54.1", default-features = false, features = ["rt-multi-thread", "sync", "time"] }
 
 [patch.crates-io]

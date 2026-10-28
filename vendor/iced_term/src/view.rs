@@ -13,7 +13,7 @@ use iced::widget::canvas::{Path, Text};
 use iced::widget::container;
 use iced::{Color, Element, Length, Point, Rectangle, Size, Theme, Vector};
 use iced_core::clipboard::Kind as ClipboardKind;
-use iced_core::keyboard::{Key, Modifiers};
+use iced_core::keyboard::Modifiers;
 use iced_core::mouse::{self, Click};
 use iced_core::text::{Alignment, LineHeight, Shaping};
 
@@ -319,7 +319,7 @@ impl<'a> TerminalView<'a> {
             InputKind::Mouse(iced_core::mouse::Button::Left),
             state.keyboard_modifiers,
             *terminal_mode,
-        ) == BindingAction::LinkOpen
+        ) == Some(&BindingAction::LinkOpen)
         {
             commands.push(Command::ProcessLink(
                 LinkAction::Open,
@@ -356,88 +356,64 @@ impl<'a> TerminalView<'a> {
         state: &mut TerminalViewState,
         clipboard: &mut dyn iced_graphics::core::Clipboard,
         event: &iced::keyboard::Event,
-        shell: &mut iced_core::Shell<'_, Event>,
-    ) -> Option<Command> {
-        let mut binding_action = BindingAction::Ignore;
-        let last_content = self.term.backend.renderable_content();
+    ) -> KeyboardOutcome {
+        use crate::keyboard::KeyAction;
         match event {
-            iced::keyboard::Event::ModifiersChanged(m) => {
-                state.keyboard_modifiers = *m;
-                let action = if state.keyboard_modifiers == Modifiers::COMMAND {
-                    LinkAction::Hover
-                } else {
-                    LinkAction::Clear
-                };
-                return Some(Command::ProcessLink(
-                    action,
-                    state.mouse_position_on_grid,
-                ));
+            iced::keyboard::Event::ModifiersChanged(modifiers)
+            | iced::keyboard::Event::KeyPressed { modifiers, .. }
+            | iced::keyboard::Event::KeyReleased { modifiers, .. } => {
+                state.keyboard_modifiers = *modifiers;
             },
-            iced::keyboard::Event::KeyPressed {
-                key,
-                modifiers,
-                text,
-                ..
-            } => match &key {
-                // Use the physical character key for bindings even when text is None (e.g., Ctrl/Cmd combos)
-                Key::Character(k) => {
-                    let lower = k.to_ascii_lowercase();
-                    binding_action = self.term.bindings.get_action(
-                        InputKind::Char(lower),
-                        *modifiers,
-                        last_content.terminal_mode,
-                    );
-
-                    // If no binding matched, only write printable text (when provided)
-                    if binding_action == BindingAction::Ignore {
-                        if let Some(c) = text {
-                            return Some(Command::Write(c.as_bytes().to_vec()));
-                        }
-                    }
-                },
-                Key::Named(code) => {
-                    binding_action = self.term.bindings.get_action(
-                        InputKind::KeyCode(*code),
-                        *modifiers,
-                        last_content.terminal_mode,
-                    );
-                },
-                _ => {},
-            },
-            _ => {},
         }
-
-        match binding_action {
-            BindingAction::Char(c) => {
-                let mut buf = [0, 0, 0, 0];
-                let str = c.encode_utf8(&mut buf);
-                return Some(Command::Write(str.as_bytes().to_vec()));
+        match crate::keyboard::action(
+            event,
+            &self.term.bindings,
+            self.term.backend.renderable_content().terminal_mode,
+        ) {
+            KeyAction::Unhandled => KeyboardOutcome::Ignored,
+            KeyAction::Consume => KeyboardOutcome::Consumed,
+            KeyAction::Write { bytes, alt_prefix } => {
+                if bytes.is_empty() && !alt_prefix {
+                    return KeyboardOutcome::Consumed;
+                }
+                let len = bytes.len().saturating_add(usize::from(alt_prefix));
+                if let Err(error) = self.term.backend.preflight_input(len) {
+                    return KeyboardOutcome::Command(Command::InputRejected(
+                        error,
+                    ));
+                }
+                let bytes = if alt_prefix {
+                    let mut prefixed = Vec::with_capacity(len);
+                    prefixed.push(0x1b);
+                    prefixed.extend_from_slice(&bytes);
+                    prefixed
+                } else {
+                    bytes.into_owned()
+                };
+                KeyboardOutcome::Command(Command::Write(bytes))
             },
-            BindingAction::Esc(seq) => {
-                return Some(Command::Write(seq.as_bytes().to_vec()));
-            },
-            BindingAction::Paste => {
+            KeyAction::Paste => {
                 if let Some(data) = clipboard.read(ClipboardKind::Standard) {
                     if let Err(error) =
                         self.term.backend.preflight_input(data.len())
                     {
-                        return Some(Command::InputRejected(error));
+                        return KeyboardOutcome::Command(
+                            Command::InputRejected(error),
+                        );
                     }
-                    return Some(Command::Write(data.into_bytes()));
+                    return KeyboardOutcome::Command(Command::Write(
+                        data.into_bytes(),
+                    ));
                 }
+                KeyboardOutcome::Consumed
             },
-            BindingAction::Copy => {
+            KeyAction::Copy => {
                 self.term.copy_selection(|text| {
                     clipboard.write(ClipboardKind::Standard, text);
                 });
-                // Copy is handled even with no selection or an unavailable
-                // clipboard; it must never reach an ancestor or terminal text.
-                shell.capture_event();
+                KeyboardOutcome::Consumed
             },
-            _ => {},
-        };
-
-        None
+        }
     }
 }
 
@@ -805,14 +781,20 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                     return;
                 }
 
-                self.handle_keyboard_event(
+                match self.handle_keyboard_event(
                     state,
                     clipboard,
                     keyboard_event,
-                    shell,
-                )
-                .into_iter()
-                .collect()
+                ) {
+                    KeyboardOutcome::Ignored => {},
+                    KeyboardOutcome::Consumed => shell.capture_event(),
+                    KeyboardOutcome::Command(command) => {
+                        shell.capture_event();
+                        shell
+                            .publish(Event::BackendCall(self.term.id, command));
+                    },
+                }
+                return;
             },
             _ => Vec::new(),
         };
@@ -866,6 +848,12 @@ impl<'a> From<TerminalView<'a>> for Element<'a, Event, Theme, iced::Renderer> {
     fn from(widget: TerminalView<'a>) -> Self {
         Self::new(widget)
     }
+}
+
+enum KeyboardOutcome {
+    Ignored,
+    Consumed,
+    Command(Command),
 }
 
 #[derive(Debug, Clone)]
@@ -1292,7 +1280,7 @@ mod tests {
         }
 
         #[test]
-        fn link_open_on_button_release() {
+        fn default_mouse_release_never_opens_a_link() {
             let mut state = TerminalViewState::new(0);
             state.keyboard_modifiers = Modifiers::COMMAND;
             let terminal_mode = TermMode::MOUSE_MODE;
@@ -1307,7 +1295,7 @@ mod tests {
                 &mut commands,
             );
 
-            assert_eq!(commands.len(), 2);
+            assert_eq!(commands.len(), 1);
             assert!(matches!(
                 commands[0],
                 Command::MouseReport(
@@ -1320,20 +1308,10 @@ mod tests {
                     false
                 )
             ));
-            assert!(matches!(
-                commands[1],
-                Command::ProcessLink(
-                    LinkAction::Open,
-                    TerminalGridPoint {
-                        line: Line(0),
-                        column: Column(0)
-                    }
-                ),
-            ));
         }
 
         #[test]
-        fn link_open_on_button_release_in_non_mouse_mode() {
+        fn default_non_mouse_release_never_opens_a_link() {
             let mut state = TerminalViewState::new(0);
             state.keyboard_modifiers = Modifiers::COMMAND;
             state.mouse_position_on_grid = TerminalGridPoint {
@@ -1351,17 +1329,7 @@ mod tests {
                 &mut commands,
             );
 
-            assert_eq!(commands.len(), 1);
-            assert!(matches!(
-                commands[0],
-                Command::ProcessLink(
-                    LinkAction::Open,
-                    TerminalGridPoint {
-                        line: Line(4),
-                        column: Column(10)
-                    }
-                ),
-            ));
+            assert!(commands.is_empty());
         }
     }
 

@@ -31,15 +31,44 @@ fn run() -> io::Result<()> {
         args.next()
             .ok_or_else(|| io::Error::other("expected directory"))?,
     );
-    raw_console()?;
+    let keyboard = args.next();
+    if args.next().is_some()
+        || keyboard.as_deref().is_some_and(|mode| {
+            ![
+                "keyboard-normal",
+                "keyboard-app",
+                "keyboard-newline",
+                "keyboard-app-newline",
+            ]
+            .contains(&mode)
+        })
+    {
+        return Err(io::Error::other("invalid keyboard fixture mode"));
+    }
+    let keyboard_mode = keyboard.is_some();
+    raw_console(keyboard_mode)?;
     fs::create_dir_all(&directory)?;
+    if let Some(mode) = keyboard {
+        let mut output = io::stdout().lock();
+        write!(
+            output,
+            "\x1b[?1{}\x1b[20{}\x1b[?u\x1b[>31u\x1b]2;pike:keys-ready\x07",
+            if mode.starts_with("keyboard-app") {
+                'h'
+            } else {
+                'l'
+            },
+            if mode.ends_with("newline") { 'h' } else { 'l' }
+        )?;
+        output.flush()?;
+    }
     fs::write(directory.join("ready"), std::process::id().to_string())?;
     if mode == "stall" {
         loop {
             std::thread::park();
         }
     }
-    let mut input = io::stdin().lock();
+    let mut input = fixture_input(keyboard_mode);
     let mut bytes = 0;
     let mut hash = 0xcbf29ce484222325_u64;
     let mut buffer = [0; 4096];
@@ -52,6 +81,11 @@ fn run() -> io::Result<()> {
             hash = (hash ^ u64::from(*byte)).wrapping_mul(0x100000001b3);
         }
         bytes += read;
+        if keyboard_mode {
+            // Numeric progress only, so a native deadline identifies a short
+            // read without collecting terminal input or weakening the oracle.
+            fs::write(directory.join("progress"), format!("{bytes},{hash}\n"))?;
+        }
     }
     // Only numeric metadata leaves the fixture, never a terminal transcript.
     let mut report = fs::File::create(directory.join("result"))?;
@@ -68,29 +102,113 @@ fn run() -> io::Result<()> {
     }
 }
 
+#[cfg(not(windows))]
+fn fixture_input(_keyboard: bool) -> impl Read {
+    io::stdin().lock()
+}
+
 #[cfg(windows)]
-fn raw_console() -> io::Result<()> {
+fn fixture_input(keyboard: bool) -> Box<dyn Read> {
+    struct ConsoleInput;
+    impl Read for ConsoleInput {
+        fn read(&mut self, buffer: &mut [u8]) -> io::Result<usize> {
+            use windows_sys::Win32::System::Console::{
+                GetStdHandle, ReadConsoleA, STD_INPUT_HANDLE,
+            };
+            if buffer.is_empty() {
+                return Ok(0);
+            }
+            let mut read = 0;
+            // SAFETY: Borrow the inherited console handle, without closing it.
+            // `buffer` is writable for the supplied length, `read` is valid
+            // output storage, and null requests no intermediate Ctrl wakeup.
+            // CP_UTF8 was set by raw_console. Unlike Rust stdin's Windows
+            // ReadConsoleW wrapper, this preserves a trailing Ctrl+Z byte.
+            let result = unsafe {
+                ReadConsoleA(
+                    GetStdHandle(STD_INPUT_HANDLE),
+                    buffer.as_mut_ptr().cast(),
+                    buffer.len().min(u32::MAX as usize) as u32,
+                    &mut read,
+                    std::ptr::null(),
+                )
+            };
+            if result == 0 {
+                return Err(io::Error::last_os_error());
+            }
+            Ok(read as usize)
+        }
+    }
+    if keyboard {
+        Box::new(ConsoleInput)
+    } else {
+        // Preserve the original bounded-input fixture's reader.
+        Box::new(io::stdin().lock())
+    }
+}
+
+#[cfg(windows)]
+fn raw_console(virtual_terminal: bool) -> io::Result<()> {
     use windows_sys::Win32::Foundation::INVALID_HANDLE_VALUE;
     use windows_sys::Win32::System::Console::{
-        GetStdHandle, STD_INPUT_HANDLE, SetConsoleCP, SetConsoleMode,
+        ENABLE_PROCESSED_OUTPUT, ENABLE_VIRTUAL_TERMINAL_INPUT, ENABLE_VIRTUAL_TERMINAL_PROCESSING,
+        GetConsoleMode, GetStdHandle, STD_INPUT_HANDLE, STD_OUTPUT_HANDLE, SetConsoleCP,
+        SetConsoleMode,
     };
     // SAFETY: Borrow the process's standard console handle; never close it.
-    // A zero mode disables line buffering, echo and processed input in this
-    // isolated fixture only. UTF-8 makes ReadConsoleW's Rust conversion stable.
+    // Line buffering, echo and processed input stay disabled in this isolated
+    // fixture. Keyboard tests also enable VT input so navigation keys are read
+    // as sequences. UTF-8 makes ReadConsoleW's Rust conversion stable. The mode
+    // output pointer below is valid local storage, read only after success.
     unsafe {
         let handle = GetStdHandle(STD_INPUT_HANDLE);
         if handle.is_null()
             || handle == INVALID_HANDLE_VALUE
-            || SetConsoleMode(handle, 0) == 0
+            || SetConsoleMode(
+                handle,
+                if virtual_terminal {
+                    ENABLE_VIRTUAL_TERMINAL_INPUT
+                } else {
+                    0
+                },
+            ) == 0
             || SetConsoleCP(65001) == 0
         {
             return Err(io::Error::last_os_error());
+        }
+        if virtual_terminal {
+            let output = GetStdHandle(STD_OUTPUT_HANDLE);
+            let mut mode = 0;
+            if output.is_null()
+                || output == INVALID_HANDLE_VALUE
+                || GetConsoleMode(output, &mut mode) == 0
+                || SetConsoleMode(
+                    output,
+                    mode | ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING,
+                ) == 0
+            {
+                return Err(io::Error::last_os_error());
+            }
         }
     }
     Ok(())
 }
 
 #[cfg(not(windows))]
-fn raw_console() -> io::Result<()> {
-    Err(io::Error::other("input fixture requires Windows"))
+fn raw_console(_virtual_terminal: bool) -> io::Result<()> {
+    // Test child only. Configure its inherited PTY without another PTY crate
+    // or any production terminal-mode change. Existing Windows path is above.
+    let status = std::process::Command::new("/bin/stty")
+        .args(["raw", "-echo"])
+        .stdin(std::process::Stdio::inherit())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status()?;
+    if status.success() {
+        Ok(())
+    } else {
+        Err(io::Error::other(
+            "could not configure synthetic child raw input",
+        ))
+    }
 }

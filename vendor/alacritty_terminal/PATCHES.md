@@ -38,6 +38,20 @@
 
 ## R06 / issue #6: bounded input through the actual writer
 
+### R14 native follow-up: preserve Windows write progress
+
+The native keyboard byte oracle reproduced accepted input stranded in the
+queue (48 queued bytes, zero cancellation, healthy writer). Windows readiness
+uses posted completion packets. If input arrives after the last chunk is taken
+but before `needs_write` is checked, writable interest remains enabled although
+its packet was already consumed. The initial follow-up rearmed pending writes.
+After syncing current main, retain issue #67's `finish_io_turn` solution instead:
+it services admitted input after poll notifications, preserving both buffered
+read continuation and write progress. Its existing regression tests cover the
+same notification-only input wake. No second rearm mechanism is retained.
+The unchanged 168-case native keyboard oracle in all four cursor/newline modes
+is the integration regression, repeated under both renderer profiles.
+
 - Add `src/input.rs`: a 2 MiB per-session outstanding byte budget, whole-input
   preflight/admission, ordered 8 KiB packed chunks, and redacted rejection/status
   types. No input payload enters the unbounded std message channel or write list.

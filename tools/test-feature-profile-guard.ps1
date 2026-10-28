@@ -9,9 +9,11 @@ function Test-FeatureGuard {
         $global:LASTEXITCODE = 0
         $renderer = if ($args -contains 'renderer-tiny-skia') { 'tiny-skia' } else { 'wgpu' }
         $ExtraRows
-        "iced v0.14.0|advanced,canvas,crisp,lazy,tokio,$renderer"
+        $icedRenderer = if ($renderer -eq 'wgpu') { 'wgpu-bare' } else { $renderer }
+        "iced v0.14.0|advanced,canvas,crisp,lazy,tokio,$icedRenderer"
         'iced_futures v0.14.0|tokio'
         "iced_renderer v0.14.0|$renderer"
+        if ($renderer -eq 'wgpu') { 'wgpu v27.0.1|dx12,metal,parking_lot,std,vulkan,wgsl' }
         'iced_term v0.8.0 (<repository>/vendor/iced_term)|'
         'tokio v1.54.1|default,rt,rt-multi-thread,sync,time'
     }
@@ -32,4 +34,6 @@ function Test-FeatureGuard {
 Test-FeatureGuard -Name 'isolated profiles pass'
 Test-FeatureGuard -Name 'rejects full on an earlier Tokio version' -ExtraRows @('tokio v1.50.0|full,rt,sync') -ExpectedError 'Unexpected tokio/full'
 Test-FeatureGuard -Name 'rejects defaults on an earlier Iced version' -ExtraRows @('iced v0.13.0|default,wgpu') -ExpectedError 'Unexpected iced/default'
-Test-FeatureGuard -Name 'rejects a renderer dependency leak' -ExtraRows @('wgpu v27.0.1|default') -ExpectedError 'wgpu leaked into tiny-skia profile'
+Test-FeatureGuard -Name 'rejects a renderer dependency leak' -ExtraRows @('wgpu v27.0.1|dx12') -ExpectedError 'wgpu leaked into tiny-skia profile'
+Test-FeatureGuard -Name 'rejects WGL backend activation' -ExtraRows @('wgpu v27.0.1|gles') -ExpectedError 'Unexpected wgpu/gles'
+Test-FeatureGuard -Name 'rejects OpenGL dependency leakage' -ExtraRows @('glow v0.16.0|') -ExpectedError 'OpenGL leaked'

@@ -23,7 +23,8 @@ foreach ($renderer in @('wgpu', 'tiny-skia')) {
     foreach ($feature in @('default', 'thread-pool', 'linux-theme-detection', 'x11', 'wayland', 'web-colors', $other)) {
         if ($features['iced'] -contains $feature) { throw "Unexpected iced/$feature in $renderer" }
     }
-    if ($features['iced'] -notcontains $renderer) { throw "Missing iced/$renderer" }
+    $icedRenderer = if ($renderer -eq 'wgpu') { 'wgpu-bare' } else { $renderer }
+    if ($features['iced'] -notcontains $icedRenderer) { throw "Missing iced/$icedRenderer" }
     if ($features['iced_futures'] -contains 'thread-pool') { throw 'Iced thread pool was re-enabled' }
     if ($features['iced_term'].Count -ne 0) { throw 'Vendor compatibility defaults were re-enabled' }
     foreach ($feature in @('full', 'fs', 'io-std', 'io-util', 'net', 'process', 'signal', 'macros', 'test-util')) {
@@ -31,6 +32,16 @@ foreach ($renderer in @('wgpu', 'tiny-skia')) {
     }
     if ($renderer -eq 'tiny-skia' -and $features.ContainsKey('wgpu')) { throw 'wgpu leaked into tiny-skia profile' }
     if ($renderer -eq 'wgpu' -and $features.ContainsKey('iced_tiny_skia')) { throw 'tiny-skia leaked into wgpu profile' }
+    if ($renderer -eq 'wgpu') {
+        if (-not $features.ContainsKey('wgpu')) { throw 'Missing native wgpu dependency' }
+        foreach ($feature in @('dx12', 'vulkan', 'wgsl')) {
+            if ($features['wgpu'] -notcontains $feature) { throw "Missing wgpu/$feature" }
+        }
+        foreach ($feature in @('default', 'gles', 'webgl')) {
+            if ($features['wgpu'] -contains $feature) { throw "Unexpected wgpu/$feature (native layout-change hang risk)" }
+        }
+        if ($features.ContainsKey('glow') -or $features.ContainsKey('khronos-egl')) { throw 'OpenGL leaked into native wgpu profile' }
+    }
     if ($OutputDirectory) {
         New-Item -ItemType Directory -Force $OutputDirectory | Out-Null
         $repository = (Get-Location).Path
