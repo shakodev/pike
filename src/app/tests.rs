@@ -10,6 +10,7 @@ const DEADLINE: Duration = Duration::from_secs(10);
 
 #[cfg(unix)]
 mod cancellation;
+mod interaction;
 mod paste;
 
 fn profile(script: &str) -> BackendSettings {

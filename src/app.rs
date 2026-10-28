@@ -138,7 +138,10 @@ impl App {
                 }
             }
             Message::Launched(reservation, result) => return self.launched(reservation, result),
-            Message::Terminal((id, event)) => self.sessions.route(&mut self.model, id, event),
+            Message::Terminal((id, event)) => {
+                self.sessions
+                    .route(&mut self.model, &self.window_focus, id, event)
+            }
             Message::Disposed(reservation) => {
                 let disposed = self.sessions.entries.get(&reservation.session).is_some_and(|entry| {
                     entry.reservation == reservation && matches!(&entry.owner, Owner::Disposing(handle) if handle.completion().is_some())

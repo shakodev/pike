@@ -107,16 +107,27 @@ impl Sessions {
 
     /// A typed subscription/widget origin and the emulator ID must agree.
     /// Stale messages cannot select the current pane as an implicit target.
-    pub fn route(&mut self, model: &mut Model, origin: SessionId, event: Event) {
-        let Event::BackendCall(raw, command) = event;
+    pub fn route(
+        &mut self,
+        model: &mut Model,
+        window: &WindowFocus,
+        origin: SessionId,
+        event: Event,
+    ) {
+        let Event::BackendCall(raw, mut command) = event;
         if let BackendCommand::Paste(request) = &command {
             let accepts = raw == origin.get()
                 && request.session_id() == origin.get()
-                && model.sessions().get(origin).is_some()
+                && window.is_focused()
                 && self.entries.get(&origin).is_some_and(|entry| {
-                    !entry.ended
+                    model.sessions().get(origin).is_some_and(|session| {
+                        session.reservation() == entry.reservation
+                            && session.lifecycle() == Lifecycle::Running
+                    }) && !entry.ended
                         && entry.terminal().is_some_and(|terminal| {
-                            terminal.is_visible() && !terminal.input_status().closed
+                            terminal.id == raw
+                                && !terminal.input_status().closed
+                                && terminal.renderable_content().is_some_and(|c| c.focused)
                         })
                 });
             if !accepts {
@@ -131,20 +142,43 @@ impl Sessions {
         let Some(entry) = self.entries.get_mut(&origin) else {
             return;
         };
-        if model.sessions().get(origin).is_none() {
+        let Some(session) = model.sessions().get(origin) else {
+            return;
+        };
+        if session.reservation() != entry.reservation {
             return;
         }
         let Owner::Attached(terminal) = &mut entry.owner else {
             return;
         };
+        if terminal.id != raw {
+            return;
+        }
         entry.ended |= terminal.input_status().closed;
-        // Retain selection, viewport resize and final protocol/lifecycle traffic.
-        // The backend already closes admission at ChildExit; this also prevents
-        // stale widget input/focus from disturbing its final EOF drain.
-        if (entry.ended || !terminal.is_visible())
+        let visible =
+            terminal.is_visible() && !matches!(session.lifecycle(), Lifecycle::Closing { .. });
+        let writable = visible && !entry.ended && session.lifecycle() == Lifecycle::Running;
+        // Recheck focus at consumption: widget input may be queued across a
+        // pane/window focus change. Hovered mouse/wheel must not acquire focus.
+        if matches!(command, BackendCommand::Write(_))
+            && !(writable
+                && window.is_focused()
+                && terminal.renderable_content().is_some_and(|c| c.focused))
+        {
+            return;
+        }
+        if !writable && matches!(command, BackendCommand::MouseReport(..)) {
+            return;
+        }
+        if !visible
             && matches!(
                 command,
-                BackendCommand::Write(_) | BackendCommand::MouseReport(..)
+                BackendCommand::Scroll(_)
+                    | BackendCommand::ScrollHistory(_)
+                    | BackendCommand::SelectStart(..)
+                    | BackendCommand::SelectUpdate(_)
+                    | BackendCommand::ProcessLink(..)
+                    | BackendCommand::FocusChanged(true)
             )
         {
             return;
@@ -152,14 +186,13 @@ impl Sessions {
         if entry.ended && matches!(command, BackendCommand::FocusChanged(_)) {
             return;
         }
-        if !terminal.is_visible()
-            && matches!(
-                command,
-                BackendCommand::Scroll(_) | BackendCommand::FocusChanged(true)
-            )
-        {
-            return;
+        // Scroll can generate alternate-screen arrow input. Retained final
+        // output permits only the adapter's explicitly local history path.
+        if !writable && let BackendCommand::Scroll(lines) = command {
+            command = BackendCommand::ScrollHistory(iced_term::HistoryScroll::Lines(lines));
         }
+        // Protocol replies and lifecycle receipts remain origin-bound and do
+        // not require visibility or keyboard focus.
         match terminal.handle(iced_term::Command::ProxyToBackend(command)) {
             Action::ChildExit(_) | Action::Shutdown { .. } => entry.ended = true,
             Action::BackendCompleted(completion) => {

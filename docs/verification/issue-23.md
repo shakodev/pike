@@ -1,6 +1,6 @@
 # Issue #23 — first session through the workspace registry
 
-Based on merged main `713020604d2df41de84d31797eb7128818521eff` and its
+Based on merged main `be04b8d495fb5af31d77272f39d28c48cf560819` and its
 current #22 identity/model and #10 prepare/attach contracts. Updated AGENTS.md
 and PLAN sections3/4 govern this change. The plan's initial empty-repository
 baseline is historical. #14's remaining physical checks and #13's DPI hold are
@@ -59,7 +59,8 @@ periodic timer, new runtime, native PTY or dependency is added.
 The merged #16 deferred paste/copy/input contracts are preserved. Paste failures
 remain visible metadata on their origin; stale, hidden or ended paste requests
 are canceled, invalidating clones and releasing their bounded pending slot.
-Concurrent #17 is not a prerequisite and unmerged branches are not consumed.
+Merged #17 is integrated through its actual mouse/history commands; see the
+integration record below. Unmerged #19 APIs are not consumed.
 Later clipboard/menu integration must retain captured SessionId and bounded,
 redacted errors; full menu chrome remains #33.
 
@@ -187,3 +188,69 @@ unmeasured for this correction. The reviewer also reproduced the partial-line
 Unix timeout on the equivalent main shutdown path and classified it as a
 pre-existing intermittent limitation; this correction does not repair it or
 increase its deadline. #13/#14 physical holds remain nonblocking.
+
+## PR72 integration with merged #17
+
+The independently approved `c16f5a33414bf4a3c4b5ba14b1d98b549d0a9568`
+was merged with current main `be04b8d495fb5af31d77272f39d28c48cf560819`
+in the same branch/PR, without conflicts. The vendor files are exactly main's
+reviewed bytes; no mouse/paste implementation is duplicated or rewritten.
+
+The host now rechecks pane and owning-window focus before consuming queued
+keyboard/paste input. Rejected paste tokens are canceled through their shared
+payload, so held clones cannot send and their bounded slot becomes reusable.
+Typed SessionId, raw backend ID, terminal ID and model reservation must agree.
+Mouse reports and wheel input require a visible live owner, but do not require
+or change keyboard focus. Hidden local history/selection commands are ignored.
+The merged `Scroll` command can emit alternate-screen cursor keys; after exit,
+the host converts it to `ScrollHistory::Lines`, the adapter's explicitly local
+path. Exited selection and copy remain usable. Protocol replies and lifecycle
+receipts stay independent of keyboard focus/visibility and retain their origin.
+
+Targeted verification ran locally on macOS arm64, Rust 1.97.1,
+`CARGO_BUILD_JOBS=4`, default wgpu only, in this worktree's existing target:
+
+```sh
+cargo test --locked --lib app::tests::interaction:: -- --test-threads=1
+cargo test --locked --lib app::tests::paste::real_widget -- --ignored --test-threads=1
+cargo test --locked --lib -- app::tests::all_live_entries app::tests::rapid_exit app::tests::input_failure_metadata app::tests::paste::paste_errors --test-threads=1
+cargo test --locked -p iced_term --lib --no-default-features --features iced/wgpu,iced/tokio -- backend::mouse_history_tests::local_history_is_no_input view::pointer_tests::fractional_wheel view::pointer_tests::history_shortcut view::paste_tests:: --test-threads=1
+cargo clippy --locked --lib --bin pike --example first_session_host --tests -- -D warnings
+cargo clippy --locked --lib --bin pike --example first_session_host --tests --target x86_64-pc-windows-msvc -- -D warnings
+cargo fmt --package pike -- --check
+git diff --check
+```
+
+The new interaction tests passed three cases: queued keyboard focus, live hovered
+mouse/alternate wheel ownership without focus stealing, and hidden/exited history
+with selection/copy. The keyboard regression first failed against the old host
+with “queued keyboard wrote after pane focus changed,” after native cleanup.
+One explicit device-backed paste test passed six rejection cases, including
+window blur, pane unfocus and matching IDs with no bound host owner; held clones
+admitted zero bytes and a subsequent valid request admitted once. Four existing
+host routing tests and four explicit vendor integration tests passed with nonzero
+filter matches. After tightening the no-owner cases, only those two affected
+tests were repeated. Native and Windows-target Clippy passed; final test-source
+lint (`cargo clippy --locked --lib --tests -- -D warnings`), formatting and
+whitespace checks also passed. The existing `block 0.1.6` future-compatibility
+notice remains dependency-only. Logs, exact command results and final source/head hashes
+are retained in `target/issue-23/integration-be04/`.
+
+The prior 15-app/21-launch runs and cancellation red/green at `c16f5a3`, and prior
+GUI/focus/final-output evidence at `68187299`/`73c33944`, are reused only for
+unchanged behavior, never relabeled as this integration's execution. No new
+launch-pool, focus-effect, GUI, release-build or resource-measurement run is
+claimed. Compilation/lint covers the changed host consumers and tests; the four
+vendor filters exercise the merged local-history/alternate-write distinction,
+hover focus, history shortcut and deferred paste contracts without a blanket
+vendor suite. No full-workspace, second-renderer or remote CI run was needed.
+
+The two VT/history host cases use Unix native children; the queued-focus test
+and existing host consumers also compile for Windows. Cross compilation does
+not establish Windows/ConPTY runtime behavior. Physical keyboard/monitor/DPI,
+Windows shells, and release CPU/RAM/latency remain unmeasured for this head.
+The previously documented intermittent Unix partial-line cleanup limitation is
+unchanged; fixtures finish controlled lines and await real completion without
+raising deadlines. The cancellation acknowledgement fix, initial focus and
+retained-output ownership remain intact. #24/#29/#28/#31 and future #19 are
+outside this integration. CI remains OFF and independent re-review precedes merge.

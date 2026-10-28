@@ -114,7 +114,7 @@ fn admitted(terminal: &Terminal) -> usize {
 
 #[test]
 #[ignore = "requires a local graphics device; run explicitly for host paste integration"]
-fn real_widget_paste_tokens_are_canceled_for_stale_hidden_and_ended_origins() {
+fn real_widget_paste_tokens_require_owned_visible_live_focused_origins() {
     let executor = SharedExecutor::new().unwrap();
     let renderer = executor
         .block_on(<iced::Renderer as Headless>::new(
@@ -131,7 +131,14 @@ fn real_widget_paste_tokens_are_canceled_for_stale_hidden_and_ended_origins() {
     let (ids, ready) = launch(&mut app, &executor);
     drop(app.launched(ids, Ok(ready)));
     let initial = admitted(app.terminal(ids.session).unwrap());
-    for reason in ["stale", "hidden", "ended"] {
+    for reason in [
+        "stale",
+        "hidden",
+        "ended",
+        "unfocused",
+        "blurred",
+        "unowned",
+    ] {
         let token = request(app.terminal(ids.session).unwrap(), &renderer);
         let held_clone = token.clone();
         match reason {
@@ -139,13 +146,25 @@ fn real_widget_paste_tokens_are_canceled_for_stale_hidden_and_ended_origins() {
                 .sessions
                 .synchronize(&app.model, None, &app.window_focus),
             "ended" => app.sessions.entries.get_mut(&ids.session).unwrap().ended = true,
+            "unfocused" => drop(app.update(Message::Terminal((
+                ids.session,
+                Event::BackendCall(ids.session.get(), BackendCommand::FocusChanged(false)),
+            )))),
+            "blurred" => app.window_focus.set_focused(false),
             _ => {}
         }
+        // Keep the native owner alive in the fixture while removing its host
+        // binding; matching typed/raw IDs alone must not admit this payload.
+        let removed =
+            (reason == "unowned").then(|| app.sessions.entries.remove(&ids.session).unwrap());
         let raw = ids.session.get() + u64::from(reason == "stale");
         drop(app.update(Message::Terminal((
             ids.session,
             Event::BackendCall(raw, BackendCommand::Paste(token)),
         ))));
+        if let Some(owner) = removed {
+            app.sessions.entries.insert(ids.session, owner);
+        }
         let terminal = match &mut app.sessions.entries.get_mut(&ids.session).unwrap().owner {
             Owner::Attached(terminal) => terminal,
             _ => unreachable!(),
@@ -158,7 +177,9 @@ fn real_widget_paste_tokens_are_canceled_for_stale_hidden_and_ended_origins() {
             iced_term::actions::Action::Ignore
         );
         assert_eq!(admitted(terminal), initial);
+        app.window_focus.set_focused(true);
         terminal.set_visible(true);
+        terminal.set_focused(true);
         let next = request(terminal, &renderer); // Cancellation freed its bounded slot.
         next.cancel();
         app.sessions.entries.get_mut(&ids.session).unwrap().ended = false;
