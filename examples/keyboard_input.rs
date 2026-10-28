@@ -163,7 +163,23 @@ fn main() -> io::Result<()> {
                     "keyboard input performed font/resize/snapshot work",
                 )?;
                 send(terminal, b"!".to_vec())?;
-                wait_file(&directory.join("done"))?;
+                if let Err(error) = wait_file(&executor, terminal, &directory.join("done")) {
+                    if let Ok(progress) = fs::read_to_string(directory.join("progress")) {
+                        let count = progress
+                            .trim()
+                            .split(',')
+                            .next()
+                            .and_then(|n| n.parse::<usize>().ok())
+                            .unwrap_or(0);
+                        eprintln!(
+                            "Synthetic read progress: {}; expected prefix hash {}",
+                            progress.trim(),
+                            hash(&expected[..count.min(expected.len())])
+                        );
+                    }
+                    eprintln!("Synthetic writer status: {:?}", terminal.input_status());
+                    return Err(error);
+                }
                 let expected_hash = hash(&expected);
                 check(
                     fs::read_to_string(directory.join("result"))?
@@ -268,8 +284,9 @@ fn verify_psreadline(
             wait(executor, terminal, |_, command| {
                 matches!(command,
                     BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::Title(title))
-                    if title == &format!("pike:psreadline-{label}"))
+                    if title == &format!("pike:psreadline-arming-{label}"))
             })?;
+            wait_readline_ready(executor, terminal, label)?;
             scene.focus(terminal, renderer)?;
             for event in events {
                 let (events, captured) = scene.dispatch(terminal, renderer, Event::Keyboard(event));
@@ -294,6 +311,31 @@ fn verify_psreadline(
         completion.exit_code == Some(0),
         "PSReadLine fixture did not exit successfully",
     )
+}
+
+#[cfg(windows)]
+fn wait_readline_ready(
+    executor: &SharedExecutor,
+    terminal: &mut Terminal,
+    label: &str,
+) -> io::Result<()> {
+    executor.block_on(async {
+        let mut events = into_recipes(terminal.subscription()).pop().unwrap().stream(stream::pending().boxed());
+        tokio::time::timeout(Duration::from_secs(10), async {
+            loop {
+                // F12 is a fixture-only handshake, handled by PSReadLine itself.
+                // Initial console setup may discard input before ReadLine is live.
+                send(terminal, b"\x1b[24~".to_vec())?;
+                if let Ok(Some(iced_term::Event::BackendCall(id, command))) = tokio::time::timeout(Duration::from_millis(50), events.next()).await {
+                    check(id == terminal.id, "event reached the wrong fixture")?;
+                    let ready = matches!(&command, BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::Title(title)) if title == &format!("pike:psreadline-{label}"));
+                    terminal.handle(Command::ProxyToBackend(command));
+                    terminal.refresh();
+                    if ready { return Ok(()); }
+                }
+            }
+        }).await.map_err(|_| io::Error::other("PSReadLine readiness deadline"))?
+    })
 }
 
 fn binding(target: InputKind, action: BindingAction) -> (Binding<InputKind>, BindingAction) {
@@ -368,17 +410,33 @@ fn wait(
     })
 }
 
-fn wait_file(path: &Path) -> io::Result<()> {
-    let start = Instant::now();
-    // Opt-in fixture observation only; no polling is added to the application.
-    while !path.is_file() {
-        check(
-            start.elapsed() < Duration::from_secs(10),
-            "raw fixture deadline",
-        )?;
-        std::thread::sleep(Duration::from_millis(5));
-    }
-    Ok(())
+fn wait_file(executor: &SharedExecutor, terminal: &mut Terminal, path: &Path) -> io::Result<()> {
+    executor.block_on(async {
+        let mut events = into_recipes(terminal.subscription())
+            .pop()
+            .unwrap()
+            .stream(stream::pending().boxed());
+        // Keep servicing terminal protocol replies while observing the child.
+        // Blocking here can strand a ConPTY query behind its coalesced wakeup.
+        // This timer belongs only to the opt-in fixture, never the application.
+        tokio::time::timeout(Duration::from_secs(10), async {
+            while !path.is_file() {
+                if let Ok(event) =
+                    tokio::time::timeout(Duration::from_millis(5), events.next()).await
+                {
+                    let Some(iced_term::Event::BackendCall(id, command)) = event else {
+                        return Err(io::Error::other("fixture ended before byte report"));
+                    };
+                    check(id == terminal.id, "event reached the wrong fixture")?;
+                    terminal.handle(Command::ProxyToBackend(command));
+                    terminal.refresh();
+                }
+            }
+            Ok(())
+        })
+        .await
+        .map_err(|_| io::Error::other("raw fixture deadline"))?
+    })
 }
 
 fn send(terminal: &mut Terminal, bytes: Vec<u8>) -> io::Result<()> {

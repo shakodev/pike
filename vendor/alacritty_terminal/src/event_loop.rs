@@ -390,7 +390,13 @@ where
                 }
             }
             let needs_write = state.needs_write(&self.input);
-            if !read_eof && needs_write != interest.writable {
+            // Windows readiness is delivered by posted completion packets,
+            // rather than a kernel level-triggered writable descriptor. Input
+            // can arrive after pty_write drained its last chunk but before
+            // needs_write observes the queue. In that case writable stays true
+            // although its previous packet was consumed. Rearm while pending;
+            // the Windows writer posts only when its bounded pipe has room.
+            if !read_eof && (needs_write != interest.writable || cfg!(windows) && needs_write) {
                 interest.writable = needs_write;
                 if let Err(err) = self.pty.reregister(&self.poll, interest, poll_opts) {
                     completion.reason = ExitReason::IoError(err.kind());

@@ -81,6 +81,11 @@ fn run() -> io::Result<()> {
             hash = (hash ^ u64::from(*byte)).wrapping_mul(0x100000001b3);
         }
         bytes += read;
+        if keyboard_mode {
+            // Numeric progress only, so a native deadline identifies a short
+            // read without collecting terminal input or weakening the oracle.
+            fs::write(directory.join("progress"), format!("{bytes},{hash}\n"))?;
+        }
     }
     // Only numeric metadata leaves the fixture, never a terminal transcript.
     let mut report = fs::File::create(directory.join("result"))?;

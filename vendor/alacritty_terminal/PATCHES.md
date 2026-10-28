@@ -21,6 +21,18 @@
 
 ## R06 / issue #6: bounded input through the actual writer
 
+### R14 native follow-up: rearm Windows write readiness
+
+The native keyboard byte oracle reproduced accepted input stranded in the
+queue (48 queued bytes, zero cancellation, healthy writer). Windows readiness
+uses posted completion packets. If input arrives after the last chunk is taken
+but before `needs_write` is checked, writable interest remains enabled although
+its packet was already consumed. Re-register pending Windows writes so the
+bounded pipe posts readiness when it has capacity. Unix readiness and idle
+sessions are unchanged; no timer, worker or additional buffer is introduced.
+The unchanged 168-case native keyboard oracle in all four cursor/newline modes
+is the integration regression, repeated under both renderer profiles.
+
 - Add `src/input.rs`: a 2 MiB per-session outstanding byte budget, whole-input
   preflight/admission, ordered 8 KiB packed chunks, and redacted rejection/status
   types. No input payload enters the unbounded std message channel or write list.

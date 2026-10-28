@@ -16,8 +16,8 @@ public static class PikeKeyboardInput {
     [StructLayout(LayoutKind.Explicit)] public struct InputUnion { [FieldOffset(0)] public KeyInput key; [FieldOffset(0)] public MouseInput mouse; }
     [StructLayout(LayoutKind.Sequential)] public struct Input { public uint type; public InputUnion data; }
     [DllImport("user32.dll", SetLastError=true)] static extern uint SendInput(uint count, Input[] inputs, int size);
-    [DllImport("user32.dll", CharSet=CharSet.Unicode)] public static extern IntPtr FindWindowW(string className, string title);
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr window);
+    [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr window, out uint process);
     [DllImport("user32.dll")] public static extern IntPtr GetKeyboardLayout(uint thread);
     [DllImport("user32.dll", CharSet=CharSet.Unicode, SetLastError=true)] public static extern IntPtr LoadKeyboardLayoutW(string layout, uint flags);
@@ -56,6 +56,9 @@ function Set-FixtureLayout([string]$Id) {
     }
 }
 function Scan([int]$Code, [bool]$Up = $false, [bool]$Extended = $false) {
+    if ([PikeKeyboardInput]::GetForegroundWindow() -ne $window) {
+        throw 'Fixture lost foreground focus; refusing to send keys to another application.'
+    }
     [PikeKeyboardInput]::Scan([ushort]$Code, $Up, $Extended)
 }
 
@@ -71,13 +74,33 @@ $original = [IntPtr]::Zero
 $loaded = @()
 try {
     Wait-FixtureFile 'ready'
-    $window = [PikeKeyboardInput]::FindWindowW($null, 'Pike synthetic keyboard layout probe')
-    if ($window -eq [IntPtr]::Zero) { throw 'The fixture Iced window is unavailable on this Windows desktop.' }
+    # Backend readiness/focus tasks can finish before Winit creates the HWND.
+    # Wait for the owned native window, rather than treating this race as a
+    # missing interactive desktop. Never inject into a same-title foreign window.
+    $timer = [Diagnostics.Stopwatch]::StartNew()
+    do {
+        if ($process.HasExited) { throw "OS keyboard fixture exited $($process.ExitCode) before window creation." }
+        $process.Refresh()
+        $candidate = $process.MainWindowHandle
+        [uint32]$candidateOwner = 0
+        if ($candidate -ne [IntPtr]::Zero) {
+            [void][PikeKeyboardInput]::GetWindowThreadProcessId($candidate, [ref]$candidateOwner)
+            if ($candidateOwner -eq $process.Id) { $window = $candidate; break }
+        }
+        if ($timer.Elapsed.TotalSeconds -gt 10) { throw 'The fixture owned Iced window did not appear within 10 seconds.' }
+        Start-Sleep -Milliseconds 25
+    } while ($true)
     [uint32]$owner = 0
     $thread = [PikeKeyboardInput]::GetWindowThreadProcessId($window, [ref]$owner)
     if ($owner -ne $process.Id) { throw 'Refusing to inject keys into a window not owned by this fixture.' }
     $original = [PikeKeyboardInput]::GetKeyboardLayout($thread)
-    if (-not [PikeKeyboardInput]::SetForegroundWindow($window)) { throw 'Cannot focus fixture; an interactive input desktop is required.' }
+    $timer.Restart()
+    do {
+        [void][PikeKeyboardInput]::SetForegroundWindow($window)
+        if ([PikeKeyboardInput]::GetForegroundWindow() -eq $window) { break }
+        if ($timer.Elapsed.TotalSeconds -gt 10) { throw 'Cannot focus fixture; an interactive input desktop is required.' }
+        Start-Sleep -Milliseconds 25
+    } while ($true)
 
     Set-FixtureLayout '00000409' # US: three presses with no intermediate key-up.
     Scan 0x1e
