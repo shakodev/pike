@@ -80,8 +80,7 @@ The machine is Windows 11 Pro build 26200, Ryzen 5 2600X (12 logical CPUs),
 RTX 2070 driver 32.0.16.1742 and pinned Rust 1.97.1. Power mode, physical monitor
 scaling and refresh were not controlled for these opt-in harness observations.
 
-Remaining acceptance: actual Windows layout injection must pass on a foreground
-desktop, plus the owner's physical US/AltGr/dead-key/repeat checks, PSReadLine
+Remaining manual acceptance: the owner's physical US/AltGr/dead-key/repeat checks, PSReadLine
 and editor interaction, real mixed-DPI monitor transitions and interactive
 move/resize/focus/clipping checks. Keep #13/#14 open and PR #63 draft pending
 that evidence. Production IME and extended keyboard protocols remain separate
@@ -122,6 +121,42 @@ adds only the root dependency edge. Feature guards reject defaults/GLES/OpenGL
 leakage and require the native renderer features. This fixes the application
 profile too, rather than masking the failure with a test-only environment override.
 The earlier wgpu idle numbers above describe the pre-fix all-backend profile.
+
+The fix is confirmed by [native CI run 40754919879](https://github.com/shakodev/pike/actions/runs/40754919879)
+at `b96e862`: both renderer jobs pass every step, including real US/German/US
+International layout transitions and scan-code delivery, PSReadLine, Vim and
+child cleanup. [Both geometry profiles](https://github.com/shakodev/pike/actions/runs/40754928554)
+also pass. Exact keyboard/layout artifacts are retained under `hosted-native/`.
+Five additional local native-only wgpu runs pass all unchanged byte matrices,
+Vim and PSReadLine; the geometry probe passes too. Its single release idle
+observation records 0.102% of one core over 61.29 seconds, private bytes
+193,953,792–194,121,728 and working set 149,266,432–149,340,160. Wgpu still
+exceeds the proposed memory budget; renderer selection/performance gates remain
+separate work. This observation precedes the merge of newer main rendering work.
+
+## Integration with current main
+
+Merge `4cea71d` incorporates main `6ab69bc` without retaining a duplicate PTY
+write fix. Local application/example suites and denied-warning application and
+vendor Clippy pass for both profiles. The adapter now passes 112 tests (one
+existing ignored); Alacritty passes 180 unit tests (five existing ignored),
+45 reference cases and its doctest. Both release profiles pass keyboard/Vim/
+PSReadLine, geometry, authoritative selection copy, Unicode and protocol probes.
+The keyboard scene settles session-owned focus notifications before measuring
+key-only messages; the byte expectations remain unchanged. Records are under
+`merged-local/`. The final tiny-skia idle observation records zero sampled CPU
+time over 61.34 seconds, private bytes 12,898,304–13,025,280 and working set
+24,379,392–24,436,736. This remains one opt-in harness observation, not a full
+performance gate or a claim that every deployment has zero idle CPU.
+
+Final merged-head [Windows CI run 40756215060](https://github.com/shakodev/pike/actions/runs/40756215060)
+passes every step for both renderers at `4cea71d`, including the actual-window
+layout transitions, raw byte oracles, PSReadLine/Vim, launch validation, bounded
+input, shutdown lifecycle and dependency-file integrity. Both final
+[geometry jobs](https://github.com/shakodev/pike/actions/runs/40756219637) pass.
+`hosted-native/` retains the final merged-head keyboard/layout artifacts,
+superseding its earlier pre-merge capture. The PR is mergeable with main and
+remains draft solely for the physical checks explicitly deferred by the owner.
 
 Both [native geometry jobs](https://github.com/shakodev/pike/actions/runs/40750252425)
 pass, as do the [Windows 2022/2025 ConPTY audits](https://github.com/shakodev/pike/actions/runs/40750256974).

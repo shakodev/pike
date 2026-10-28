@@ -1,0 +1,13 @@
+{
+  "Commit": "4cea71d32e46da3482dbbeaa34558c02b63b81c5",
+  "Renderer": "tiny-skia",
+  "RunnerOS": {
+    "Caption": "Microsoft Windows Server 2025 Datacenter",
+    "Version": "10.0.26100",
+    "BuildNumber": "26100"
+  },
+  "ExecutableSha256": "B920B4D19211171E9BEA0BC4D79D202CD40672A9330D81649C02E332671A0C85",
+  "ElapsedMilliseconds": 1653.1178,
+  "Scope": "Synthetic Iced events through widget, bounded writer, native ConPTY, Vim and profile-free PowerShell/PSReadLine; excludes physical layouts.",
+  "FixtureCleanup": "All four fixture PIDs absent after acknowledged shutdown."
+}

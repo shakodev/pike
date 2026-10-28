@@ -1,0 +1,27 @@
+{
+  "Shell": "cmd",
+  "Sessions": 1,
+  "Mode": "idle",
+  "Run": 1,
+  "Renderer": "tiny-skia (ICED_BACKEND override); build features recorded separately",
+  "ReadyAndWindowMs": 316.857,
+  "CloseObservationMs": 81.0141,
+  "FinalMarkers": 1,
+  "ChildExitCodes": [
+    41
+  ],
+  "ExitCode": 0,
+  "IdleWallSeconds": 61.34279,
+  "IdleOneCoreCpuPercent": 0.0,
+  "ChildrenOneCoreCpuPercent": 0.0,
+  "PrivateBytesMinimum": 12898304.0,
+  "PrivateBytesMaximum": 13025280.0,
+  "WorkingSetBytesMinimum": 24379392.0,
+  "WorkingSetBytesMaximum": 24436736.0,
+  "ThreadsMinimum": 9.0,
+  "ThreadsMaximum": 13.0,
+  "HandlesMinimum": 235.0,
+  "HandlesMaximum": 237.0,
+  "ChildrenPrivateBytesMinimum": 7503872.0,
+  "ChildrenPrivateBytesMaximum": 10788864.0
+}
