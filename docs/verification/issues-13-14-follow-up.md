@@ -79,3 +79,29 @@ and editor interaction, real mixed-DPI monitor transitions and interactive
 move/resize/focus/clipping checks. Keep #13/#14 open and PR #63 draft pending
 that evidence. Production IME and extended keyboard protocols remain separate
 roadmap work.
+
+## Hosted follow-up at implementation commit `9484acd`
+
+The [hosted Windows run](https://github.com/shakodev/pike/actions/runs/40750247873)
+passes the actual-window US/German/US International scan-code test with the
+corrected HWND readiness handling on tiny-skia, including byte/hash matching
+and raw-child cleanup. This resolves the local foreground limitation for that
+automated gate; physical hardware verification remains pending. Hosted
+PowerShell 7.6.7 / PSReadLine 2.4.5 also passes the editing/cancellation checks.
+The exact downloaded synthetic evidence is retained in `hosted/tiny-skia`.
+
+The wgpu job at this commit passes raw bytes/Vim/PSReadLine, but its layout
+controller fails synchronously sending `WM_INPUTLANGCHANGEREQUEST` when switching
+from US to German (after the first four writes). The follow-up driver posts this
+message, matching the documented Windows input-language request path, and still
+waits for the target thread's verified active layout before any scan code.
+[Microsoft's message contract](https://learn.microsoft.com/en-us/windows/win32/winmsg/wm-inputlangchangerequest)
+specifies a posted message with an ignored return value. The five-second layout
+verification deadline and all byte expectations remain unchanged.
+
+Both [native geometry jobs](https://github.com/shakodev/pike/actions/runs/40750252425)
+pass, as do the [Windows 2022/2025 ConPTY audits](https://github.com/shakodev/pike/actions/runs/40750256974).
+Local bounded-input/stalled-reader and 30-scenario shutdown probes pass as well:
+98,195 synthetic echo bytes, whole-input rejection under stall, requested source
+completion in 713 ms, and zero cooperative shutdown target misses. Their
+resource/latency metadata are retained under `input-backlog/` and `shutdown/`.

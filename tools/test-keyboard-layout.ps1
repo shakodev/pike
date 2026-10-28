@@ -22,10 +22,12 @@ public static class PikeKeyboardInput {
     [DllImport("user32.dll")] public static extern IntPtr GetKeyboardLayout(uint thread);
     [DllImport("user32.dll", CharSet=CharSet.Unicode, SetLastError=true)] public static extern IntPtr LoadKeyboardLayoutW(string layout, uint flags);
     [DllImport("user32.dll", SetLastError=true)] public static extern bool UnloadKeyboardLayout(IntPtr layout);
-    [DllImport("user32.dll", SetLastError=true)] static extern IntPtr SendMessageTimeoutW(IntPtr window, uint message, UIntPtr wParam, IntPtr lParam, uint flags, uint timeout, out UIntPtr result);
+    [DllImport("user32.dll", SetLastError=true)] static extern bool PostMessageW(IntPtr window, uint message, UIntPtr wParam, IntPtr lParam);
     public static void Layout(IntPtr window, IntPtr layout) {
-        UIntPtr result;
-        if (SendMessageTimeoutW(window, 0x50, UIntPtr.Zero, layout, 2, 5000, out result) == IntPtr.Zero)
+        // Windows posts WM_INPUTLANGCHANGEREQUEST to the focused window.
+        // Match that asynchronous path; the driver separately verifies the
+        // target thread's active layout before sending any key.
+        if (!PostMessageW(window, 0x50, UIntPtr.Zero, layout))
             throw new Win32Exception(Marshal.GetLastWin32Error(), "WM_INPUTLANGCHANGEREQUEST failed");
     }
     public static void Scan(ushort scan, bool up, bool extended) {

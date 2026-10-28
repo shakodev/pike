@@ -1,0 +1,9 @@
+{
+  "Layouts": [
+    "00000409 US",
+    "00000407 German AltGr",
+    "00020409 US International dead key"
+  ],
+  "Scope": "SendInput scan codes through actual Windows layout, pinned Winit/Iced, terminal widget and native ConPTY; no physical keyboard hardware claim.",
+  "FixtureCleanup": "Raw fixture PID absent after acknowledged shutdown."
+}
