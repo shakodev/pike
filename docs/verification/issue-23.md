@@ -1,6 +1,6 @@
 # Issue #23 — first session through the workspace registry
 
-Based on merged main `8d9d8be177db88434e731a0a0557dddb502e7c68` and its
+Based on merged main `713020604d2df41de84d31797eb7128818521eff` and its
 current #22 identity/model and #10 prepare/attach contracts. Updated AGENTS.md
 and PLAN sections3/4 govern this change. The plan's initial empty-repository
 baseline is historical. #14's remaining physical checks and #13's DPI hold are
@@ -56,9 +56,11 @@ metadata behind after that acknowledgement. This is not #28's confirmation,
 wait/force-close or detached-descendant policy. No splits, tab UI, settings,
 periodic timer, new runtime, native PTY or dependency is added.
 
-The current merged widget paste/copy/input contracts are preserved. Concurrent
-#16/#17 APIs are not prerequisites and unmerged branches are not consumed. Any
-later clipboard/menu integration must retain captured SessionId and bounded,
+The merged #16 deferred paste/copy/input contracts are preserved. Paste failures
+remain visible metadata on their origin; stale, hidden or ended paste requests
+are canceled, invalidating clones and releasing their bounded pending slot.
+Concurrent #17 is not a prerequisite and unmerged branches are not consumed.
+Later clipboard/menu integration must retain captured SessionId and bounded,
 redacted errors; full menu chrome remains #33.
 
 ## Targeted local verification
@@ -71,18 +73,23 @@ The exact commands/results and final source head are recorded in the PR/report:
 ```sh
 cargo fmt --package pike -- --check
 cargo test --locked --lib app:: -- --test-threads=1
+cargo test --locked --lib app::tests::paste::real_widget -- --ignored --test-threads=1
 cargo clippy --locked --lib --bin pike --example first_session_host --tests -- -D warnings
 cargo clippy --locked --lib --bin pike --example first_session_host --target x86_64-pc-windows-msvc -- -D warnings
 cargo build --release --locked --bin pike --example first_session_host
 ```
 
-Thirteen focused tests exercise actual reservation/preparation/attachment,
+Fifteen focused tests exercise actual reservation/preparation/attachment,
 redacted invalid launch and fresh retry, stale/mismatched origins/results,
 queued cancellation, canceled delivered owners, duplicate-disposal guards,
 hidden protocol replies and background completion, rapid final output,
 aggregate shutdown with queued bridge receipts, already-exited focus, and
-obsolete/exclusive widget focus operations and origin-scoped input-failure metadata. Queued preparation uses deterministic
+obsolete/exclusive widget focus operations and origin-scoped input/paste errors.
+Real widget paste tokens are canceled across stale/hidden/ended origins.
+Queued preparation uses deterministic
 worker gates; tests do not add a production polling subsystem.
+The real-widget token test is opt-in because it requires a local graphics device;
+it is run explicitly in addition to the fourteen regular controller/focus tests.
 
 `first_session_host MODE FRESH_OUTPUT` runs the real App inside an actual Iced
 window with its own controlled executable as the child. Modes: success, invalid,
@@ -110,3 +117,7 @@ Selected Windows shell execution, physical keyboard/DPI/monitor behavior and
 whole-app CPU/RAM/latency budgets remain unmeasured here. Prior #13/#14 manual
 holds remain parked, not new gates. The fixture's registry counts/focus/sentinels
 and cleanup receipts establish those observations only, not release budgets.
+An initial macOS token fixture canceled a child with a partial tty line and hit
+its unchanged10s cleanup deadline. The passing fixture completes that synthetic
+line before awaiting native completion; partial-line Unix cancellation remains
+a limitation, with no timeout increase or unrelated Unix repair in this change.

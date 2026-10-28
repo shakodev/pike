@@ -109,6 +109,22 @@ impl Sessions {
     /// Stale messages cannot select the current pane as an implicit target.
     pub fn route(&mut self, model: &mut Model, origin: SessionId, event: Event) {
         let Event::BackendCall(raw, command) = event;
+        if let BackendCommand::Paste(request) = &command {
+            let accepts = raw == origin.get()
+                && request.session_id() == origin.get()
+                && model.sessions().get(origin).is_some()
+                && self.entries.get(&origin).is_some_and(|entry| {
+                    !entry.ended
+                        && entry.terminal().is_some_and(|terminal| {
+                            terminal.is_visible() && !terminal.input_status().closed
+                        })
+                });
+            if !accepts {
+                // Invalidate every clone, releasing the bounded pending slot.
+                request.cancel();
+                return;
+            }
+        }
         if raw != origin.get() {
             return;
         }
@@ -171,6 +187,7 @@ impl Sessions {
             Action::InputRejected(error) if !entry.ended => {
                 entry.notice = Some(format!("Input was not sent: {error}"))
             }
+            Action::PasteRejected(error) => entry.notice = Some(error.to_string()),
             Action::EventBridgeError(_) => {
                 entry.notice =
                     Some("Terminal output stopped. Close this terminal to recover.".into())

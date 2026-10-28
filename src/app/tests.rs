@@ -8,6 +8,8 @@ use std::time::Duration;
 
 const DEADLINE: Duration = Duration::from_secs(10);
 
+mod paste;
+
 fn profile(script: &str) -> BackendSettings {
     #[cfg(windows)]
     let (program, args) = ("cmd.exe", vec!["/D", "/Q", "/C", script]);
@@ -521,7 +523,7 @@ fn input_failure_metadata_is_visible_only_on_its_origin_and_keeps_the_model() {
         other.session,
         Event::BackendCall(
             ids.session.get(),
-            iced_term::BackendCommand::InputRejected(error.clone()),
+            iced_term::BackendCommand::InputRejected(error),
         ),
     ))));
     assert!(
