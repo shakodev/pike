@@ -1,0 +1,14 @@
+case,expected_bytes,result
+sgr-button-0,29,passed
+sgr-button-1,29,passed
+sgr-button-2,29,passed
+legacy,12,passed
+utf8,16,passed
+batched-mouse-key-order,19,passed
+unfocused-hover-fractional-wheel,30,passed
+shift-local-copy,0,passed
+blur-or-windowleave,18,passed
+blur-or-windowleave,18,passed
+alt,9,passed
+alt-normal,9,passed
+history-output-typing,1,passed

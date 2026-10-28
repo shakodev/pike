@@ -1,0 +1,13 @@
+{
+  "base_sha": "8d9d8be177db88434e731a0a0557dddb502e7c68",
+  "system": "macOS 26.7.1 (25G241)",
+  "host": "aarch64-apple-darwin",
+  "rustc": "1.97.1 (8bab26f4f 2026-07-14)",
+  "renderer": "tiny-skia (widget updates only; no pixel assertions)",
+  "vim": "/usr/bin/vim 9.1 patches 1-1752",
+  "checks": "103 adapter tests passed, 1 existing opt-in footprint test ignored; fmt and affected adapter/example clippy -D warnings passed",
+  "native_probe": "13 case rows passed, actual Vim mouse row2 write and natural exit passed",
+  "windows_current_head_execution": false,
+  "physical_input_checks": false,
+  "ci": "off; no remote run"
+}

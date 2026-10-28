@@ -22,6 +22,18 @@ use std::io::Result;
 use std::ops::Index;
 use std::sync::Arc;
 
+mod mouse;
+
+/// Explicit local history navigation; never sends alternate-screen/TUI bytes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum HistoryScroll {
+    Lines(i32),
+    PageUp,
+    PageDown,
+    Top,
+    Bottom,
+}
+
 const URL_REGEX: &str = r#"(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file://|git://|ssh:|ftp://)[^\u{0000}-\u{001F}\u{007F}-\u{009F}<>"\s{-}\^⟨⟩`]+"#;
 
 #[derive(Debug, Clone)]
@@ -31,6 +43,7 @@ pub enum Command {
     Paste(crate::PasteRequest),
     PasteRejected(crate::PasteError),
     Scroll(i32),
+    ScrollHistory(HistoryScroll),
     Resize(Option<Size<f32>>, Option<Size<f32>>),
     SetHistoryLimit(HistoryLimit),
     /// The owning application supplies effective pane AND window focus.
@@ -47,25 +60,7 @@ pub enum Command {
     RequestShutdown,
 }
 
-#[derive(Debug, Clone)]
-pub enum MouseMode {
-    Sgr,
-    Normal(bool),
-}
-
-impl From<TermMode> for MouseMode {
-    fn from(term_mode: TermMode) -> Self {
-        if term_mode.contains(TermMode::SGR_MOUSE) {
-            MouseMode::Sgr
-        } else if term_mode.contains(TermMode::UTF8_MOUSE) {
-            MouseMode::Normal(true)
-        } else {
-            MouseMode::Normal(false)
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MouseButton {
     LeftButton = 0,
     MiddleButton = 1,
@@ -76,6 +71,8 @@ pub enum MouseButton {
     NoneMove = 35,
     ScrollUp = 64,
     ScrollDown = 65,
+    ScrollLeft = 66,
+    ScrollRight = 67,
     Other = 99,
 }
 
@@ -110,6 +107,7 @@ pub struct Backend {
     snapshots: u64,
     cells_copied: u64,
     exit_code: Option<i32>,
+    mouse: mouse::ReportedMouse,
 }
 
 impl Backend {
@@ -205,6 +203,7 @@ impl Backend {
             snapshots: 0,
             cells_copied: 0,
             exit_code: None,
+            mouse: mouse::ReportedMouse::default(),
         })
     }
 
@@ -369,6 +368,9 @@ impl Backend {
             Command::Scroll(delta) => {
                 action = self.scroll(&mut term, delta);
             },
+            Command::ScrollHistory(scroll) => {
+                self.scroll_history(&mut term, scroll)
+            },
             Command::Resize(layout_size, font_measure) => {
                 self.resize(&mut term, layout_size, font_measure);
             },
@@ -387,11 +389,16 @@ impl Backend {
             Command::FocusChanged(focused) => {
                 let focused =
                     focused && self.visible && self.window_focus.is_focused();
+                if !focused {
+                    action = self.release_mouse(*term.mode());
+                }
                 if term.is_focused != focused {
                     term.is_focused = focused;
                     self.last_content.focused = focused;
                     self.render_dirty |= self.visible;
-                    if term.mode().contains(TermMode::FOCUS_IN_OUT) {
+                    if action == Action::Ignore
+                        && term.mode().contains(TermMode::FOCUS_IN_OUT)
+                    {
                         action = self.protocol_reply(if focused {
                             b"\x1b[I"
                         } else {
@@ -475,99 +482,6 @@ impl Backend {
                 panic!("link opening is failed");
             })
         }
-    }
-
-    fn process_mouse_report(
-        &self,
-        button: MouseButton,
-        modifiers: Modifiers,
-        point: Point,
-        pressed: bool,
-        mode: TermMode,
-    ) -> Action {
-        let mut mods = 0;
-        if modifiers.contains(Modifiers::SHIFT) {
-            mods += 4;
-        }
-        if modifiers.contains(Modifiers::ALT) {
-            mods += 8;
-        }
-        if modifiers.contains(Modifiers::COMMAND) {
-            mods += 16;
-        }
-
-        match MouseMode::from(mode) {
-            MouseMode::Sgr => {
-                self.sgr_mouse_report(point, button as u8 + mods, pressed)
-            },
-            MouseMode::Normal(is_utf8) => {
-                if pressed {
-                    self.normal_mouse_report(
-                        point,
-                        button as u8 + mods,
-                        is_utf8,
-                    )
-                } else {
-                    self.normal_mouse_report(point, 3 + mods, is_utf8)
-                }
-            },
-        }
-    }
-
-    fn sgr_mouse_report(
-        &self,
-        point: Point,
-        button: u8,
-        pressed: bool,
-    ) -> Action {
-        let c = if pressed { 'M' } else { 'm' };
-
-        let msg = format!(
-            "\x1b[<{};{};{}{}",
-            button,
-            point.column + 1,
-            point.line + 1,
-            c
-        );
-
-        self.write(msg.as_bytes())
-    }
-
-    fn normal_mouse_report(
-        &self,
-        point: Point,
-        button: u8,
-        is_utf8: bool,
-    ) -> Action {
-        let Point { line, column } = point;
-        let max_point = if is_utf8 { 2015 } else { 223 };
-
-        if line >= max_point || column >= max_point {
-            return Action::Ignore;
-        }
-
-        let mut msg = vec![b'\x1b', b'[', b'M', 32 + button];
-
-        let mouse_pos_encode = |pos: usize| -> Vec<u8> {
-            let pos = 32 + 1 + pos;
-            let first = 0xC0 + pos / 64;
-            let second = 0x80 + (pos & 63);
-            vec![first as u8, second as u8]
-        };
-
-        if is_utf8 && column >= Column(95) {
-            msg.append(&mut mouse_pos_encode(column.0));
-        } else {
-            msg.push(32 + 1 + column.0 as u8);
-        }
-
-        if is_utf8 && line >= 95 {
-            msg.append(&mut mouse_pos_encode(line.0 as usize));
-        } else {
-            msg.push(32 + 1 + line.0 as u8);
-        }
-
-        self.write(&msg)
     }
 
     fn start_selection(
@@ -759,37 +673,70 @@ impl Backend {
     fn scroll(
         &mut self,
         terminal: &mut Term<EventProxy>,
-        delta_value: i32,
+        delta: i32,
     ) -> Action {
-        if delta_value != 0 {
-            let scroll = Scroll::Delta(delta_value);
-            if terminal
-                .mode()
-                .contains(TermMode::ALTERNATE_SCROLL | TermMode::ALT_SCREEN)
-            {
-                let line_cmd = if delta_value > 0 { b'A' } else { b'B' };
-                let repeats = delta_value.unsigned_abs() as usize;
-                let bytes = repeats.saturating_mul(3);
-                if let Err(error) = self.preflight_input(bytes) {
-                    return Action::InputRejected(error);
-                }
-                let mut content = Vec::with_capacity(bytes);
-
-                for _ in 0..repeats {
-                    content.push(0x1b);
-                    content.push(b'O');
-                    content.push(line_cmd);
-                }
-
-                return self.write(&content);
-            } else {
-                let before = terminal.grid().display_offset();
-                terminal.grid_mut().scroll_display(scroll);
-                self.snapshot_dirty |=
-                    before != terminal.grid().display_offset();
-            }
+        if delta == 0 {
+            return Action::Ignore;
         }
-        Action::Ignore
+        if terminal
+            .mode()
+            .contains(TermMode::ALTERNATE_SCROLL | TermMode::ALT_SCREEN)
+        {
+            // Wheel events are bounded; direct callers cannot allocate an
+            // unbounded arrow batch either. Respect application cursor mode.
+            let repeats = delta.unsigned_abs().min(256) as usize;
+            let bytes = repeats * 3;
+            if let Err(error) = self.preflight_input(bytes) {
+                return Action::InputRejected(error);
+            }
+            let prefix = if terminal.mode().contains(TermMode::APP_CURSOR) {
+                b'O'
+            } else {
+                b'['
+            };
+            let direction = if delta > 0 { b'A' } else { b'B' };
+            let mut packet = Vec::with_capacity(bytes);
+            for _ in 0..repeats {
+                packet.extend_from_slice(&[0x1b, prefix, direction]);
+            }
+            self.write(&packet)
+        } else {
+            self.scroll_history(terminal, HistoryScroll::Lines(delta));
+            Action::Ignore
+        }
+    }
+
+    fn scroll_history(
+        &mut self,
+        terminal: &mut Term<EventProxy>,
+        scroll: HistoryScroll,
+    ) {
+        let before = terminal.grid().display_offset();
+        let maximum = terminal.history_size();
+        let scroll = match scroll {
+            HistoryScroll::Lines(lines) => {
+                // The pinned grid adds in i32: clamp public/extreme values
+                // before addition, even when already scrolled into history.
+                let lines = lines.clamp(
+                    -(HistoryLimit::MAX as i32),
+                    HistoryLimit::MAX as i32,
+                );
+                if lines == 0
+                    || (lines > 0 && before == maximum)
+                    || (lines < 0 && before == 0)
+                {
+                    return;
+                }
+                Scroll::Delta(lines)
+            },
+            HistoryScroll::PageUp if before < maximum => Scroll::PageUp,
+            HistoryScroll::PageDown if before > 0 => Scroll::PageDown,
+            HistoryScroll::Top if before < maximum => Scroll::Top,
+            HistoryScroll::Bottom if before > 0 => Scroll::Bottom,
+            _ => return,
+        };
+        terminal.scroll_display(scroll);
+        self.snapshot_dirty |= before != terminal.grid().display_offset();
     }
 
     pub fn selectable_content(&self) -> Option<String> {
@@ -1073,3 +1020,6 @@ mod event_bridge_tests {
         );
     }
 }
+
+#[cfg(test)]
+mod mouse_history_tests;
