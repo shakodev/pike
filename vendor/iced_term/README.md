@@ -221,6 +221,12 @@ cargo run --release
 
 ## Examples
 
+Pike's patched adapter exposes `Terminal::copy_selection(writer)` for explicit
+keyboard/menu actions. It uses Alacritty's selection extraction, skips missing
+or empty text, and returns the writer's result without changing selection or
+sending terminal input. Resolve the intended stable terminal ID before calling
+it; see [selection verification](../../docs/verification/issue-15.md).
+
 You can also look at [examples](./examples) directory for more information about widget using.
 
 - [full_screen](./examples/full_screen/) - The basic example of terminal emulator.

@@ -75,6 +75,38 @@ fn dirty_title_and_bell_floods_coalesce_without_control_capacity() {
 }
 
 #[test]
+fn disabled_clipboard_flood_never_retains_payload_or_starves_protocol_queries()
+{
+    let (sender, receiver) = channel();
+    for _ in 0..10_000 {
+        sender.send(Event::ClipboardStore(
+            alacritty_terminal::term::ClipboardType::Clipboard,
+            "x".repeat(1000),
+        ));
+        sender.send(Event::ClipboardLoad(
+            alacritty_terminal::term::ClipboardType::Clipboard,
+            Arc::new(|_| panic!("disabled")),
+        ));
+        sender.send(Event::Title("safe\n\u{202e}title".into()));
+        sender.send(Event::Bell);
+    }
+    sender.send(Event::TextAreaSizeRequest(Arc::new(|_| "size".into())));
+    let state = receiver.0.lock();
+    assert_eq!(state.controls.len(), 1);
+    assert_eq!(state.payload_bytes, 0);
+    assert!(state.error.is_none());
+    drop(state);
+    assert!(matches!(
+        next(&receiver),
+        Delivery::Terminal(Event::TextAreaSizeRequest(_))
+    ));
+    assert!(
+        matches!(next(&receiver), Delivery::Terminal(Event::Title(title)) if title == "safetitle")
+    );
+    assert!(matches!(next(&receiver), Delivery::Terminal(Event::Bell)));
+}
+
+#[test]
 fn title_memory_is_bounded_on_a_utf8_boundary() {
     let (sender, receiver) = channel();
     sender.send(Event::Title("🦀".repeat(TITLE_LIMIT)));
@@ -139,10 +171,7 @@ fn payload_budget_counts_string_capacity_and_resets_on_dequeue() {
     assert_eq!(receiver.0.lock().payload_bytes, 0);
     let mut text = String::with_capacity(PAYLOAD_LIMIT + 1);
     text.push('x');
-    sender.send(Event::ClipboardStore(
-        alacritty_terminal::term::ClipboardType::Clipboard,
-        text,
-    ));
+    sender.send(Event::PtyWrite(text));
     assert!(matches!(
         next(&receiver),
         Delivery::Bridge(EventBridgeEvent::Error(
@@ -195,10 +224,7 @@ fn requests_with_formatters_remain_in_protocol_order() {
         next(&receiver),
         Delivery::Terminal(Event::TextAreaSizeRequest(_))
     ));
-    assert!(matches!(
-        next(&receiver),
-        Delivery::Terminal(Event::ClipboardLoad(..))
-    ));
+    assert!(receiver.recv().now_or_never().is_none());
 }
 
 #[test]

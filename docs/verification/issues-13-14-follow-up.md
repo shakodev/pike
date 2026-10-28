@@ -6,6 +6,13 @@ left physical keyboard/monitor checks pending. Neither issue is closed here.
 
 ## Corrected defects
 
+After syncing main `6ab69bc`, issue #67's merged `finish_io_turn` implementation
+supersedes this branch's initial write-rearm change. It services admitted bytes
+on notification-only wakes and retains the newer bounded-read continuation.
+The merge also preserves authoritative selection copy, protocol metadata/focus,
+Unicode painting and steady cursor behavior alongside R14's consumption rules.
+The descriptions below retain the initial reproduction/fix history.
+
 - Native keyboard probes intermittently stalled with an exact prefix received
   by the child. One captured failure had 48 accepted bytes still queued, a
   healthy writer and no cancellation. Windows uses posted readiness packets;

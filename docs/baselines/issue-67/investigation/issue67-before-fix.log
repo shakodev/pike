@@ -1,0 +1,19 @@
+   Compiling alacritty_terminal v0.25.1 (<repository>/vendor/alacritty_terminal)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.95s
+     Running unittests src/lib.rs (target/debug/deps/alacritty_terminal-da7c3e294e0471c9)
+
+running 1 test
+
+thread 'event_loop::read_tests::buffered_tail_progresses_without_fresh_producer_and_then_sleeps' (2439091) panicked at vendor/alacritty_terminal/src/event_loop/read_tests.rs:175:71:
+called `Result::unwrap()` on an `Err` value: Timeout
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test event_loop::read_tests::buffered_tail_progresses_without_fresh_producer_and_then_sleeps ... FAILED
+
+failures:
+
+failures:
+    event_loop::read_tests::buffered_tail_progresses_without_fresh_producer_and_then_sleeps
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 150 filtered out; finished in 5.13s
+
+error: test failed, to rerun pass `-p alacritty_terminal --lib`

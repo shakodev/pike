@@ -1,0 +1,6 @@
+Algorithm Hash                                                             Path
+--------- ----                                                             ----
+SHA256    DAD5A9D0F8993ECB3A11AECDA263AD6C39B2F3FDBC6BA301284E75E756A49A31 D:\a\pike\pike\Cargo.lock
+SHA256    95780361BB5B985C3C4CEE68E3E0AF20EF0916CBD2E0318456379FDBC8911CC9 D:\a\pike\pike\vendor\iced_term\src\view.rs
+SHA256    DDFD8CD2903ECE057E145776C9ED4DA66929C09525DB5EBD4A469E0E606DA86A D:\a\pike\pike\examples\selection_copy.rs
+SHA256    43047E7F132AFCA1191C5AF2395CADBE98F44A7E1B94A0A8AF575C0970194C06 D:\a\pike\pike\examples\support\native_clipboard.rs

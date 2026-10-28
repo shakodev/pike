@@ -1,0 +1,53 @@
+{
+  "source_sha": "938a48b30546f02c8cfffd15eba9bea8861556e1",
+  "run": "https://github.com/shakodev/pike/actions/runs/40498774695",
+  "renderer": "wgpu",
+  "observed": "Session20001 verified title/reset/bell then timed out before initial query batch completed; session20002 passed all stages and drained with42; cleanup acknowledged for both; root cause not yet established.",
+  "files": [
+    {
+      "path": "source-sha.txt",
+      "artifact_sha256": "95a398a556fbea063d6ccddb39e84f652a52b972e4fc60f5f185f30ff61b3138",
+      "retained_sha256": "b90b8bb42646e5d6b3e17be94f6debece38fe3decff39ad103e9598ad24ecd19"
+    },
+    {
+      "path": "source-hashes.txt",
+      "artifact_sha256": "f9a2b185f941379b584da220e1e8224650469c6c7b026427daf98d78e02270d3",
+      "retained_sha256": "0a01c4a1f483b84676f7d8520a7a4ba651731eb4da73b18d9f41633f4003f004"
+    },
+    {
+      "path": "compiler.txt",
+      "artifact_sha256": "20815ee828e9107afea25520937957032db8ca234a25409cc7acffbdfbd4d392",
+      "retained_sha256": "7fad09dd8c16d49de37932475436003b5b1763c1015c5ce081ad7692db368ca3"
+    },
+    {
+      "path": "os.json",
+      "artifact_sha256": "8787a52a239b549d5c2c2b090395abfbba781050c8a4be80ef992f8d0685010c",
+      "retained_sha256": "97e33048428d215f318c87b7fec42697b353e98f83dbc03f1e836f0bb181fbba"
+    },
+    {
+      "path": "runtime.json",
+      "artifact_sha256": "140b54a8dab594dea1b49e824f26858286816acdfb872e9c454cb3de7b6e0e7a",
+      "retained_sha256": "9ff2c4728f24dfa0ef77eea8fbe764ec085948f9d884b22e044dcd46784013ba"
+    },
+    {
+      "path": "executable-hash.txt",
+      "artifact_sha256": "b87d75c52ccd50269b8dd6de29eff0ccece0de94798bb51153621e9ec1a7d4a9",
+      "retained_sha256": "dba30c66de380f6ce6671024f10c97b194532bc31f47369d1f99307b6ac228eb"
+    },
+    {
+      "path": "stderr.txt",
+      "artifact_sha256": "45fecf9fdf32b078c955702984a97d11dc17fee84f494f1e471302ce8a9ad3cb",
+      "retained_sha256": "45fecf9fdf32b078c955702984a97d11dc17fee84f494f1e471302ce8a9ad3cb"
+    },
+    {
+      "path": "events.csv",
+      "artifact_sha256": "fbcbc19b1cabfc26fb13a4be7b1fa54d71fb7738c60e008cdcb7200e50c338be",
+      "retained_sha256": "fbcbc19b1cabfc26fb13a4be7b1fa54d71fb7738c60e008cdcb7200e50c338be"
+    },
+    {
+      "path": "cleanup.csv",
+      "artifact_sha256": "448bc8bb1bd0dcf8cb2830090fe0f89959421fd2d522034ee7ad425d59f78f0e",
+      "retained_sha256": "448bc8bb1bd0dcf8cb2830090fe0f89959421fd2d522034ee7ad425d59f78f0e"
+    }
+  ]
+}

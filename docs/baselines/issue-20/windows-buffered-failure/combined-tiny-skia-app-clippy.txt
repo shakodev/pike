@@ -1,0 +1,3 @@
+    Checking iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_term)
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.62s

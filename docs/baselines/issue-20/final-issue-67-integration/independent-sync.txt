@@ -1,0 +1,2 @@
+write_calls_after_300ms=3; queued=0; outstanding=2; sync_sentinel_flushed=true
+cleanup=Requested

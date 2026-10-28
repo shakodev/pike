@@ -3,6 +3,7 @@ use crate::event_bridge::{EventBridgeEvent, Sender};
 use crate::geometry::{same_pty_size, Geometry, TerminalSize};
 use crate::settings::{BackendSettings, HistoryLimit};
 use crate::snapshot::{RenderableContent, SnapshotStats};
+use crate::theme::Theme;
 use alacritty_terminal::event::{Event, EventListener, OnResize, WindowSize};
 use alacritty_terminal::event_loop::{EventLoop, Notifier};
 use alacritty_terminal::grid::{Dimensions, Scroll};
@@ -28,6 +29,9 @@ pub enum Command {
     Scroll(i32),
     Resize(Option<Size<f32>>, Option<Size<f32>>),
     SetHistoryLimit(HistoryLimit),
+    /// The owning application supplies effective pane AND window focus.
+    /// Hidden sessions must be unfocused; duplicate states never emit reports.
+    FocusChanged(bool),
     SelectStart(SelectionType, (f32, f32)),
     SelectUpdate((f32, f32)),
     ProcessLink(LinkAction, Point),
@@ -80,6 +84,8 @@ pub enum LinkAction {
 }
 
 pub struct Backend {
+    pub(crate) theme: Theme,
+    pub(crate) window_focus: crate::WindowFocus,
     term: Arc<FairMutex<Term<EventProxy>>>,
     size: TerminalSize,
     geometry: Geometry,
@@ -98,6 +104,7 @@ pub struct Backend {
     visible: bool,
     snapshots: u64,
     cells_copied: u64,
+    exit_code: Option<i32>,
 }
 
 impl Backend {
@@ -132,6 +139,7 @@ impl Backend {
         let config = term::Config {
             kitty_keyboard: false,
             scrolling_history: history_limit.lines(),
+            osc52: term::Osc52::Disabled,
             ..Default::default()
         };
         let terminal_size = TerminalSize::default();
@@ -166,6 +174,8 @@ impl Backend {
         );
 
         Ok(Self {
+            theme: Theme::default(),
+            window_focus: crate::WindowFocus::default(),
             term: term.clone(),
             size: terminal_size,
             geometry: Geometry::default(),
@@ -184,6 +194,7 @@ impl Backend {
             visible: false,
             snapshots: 0,
             cells_copied: 0,
+            exit_code: None,
         })
     }
 
@@ -204,6 +215,7 @@ impl Backend {
                 },
                 EventBridgeEvent::Completed => Action::Ignore,
                 EventBridgeEvent::BackendCompleted(completion) => {
+                    self.exit_code = completion.exit_code.or(self.exit_code);
                     self.snapshot_dirty = true;
                     Action::BackendCompleted(completion)
                 },
@@ -240,21 +252,58 @@ impl Backend {
                 match event {
                     Event::Exit => {
                         // Exit describes the model, not resource completion.
-                        action = Action::Shutdown;
+                        action = Action::Shutdown {
+                            exit_code: self.exit_code,
+                        };
                         self.snapshot_dirty = true;
                     },
                     Event::Title(title) => {
-                        action = Action::ChangeTitle(title);
+                        action = Action::ChangeTitle(
+                            alacritty_terminal::event::sanitize_title(&title),
+                        );
+                    },
+                    Event::ResetTitle => action = Action::ResetTitle,
+                    Event::Bell => action = Action::Bell,
+                    Event::ChildExit(code) => {
+                        self.exit_code = Some(code);
+                        action = Action::ChildExit(code);
                     },
                     Event::PtyWrite(pty) => {
-                        action = self.write(pty.as_bytes());
+                        action = self.protocol_reply(pty.as_bytes());
                     },
-                    Event::Wakeup
-                    | Event::MouseCursorDirty
-                    | Event::CursorBlinkingChange => {
+                    Event::ColorRequest(index, formatter) => {
+                        if let Some(fallback) = self.theme.query_color(index) {
+                            action = self
+                                .protocol_reply(formatter(fallback).as_bytes());
+                        }
+                    },
+                    Event::TextAreaSizeRequest(formatter) => {
+                        action = self.protocol_reply(
+                            formatter(self.text_area_size()).as_bytes(),
+                        );
+                    },
+                    Event::ClipboardStore(..) | Event::ClipboardLoad(..) => {
+                        // OSC52 is disabled at the parser and bridge; public
+                        // injected commands cannot access the clipboard either.
+                    },
+                    Event::MouseCursorDirty => {
+                        self.last_content.terminal_mode = *term.mode();
+                        action = Action::MouseCursorDirty;
+                    },
+                    Event::CursorBlinkingChange => {
+                        self.last_content.terminal_mode = *term.mode();
+                        let shape = term.renderable_content().cursor.shape;
+                        if self.last_content.cursor_shape != shape {
+                            self.last_content.cursor_shape = shape;
+                            self.render_dirty |= self.visible;
+                        }
+                        action = Action::CursorBlinkingChanged(
+                            term.cursor_style().blinking,
+                        );
+                    },
+                    Event::Wakeup => {
                         self.snapshot_dirty = true;
                     },
-                    _ => {},
                 };
             },
             Command::Write(input) => {
@@ -276,11 +325,28 @@ impl Backend {
                     term.set_options(term::Config {
                         kitty_keyboard: false,
                         scrolling_history: limit.lines(),
+                        osc52: term::Osc52::Disabled,
                         ..Default::default()
                     });
                     self.history_limit = limit;
                     self.last_content.hovered_hyperlink = None;
                     self.snapshot_dirty = true;
+                }
+            },
+            Command::FocusChanged(focused) => {
+                let focused =
+                    focused && self.visible && self.window_focus.is_focused();
+                if term.is_focused != focused {
+                    term.is_focused = focused;
+                    self.last_content.focused = focused;
+                    self.render_dirty |= self.visible;
+                    if term.mode().contains(TermMode::FOCUS_IN_OUT) {
+                        action = self.protocol_reply(if focused {
+                            b"\x1b[I"
+                        } else {
+                            b"\x1b[O"
+                        });
+                    }
                 }
             },
             Command::SelectStart(selection_type, (x, y)) => {
@@ -556,6 +622,39 @@ impl Backend {
         }
     }
 
+    fn protocol_reply(&self, input: &[u8]) -> Action {
+        let action = self.write(input);
+        if matches!(action, Action::InputRejected(_)) {
+            // A lost ordered reply cannot leave a supposedly healthy session.
+            // Close only this backend through the existing cancellation path.
+            self.request_shutdown();
+        }
+        action
+    }
+
+    pub(crate) fn exit_code(&self) -> Option<i32> {
+        self.exit_code
+    }
+
+    pub(crate) fn is_focused(&self) -> bool {
+        self.term.lock().is_focused
+    }
+
+    fn text_area_size(&self) -> alacritty_terminal::event::TextAreaSize {
+        // CSI 14t reports virtual grid pixels in the same logical units as
+        // cells, independently of monitor DPI. Round the aggregate once;
+        // native per-cell integer metadata would distort fractional cells.
+        let pixels = |cells: u16, cell: f32| {
+            (f64::from(cells) * f64::from(cell))
+                .round()
+                .clamp(1.0, f64::from(u32::MAX)) as u32
+        };
+        alacritty_terminal::event::TextAreaSize {
+            width: pixels(self.size.num_cols, self.size.cell_width),
+            height: pixels(self.size.num_lines, self.size.cell_height),
+        }
+    }
+
     fn scroll(
         &mut self,
         terminal: &mut Term<EventProxy>,
@@ -592,8 +691,8 @@ impl Backend {
         Action::Ignore
     }
 
-    pub fn selectable_content(&self) -> String {
-        self.term.lock().selection_to_string().unwrap_or_default()
+    pub fn selectable_content(&self) -> Option<String> {
+        self.term.lock().selection_to_string()
     }
 
     pub fn sync(&mut self) {
@@ -726,6 +825,11 @@ impl EventListener for EventProxy {
 
 #[cfg(test)]
 mod history_tests;
+#[cfg(test)]
+mod selection_tests;
+
+#[cfg(test)]
+mod protocol_tests;
 
 #[cfg(all(test, windows))]
 mod event_bridge_tests {
@@ -862,7 +966,9 @@ mod event_bridge_tests {
         assert!(healthy_exit);
         assert_eq!(
             backend.handle(Command::ProcessAlacrittyEvent(Event::Exit)),
-            Action::Shutdown
+            Action::Shutdown {
+                exit_code: backend.exit_code()
+            }
         );
     }
 }

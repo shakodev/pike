@@ -1,0 +1,124 @@
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_term)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.19s
+     Running unittests src/lib.rs (target/issue-20/debug/deps/iced_term-6820d860b1c553f1)
+
+running 91 tests
+test bindings::tests::add_custom_keyboard_bindings_that_replace_current ... ok
+test bindings::tests::add_many_new_custom_keyboard_bindings ... ok
+test bindings::tests::add_mouse_binding ... ok
+test bindings::tests::add_new_custom_keyboard_binding ... ok
+test bindings::tests::get_action ... ok
+test bindings::tests::get_action_with_custom_bindings ... ok
+test event_bridge::tests::aggregate_payload_overflow_is_explicit ... ok
+test event_bridge::tests::canceled_receive_and_closed_receiver_do_not_panic_or_stall ... ok
+test backend::protocol_tests::pixel_queries_round_fractional_grid_area_once_without_native_resize_work ... ok
+test backend::protocol_tests::focus_reports_require_mode_and_real_effective_transitions ... ok
+test backend::protocol_tests::vt_queries_use_ordered_model_overrides_and_current_palette_and_dimensions ... ok
+test event_bridge::tests::eof_before_exit_reports_error_and_after_exit_ends_cleanly ... ok
+test backend::protocol_tests::osc52_stays_disabled_after_history_changes_and_invalid_queries_do_not_call_formatters ... ok
+test event_bridge::tests::loop_proxy_drop_completes_even_with_a_retained_terminal_proxy ... ok
+test event_bridge::tests::dirty_title_and_bell_floods_coalesce_without_control_capacity ... ok
+test event_bridge::tests::payload_budget_counts_string_capacity_and_resets_on_dequeue ... ok
+test event_bridge::tests::requested_close_completes_cleanly_but_preserves_an_existing_overload ... ok
+test event_bridge::tests::notifications_wake_a_waiting_consumer_without_a_timer ... ok
+test event_bridge::tests::requests_with_formatters_remain_in_protocol_order ... ok
+test event_bridge::tests::stream_end_waits_for_distinct_sticky_backend_completion ... ok
+test event_bridge::tests::title_memory_is_bounded_on_a_utf8_boundary ... ok
+test event_bridge::tests::stalled_ui_cannot_block_a_producer_holding_the_terminal_lock ... ok
+test geometry::tests::attachment_keeps_initial_rows_and_columns_without_float_product_rounding ... ok
+test geometry::tests::dpi_affects_logical_layout_not_relative_line_height ... ok
+test geometry::tests::fractional_cells_and_subcell_drags_keep_the_same_grid ... ok
+test geometry::tests::huge_and_subnormal_inputs_are_bounded_before_any_grid_allocation ... ok
+test event_bridge::tests::ordered_controls_survive_saturation_with_reliable_lifecycle ... ok
+test geometry::tests::invalid_input_preserves_positive_layout_and_tiny_areas_wait_for_usable_cells ... ok
+test geometry::tests::native_pixel_extents_do_not_overflow_the_u16_winsize_fields ... ok
+test geometry::tests::restore_uses_font_changed_while_pane_was_too_small_for_one_cell ... ok
+test backend::protocol_tests::rejected_protocol_reply_closes_only_its_origin_and_retains_completion ... ok
+test backend::history_tests::activation_applies_layout_deferred_during_shutdown_even_after_bridge_failure ... ok
+test lifecycle_tests::dropping_prepared_backend_without_font_attachment_acknowledges_cleanup ... ok
+test event_bridge::tests::disabled_clipboard_flood_never_retains_payload_or_starves_protocol_queries ... ok
+test backend::history_tests::changing_history_in_alternate_screen_updates_only_the_normal_buffer ... ok
+test backend::history_tests::history_reduction_clamps_scrollback_and_copy_uses_authoritative_selection ... ok
+test backend::protocol_tests::hidden_metadata_and_exit_status_are_explicit_without_viewport_work ... ok
+test snapshot::profile::profile_history_snapshot_cost ... ignored, opt-in release footprint profile; see tools/measure-history.ps1
+test snapshot::tests::alternate_screen_and_zero_history_have_independent_viewports ... ok
+test snapshot::tests::history_limits_validate_both_boundaries_and_default ... ok
+test snapshot::tests::scrolled_output_keeps_absolute_points_selection_and_cursor_metadata ... ok
+test snapshot::tests::snapshot_contains_only_visible_cells_and_reuses_its_allocation ... ok
+test snapshot::tests::viewport_keeps_combining_and_wide_cell_data_without_history_copies ... ok
+test terminal::tests::subscription_cancellation_preserves_events_and_session_routing ... ok
+test terminal::tests::subscription_delivers_exit_and_completion_then_is_fused ... ok
+test backend::protocol_tests::vt_reset_emits_default_title_even_after_a_queued_title_change ... ok
+test backend::history_tests::hidden_flood_and_explicit_refresh_do_not_create_snapshots ... ok
+test font::tests::cache_key_includes_size_family_and_relative_line_height ... ok
+test lifecycle_tests::prepared_backend_moves_from_worker_and_attaches_on_ui_thread ... ok
+test font::tests::invalid_font_settings_keep_valid_metrics_and_extremes_shape_bounded_text ... ok
+test lifecycle_tests::natural_exit_drains_multiple_chunks_and_retains_the_final_read_only_model ... ok
+test lifecycle_tests::canceled_subscription_and_waiter_do_not_cancel_cleanup_of_dropped_owner ... ok
+test lifecycle_tests::hidden_native_output_keeps_history_and_reactivates_the_exited_buffer_once ... ok
+test theme::tests::hex_to_color_long_string ... ok
+test theme::tests::hex_to_color_non_valid_hex_string ... ok
+test theme::tests::hex_to_color_short_string ... ok
+test theme::tests::hex_to_color_valid_convertion ... ok
+test theme::tests::get_basic_indexed_colors ... ok
+test view::glyphs::tests::authoritative_cjk_combining_and_ascii_positions_match_cursor_and_copy ... ok
+test view::glyphs::tests::continuation_and_hidden_cells_do_not_emit_duplicate_or_concealed_text ... ok
+test view::glyphs::tests::leading_wide_wrap_placeholder_is_not_a_glyph_and_resize_preserves_copy ... ok
+test view::glyphs::tests::unchanged_generation_never_rebuilds_or_reshapes_unicode_spans ... ok
+test view::glyphs::tests::wide_cell_at_exact_row_end_does_not_shift_next_ascii_or_spacer_selection ... ok
+test view::glyphs::tests::pathological_mark_stack_has_bounded_paint_text_without_mutating_model ... ok
+test view::state_tests::focus_loss_cannot_leave_a_drag_or_modifiers_for_later_reentry ... ok
+test view::glyphs::tests::repeated_unicode_shares_one_bounded_shaped_buffer_and_keeps_clip_guards ... ok
+test view::tests::handle_button_released_tests::link_open_on_button_release ... ok
+test view::tests::handle_button_released_tests::link_open_on_button_release_in_non_mouse_mode ... ok
+test view::tests::handle_button_released_tests::mouse_mode_activated ... ok
+test view::state_tests::first_click_and_release_after_a_move_use_current_grid_coordinates ... ok
+test view::tests::handle_cursor_moved_tests::generates_drag_update_and_link_open ... ok
+test terminal::work_tests::metadata_input_and_noops_do_no_font_resize_snapshot_or_cache_work ... ok
+test view::tests::handle_cursor_moved_tests::generates_drag_update_command_when_dragged ... ok
+test view::tests::handle_cursor_moved_tests::generates_drag_update_command_when_dragged_in_mouse_motion_mode ... ok
+test view::state_tests::same_session_reconciliation_preserves_focus_and_move_resets_only_pointer_state ... ok
+test view::tests::handle_cursor_moved_tests::generates_drag_update_command_when_dragged_in_srg_mode_with_key_mods ... ok
+test view::tests::handle_cursor_moved_tests::updates_mouse_position_on_grid ... ok
+test view::tests::handle_left_button_pressed_tests::handles_mouse_mode_with_left_click ... ok
+test view::tests::handle_left_button_pressed_tests::starts_simple_selection_with_left_click ... ok
+test view::tests::handle_wheel_scrolled_tests::scroll_with_lines_downward ... ok
+test view::tests::handle_wheel_scrolled_tests::scroll_with_pixels_accumulating_downward ... ok
+test lifecycle_tests::hidden_font_change_updates_geometry_without_building_a_viewport ... ok
+test view::tests::handle_wheel_scrolled_tests::scroll_with_pixels_accumulating_upward ... ok
+test view::tests::handle_wheel_scrolled_tests::scroll_with_lines_upward ... ok
+test view::state_tests::same_sized_tab_replacements_reset_all_input_state_and_receive_their_own_layout ... ok
+test view::state_tests::tab_replacement_does_not_discard_session_selection_or_viewport ... ok
+test terminal::work_tests::font_reduction_uses_the_current_positive_pane_area_after_an_undersized_layout ... ok
+test lifecycle_tests::canceled_startup_result_disposes_an_unobserved_session ... ok
+test lifecycle_tests::repeated_close_during_output_has_one_backend_result_and_fused_stream ... FAILED
+test terminal::work_tests::font_changes_measure_once_and_paint_only_changes_do_not_snapshot ... FAILED
+test terminal::work_tests::output_flood_never_measures_fonts_or_resizes_and_hidden_output_never_snapshots ... FAILED
+
+failures:
+
+---- lifecycle_tests::repeated_close_during_output_has_one_backend_result_and_fused_stream stdout ----
+
+thread 'lifecycle_tests::repeated_close_during_output_has_one_backend_result_and_fused_stream' (2309383) panicked at vendor/iced_term/src/lifecycle_tests.rs:185:61:
+called `Result::unwrap()` on an `Err` value: Elapsed(())
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- terminal::work_tests::font_changes_measure_once_and_paint_only_changes_do_not_snapshot stdout ----
+
+thread 'terminal::work_tests::font_changes_measure_once_and_paint_only_changes_do_not_snapshot' (2309404) panicked at vendor/iced_term/src/terminal/work_tests.rs:20:18:
+called `Result::unwrap()` on an `Err` value: Elapsed(())
+
+---- terminal::work_tests::output_flood_never_measures_fonts_or_resizes_and_hidden_output_never_snapshots stdout ----
+
+thread 'terminal::work_tests::output_flood_never_measures_fonts_or_resizes_and_hidden_output_never_snapshots' (2309428) panicked at vendor/iced_term/src/terminal/work_tests.rs:20:18:
+called `Result::unwrap()` on an `Err` value: Elapsed(())
+
+
+failures:
+    lifecycle_tests::repeated_close_during_output_has_one_backend_result_and_fused_stream
+    terminal::work_tests::font_changes_measure_once_and_paint_only_changes_do_not_snapshot
+    terminal::work_tests::output_flood_never_measures_fonts_or_resizes_and_hidden_output_never_snapshots
+
+test result: FAILED. 87 passed; 3 failed; 1 ignored; 0 measured; 0 filtered out; finished in 5.65s
+
+error: test failed, to rerun pass `-p iced_term --lib`

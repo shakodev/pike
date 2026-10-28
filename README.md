@@ -88,6 +88,12 @@ pane-local cached drawing and clipping, with fractional-scale fixture screenshot
 
 [Keyboard verification](docs/verification/issue-14.md) documents legacy byte
 encoding, binding precedence, consumed keys and remaining Windows layout checks.
+
+[Unicode verification](docs/verification/issue-18.md) covers wide/combining cell
+spans, fallback rendering, clipping and model/copy agreement.
+
+[Protocol verification](docs/verification/issue-20.md) covers ordered terminal
+queries, bounded titles, bells, focus reports and originating exit statuses.
 [Startup verification](docs/verification/issue-10.md) covers bounded asynchronous
 preparation, cancellation, retry routing and native Windows release measurements.
 The [Windows launch contract and checks](docs/verification/issue-9.md) cover

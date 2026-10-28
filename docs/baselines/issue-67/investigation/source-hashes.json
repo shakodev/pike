@@ -1,0 +1,13 @@
+{
+  "<repository>/Cargo.lock": "f2499ce171f71875ac098ef7b52161139645cf5f6fa81ac2c778bcffa2f8b367",
+  "<repository>/vendor/alacritty_terminal/src/event_loop.rs": "62b249bb1257bda2692e8ab0e478d234bce1ca3404a535961ad993be46286022",
+  "<repository>/vendor/alacritty_terminal/src/tty/windows/blocking.rs": "2e8d3f0790b21d9d9d237323fde9879ebb32329f3ff95ec3875eefa236a5a069",
+  "<repository>/vendor/alacritty_terminal/src/tty/windows/mod.rs": "d048c37ebcd3237a284d9250508d7be947600240db871473336c0a6de7356848",
+  "<repository>/vendor/alacritty_terminal/src/tty/windows/conpty.rs": "b938906868ccdf9b5abb71702fd893883ffcc74fa685e7c0054bdddbc75029d1",
+  "<registry>/piper-0.2.5/src/lib.rs": "e624013c9e062d4c9de1ee2ecf19185fa4436dafb34ad6c4913bc8dc2b47b665",
+  "<registry>/polling-3.11.0/src/iocp/mod.rs": "004da65394612012390057389c625948e6f73665376e362ea4b26fde05ed1566",
+  "<repository>/target/read-progress-investigation/Cargo.toml": "b01ddd04d3da9b0578ac90069d2033de6d954b0ccb21848e5411ce58ec69e22e",
+  "<repository>/target/read-progress-investigation/Cargo.lock": "65f2f6de92077ca12c9c5fe002fb898abee21fab02fa27404511f583eed0a519",
+  "<repository>/target/read-progress-investigation/src/lib.rs": "1f41304e2e617b70e1d09b51a8ac0656c1fd992dc8c9cd6e999b20a4be9fe875",
+  "/private/tmp/pike-impl-c-d405-terminal-protocol.rs": "6dead8325d645dd80d4f02b8103cc88cba448cc2023627301f2f92b67c9ce9b6"
+}

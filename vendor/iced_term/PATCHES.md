@@ -293,3 +293,98 @@ and API/overload policy details.
   exercises 168 cases in all four cursor/newline modes, byte admission, and a synthetic Vim
   edit/save/exit. No production polling/tasks or new dependencies are introduced.
   See [verification, policy and native limitations](../../docs/verification/issue-14.md).
+
+## R15 / issue #15 — authoritative selection and explicit copy
+
+- Preserve R11's Alacritty `selection_to_string` delegation, also used by
+  upstream PR90 (`f5b49232dededd266feafd27f1e2c67c5c3e416c`). Keep its
+  `Option` instead of replacing no selection with empty text.
+- `Terminal::copy_selection(writer)` extracts only on explicit request, skips
+  empty text, releases the model lock before invoking the writer once and
+  returns its result. No selection, viewport, input or other session mutation.
+- Capture Copy even when empty/unavailable; use each character event's own
+  modifiers for bindings. Add Ctrl+Shift+C on macOS while retaining Command+C.
+  The app menu carries the current stable terminal ID and rejects stale IDs.
+- Exact VT tests and an opt-in real-PTY/widget probe cover hard/soft lines,
+  padding, wide/combining cells, history, session swaps and unavailable sinks.
+  Windows-only fixture APIs perform actual CF_UNICODETEXT round trips and a
+  competing-thread clipboard lock; no production clipboard implementation.
+  Native OS readback references only its initialized prefix in the same open
+  write transaction. Later bounded receipts validate owner/sequence/identity
+  without dereferencing clipboard memory; foreign data never gains Rust references.
+- Pinned Alacritty preserves no-op/height-only selection and invalidates it on
+  column reflow. Follow this policy; never cache/resurrect stale copied text.
+  Iced's unit-returning clipboard facade cannot expose OS errors. See
+  [verification and limitations](../../docs/verification/issue-15.md).
+- No production dependency, lockfile, transcript/cache or background work.
+  Remove when upstream offers equivalent extraction, explicit action and
+  handled-key semantics; PR90 alone covers only extraction delegation.
+
+## R18 / issue #18 — wide/combining cell rendering
+
+- Draw authoritative base+zerowidth text in one/two-column spans, skip both
+  continuation flags, and clip Unicode ink to its cell span/row without moving
+  adjacent ASCII. Wide cursor blocks normalize continuation positions and use
+  the lead width. Paint all backgrounds before glyphs/cursor.
+- Preserve cached ASCII/pane geometry. Pinned tiny-skia canvas text omits
+  per-text clip bounds, so Unicode uses clipped core-renderer shaped buffers cached in
+  widget state by snapshot/style generation, bounded to one viewport. Session
+  identity reset drops obsolete spans; ordinary redraws do not rebuild them.
+- Bound extra shaping/text to 32 combining scalars per cell; authoritative
+  model/copy data stays intact. Document pathological mark stacks, cross-cell
+  contextual shaping and complex/color emoji as unsupported display cases.
+- Seven VT/model/cache regressions plus the real-PTY `unicode_cells` release
+  fixture cover positions, reflow/wrap, cursor, fallback, cell clipping and
+  actual widget copy across two fonts/four scales and both lean renderers.
+  Run explicit vendor suites for `iced/wgpu,iced/tokio` and
+  `iced/tiny-skia,iced/tokio`; see `docs/verification/issue-18.md` for native
+  evidence and limits. No dependency/feature or production background work.
+
+## R20 / issue #20 — explicit protocol and metadata contract
+
+- Exhaustively handle all pinned Alacritty events: current size/color replies,
+  title/reset, coalesced bell, cursor state, actual ChildExit/Shutdown status and
+  separate backend completion. Subscription events keep their origin ID even
+  while hidden; workspace metadata UI remains issue #23.
+- Use the existing bounded ordered input writer for replies and mode-gated
+  effective focus transitions. Reply rejection closes only its origin session;
+  visibility/focus no-ops do not send reports. No reply path scrolls to bottom.
+- Disable OSC52 explicitly in initial and history-update parser configuration,
+  drop injected clipboard requests before bridge retention, and invoke no
+  system clipboard access. Titles share Alacritty's bounded sanitizer.
+- Share the existing theme object between rendering and query resolution;
+  metadata/query handling does not mark the viewport dirty. Cursor blink state
+  is exposed without a production timer. See the Alacritty patch ledger for
+  source-level title bounds, RIS reset notification and ordered color overrides.
+- Explicit adapter regressions plus a two-session synthetic real-PTY release
+  probe verify bytes/order/identity, hidden metadata, metadata floods, focus and
+  natural drained cleanup. See [verification](../../docs/verification/issue-20.md).
+  No dependencies, features, lockfiles, polling tasks or additional PTY code.
+- Review fixes: one owner-bound WindowFocus per actual window survives terminal
+  replacement/new widget trees; unknown focus stays unfocused. The existing
+  single-window app records actual focus during startup and binds it before
+  showing a terminal. Public widget regressions check admitted CSI-I/O bytes.
+- CSI 14t now uses aggregate virtual logical-grid pixels, rounding the product
+  once (80x8.5 = 680). The Alacritty formatter accepts TextAreaSize separately
+  from native integer WindowSize. DPI rescale leaves these virtual units and
+  native PTY cell-count dedup unchanged; no physical-monitor claim is made.
+
+## R21 / issue #21 — steady cursor shapes and contrast
+
+- Render authoritative shape/show state and OSC12/reset color; blinking variants
+  deliberately use steady counterparts with no cursor timer or redraw loop.
+  Focused block/underline/beam/hollow and inactive hollow use the R20 owner focus.
+- Preserve R18 background-first drawing, wide-lead cursor geometry and all cell,
+  pane and ancestor clips. Resolve contrast against effective inverse/selected
+  backgrounds and keep a block's covered glyph legible, including equal colors.
+- Separate raw Unicode shaping generations from paint colors: focus/theme paint
+  reuses buffers and resolves current glyph colors when drawing. Focus metadata
+  changes paint without snapshots/font measurement; input/copy handlers stay intact.
+- Four parser/model regressions and the public real-PTY `steady_cursor` fixture
+  cover shapes, state-only changes, pixels, idle counters and official Micro.
+  Both native renderer jobs retain controlled screenshots and cleanup evidence.
+  See [verification and limits](../../docs/verification/issue-21.md), including
+  existing macOS cancellation timeouts and deferred physical desktop checks.
+- No dependencies, features, lockfiles, tasks, timers or PTY implementation added.
+  Remove when upstream provides equivalent steady shapes, focus/contrast behavior
+  and cached Unicode paint invalidation; PR86 alone covers draw ordering only.

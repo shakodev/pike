@@ -1,0 +1,12 @@
+case,writes,captured,bytes,input_unchanged
+hard,1,true,10,true
+soft,1,true,10,true
+padding,1,true,5,true
+unicode,1,true,9,true
+wide-wrap,1,true,11,true
+word,1,true,5,true
+hard,1,true,11,true
+block,1,true,5,true
+spaces,1,true,2,true
+empty,0,true,0,true
+empty,0,true,0,true

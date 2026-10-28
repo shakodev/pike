@@ -78,6 +78,26 @@ fn metadata_input_and_noops_do_no_font_resize_snapshot_or_cache_work() {
                 String::new(),
             )),
             BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::Bell),
+            BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::ResetTitle),
+            BackendCommand::ProcessAlacrittyEvent(
+                AlacrittyEvent::MouseCursorDirty,
+            ),
+            BackendCommand::ProcessAlacrittyEvent(
+                AlacrittyEvent::CursorBlinkingChange,
+            ),
+            BackendCommand::ProcessAlacrittyEvent(
+                AlacrittyEvent::ColorRequest(
+                    256,
+                    std::sync::Arc::new(|_| String::new()),
+                ),
+            ),
+            BackendCommand::ProcessAlacrittyEvent(
+                AlacrittyEvent::TextAreaSizeRequest(std::sync::Arc::new(
+                    |_| String::new(),
+                )),
+            ),
+            BackendCommand::FocusChanged(true),
+            BackendCommand::FocusChanged(false),
             BackendCommand::Write(Vec::new()),
             BackendCommand::Scroll(0),
             BackendCommand::Resize(None, None),

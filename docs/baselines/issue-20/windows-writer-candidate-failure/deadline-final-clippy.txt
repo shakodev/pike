@@ -1,0 +1,2 @@
+    Checking alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/alacritty_terminal)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.97s

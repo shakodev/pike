@@ -1,0 +1,23 @@
+   Compiling alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/alacritty_terminal)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.32s
+     Running unittests src/lib.rs (target/issue-20/debug/deps/alacritty_terminal-49523ea75508f8ef)
+
+running 10 tests
+test event_loop::lifecycle_tests::expired_sync_deadline_is_cleared_while_partial_input_remains_blocked ... ok
+test event_loop::lifecycle_tests::input_admission_wake_progresses_with_writable_interest_already_enabled ... ok
+test event_loop::lifecycle_tests::io_failure_flushes_already_read_synchronized_output_without_exit ... ok
+test event_loop::lifecycle_tests::admission_wake_keeps_bounded_order_and_returns_on_backpressure_without_idle_writes ... ok
+test event_loop::lifecycle_tests::notify_only_wake_resumes_partial_write_then_reports_error_after_disposal ... ok
+test event_loop::lifecycle_tests::io_failure_and_unwind_complete_only_after_backend_disposal_on_worker ... ok
+test event_loop::lifecycle_tests::eof_disables_io_but_preserves_later_child_exit_and_explicit_close ... ok
+test event_loop::lifecycle_tests::sync_deadlines_respect_future_and_expiry_for_idle_queued_partial_and_readiness ... ok
+test event_loop::lifecycle_tests::drain_reads_past_one_parser_chunk_to_eof ... ok
+test event_loop::lifecycle_tests::drain_deadline_reports_timeout_instead_of_claiming_eof ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 144 filtered out; finished in 1.00s
+
+     Running tests/ref.rs (target/issue-20/debug/deps/ref-f116b960b307c92e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 45 filtered out; finished in 0.00s

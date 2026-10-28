@@ -1,0 +1,239 @@
+{
+  "tested_source_sha": "187f6e68ecdcec0e6bb6473308fe9125147e1f56",
+  "protocol_run": "https://github.com/shakodev/pike/actions/runs/40496875553",
+  "widget_run": "https://github.com/shakodev/pike/actions/runs/40496875706",
+  "windows_ci_run": "https://github.com/shakodev/pike/actions/runs/40496875528",
+  "audit_run": "https://github.com/shakodev/pike/actions/runs/40496875642",
+  "scope": "Native Windows Server 2025 x64 MSVC; actual pinned ConPTY children and public Iced widget event paths on both renderers; no physical desktop/monitor transitions.",
+  "normalization": "Retained text normalized from Windows CRLF to LF and trailing whitespace removed; binary verified synthetic replies encoded losslessly as hex. Original artifact and retained-file SHA256 recorded below.",
+  "results": {
+    "adapter_tests_per_profile": 85,
+    "adapter_ignored_per_profile": 1,
+    "local_adapter_tests_per_profile": 83,
+    "queries_per_child": 19,
+    "palette_queries_per_child": 17,
+    "pixel_size_queries_per_child": 1,
+    "character_size_queries_per_child": 1,
+    "metadata_changes_per_child": 10000,
+    "natural_exit_codes": [
+      41,
+      42
+    ],
+    "window_focus_public_event_regression": "passed",
+    "virtual_pixel_query_after_rescale_1_5": "unchanged; passed"
+  },
+  "files": [
+    {
+      "path": "wgpu/compiler.txt",
+      "artifact_sha256": "20815ee828e9107afea25520937957032db8ca234a25409cc7acffbdfbd4d392",
+      "retained_sha256": "7fad09dd8c16d49de37932475436003b5b1763c1015c5ce081ad7692db368ca3"
+    },
+    {
+      "path": "wgpu/os.json",
+      "artifact_sha256": "8787a52a239b549d5c2c2b090395abfbba781050c8a4be80ef992f8d0685010c",
+      "retained_sha256": "97e33048428d215f318c87b7fec42697b353e98f83dbc03f1e836f0bb181fbba"
+    },
+    {
+      "path": "wgpu/runtime.json",
+      "artifact_sha256": "140b54a8dab594dea1b49e824f26858286816acdfb872e9c454cb3de7b6e0e7a",
+      "retained_sha256": "9ff2c4728f24dfa0ef77eea8fbe764ec085948f9d884b22e044dcd46784013ba"
+    },
+    {
+      "path": "wgpu/source-sha.txt",
+      "artifact_sha256": "7f95aecd41b8374ac8ac403761dafc11315a3eaf1526b81cb58e1183f66d745e",
+      "retained_sha256": "75760e613ac9fdeda06fff97faa8332851a4d7ba4053a3c2792a777d7cface22"
+    },
+    {
+      "path": "wgpu/source-hashes.txt",
+      "artifact_sha256": "9939017031cd53d8b26182ebfe2dfd00ba4ccdba0b8b300aa05122d5aacf2506",
+      "retained_sha256": "61f0d2994e8b8a8bb0889db4a4fd09c34ad01be5850267bc3128b15bb9ebef4f"
+    },
+    {
+      "path": "wgpu/executable-hash.txt",
+      "artifact_sha256": "c3ffc9c2b56d4f4e282c3f9f28bbe4b5903d2ec409487d62ec72d5bffe0895f9",
+      "retained_sha256": "6809ef4c2e8b70ead88993d6acf06cd464403c369744066f1ccfd120463f3e98"
+    },
+    {
+      "path": "wgpu/adapter-tests.txt",
+      "artifact_sha256": "925df0cf39d56e7ee31db53ed1bfd511e323c66306eb7f0ae2a637e98bb59314",
+      "retained_sha256": "fddfa701a7d7cee5838617adc3d5ebb05799c8bf5c2f87e508d3dc5c9a620f21"
+    },
+    {
+      "path": "wgpu/process-cleanup.txt",
+      "artifact_sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0",
+      "retained_sha256": "5d10018ae7344fa4c5d5f47970dd06ca3cceb06191cd2d4d4999710989fc52ee"
+    },
+    {
+      "path": "wgpu/resources.json",
+      "artifact_sha256": "45d30b9abf5c06a153a0f11b42187c58135adc9f63ac444484a75c0b4919dcb6",
+      "retained_sha256": "9173255df6a957709b82912076d5d20083b769e3ebde80ea951d717f4b240738"
+    },
+    {
+      "path": "wgpu/events.csv",
+      "artifact_sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752",
+      "retained_sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+    },
+    {
+      "path": "wgpu/cleanup.csv",
+      "artifact_sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e",
+      "retained_sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+    },
+    {
+      "path": "wgpu/completed.txt",
+      "artifact_sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27",
+      "retained_sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+    },
+    {
+      "path": "wgpu/fixture-1.pid",
+      "artifact_sha256": "e18f50079034b56f8d86d0e2fcaf15a6685ef6b8771711ff7bda1f937f4b10f4",
+      "retained_sha256": "e4273bac5820357a92e8835b7efc290a714d9d4d6e96196388f04e545b7d60ac"
+    },
+    {
+      "path": "wgpu/fixture-2.pid",
+      "artifact_sha256": "e09ffd3535b9d219b9e469202e37b92a4138f8ac920871f3144742d1ba656ae0",
+      "retained_sha256": "f0e9763272c1007d6fe395050d99596a4f522acdd65815198cc38432a849eab5"
+    },
+    {
+      "path": "wgpu/replies-1.hex",
+      "artifact_sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111",
+      "retained_sha256": "a45299d08fd9261fe45680011d02ee6b17209306f766a7ae10abc0f00fd8769e"
+    },
+    {
+      "path": "wgpu/replies-2.hex",
+      "artifact_sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872",
+      "retained_sha256": "d7a990841903671f66e265890fff9d2b0c17e7cc7550969ab94b333cb7ab6aba"
+    },
+    {
+      "path": "wgpu/widget-events.csv",
+      "artifact_sha256": "dadb6c615af71d14ddebd37f87c0bfc85adbe4d7219f277e1e387cb3bbf34d89",
+      "retained_sha256": "dadb6c615af71d14ddebd37f87c0bfc85adbe4d7219f277e1e387cb3bbf34d89"
+    },
+    {
+      "path": "wgpu/widget-cleanup.csv",
+      "artifact_sha256": "438e805b29c9d639ed86061a1508554e0602dc2151bdfbb0c80729d38bd295eb",
+      "retained_sha256": "438e805b29c9d639ed86061a1508554e0602dc2151bdfbb0c80729d38bd295eb"
+    },
+    {
+      "path": "wgpu/widget-completed.txt",
+      "artifact_sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27",
+      "retained_sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+    },
+    {
+      "path": "wgpu/widget-renderer.txt",
+      "artifact_sha256": "056ecc5c9d4f624f6ddb10662b92cb15bbfcc32d4f3e662e6cfcc17ec7777580",
+      "retained_sha256": "387cc5158680f882aa8f78fed27f464d87864eb2ced24c248e834ae1455f92d2"
+    },
+    {
+      "path": "wgpu/widget-process-cleanup.txt",
+      "artifact_sha256": "42a5c16cecc3d189c43af3b609eb979910e120cb2faccdac3e3e0467f31eb80a",
+      "retained_sha256": "43da755482b267f40252f0e1d606706467027d87191799b7f7afeb55576b55d3"
+    },
+    {
+      "path": "tiny-skia/compiler.txt",
+      "artifact_sha256": "20815ee828e9107afea25520937957032db8ca234a25409cc7acffbdfbd4d392",
+      "retained_sha256": "7fad09dd8c16d49de37932475436003b5b1763c1015c5ce081ad7692db368ca3"
+    },
+    {
+      "path": "tiny-skia/os.json",
+      "artifact_sha256": "8787a52a239b549d5c2c2b090395abfbba781050c8a4be80ef992f8d0685010c",
+      "retained_sha256": "97e33048428d215f318c87b7fec42697b353e98f83dbc03f1e836f0bb181fbba"
+    },
+    {
+      "path": "tiny-skia/runtime.json",
+      "artifact_sha256": "140b54a8dab594dea1b49e824f26858286816acdfb872e9c454cb3de7b6e0e7a",
+      "retained_sha256": "9ff2c4728f24dfa0ef77eea8fbe764ec085948f9d884b22e044dcd46784013ba"
+    },
+    {
+      "path": "tiny-skia/source-sha.txt",
+      "artifact_sha256": "7f95aecd41b8374ac8ac403761dafc11315a3eaf1526b81cb58e1183f66d745e",
+      "retained_sha256": "75760e613ac9fdeda06fff97faa8332851a4d7ba4053a3c2792a777d7cface22"
+    },
+    {
+      "path": "tiny-skia/source-hashes.txt",
+      "artifact_sha256": "9939017031cd53d8b26182ebfe2dfd00ba4ccdba0b8b300aa05122d5aacf2506",
+      "retained_sha256": "61f0d2994e8b8a8bb0889db4a4fd09c34ad01be5850267bc3128b15bb9ebef4f"
+    },
+    {
+      "path": "tiny-skia/executable-hash.txt",
+      "artifact_sha256": "e7e2d9d2a9661a5c664ac8b888329846b71dab6fddb71f7e8a52e7600741bebc",
+      "retained_sha256": "099b3cd1262b5db728dedac16b9b666686470369e9dea84b035342b0661833f7"
+    },
+    {
+      "path": "tiny-skia/adapter-tests.txt",
+      "artifact_sha256": "9b29d922965adb2831b846a4b07ca6755fc2b6b93259d11633c809522b20981e",
+      "retained_sha256": "f5daf1deb486b5a55f0c722599f4fa126e78a999c4bf2eaff960d30462f2c4e8"
+    },
+    {
+      "path": "tiny-skia/process-cleanup.txt",
+      "artifact_sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0",
+      "retained_sha256": "5d10018ae7344fa4c5d5f47970dd06ca3cceb06191cd2d4d4999710989fc52ee"
+    },
+    {
+      "path": "tiny-skia/resources.json",
+      "artifact_sha256": "5957624dad1a25050dd42536a1845deef9c567f3701d04ed74196efece2a0100",
+      "retained_sha256": "4f90584e130ddaebf74c4c764f13065f8ce9f3893b59a539b2a4fac0a88b9b74"
+    },
+    {
+      "path": "tiny-skia/events.csv",
+      "artifact_sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752",
+      "retained_sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+    },
+    {
+      "path": "tiny-skia/cleanup.csv",
+      "artifact_sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e",
+      "retained_sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+    },
+    {
+      "path": "tiny-skia/completed.txt",
+      "artifact_sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27",
+      "retained_sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+    },
+    {
+      "path": "tiny-skia/fixture-1.pid",
+      "artifact_sha256": "dcdc295abab240890687b51827637fb18f6d297a7bb0a109e0e58572e09cf101",
+      "retained_sha256": "c726ab088c0eb5a9e406bc92bdd304574080fc42d86055b22b6a10a85944d49c"
+    },
+    {
+      "path": "tiny-skia/fixture-2.pid",
+      "artifact_sha256": "01df2f8f80a112a3a266c4ef4222a6268d313373d9653de7f8563880c69506c0",
+      "retained_sha256": "3342c790b3576d8f811fe5bfbdf4d3044614dbc5b49a4324acabea0f50f2894d"
+    },
+    {
+      "path": "tiny-skia/replies-1.hex",
+      "artifact_sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111",
+      "retained_sha256": "a45299d08fd9261fe45680011d02ee6b17209306f766a7ae10abc0f00fd8769e"
+    },
+    {
+      "path": "tiny-skia/replies-2.hex",
+      "artifact_sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872",
+      "retained_sha256": "d7a990841903671f66e265890fff9d2b0c17e7cc7550969ab94b333cb7ab6aba"
+    },
+    {
+      "path": "tiny-skia/widget-events.csv",
+      "artifact_sha256": "10908305b6f4c508a79f690e6f665f27f81260afc8a351058db50f274d145482",
+      "retained_sha256": "10908305b6f4c508a79f690e6f665f27f81260afc8a351058db50f274d145482"
+    },
+    {
+      "path": "tiny-skia/widget-cleanup.csv",
+      "artifact_sha256": "438e805b29c9d639ed86061a1508554e0602dc2151bdfbb0c80729d38bd295eb",
+      "retained_sha256": "438e805b29c9d639ed86061a1508554e0602dc2151bdfbb0c80729d38bd295eb"
+    },
+    {
+      "path": "tiny-skia/widget-completed.txt",
+      "artifact_sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27",
+      "retained_sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+    },
+    {
+      "path": "tiny-skia/widget-renderer.txt",
+      "artifact_sha256": "d04215fa6330906a6b1be2e8be0464aeafca97ae253672e991e93a56bef76aa4",
+      "retained_sha256": "be564f76b70364bb2b4ff71cb223d41288a122f91c3394343c633423dca733b4"
+    },
+    {
+      "path": "tiny-skia/widget-process-cleanup.txt",
+      "artifact_sha256": "42a5c16cecc3d189c43af3b609eb979910e120cb2faccdac3e3e0467f31eb80a",
+      "retained_sha256": "43da755482b267f40252f0e1d606706467027d87191799b7f7afeb55576b55d3"
+    }
+  ],
+  "full_ci_log_sha256": "395549fdce15c5b56baf35542b73211b78dc8f9b5f336d9c93a64d7e63923980",
+  "retained_ci_results_sha256": "b7125de3294324da15bd2f86a4991b8c70b31728ffd1b25edb05598f9cb40090"
+}

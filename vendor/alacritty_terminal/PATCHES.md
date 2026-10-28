@@ -1,5 +1,22 @@
 # Alacritty terminal patch ledger
 
+## Issue #67 — bounded buffered-read continuation
+
+- Preserve `ReadStatus::More` in one worker-local bit. Notify the existing
+  poller before its next wait and append one readable service opportunity to
+  that turn's normal events. Read at most one existing service budget per
+  turn, including when a kernel event and continuation coincide. Channel,
+  write, child-exit and end-of-turn handling retain their normal paths.
+- Pending/EOF/error stops continuation. An exactly-full read gets a final
+  attempt to reach Pending and arm piper's reader waker; Interrupted waits
+  cannot consume the only continuation wake. No idle timer, zero-timeout poll,
+  extra worker, queue, PTY, production dependency or lockfile change.
+- Add portable real-piper event-loop regressions and a native Windows test
+  using the actual UnblockedReader/IOCP with output fully buffered before
+  registration. Test-only piper uses the already locked 0.2.5 on all hosts.
+  See [verification](../../docs/verification/issue-67.md) for baseline red,
+  source provenance, native execution requirements and precise limits.
+
 ## Provenance
 
 - Published crate: **alacritty_terminal 0.25.1**, retaining every archive file,
@@ -21,15 +38,17 @@
 
 ## R06 / issue #6: bounded input through the actual writer
 
-### R14 native follow-up: rearm Windows write readiness
+### R14 native follow-up: preserve Windows write progress
 
 The native keyboard byte oracle reproduced accepted input stranded in the
 queue (48 queued bytes, zero cancellation, healthy writer). Windows readiness
 uses posted completion packets. If input arrives after the last chunk is taken
 but before `needs_write` is checked, writable interest remains enabled although
-its packet was already consumed. Re-register pending Windows writes so the
-bounded pipe posts readiness when it has capacity. Unix readiness and idle
-sessions are unchanged; no timer, worker or additional buffer is introduced.
+its packet was already consumed. The initial follow-up rearmed pending writes.
+After syncing current main, retain issue #67's `finish_io_turn` solution instead:
+it services admitted input after poll notifications, preserving both buffered
+read continuation and write progress. Its existing regression tests cover the
+same notification-only input wake. No second rearm mechanism is retained.
 The unchanged 168-case native keyboard oracle in all four cursor/newline modes
 is the integration regression, repeated under both renderer profiles.
 
@@ -242,6 +261,41 @@ checks and ConPTY probe described in
   broke the legacy Windows PowerShell release fixture; assert that bare-name
   resolution does not add it. The explicit application-name argument still
   prevents command-line executable ambiguity.
+
+## R20 / issue #20 — bound retained metadata and preserve protocol order
+
+- Sanitize titles before model/title-stack retention: at most 4,096 UTF-8 bytes,
+  no C0/C1 controls or directional formatting overrides. Cap saved titles at 64
+  (256 KiB payload bound), independently preserving the keyboard-mode limit.
+  Remove title-bearing trace output and redact Event Debug payloads for titles,
+  replies and clipboard stores; no transcript is retained by this patch.
+- RIS reset now sends ResetTitle instead of silently clearing only model state.
+  A real-PTY fixture reproduced the missing application notification.
+- Capture an OSC color override in its deferred response formatter at parser
+  position. Later set/reset operations cannot change an earlier queued query;
+  the adapter still supplies its current configured fallback palette.
+- Add source-level title bound/stack/privacy regressions; adapter tests replay
+  exact VT and verify delayed color formatting and title-reset events. Both
+  workspace dependency suites run explicitly; see
+  [issue #20 verification](../../docs/verification/issue-20.md).
+- TextAreaSizeRequest now formats aggregate TextAreaSize virtual pixel fields
+  rather than multiplying native integer cell dimensions. This keeps 8.5-pixel
+  cells accurate while preserving the existing OnResize/WindowSize PTY contract.
+- Service bounded pending input on an event-loop wake even when writable
+  interest is already enabled. Poller notifications contain no readiness event,
+  and pinned Windows piper retains a writer waker only while full; queued
+  replies could otherwise stall with free writer capacity. Include a retained
+  partial write when deciding whether a wake is idle. Backpressure keeps the
+  current bytes and waits for capacity readiness without timers or extra work.
+- Preserve a native 148-byte queued-reply failure, deterministic red/green
+  admission regression, full-capacity FIFO ordering/zero/WouldBlock coverage,
+  and a notify-only partial-write error/disposal test. No dependency or worker
+  changes; native candidate validation is recorded in the issue verification.
+- Expire the existing synchronized-output deadline before the idle decision,
+  independently of queued/partial input and readiness. Preserve future
+  deadlines without early output/wakeups. Deterministic notification/readiness
+  cases and the independent public-API probe verify bounded attempts/output
+  release under WouldBlock; no extra timer, thread or self-notification.
 
 
 ## R09 PR review — remove ambient drive state from executable lookup

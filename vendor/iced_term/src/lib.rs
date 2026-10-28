@@ -12,6 +12,7 @@ mod snapshot;
 mod terminal;
 mod theme;
 mod view;
+mod window_focus;
 
 pub use alacritty_terminal::event::Event as AlacrittyEvent;
 pub use alacritty_terminal::index::Point as AlacrittyPoint;
@@ -30,6 +31,7 @@ pub use snapshot::{RenderableContent, SnapshotStats, ViewportSnapshot};
 pub use terminal::{Command, Event, PreparedTerminal, Terminal, WorkStats};
 pub use theme::{ColorPalette, Theme};
 pub use view::TerminalView;
+pub use window_focus::WindowFocus;
 
 #[cfg(test)]
 mod lifecycle_tests;

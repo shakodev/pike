@@ -90,6 +90,21 @@ impl Default for Theme {
 }
 
 impl Theme {
+    /// Configured fallback for OSC 4/10/11/12. Model-owned OSC overrides take
+    /// precedence. There is no separate configured cursor color, so use the
+    /// foreground. Reject invalid indices instead of indexing/panicking.
+    pub(crate) fn query_color(&self, index: usize) -> Option<ansi::Rgb> {
+        let color = match index {
+            0..=255 => self.get_color(ansi::Color::Indexed(index as u8)),
+            256 => self.get_color(ansi::Color::Named(NamedColor::Foreground)),
+            257 => self.get_color(ansi::Color::Named(NamedColor::Background)),
+            258 => self.get_color(ansi::Color::Named(NamedColor::Foreground)),
+            _ => return None,
+        };
+        let [r, g, b, _] = color.into_rgba8();
+        Some(ansi::Rgb { r, g, b })
+    }
+
     pub fn new(settings: ThemeSettings) -> Self {
         Self {
             palette: settings.color_pallete,

@@ -1,0 +1,2 @@
+session=20001, InputStatus { outstanding_bytes: 0, queued_bytes: 0, written_bytes: 1, cancelled_bytes: 0, closed: false }
+session=20002, InputStatus { outstanding_bytes: 0, queued_bytes: 0, written_bytes: 449, cancelled_bytes: 0, closed: true }

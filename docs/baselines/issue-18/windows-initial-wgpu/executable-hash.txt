@@ -1,0 +1,6 @@
+
+Algorithm : SHA256
+Hash      : 1719C45968D283E8121ADDD25E2ACAED93256C6764BA7457D205E12396788AF3
+Path      : D:\a\pike\pike\target\issue-18\release\examples\unicode_cells.exe
+
+

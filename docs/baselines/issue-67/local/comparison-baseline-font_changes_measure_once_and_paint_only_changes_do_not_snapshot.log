@@ -1,0 +1,22 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.22s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/iced_term-9ce3d5d08dfd63b8)
+
+running 1 test
+
+thread 'terminal::work_tests::font_changes_measure_once_and_paint_only_changes_do_not_snapshot' (2475503) panicked at vendor/iced_term/src/terminal/work_tests.rs:20:18:
+called `Result::unwrap()` on an `Err` value: Elapsed(())
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test terminal::work_tests::font_changes_measure_once_and_paint_only_changes_do_not_snapshot ... FAILED
+
+failures:
+
+failures:
+    terminal::work_tests::font_changes_measure_once_and_paint_only_changes_do_not_snapshot
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 87 filtered out; finished in 5.11s
+
+error: test failed, to rerun pass `-p iced_term --lib`
+
+ACTUAL_EXIT_CODE=101

@@ -490,6 +490,15 @@ impl Scene {
             renderer,
             &mut operation::focusable::focus::<()>(terminal.widget_id().clone()),
         );
+        // Settle the session-owned focus report before measuring key-only
+        // commands/work. Current main emits this on the first widget update.
+        drop(view);
+        let (events, _) = self.dispatch(
+            terminal,
+            renderer,
+            Event::Window(iced::window::Event::RedrawRequested(Instant::now())),
+        );
+        route(terminal, events)?;
         Ok(())
     }
     fn dispatch(

@@ -1,0 +1,444 @@
+{
+  "source": "6b5bc81c1bdf4bbb6e4944792ce2a95d78ef56e0",
+  "integrated_main": "1dfeba4992e8c99f18487d621fe99279571d5dcb",
+  "platform": "macOS; API/portable/renderer evidence, not native Windows or physical desktop proof",
+  "command_results": [
+    {
+      "name": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-fmt.log"
+    },
+    {
+      "name": "alacritty-clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "-p",
+        "alacritty_terminal",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-alacritty-clippy.log"
+    },
+    {
+      "name": "alacritty-tests",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "alacritty_terminal"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-alacritty-tests.log"
+    },
+    {
+      "name": "wgpu-app-clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--all-targets",
+        "--no-default-features",
+        "--features",
+        "renderer-wgpu",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-wgpu-app-clippy.log"
+    },
+    {
+      "name": "wgpu-app-test",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--no-default-features",
+        "--features",
+        "renderer-wgpu"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-wgpu-app-test.log"
+    },
+    {
+      "name": "wgpu-examples",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--examples",
+        "--no-default-features",
+        "--features",
+        "renderer-wgpu"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-wgpu-examples.log"
+    },
+    {
+      "name": "wgpu-adapter-clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "-p",
+        "iced_term",
+        "--all-targets",
+        "--no-default-features",
+        "--features",
+        "iced/wgpu,iced/tokio",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-wgpu-adapter-clippy.log"
+    },
+    {
+      "name": "wgpu-adapter-test",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "iced_term",
+        "--lib",
+        "--no-default-features",
+        "--features",
+        "iced/wgpu,iced/tokio"
+      ],
+      "exit": 101,
+      "log": "/private/tmp/pike-r20-final67-wgpu-adapter-test.log"
+    },
+    {
+      "name": "wgpu-release",
+      "command": [
+        "cargo",
+        "build",
+        "--release",
+        "--locked",
+        "--example",
+        "terminal_protocol",
+        "--example",
+        "widget_geometry",
+        "--example",
+        "unicode_cells",
+        "--example",
+        "selection_copy",
+        "--no-default-features",
+        "--features",
+        "renderer-wgpu"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-wgpu-release.log"
+    },
+    {
+      "name": "wgpu-terminal_protocol",
+      "command": [
+        "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/release/examples/terminal_protocol",
+        "target/issue-20/final67-terminal_protocol-wgpu"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-wgpu-terminal_protocol.log"
+    },
+    {
+      "name": "wgpu-widget_geometry",
+      "command": [
+        "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/release/examples/widget_geometry",
+        "target/issue-20/final67-widget_geometry-wgpu"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-wgpu-widget_geometry.log"
+    },
+    {
+      "name": "wgpu-unicode_cells",
+      "command": [
+        "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/release/examples/unicode_cells",
+        "target/issue-20/final67-unicode_cells-wgpu"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-wgpu-unicode_cells.log"
+    },
+    {
+      "name": "wgpu-selection_copy",
+      "command": [
+        "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/release/examples/selection_copy",
+        "target/issue-20/final67-selection_copy-wgpu"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-wgpu-selection_copy.log"
+    },
+    {
+      "name": "tiny-skia-app-clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--all-targets",
+        "--no-default-features",
+        "--features",
+        "renderer-tiny-skia",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-tiny-skia-app-clippy.log"
+    },
+    {
+      "name": "tiny-skia-app-test",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--no-default-features",
+        "--features",
+        "renderer-tiny-skia"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-tiny-skia-app-test.log"
+    },
+    {
+      "name": "tiny-skia-examples",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--examples",
+        "--no-default-features",
+        "--features",
+        "renderer-tiny-skia"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-tiny-skia-examples.log"
+    },
+    {
+      "name": "tiny-skia-adapter-clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "-p",
+        "iced_term",
+        "--all-targets",
+        "--no-default-features",
+        "--features",
+        "iced/tiny-skia,iced/tokio",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-tiny-skia-adapter-clippy.log"
+    },
+    {
+      "name": "tiny-skia-adapter-test",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "iced_term",
+        "--lib",
+        "--no-default-features",
+        "--features",
+        "iced/tiny-skia,iced/tokio"
+      ],
+      "exit": 101,
+      "log": "/private/tmp/pike-r20-final67-tiny-skia-adapter-test.log"
+    },
+    {
+      "name": "tiny-skia-release",
+      "command": [
+        "cargo",
+        "build",
+        "--release",
+        "--locked",
+        "--example",
+        "terminal_protocol",
+        "--example",
+        "widget_geometry",
+        "--example",
+        "unicode_cells",
+        "--example",
+        "selection_copy",
+        "--no-default-features",
+        "--features",
+        "renderer-tiny-skia"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-tiny-skia-release.log"
+    },
+    {
+      "name": "tiny-skia-terminal_protocol",
+      "command": [
+        "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/release/examples/terminal_protocol",
+        "target/issue-20/final67-terminal_protocol-tiny-skia"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-tiny-skia-terminal_protocol.log"
+    },
+    {
+      "name": "tiny-skia-widget_geometry",
+      "command": [
+        "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/release/examples/widget_geometry",
+        "target/issue-20/final67-widget_geometry-tiny-skia"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-tiny-skia-widget_geometry.log"
+    },
+    {
+      "name": "tiny-skia-unicode_cells",
+      "command": [
+        "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/release/examples/unicode_cells",
+        "target/issue-20/final67-unicode_cells-tiny-skia"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-tiny-skia-unicode_cells.log"
+    },
+    {
+      "name": "tiny-skia-selection_copy",
+      "command": [
+        "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/release/examples/selection_copy",
+        "target/issue-20/final67-selection_copy-tiny-skia"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-tiny-skia-selection_copy.log"
+    },
+    {
+      "name": "independent-sync-compile",
+      "command": [
+        "rustc",
+        "--edition=2024",
+        "/private/tmp/pike-reviewer2-sync-deadline-probe.rs",
+        "-L",
+        "dependency=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/debug/deps",
+        "--extern",
+        "alacritty_terminal=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/debug/libalacritty_terminal.rlib",
+        "--extern",
+        "polling=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/debug/deps/libpolling-b442832dbb4641b3.rlib",
+        "-o",
+        "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/final67-independent-sync"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-independent-sync-compile.log"
+    },
+    {
+      "name": "independent-sync",
+      "command": [
+        "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/final67-independent-sync"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-independent-sync.log"
+    },
+    {
+      "name": "independent-read-compile",
+      "command": [
+        "rustc",
+        "--edition=2024",
+        "/private/tmp/pike-reviewer2-read-more-probe.rs",
+        "-L",
+        "dependency=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/debug/deps",
+        "--extern",
+        "alacritty_terminal=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/debug/libalacritty_terminal.rlib",
+        "--extern",
+        "polling=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/debug/deps/libpolling-b442832dbb4641b3.rlib",
+        "-o",
+        "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/final67-independent-read"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-independent-read-compile.log"
+    },
+    {
+      "name": "independent-read",
+      "command": [
+        "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/final67-independent-read"
+      ],
+      "exit": 0,
+      "log": "/private/tmp/pike-r20-final67-independent-read.log"
+    },
+    {
+      "selected_rlibs": {
+        "polling": "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/debug/deps/libpolling-b442832dbb4641b3.rlib",
+        "alacritty_terminal": "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/debug/libalacritty_terminal.rlib"
+      },
+      "sha256": {
+        "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/debug/deps/libpolling-b442832dbb4641b3.rlib": "d3d9e4b0f222df7ebee6892856de73b9d451d65242fb40f654396617a2a53c60",
+        "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20/debug/libalacritty_terminal.rlib": "6d4f537d18dd6994d16f9760dc2a4a2788bb1669cc12c992731a9d542f8bd1b6",
+        "vendor/alacritty_terminal/src/event_loop.rs": "7d8312f8e23703e3c1ad8b1e24f5bd55af34ac3947f078a524a739c6e2f23f3a",
+        "vendor/alacritty_terminal/src/event_loop/lifecycle_tests.rs": "14e93f7c6873030782b625068d52a5cf7f08a17bd0159ef79c808913f53218db",
+        "vendor/alacritty_terminal/src/event_loop/read_tests.rs": "4c0c53bc5fdb570cf2ab9b18d0e8b9f42ba1f7a63276c7a0f7feaa46cf58d7a9"
+      }
+    }
+  ],
+  "adapter_suites": {
+    "wgpu": {
+      "summary": [
+        "test result: FAILED. 90 passed; 5 failed; 1 ignored; 0 measured; 0 filtered out; finished in 5.53s"
+      ],
+      "failed_cases": [
+        "lifecycle_tests::canceled_startup_result_disposes_an_unobserved_session",
+        "lifecycle_tests::canceled_subscription_and_waiter_do_not_cancel_cleanup_of_dropped_owner",
+        "lifecycle_tests::hidden_font_change_updates_geometry_without_building_a_viewport",
+        "terminal::work_tests::metadata_input_and_noops_do_no_font_resize_snapshot_or_cache_work",
+        "terminal::work_tests::output_flood_never_measures_fonts_or_resizes_and_hidden_output_never_snapshots"
+      ]
+    },
+    "tiny-skia": {
+      "summary": [
+        "test result: FAILED. 89 passed; 6 failed; 1 ignored; 0 measured; 0 filtered out; finished in 5.58s"
+      ],
+      "failed_cases": [
+        "lifecycle_tests::canceled_startup_result_disposes_an_unobserved_session",
+        "lifecycle_tests::canceled_subscription_and_waiter_do_not_cancel_cleanup_of_dropped_owner",
+        "lifecycle_tests::hidden_font_change_updates_geometry_without_building_a_viewport",
+        "terminal::work_tests::font_reduction_uses_the_current_positive_pane_area_after_an_undersized_layout",
+        "terminal::work_tests::metadata_input_and_noops_do_no_font_resize_snapshot_or_cache_work",
+        "terminal::work_tests::output_flood_never_measures_fonts_or_resizes_and_hidden_output_never_snapshots"
+      ]
+    }
+  },
+  "fixture_pids_checked_absent": [
+    46378,
+    46383,
+    46390,
+    46391,
+    46392,
+    46409,
+    46411,
+    46399,
+    46406,
+    47109,
+    47119,
+    47125,
+    47126,
+    47127,
+    47166,
+    47168,
+    47156,
+    47158
+  ],
+  "C_tests_unchanged": {
+    "vendor/alacritty_terminal/src/event_loop/read_tests.rs": true,
+    "vendor/alacritty_terminal/src/tty/windows/blocking/read_tests.rs": true
+  },
+  "sha256": {
+    "vendor/alacritty_terminal/src/event_loop.rs": "7d8312f8e23703e3c1ad8b1e24f5bd55af34ac3947f078a524a739c6e2f23f3a",
+    "vendor/alacritty_terminal/src/event_loop/lifecycle_tests.rs": "14e93f7c6873030782b625068d52a5cf7f08a17bd0159ef79c808913f53218db",
+    "vendor/alacritty_terminal/src/event_loop/read_tests.rs": "4c0c53bc5fdb570cf2ab9b18d0e8b9f42ba1f7a63276c7a0f7feaa46cf58d7a9",
+    "/private/tmp/pike-reviewer2-sync-deadline-probe.rs": "ea3117432e91b1fb0ddb58b4b8b1c5b1ab7b39de2e3582095fcce068e4aff3c6",
+    "/private/tmp/pike-reviewer2-read-more-probe.rs": "81302a089bdb298c2d3ddeca8533f8935c87de85c2db285ae44e3ab482f288f4"
+  }
+}

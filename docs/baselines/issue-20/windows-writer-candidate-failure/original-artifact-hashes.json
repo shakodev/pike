@@ -1,0 +1,1507 @@
+[
+  {
+    "path": "terminal-protocol-tiny-skia/adapter-tests.txt",
+    "bytes": 19449,
+    "sha256": "02ab080cdb00c2b04dcf9627de6a870ce80098a51477dbc6a7082cd9ad31cc9c"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/compiler.txt",
+    "bytes": 201,
+    "sha256": "20815ee828e9107afea25520937957032db8ca234a25409cc7acffbdfbd4d392"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/executable-hash.txt",
+    "bytes": 187,
+    "sha256": "e4030b6712775ec16f21e02e909c79be7df841112127be590c4e6b30bd63fb58"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/os.json",
+    "bytes": 118,
+    "sha256": "8787a52a239b549d5c2c2b090395abfbba781050c8a4be80ef992f8d0685010c"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/runtime.json",
+    "bytes": 460,
+    "sha256": "140b54a8dab594dea1b49e824f26858286816acdfb872e9c454cb3de7b6e0e7a"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/source-hashes.txt",
+    "bytes": 1786,
+    "sha256": "f01987dd59308ac6b356a6bd862974331118015cdd237fc6a41f1d6e180815a5"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/source-sha.txt",
+    "bytes": 42,
+    "sha256": "a5b6002b01a3eb952a4a810cabe8596eeb2dfcf0d2d3dfefe64afb38e0bfa4db"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "d2ee474d84892ab06ec1878284d2e7034dd3e8072c2cb689527d6706e7137264"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "9652ec3b28f1be86a028807d42b718b02493202a3a3ab9b0dab54846e3f57b60"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "10a5406ad78b908fe69189885ef509cc8ab8711bc23e9629398d32a7cdbf8914"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/resources.json",
+    "bytes": 343,
+    "sha256": "0f599a1aac92d66de6682253bf07d7e9e86a90777f7ce8e58e53e1b6755e727a"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-01/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "60a8b77522161629fae047e663d8fd91c2a0f9a798599072c70cc27471d66963"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "179cf283f9f50c9bbf5b86380349d36adf78f5f47d09f939e7a1bf190e8641f4"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/resources.json",
+    "bytes": 342,
+    "sha256": "dd2984545040922793836393e02d67b920b7ed58d50ca1e2513172325572826f"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-02/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "fa6437e646eabcd1a575a81a06c94a1f74abc68d16bac2414d004241233c8b76"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "1f498bac4b23bacc32684c7a2f3abeca22d55509ecfa6853e1d428c0443218c2"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "e2e44a54e09bf35e289cbb3a5bc8c987861a3fe7b5ea69fdd0d1c6a3a7df5936"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/resources.json",
+    "bytes": 340,
+    "sha256": "f846b8f33ec80eaa2150bd768d5e45a4eace7974a1b7bf6596aeb5bc7a122a63"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-03/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "0886327340b14606010a0df6afe15856c56d91a0be9b6ce7f775ba307bfd834a"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "59ae69c1396f69953e89161299ffc52437f1cbc2f36b6a50273e505ef4f9f51a"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "0b87ea753b685dd7e9d87c347668196681596e23eb531f91a28d5395f529396a"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/resources.json",
+    "bytes": 343,
+    "sha256": "ed6831e8cbdb3baeb8a096ad2e32ccdac8b4d80942a8ac4d7f6c583b7896308f"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-04/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "5ca78d60306335e9cdf1efa886dd54cb3d06100d29c1099f11c1389e15ca0816"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "bd2079738bf102a1b4e223346f69650f1dcbe685994da65bf92d5207eb44e1cc"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/resources.json",
+    "bytes": 343,
+    "sha256": "ce30cc315924defb84ae590056ba5dbe5293506f4a988a520fbc5f1c0651877e"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-05/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "cc85ec52984d923b9a9d83170173a3076d886e39f2ff0b7fc3568fb5c568059d"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "d829f106d2f84dc172b7a8bc6813343a86df661e91e47dc49cea62533682f26f"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "10a5406ad78b908fe69189885ef509cc8ab8711bc23e9629398d32a7cdbf8914"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/resources.json",
+    "bytes": 338,
+    "sha256": "119ad3a97fb34f6b0d26ed2a78c581718015c830bec15dfb0fe7aa83716907ae"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-06/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "ea7fa9e4cbadf19469998096bf8d187c62235aed45c125a25d5541efe249ad3d"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "8fe5aff59d1fb619c31ac78f63344d929e35d3941e85f654c6ae9d18fdb6cdb1"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "dcf5e07080dccc93ed673c99275279ae5c601516b01196e13362bbfa2edbecda"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/resources.json",
+    "bytes": 340,
+    "sha256": "43049f61e15ab5c80ebe037a1c5a95662deb06a8b380c9ee927b8f2614a8ec74"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-07/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "d2150586010e3b3130705b791d02981c436384209789a3011d1861bde429a529"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "94c1127ab5e9e955e88cd4add474cb9279dc422b58f1048ff5be35232fde0589"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "55f011e93cbec175757470e74373ff40af937c582993b14a67b7a6fb93fa7ff5"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/resources.json",
+    "bytes": 342,
+    "sha256": "d878524303fc0d90d6bf80a1040d0bece69bfc420d03e618b9e60ecd5708e7f6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-08/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "51283fa355970ea47c59d8c27fdcd6070695b06c1109f2b2ba76a7142cdcd770"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "25762f3604801f5b70c1fcd77edf4bced27bb214d0aa360c5600e4332a0dd8cc"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "10a5406ad78b908fe69189885ef509cc8ab8711bc23e9629398d32a7cdbf8914"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/resources.json",
+    "bytes": 341,
+    "sha256": "9c92ba7b1151b0df58a82f603172f8f455043735e984ca5ea939fce183937fee"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-09/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "5b33003a928495b97792ac286d477b54dd20eb773c74ae2fb3653bc5950ad6dd"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "e74d3069d3a02c342c1f98d5197ebc861d3ecdb9bd0be746e9547ef3ea0ba251"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/resources.json",
+    "bytes": 342,
+    "sha256": "4570c86cdfca98941fb7ce722df3bd6f62709b63fd32da45af775713f7464223"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-tiny-skia/trial-10/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-wgpu/adapter-tests.txt",
+    "bytes": 22098,
+    "sha256": "7fe4e2eb312378a0de76e40a6367c9fa9927a2da276b84fc5645e08cfb8c012d"
+  },
+  {
+    "path": "terminal-protocol-wgpu/compiler.txt",
+    "bytes": 201,
+    "sha256": "20815ee828e9107afea25520937957032db8ca234a25409cc7acffbdfbd4d392"
+  },
+  {
+    "path": "terminal-protocol-wgpu/executable-hash.txt",
+    "bytes": 187,
+    "sha256": "2d9e5988fd8f4d9d0850e12efb950302c2a87f9307f51582a7574431676a7473"
+  },
+  {
+    "path": "terminal-protocol-wgpu/os.json",
+    "bytes": 118,
+    "sha256": "8787a52a239b549d5c2c2b090395abfbba781050c8a4be80ef992f8d0685010c"
+  },
+  {
+    "path": "terminal-protocol-wgpu/runtime.json",
+    "bytes": 460,
+    "sha256": "140b54a8dab594dea1b49e824f26858286816acdfb872e9c454cb3de7b6e0e7a"
+  },
+  {
+    "path": "terminal-protocol-wgpu/source-hashes.txt",
+    "bytes": 1786,
+    "sha256": "f01987dd59308ac6b356a6bd862974331118015cdd237fc6a41f1d6e180815a5"
+  },
+  {
+    "path": "terminal-protocol-wgpu/source-sha.txt",
+    "bytes": 42,
+    "sha256": "a5b6002b01a3eb952a4a810cabe8596eeb2dfcf0d2d3dfefe64afb38e0bfa4db"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "b9577e917f054c3b7c481faf30528b5cce82b753f56cfe0a94f06649b6daf958"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "a26dc55ddff93202c594b7499bf6c234884b52a60bf0d51a73638c2d239f5735"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "e1fe4e1f987e195dfd60a3eb3b8f393081c442224a488c92c5c2c4a13d79b8e1"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/resources.json",
+    "bytes": 340,
+    "sha256": "bd44347f8902afbe2d9c6fe7ed663b281f8a0bfc4077ee31c8fac4a6dc9d1a08"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-01/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "2ac4aca6a7f6bd49aea9589fc03e5d250f7d358bdfa4ae37a4bbe488c44fa407"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "6f388c2957a905adf7d81de681761700fceb10f2c835df5b78902de73d781116"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "a7ecb45726d1b514c4011195525b6b60f62abc28d68348c0845ad0895deb9aee"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/resources.json",
+    "bytes": 342,
+    "sha256": "1571d7316da2f89e00e5b495e6399a4c0bb5d5b5cc2e62f819669fa4f3f64cbb"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-02/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "8dca256af296945f77bc0147f78e57f4d7f9e91dcbdecfa49d7a37d8c2df270c"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "0bb1de272b46ce4f48e1434be989c5938776dd1237a7dd88f8867886105e28f5"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/resources.json",
+    "bytes": 343,
+    "sha256": "74641d9e1c10887d38bf22f673ec521dc39b5ce389da6910502522ed9cae20eb"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-03/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "e0687aaa8689e196e8bdb1d9c79b6c7631067a21246bfd7372657e6cd129bd72"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "0ebe0fb634f8e4aca93dcdea090d01120e73df4c7da22888c595b593da608c78"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/resources.json",
+    "bytes": 343,
+    "sha256": "79c743a21664df449f8e737d4e613a1af2a03f2fa1ec0d530bdc28e10525e37a"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-04/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "a91e812d363fd445f496e06b5389a5670c6c1da69a097a08ee99890aed5ac80e"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/probe/completed.txt",
+    "bytes": 7,
+    "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/probe/console-modes-1.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/probe/console-modes-2.txt",
+    "bytes": 204,
+    "sha256": "9f9de1a1bf4a8df36e02e5fff77e9ac0a31f76ab9eba3485e926e0f1b7887be6"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/probe/events.csv",
+    "bytes": 608,
+    "sha256": "8a4f0e0ed005db181c41b1da39d1eb11d5861bbfc669b4c4da3bfdb2d9aff752"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "750feb5dd619fc36158b7e9fc4da6a8d99684e2281d63d06fc0c91423104ddab"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "0038d86077d63d1edd6c7da5563e206dbbbf56326ed21468300c7d9bc9b900db"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/probe/input-1.bin",
+    "bytes": 448,
+    "sha256": "15b1ce8f87d0cf54fb1442caf2f2beff277401bd81923be1315088fb7f1f2396"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/probe/input-2.bin",
+    "bytes": 449,
+    "sha256": "4c88e5242f2949da84ba652c0189417a493c2a3e9e03508be33cf907aae8d57f"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/probe/reply-trace.csv",
+    "bytes": 2379,
+    "sha256": "f2730d0e01c577288345533aacf017d316e42aa4d7c4f1e7555d55143c16f2cb"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/probe/stage-1.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/probe/stage-2.txt",
+    "bytes": 6,
+    "sha256": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/process-cleanup.txt",
+    "bytes": 51,
+    "sha256": "0a6c4561e185771a3bdf9f9b63a68c7d941609a6c7852916e0b3be608678b4b0"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/resources.json",
+    "bytes": 342,
+    "sha256": "02458b8ce0a8fbfaacfdfaa55eb4483f40ab2d32ee400fed21d0e472ff46b3d9"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-05/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/probe/cleanup.csv",
+    "bytes": 100,
+    "sha256": "de8c6b3b6f743373ed85e4598e14ad681eaf77f3136685e69dbc7effad344e75"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/probe/console-modes-1.txt",
+    "bytes": 151,
+    "sha256": "a6214828ee9d917b01b7768fb6156873ccd4e21997a74e836c57922a1739ffe4"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/probe/console-modes-2.txt",
+    "bytes": 151,
+    "sha256": "a6214828ee9d917b01b7768fb6156873ccd4e21997a74e836c57922a1739ffe4"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/probe/diagnostic-padding.txt",
+    "bytes": 53,
+    "sha256": "35387425719e6a59015438cfeb1e11f7c2f65e59ca4ee86260556f051d63c5f2"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/probe/events.csv",
+    "bytes": 164,
+    "sha256": "fcf4589948c74c2c46635f93cd78760bb4f60fb895e9e03d4e26bb81d00c9304"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/probe/failed-input-status.txt",
+    "bytes": 248,
+    "sha256": "709ca3734e94a06e1440eb01c048b4595e5600594871a308155c88d21b5cbc3b"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/probe/fixture-1.pid",
+    "bytes": 4,
+    "sha256": "5228bcba37539039758f484a7b5ba291c8c56a523a0949f7ec40f4cad46426d0"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/probe/fixture-2.pid",
+    "bytes": 4,
+    "sha256": "f12c70c1cdb1ce6be18ec462018023f60a118aec959ab3893465674554ed4e40"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/probe/input-1.bin",
+    "bytes": 438,
+    "sha256": "eb3c3436f8f82b152a77d866ba402c0223467c1793a59227ed2e236d9b2f564b"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/probe/input-2.bin",
+    "bytes": 438,
+    "sha256": "642b20be9db482d4fdf17a276a17c554728751b3a6963e63abb102bbebc46c63"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/probe/replies-1.bin",
+    "bytes": 194,
+    "sha256": "7dbb6e13d870cad7fa560a70c7a61ea736651131d928d2b6e90ae4aa45259111"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/probe/replies-2.bin",
+    "bytes": 194,
+    "sha256": "b3c74b4751c7270a1d89201b4786dccb007d9aa88d7596d9dc0d3b76d2d4d872"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/probe/reply-trace.csv",
+    "bytes": 1812,
+    "sha256": "61a61452280759eb3a03e25917a0af716e33d4106b81c7c6eca98de0d26e1db2"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/probe/stage-1.txt",
+    "bytes": 20,
+    "sha256": "a44fbb3e06197cc77cbacc787f4295ef28c2da01f6da84c91498cb887c590097"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/probe/stage-2.txt",
+    "bytes": 20,
+    "sha256": "a44fbb3e06197cc77cbacc787f4295ef28c2da01f6da84c91498cb887c590097"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/stderr.txt",
+    "bytes": 50,
+    "sha256": "45fecf9fdf32b078c955702984a97d11dc17fee84f494f1e471302ce8a9ad3cb"
+  },
+  {
+    "path": "terminal-protocol-wgpu/trial-06/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

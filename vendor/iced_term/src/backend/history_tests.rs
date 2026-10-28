@@ -103,7 +103,7 @@ fn history_reduction_clamps_scrollback_and_copy_uses_authoritative_selection() {
         term.selection = Some(selection);
     }
     // No visible snapshot exists, but multi-page copy remains correct.
-    let copied = backend.selectable_content();
+    let copied = backend.selectable_content().unwrap();
     assert!(copied.matches("synthetic history").count() >= 100);
     backend.handle(Command::SetHistoryLimit(
         HistoryLimit::try_from(100).unwrap(),
@@ -113,7 +113,7 @@ fn history_reduction_clamps_scrollback_and_copy_uses_authoritative_selection() {
     backend
         .handle(Command::SetHistoryLimit(HistoryLimit::try_from(0).unwrap()));
     assert_eq!(backend.snapshot_stats().history_lines, 0);
-    assert!(backend.selectable_content().is_empty());
+    assert!(backend.selectable_content().is_none());
     flood(&backend);
     assert_eq!(backend.snapshot_stats().history_lines, 0);
     finish(backend);
