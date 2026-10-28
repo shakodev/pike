@@ -19,6 +19,7 @@ use iced_core::text::{Alignment, LineHeight, Shaping};
 
 mod cursor;
 mod glyphs;
+mod ime;
 #[cfg(test)]
 mod paste_tests;
 use iced_core::widget::operation::{self, Focusable};
@@ -360,6 +361,18 @@ impl<'a> TerminalView<'a> {
         event: &iced::keyboard::Event,
         shell: &mut iced_core::Shell<'_, Event>,
     ) -> Option<Command> {
+        if self.term.is_composing()
+            && matches!(
+                event,
+                iced::keyboard::Event::KeyPressed { .. }
+                    | iced::keyboard::Event::KeyReleased { .. }
+            )
+        {
+            // Composition owns text, candidate navigation and control bindings.
+            // The native Commit is the sole source of its UTF-8 input.
+            shell.capture_event();
+            return None;
+        }
         let mut binding_action = BindingAction::Ignore;
         let last_content = self.term.backend.renderable_content();
         match event {
@@ -383,6 +396,19 @@ impl<'a> TerminalView<'a> {
             } => match &key {
                 // Use the physical character key for bindings even when text is None (e.g., Ctrl/Cmd combos)
                 Key::Character(k) => {
+                    if modifiers.control()
+                        && modifiers.alt()
+                        && !modifiers.logo()
+                    {
+                        if let Some(text) = text.as_ref().filter(|s| {
+                            !s.is_empty() && !s.chars().any(char::is_control)
+                        }) {
+                            // Printable AltGr text is not a Ctrl+Alt shortcut.
+                            return Some(Command::Write(
+                                text.as_bytes().to_vec(),
+                            ));
+                        }
+                    }
                     let lower = k.to_ascii_lowercase();
                     binding_action = self.term.bindings.get_action(
                         InputKind::Char(lower),
@@ -403,8 +429,34 @@ impl<'a> TerminalView<'a> {
                         *modifiers,
                         last_content.terminal_mode,
                     );
+                    if *code == iced_core::keyboard::key::Named::Space
+                        && !modifiers.control()
+                        && !modifiers.alt()
+                        && !modifiers.logo()
+                        && matches!(
+                            binding_action,
+                            BindingAction::Ignore | BindingAction::Char(' ')
+                        )
+                    {
+                        if let Some(text) = text.as_ref().filter(|s| {
+                            !s.is_empty() && !s.chars().any(char::is_control)
+                        }) {
+                            // Spacing accents from dead-key + Space are text,
+                            // not a literal Space binding or an extra key.
+                            return Some(Command::Write(
+                                text.as_bytes().to_vec(),
+                            ));
+                        }
+                    }
                 },
-                _ => {},
+                Key::Unidentified => {
+                    // Dead-key output can have no usable logical binding key.
+                    if let Some(text) = text.as_ref().filter(|s| {
+                        !s.is_empty() && !s.chars().any(char::is_control)
+                    }) {
+                        return Some(Command::Write(text.as_bytes().to_vec()));
+                    }
+                },
             },
             _ => {},
         }
@@ -450,7 +502,9 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
     }
 
     fn state(&self) -> tree::State {
-        tree::State::new(TerminalViewState::new(self.term.id))
+        let mut state = TerminalViewState::new(self.term.id);
+        state.ime = std::sync::Arc::downgrade(&self.term.backend.ime);
+        tree::State::new(state)
     }
 
     fn diff(&self, tree: &mut Tree) {
@@ -459,6 +513,11 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         if tree.state.downcast_ref::<TerminalViewState>().terminal_id
             != self.term.id
         {
+            if let Some(ime) =
+                tree.state.downcast_ref::<TerminalViewState>().ime.upgrade()
+            {
+                ime.cancel();
+            }
             tree.state = self.state();
         }
     }
@@ -755,7 +814,7 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         _renderer: &iced::Renderer,
         clipboard: &mut dyn iced_graphics::core::Clipboard,
         shell: &mut iced_graphics::core::Shell<'_, Event>,
-        _viewport: &Rectangle,
+        viewport: &Rectangle,
     ) {
         let state = tree.state.downcast_mut::<TerminalViewState>();
         self.handle_resize(state, layout, shell);
@@ -788,7 +847,10 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
             ));
         }
 
+        let ime_command =
+            self.update_ime(state, event, layout, viewport, shell);
         let commands = match event {
+            iced::Event::InputMethod(_) => ime_command.into_iter().collect(),
             iced::Event::Mouse(mouse_event) if is_cursor_in_layout => self
                 .handle_mouse_event(
                     state,
@@ -797,7 +859,7 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                     mouse_event,
                 ),
             iced::Event::Keyboard(keyboard_event) => {
-                if !state.is_focused() {
+                if !focused {
                     return;
                 }
 
@@ -867,6 +929,7 @@ impl<'a> From<TerminalView<'a>> for Element<'a, Event, Theme, iced::Renderer> {
 #[derive(Debug, Clone)]
 struct TerminalViewState {
     terminal_id: u64,
+    ime: std::sync::Weak<crate::ime::Session>,
     glyphs: std::cell::RefCell<glyphs::Cache>,
     focus: bool,
     is_dragged: bool,
@@ -881,6 +944,7 @@ impl TerminalViewState {
     fn new(terminal_id: u64) -> Self {
         Self {
             terminal_id,
+            ime: Default::default(),
             glyphs: Default::default(),
             focus: false,
             is_dragged: false,
@@ -910,6 +974,9 @@ impl operation::Focusable for TerminalViewState {
     }
 
     fn unfocus(&mut self) {
+        if let Some(ime) = self.ime.upgrade() {
+            ime.cancel();
+        }
         self.focus = false;
         self.reset_pointer();
         self.keyboard_modifiers = Modifiers::empty();

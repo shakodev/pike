@@ -30,6 +30,8 @@ pub enum Command {
     /// Bounded, owner-bound pending request. Accept only when handled in order.
     Paste(crate::PasteRequest),
     PasteRejected(crate::PasteError),
+    ImeCommit(crate::ImeCommit),
+    ImeRejected(crate::ImeError),
     Scroll(i32),
     Resize(Option<Size<f32>>, Option<Size<f32>>),
     SetHistoryLimit(HistoryLimit),
@@ -89,6 +91,7 @@ pub enum LinkAction {
 pub struct Backend {
     id: u64,
     pending_paste: Arc<crate::paste::PasteSlot>,
+    pub(crate) ime: Arc<crate::ime::Session>,
     pub(crate) theme: Theme,
     pub(crate) window_focus: crate::WindowFocus,
     term: Arc<FairMutex<Term<EventProxy>>>,
@@ -163,19 +166,23 @@ impl Backend {
         let notifier = Notifier(pty_event_loop.channel());
 
         let pending_paste = Arc::new(crate::paste::PasteSlot::default());
+        let ime = Arc::new(crate::ime::Session::default());
         let (completed, completion) = tokio::sync::watch::channel(None);
         let shutdown = crate::ShutdownHandle::new(
             notifier.0.clone(),
             completion_proxy.0.clone(),
             completion,
             pending_paste.clone(),
+            ime.clone(),
         );
         let stopped_proxy = completion_proxy.clone();
         let completed_paste = pending_paste.clone();
+        let completed_ime = ime.clone();
         pty_event_loop.spawn_disposing(
             move || stopped_proxy.0.complete_source(),
             move |result| {
                 completed_paste.cancel();
+                completed_ime.cancel();
                 completed.send_replace(Some(result));
                 completion_proxy.0.backend_completed(result);
             },
@@ -184,6 +191,7 @@ impl Backend {
         Ok(Self {
             id,
             pending_paste,
+            ime,
             theme: Theme::default(),
             window_focus: crate::WindowFocus::default(),
             term: term.clone(),
@@ -212,6 +220,9 @@ impl Backend {
         if matches!(cmd, Command::RequestShutdown) {
             self.request_shutdown();
             return Action::Ignore;
+        }
+        if let Command::ImeRejected(error) = cmd {
+            return Action::ImeRejected(error);
         }
         if let Command::InputRejected(error) = cmd {
             return Action::InputRejected(error);
@@ -245,6 +256,11 @@ impl Backend {
             return if matches!(cmd, Command::Paste(_)) {
                 self.pending_paste.cancel();
                 Action::PasteRejected(crate::InputError::Closed.into())
+            } else if matches!(cmd, Command::ImeCommit(_)) {
+                self.ime.cancel();
+                Action::ImeRejected(crate::ImeError::Input(
+                    crate::InputError::Closed,
+                ))
             } else if matches!(cmd, Command::Write(_)) {
                 Action::InputRejected(crate::InputError::Closed)
             } else {
@@ -256,6 +272,9 @@ impl Backend {
         let mut term = term.lock();
         match cmd {
             Command::RequestShutdown => {
+                unreachable!("handled before terminal lock")
+            },
+            Command::ImeRejected(_) => {
                 unreachable!("handled before terminal lock")
             },
             Command::InputRejected(_) => {
@@ -366,6 +385,24 @@ impl Backend {
                     Err(error) => action = Action::PasteRejected(error),
                 }
             },
+            Command::ImeCommit(commit) => match commit.take(&self.ime) {
+                Ok(Some(text)) => {
+                    action = match self.notifier.0.send_input(text.as_bytes()) {
+                        Ok(()) => {
+                            if term.grid().display_offset() != 0 {
+                                term.scroll_display(Scroll::Bottom);
+                                self.snapshot_dirty = true;
+                            }
+                            Action::Ignore
+                        },
+                        Err(error) => {
+                            Action::ImeRejected(crate::ImeError::Input(error))
+                        },
+                    };
+                },
+                Ok(None) => {},
+                Err(error) => action = Action::ImeRejected(error),
+            },
             Command::Scroll(delta) => {
                 action = self.scroll(&mut term, delta);
             },
@@ -385,6 +422,9 @@ impl Backend {
                 }
             },
             Command::FocusChanged(focused) => {
+                if !focused {
+                    self.window_focus.release_ime(&self.ime);
+                }
                 let focused =
                     focused && self.visible && self.window_focus.is_focused();
                 if term.is_focused != focused {

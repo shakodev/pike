@@ -389,3 +389,41 @@ and API/overload policy details.
   Remove this patch when upstream provides equivalent bounded, owner-bound,
   ordered paste with the same byte/control/error contract. See
   [targeted local evidence and limitations](../../docs/verification/issue-16.md).
+
+## R19 / issue #19 — session-owned input-method composition
+
+- Participate in pinned Iced's Opened/Preedit/Commit/Closed flow. Preedit stays
+  in one bounded transient session preview (4 KiB); Iced supplies the overlay.
+  Composing key presses/releases are captured before bindings, including Enter,
+  arrows and control shortcuts. Modifiers stay synchronized. Outside composition,
+  dead-key UTF-8/spacing accents and printable AltGr text preserve OS text.
+- Request `Purpose::Terminal` only on RedrawRequested, with the current logical
+  cursor/line-height, wide-cell span, pane origin and ancestor clip. Winit applies
+  monitor DPI once. No custom text editor, glyph renderer or second output buffer.
+- A shared WindowFocus IME owner cancels the previous session and forces one
+  disabled redraw before re-enable on an owner transition, including an expired
+  owner. A fresh Opened is required before untagged native preedit/commit events
+  are accepted. The single follow-up redraw introduces no timer or idle loop.
+- Add redacted owner/epoch-bound `BackendCommand::ImeCommit(ImeCommit)` tokens.
+  Each is consumed once in existing deferred event order and enters the original
+  writer atomically as one UTF-8 sequence, never pasted/framed or Enter-appended.
+  Pending requests have separate finite caps of 2 MiB and 256 distinct tokens;
+  the existing 2 MiB writer budget still applies at actual admission.
+- Blur, hide, focus loss, modal disable, replacement, close and native completion
+  clear previews and invalidate unaccepted commit tokens. Weak owner/token links
+  do not retain a PTY or discarded payloads. No input contents appear in Debug
+  metadata/errors. Add `Action::ImeRejected(ImeError)` and visible current-host
+  notice handling; expected replay/cancellation is a no-op.
+- Public host hooks: `Terminal::{is_composing,cancel_composition,
+  set_input_method_enabled}`. Keep one actual WindowFocus per window and exclusive
+  widget focus; consult composing before application shortcuts, and cancel/disable
+  before modals. Protocol focus reports and original deferred key/mouse paths stay
+  unchanged. Rebinding the identical WindowFocus is idempotent.
+- Reviewed [upstream73](https://github.com/kemokempo/iced_term/pull/73) at
+  `230945e443c7bded8eac0786240210a51a0e8303`: retain the native Iced strategy;
+  omit its already-addressed wide-rendering hunk and strengthen ownership, named
+  key capture, lifecycle, privacy and boundedness. Exact pinned Iced/winit sources
+  and targeted local results/Windows limits are in
+  [R19 verification](../../docs/verification/issue-19.md).
+- No dependency, feature, lockfile, Alacritty, mouse/history or workflow changes.
+  Remove when upstream supplies equivalent owner-safe, bounded lifecycle support.

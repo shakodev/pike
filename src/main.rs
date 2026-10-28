@@ -150,6 +150,9 @@ impl App {
                         Action::PasteRejected(error) => {
                             self.notice = Some(error.to_string());
                         }
+                        Action::ImeRejected(error) => {
+                            self.notice = Some(error.to_string());
+                        }
                         Action::EventBridgeError(_) => {
                             self.notice = Some(
                                 "Terminal output stopped. Close and reopen the terminal.".into(),
@@ -414,6 +417,14 @@ mod tests {
                 .unwrap()
                 .starts_with("Input was not sent:")
         );
+        let ime_error = iced_term::ImeError::PreeditTooLarge {
+            bytes: iced_term::PREEDIT_BYTE_LIMIT + 1,
+        };
+        drop(app.update(Message::Terminal(Event::BackendCall(
+            id,
+            iced_term::BackendCommand::ImeRejected(ime_error),
+        ))));
+        assert_eq!(app.notice.as_deref(), Some(ime_error.to_string().as_str()));
         drop(app.update(Message::Terminal(Event::BackendCall(
             id,
             iced_term::BackendCommand::EventBridge(iced_term::EventBridgeEvent::Error(
