@@ -93,7 +93,7 @@ impl App {
                 } else if entry.ended {
                     content = content.push(text("Terminal exited — finishing output and cleanup…"));
                 }
-                if let Some(notice) = entry.notice {
+                if let Some(notice) = entry.notice.as_deref() {
                     content = content.push(text(notice));
                 }
                 content.height(Fill).into()

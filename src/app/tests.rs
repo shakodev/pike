@@ -498,3 +498,56 @@ fn already_exited_child_is_attached_read_only_without_late_focus_reports() {
     assert!(text.contains("PIKE23_FOCUS_FINAL"));
     shutdown(&mut app, &executor);
 }
+
+#[test]
+fn input_failure_metadata_is_visible_only_on_its_origin_and_keeps_the_model() {
+    let executor = SharedExecutor::new().unwrap();
+    let mut app = App {
+        profile: waiting(),
+        ..App::default()
+    };
+    let (ids, ready) = launch(&mut app, &executor);
+    drop(app.launched(ids, Ok(ready)));
+    let mut unrelated = Model::default();
+    let (_, Effect::Spawn(other)) = unrelated.create_tab().unwrap() else {
+        unreachable!()
+    };
+    let error = iced_term::InputError::Full {
+        requested: 7,
+        available: 0,
+    };
+    let expected = format!("Input was not sent: {error}");
+    drop(app.update(Message::Terminal((
+        other.session,
+        Event::BackendCall(
+            ids.session.get(),
+            iced_term::BackendCommand::InputRejected(error.clone()),
+        ),
+    ))));
+    assert!(
+        app.sessions
+            .entries
+            .get(&ids.session)
+            .unwrap()
+            .notice
+            .is_none()
+    );
+    drop(app.update(Message::Terminal((
+        ids.session,
+        Event::BackendCall(
+            ids.session.get(),
+            iced_term::BackendCommand::InputRejected(error),
+        ),
+    ))));
+    assert_eq!(
+        app.sessions
+            .entries
+            .get(&ids.session)
+            .unwrap()
+            .notice
+            .as_deref(),
+        Some(expected.as_str())
+    );
+    assert!(app.terminal(ids.session).is_some());
+    shutdown(&mut app, &executor);
+}

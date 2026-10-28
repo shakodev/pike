@@ -76,12 +76,12 @@ cargo clippy --locked --lib --bin pike --example first_session_host --target x86
 cargo build --release --locked --bin pike --example first_session_host
 ```
 
-Twelve focused tests exercise actual reservation/preparation/attachment,
+Thirteen focused tests exercise actual reservation/preparation/attachment,
 redacted invalid launch and fresh retry, stale/mismatched origins/results,
 queued cancellation, canceled delivered owners, duplicate-disposal guards,
 hidden protocol replies and background completion, rapid final output,
 aggregate shutdown with queued bridge receipts, already-exited focus, and
-obsolete/exclusive widget focus operations. Queued preparation uses deterministic
+obsolete/exclusive widget focus operations and origin-scoped input-failure metadata. Queued preparation uses deterministic
 worker gates; tests do not add a production polling subsystem.
 
 `first_session_host MODE FRESH_OUTPUT` runs the real App inside an actual Iced

@@ -22,7 +22,7 @@ pub(crate) struct Entry {
     pub owner: Owner,
     pub ended: bool,
     pub completion: Option<BackendCompletion>,
-    pub notice: Option<&'static str>,
+    pub notice: Option<String>,
 }
 
 impl Entry {
@@ -154,8 +154,9 @@ impl Sessions {
                     completion.reason,
                     iced_term::ExitReason::IoError(_) | iced_term::ExitReason::Panicked
                 ) {
-                    entry.notice =
-                        Some("The terminal stopped unexpectedly. Its final output is retained.");
+                    entry.notice = Some(
+                        "The terminal stopped unexpectedly. Its final output is retained.".into(),
+                    );
                 }
                 if matches!(
                     model.sessions().get(origin).map(|e| e.lifecycle()),
@@ -167,11 +168,12 @@ impl Sessions {
                     model.exited(origin, completion.exit_code);
                 }
             }
-            Action::InputRejected(_) if !entry.ended => {
-                entry.notice = Some("Input was not sent. The terminal is busy or closed.")
+            Action::InputRejected(error) if !entry.ended => {
+                entry.notice = Some(format!("Input was not sent: {error}"))
             }
             Action::EventBridgeError(_) => {
-                entry.notice = Some("Terminal output stopped. Close this terminal to recover.")
+                entry.notice =
+                    Some("Terminal output stopped. Close this terminal to recover.".into())
             }
             _ => {}
         }
