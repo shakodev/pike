@@ -11,6 +11,7 @@ use crate::session::{Effect, Lifecycle};
 use crate::terminal::{Owner, Sessions};
 use crate::workspace::Model;
 
+pub mod commands;
 mod focus;
 mod split;
 mod startup;
