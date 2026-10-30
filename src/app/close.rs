@@ -268,7 +268,9 @@ impl App {
                     .flatten()
             });
         token.map_or_else(Subscription::none, |token| {
-            keyboard::listen().map(move |event| Message::CloseKey(token, event))
+            keyboard::listen()
+                .with(token)
+                .map(|(token, event)| Message::CloseKey(token, event))
         })
     }
 

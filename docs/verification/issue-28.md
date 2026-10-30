@@ -69,6 +69,8 @@ worktree target. Logs are retained under `docs/baselines/issue-28/`.
 | `cargo test --locked -p pike --lib app::close::tests::force_exit_is_scoped -- --nocapture --test-threads=1` | Passed; `development-force.log`. Same-executable witness remained alive. |
 | `cargo test --locked -p pike --lib -- app::tests::cancellation:: app::close::tests::force_exit_is_scoped --nocapture --test-threads=1` | Three expanded pane/window-prepare/Force tests passed; `development-prepare-force.log`. Force bypassed an owned blocking runtime job (19 ms subprocess sample). |
 | `cargo test --locked -p pike --lib app::tests::closing::actual_modal -- --ignored --nocapture --test-threads=1` (native graphics) | Expanded mouse Cancel/Confirm/Wait/Force fixture passed; `development-all-controls.log`. Force effect is inspected, with actual process exit verified separately. |
+| `cargo test --locked -p pike --lib app::tests::closing::modal_accepts -- --nocapture --test-threads=1` | Launch and natural completion during a decision passed; `development-modal-completion.log`. |
+| `cargo test --locked -p pike --lib app::close::tests::real_keyboard_subscription -- --test-threads=1` | Initial fixture import error retained in `subscription-red.log`; real production-subscription instantiation reproduced Iced's captured-mapper E0080 in `subscription-capture-red.log`. Changed to `.with(token).map(non_capturing_mapper)`; real ignored-key stream, default Cancel and changed per-decision recipe identity passed in `subscription-green.log`. No dependency was added. |
 
 Measured debug synthetic/macOS development samples: output close dispatch
 217 µs, acknowledged cleanup 603 ms; held-reader close dispatch 115 µs,

@@ -1,0 +1,25 @@
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14)
+error[E0432]: unresolved import `iced::futures::executor`
+   --> src/app/close/tests.rs:232:36
+    |
+232 |     use iced::futures::{StreamExt, executor::block_on, stream};
+    |                                    ^^^^^^^^ could not find `executor` in `futures`
+    |
+note: found an item that was configured out
+   --> /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-0.3.34/src/lib.rs:150:9
+    |
+148 | #[cfg(feature = "executor")]
+    |       -------------------- the item is gated behind the `executor` feature
+149 | #[cfg_attr(docsrs, doc(cfg(feature = "executor")))]
+150 | pub mod executor {
+    |         ^^^^^^^^
+
+error[E0614]: type `u64` cannot be dereferenced
+   --> src/app/close/tests.rs:249:66
+    |
+249 |     assert!(matches!(&message, Message::CloseKey(received, _) if *received == token));
+    |                                                                  ^^^^^^^^^ can't be dereferenced
+
+Some errors have detailed explanations: E0432, E0614.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `pike` (lib test) due to 2 previous errors

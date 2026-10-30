@@ -227,6 +227,47 @@ fn modal_drops_queued_user_commands_but_accepts_protocol_and_cleanup() {
 }
 
 #[test]
+fn real_keyboard_subscription_carries_the_decision_token_and_renews_identity() {
+    use iced::Executor;
+    use iced::advanced::subscription::{Event as RuntimeEvent, Hasher, into_recipes};
+    use iced::futures::{StreamExt, stream};
+    use std::hash::Hasher as _;
+    let mut app = App::default();
+    let (_, id) = tab(&mut app);
+    assert!(into_recipes(app.close_subscription()).is_empty());
+    drop(app.request_close(Scope::Pane(id)));
+    let token = decision(&app);
+    // Exercise the production subscription as well as direct key routing.
+    assert!(!into_recipes(app.subscription()).is_empty());
+    let recipe = into_recipes(app.close_subscription()).pop().unwrap();
+    let mut before = Hasher::default();
+    recipe.hash(&mut before);
+    let mut messages = recipe.stream(
+        stream::iter([RuntimeEvent::Interaction {
+            window: iced::window::Id::unique(),
+            event: iced::Event::Keyboard(key(Named::Enter)),
+            status: iced::event::Status::Ignored,
+        }])
+        .boxed(),
+    );
+    let executor = crate::executor::SharedExecutor::new().unwrap();
+    let Message::CloseKey(received, event) = executor.block_on(messages.next()).unwrap() else {
+        panic!("missing modal key message");
+    };
+    assert_eq!(received, token);
+    drop(app.update(Message::CloseKey(received, event)));
+    assert!(app.close_confirmation().is_none());
+    drop(app.request_close(Scope::Pane(id)));
+    let mut after = Hasher::default();
+    into_recipes(app.close_subscription())
+        .pop()
+        .unwrap()
+        .hash(&mut after);
+    assert_ne!(before.finish(), after.finish());
+    assert_ne!(decision(&app), token);
+}
+
+#[test]
 #[ignore = "subprocess fixture; invoked only by force_exit_is_scoped_to_its_application"]
 fn force_scope_fixture() {
     match std::env::var("PIKE28_FORCE_ROLE").as_deref() {
