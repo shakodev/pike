@@ -61,7 +61,7 @@ impl clipboard::Clipboard for Clipboard {
 }
 
 /// Obtain the real public widget's deferred token, without a test-only constructor.
-fn request(terminal: &Terminal, renderer: &iced::Renderer) -> PasteRequest {
+pub(super) fn request(terminal: &Terminal, renderer: &iced::Renderer) -> PasteRequest {
     let mut view = TerminalView::show(terminal);
     let mut tree = Tree::new(view.as_widget());
     let size = iced::Size::new(640.0, 480.0);

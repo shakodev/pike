@@ -6,8 +6,8 @@ use iced::widget::pane_grid::{Axis, Split};
 
 pub use crate::identity::TabId;
 use crate::identity::{LaunchToken, Reservation, SessionId};
-use crate::layout::{PaneState, PaneTarget, TabState, contains_split};
-use crate::session::{Effect, Failure, SessionRegistry, SpawnDisposition};
+use crate::layout::{PaneState, PaneTarget, SplitGeometry, TabState, contains_split};
+use crate::session::{Effect, Failure, Lifecycle, SessionRegistry, SpawnDisposition};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Error {
@@ -18,6 +18,8 @@ pub enum Error {
     SessionLimit,
     IdsExhausted,
     LayoutExhausted,
+    Geometry,
+    NotRestartable,
 }
 
 #[derive(Debug, Default)]
@@ -75,7 +77,7 @@ pub struct Model {
 
 impl Default for Model {
     fn default() -> Self {
-        Self::new(NonZeroU16::new(16).unwrap())
+        Self::new(NonZeroU16::new(32).unwrap())
     }
 }
 
@@ -140,6 +142,60 @@ impl Model {
             },
             Effect::Spawn(reservation),
         ))
+    }
+
+    /// Refusal is atomic: no identity, entry, focus or layout changes.
+    pub fn split_with_geometry(
+        &mut self,
+        target: PaneTarget,
+        axis: Axis,
+        geometry: SplitGeometry,
+    ) -> Result<(PaneTarget, Effect), Error> {
+        self.validate(target)?;
+        if !geometry.admits(self.workspace.tab(target.tab).unwrap(), target.pane, axis) {
+            return Err(Error::Geometry);
+        }
+        self.split(target, axis)
+    }
+
+    pub fn target(&self, session: SessionId) -> Option<PaneTarget> {
+        self.workspace.order.iter().find_map(|tab| {
+            self.workspace
+                .tab(*tab)?
+                .grid
+                .iter()
+                .find_map(|(pane, state)| {
+                    (state.session == session).then_some(PaneTarget {
+                        tab: *tab,
+                        pane: *pane,
+                    })
+                })
+        })
+    }
+
+    /// Retry a retained error/exit in place, preserving every sibling and ratio.
+    /// Replacing one disposable entry does not require an extra retained slot.
+    pub fn restart(&mut self, target: PaneTarget) -> Result<Effect, Error> {
+        self.validate(target)?;
+        let old = self.workspace.pane(target).unwrap().session;
+        if !matches!(
+            self.sessions.get(old).map(|e| e.lifecycle()),
+            Some(Lifecycle::Failed(_) | Lifecycle::Exited { .. })
+        ) {
+            return Err(Error::NotRestartable);
+        }
+        let reservation = Reservation::allocate().map_err(|_| Error::IdsExhausted)?;
+        self.sessions.close(old);
+        self.sessions.insert(reservation);
+        self.workspace
+            .tabs
+            .get_mut(&target.tab)
+            .unwrap()
+            .grid
+            .get_mut(target.pane)
+            .unwrap()
+            .session = reservation.session;
+        Ok(Effect::Spawn(reservation))
     }
 
     fn validate(&self, target: PaneTarget) -> Result<(), Error> {

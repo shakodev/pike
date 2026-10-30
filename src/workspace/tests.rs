@@ -4,6 +4,133 @@ use crate::session::Lifecycle;
 use iced::widget::pane_grid::{self, Node, Pane};
 use std::collections::BTreeSet;
 
+#[test]
+fn guarded_splits_use_exact_half_ratios_and_preserve_the_source() {
+    use iced::Size;
+    for axis in [Axis::Vertical, Axis::Horizontal] {
+        let mut model = Model::default();
+        let (source, effect) = model.create_tab().unwrap();
+        let original = reservation(effect);
+        model.spawn_succeeded(original);
+        let geometry = SplitGeometry {
+            area: Size::new(408.0, 264.0),
+            minimum: Size::new(202.0, 130.0),
+            spacing: 4.0,
+        };
+        let (created, effect) = model.split_with_geometry(source, axis, geometry).unwrap();
+        let next = reservation(effect);
+        assert_ne!(next.session, original.session);
+        assert_ne!(next.request, original.request);
+        assert_eq!(
+            model.workspace().pane(source).unwrap().session,
+            original.session
+        );
+        assert_eq!(
+            model.sessions().get(original.session).unwrap().lifecycle(),
+            Lifecycle::Running
+        );
+        assert_eq!(model.target(next.session), Some(created));
+        let Node::Split {
+            axis: actual,
+            ratio,
+            ..
+        } = model.workspace().tab(source.tab).unwrap().grid().layout()
+        else {
+            panic!("missing split")
+        };
+        assert_eq!((*actual, *ratio), (axis, 0.5));
+        invariants(&model);
+    }
+}
+
+#[test]
+fn geometry_refusal_is_atomic_for_rounding_nested_and_invalid_sizes() {
+    use iced::Size;
+    let mut model = Model::default();
+    let (source, _) = model.create_tab().unwrap();
+    let mut geometry = SplitGeometry {
+        area: Size::new(408.0, 264.0),
+        minimum: Size::new(202.0, 130.0),
+        spacing: 4.0,
+    };
+    for area in [
+        Size::new(407.0, 264.0),
+        Size::new(408.0, 129.0),
+        Size::ZERO,
+        Size::new(f32::NAN, 500.0),
+        Size::new(500.0, f32::INFINITY),
+    ] {
+        geometry.area = area;
+        assert_eq!(
+            model.split_with_geometry(source, Axis::Vertical, geometry),
+            Err(Error::Geometry)
+        );
+        assert_eq!(model.sessions().len(), 1);
+        assert_eq!(
+            model.workspace().tab(source.tab).unwrap().focused(),
+            source.pane
+        );
+    }
+    geometry.area = Size::new(408.0, 264.0);
+    let (right, _) = model
+        .split_with_geometry(source, Axis::Vertical, geometry)
+        .unwrap();
+    assert_eq!(
+        model.split_with_geometry(right, Axis::Vertical, geometry),
+        Err(Error::Geometry)
+    );
+    let (down, _) = model
+        .split_with_geometry(right, Axis::Horizontal, geometry)
+        .unwrap();
+    assert_eq!(
+        model.split_with_geometry(down, Axis::Horizontal, geometry),
+        Err(Error::Geometry)
+    );
+    assert_eq!(model.sessions().len(), 3);
+    invariants(&model);
+}
+
+#[test]
+fn retained_budget_is_32_and_in_place_retry_preserves_layout_at_capacity() {
+    let mut model = Model::default();
+    let (source, first) = model.create_tab().unwrap();
+    let first = reservation(first);
+    model.spawn_succeeded(first);
+    let mut last = source;
+    for _ in 1..32 {
+        let (target, spawn) = model.split(source, Axis::Vertical).unwrap();
+        model.spawn_failed(reservation(spawn), Failure::Spawn);
+        last = target;
+    }
+    assert_eq!(model.sessions().len(), 32);
+    assert_eq!(
+        model.split(source, Axis::Horizontal),
+        Err(Error::SessionLimit)
+    );
+    let tree = format!(
+        "{:?}",
+        model.workspace().tab(source.tab).unwrap().grid().layout()
+    );
+    let old = model.workspace().pane(last).unwrap().session;
+    let retry = reservation(model.restart(last).unwrap());
+    assert_ne!(retry.session, old);
+    assert!(model.sessions().get(old).is_none());
+    assert_eq!(model.sessions().len(), 32);
+    assert_eq!(
+        tree,
+        format!(
+            "{:?}",
+            model.workspace().tab(source.tab).unwrap().grid().layout()
+        )
+    );
+    assert_eq!(model.restart(source), Err(Error::NotRestartable));
+    assert_eq!(
+        model.workspace().pane(source).unwrap().session,
+        first.session
+    );
+    invariants(&model);
+}
+
 fn reservation(effect: Effect) -> Reservation {
     match effect {
         Effect::Spawn(reservation) => reservation,

@@ -214,3 +214,100 @@ fn ime_rejected_origin_cancels_held_clones_and_valid_commit_is_once_only() {
     });
     shutdown(&mut app, &executor);
 }
+
+#[test]
+#[ignore = "requires a local graphics device; run explicitly for split IME ownership"]
+fn ime_visible_sibling_requires_model_authority_and_cancels_every_held_clone() {
+    let executor = SharedExecutor::new().unwrap();
+    let renderer = executor
+        .block_on(<iced::Renderer as Headless>::new(
+            iced::Font::MONOSPACE,
+            iced::Pixels(14.0),
+            None,
+        ))
+        .expect("headless renderer");
+    let mut app = App {
+        profile: waiting(),
+        ..App::default()
+    };
+    drop(app.update(Message::WindowFocused(true)));
+    let (first, ready) = launch(&mut app, &executor);
+    drop(app.launched(first, Ok(ready)));
+    let target = app.active_target().unwrap();
+    drop(app.update(Message::GridSize(target.tab, iced::Size::new(960.0, 560.0))));
+    let prior = request(app.terminal(first.session).unwrap(), &renderer);
+    let launch = executor
+        .enter(|| app.begin_split(target, super::super::split::Direction::Right))
+        .unwrap();
+    let next = Reservation {
+        session: launch.session,
+        request: launch.request,
+    };
+    let ready = executor.block_on(launch.receive()).unwrap();
+    drop(app.launched(next, Ok(ready)));
+    assert_eq!(app.active_session(), Some(next.session));
+    for id in [first.session, next.session] {
+        assert!(app.terminal(id).unwrap().is_visible());
+        assert_eq!(admitted(app.terminal(id).unwrap()), 0);
+    }
+    let Owner::Attached(terminal) =
+        &mut app.sessions.entries.get_mut(&first.session).unwrap().owner
+    else {
+        unreachable!()
+    };
+    // The real split focus transition invalidates the preceding composition.
+    terminal.handle(iced_term::Command::ProxyToBackend(B::ImeCommit(prior)));
+    assert_eq!(admitted(terminal), 0);
+    // Model authority must also reject a newly staged real-widget token when
+    // stale backend/widget state claims the inactive visible sibling is focused.
+    terminal.set_focused(true);
+    let token = request(terminal, &renderer);
+    let held = token.clone();
+    app.sessions.route(
+        &mut app.model,
+        &app.window_focus,
+        first.session,
+        Event::BackendCall(first.session.get(), B::ImeCommit(token)),
+    );
+    let Owner::Attached(terminal) =
+        &mut app.sessions.entries.get_mut(&first.session).unwrap().owner
+    else {
+        unreachable!()
+    };
+    assert!(terminal.renderable_content().unwrap().focused);
+    terminal.handle(iced_term::Command::ProxyToBackend(B::ImeCommit(held)));
+    assert_eq!(
+        admitted(terminal),
+        0,
+        "inactive visible sibling admitted IME bytes"
+    );
+    assert_eq!(app.active_session(), Some(next.session));
+    app.synchronize();
+    let token = request(app.terminal(next.session).unwrap(), &renderer);
+    for commit in [token.clone(), token] {
+        drop(app.update(Message::Terminal((
+            next.session,
+            Event::BackendCall(next.session.get(), B::ImeCommit(commit)),
+        ))));
+    }
+    assert_eq!(admitted(app.terminal(first.session).unwrap()), 0);
+    assert_eq!(admitted(app.terminal(next.session).unwrap()), "你好".len());
+    // Finish both controlled lines through the origin-bound protocol path and
+    // await real completion before aggregate shutdown can cancel queued input.
+    for id in [first.session, next.session] {
+        drop(app.update(Message::Terminal((
+            id,
+            Event::BackendCall(
+                id.get(),
+                B::ProcessAlacrittyEvent(iced_term::AlacrittyEvent::PtyWrite("\n".into())),
+            ),
+        ))));
+        let completion = app.terminal(id).unwrap().shutdown_handle();
+        executor.block_on(async {
+            tokio::time::timeout(DEADLINE, completion.wait())
+                .await
+                .unwrap();
+        });
+    }
+    shutdown(&mut app, &executor);
+}

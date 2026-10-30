@@ -13,6 +13,7 @@ mod cancellation;
 mod ime;
 mod interaction;
 mod paste;
+mod split;
 
 fn profile(script: &str) -> BackendSettings {
     #[cfg(windows)]
