@@ -5,6 +5,8 @@
 mod fixture_input;
 #[path = "command_routing/host.rs"]
 mod host;
+#[path = "command_routing/scenarios.rs"]
+mod scenarios;
 
 use host::Host;
 use iced::advanced::renderer::Headless;
@@ -39,7 +41,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     let (app, task) = executor.enter(|| App::with_settings(profile));
     let mut host = Host::new(app, task, renderer, executor);
-    let result = verify(&mut host, &output);
+    let result = if args.get(2).is_some_and(|arg| arg == "--focus-race") {
+        verify_focus_race(&mut host, &output)
+    } else if args.get(2).is_some_and(|arg| arg == "--header-once") {
+        verify_header_once(&mut host, &output)
+    } else {
+        verify(&mut host, &output)
+    };
     let cleanup = host.cleanup();
     if let Ok(receipts) = &cleanup {
         fs::write(output.join("cleanup.txt"), receipts.join("\n"))?;
@@ -80,6 +88,9 @@ fn child(output: &Path) -> io::Result<()> {
             Ok(_) => {
                 file.write_all(&byte)?;
                 file.flush()?;
+                if byte[0] == 4 {
+                    return Ok(());
+                }
             }
             Err(error) if error.kind() == io::ErrorKind::Interrupted => {}
             Err(error) => return Err(error),
@@ -157,8 +168,13 @@ fn verify(host: &mut Host, output: &Path) -> io::Result<()> {
             host.controls - actions
         ),
     )?;
-    host.until(|host| host.app.model().sessions().len() == 2)?;
-    Ok(())
+    host.until(|host| {
+        host.app.model().sessions().len() == 2
+            && host.app.active_session().is_some_and(|id| {
+                id != original && host.app.terminal(id).is_some() && host.focused(id)
+            })
+    })?;
+    scenarios::verify(host, output, original, original_file)
 }
 
 fn check(condition: bool, message: &str) -> io::Result<()> {
@@ -167,4 +183,78 @@ fn check(condition: bool, message: &str) -> io::Result<()> {
     } else {
         Err(io::Error::other(message))
     }
+}
+
+fn verify_focus_race(host: &mut Host, output: &Path) -> io::Result<()> {
+    use pike::app::{Control, Direction};
+    host.update(Message::WindowFocused(true));
+    host.until(|host| {
+        host.app
+            .active_session()
+            .is_some_and(|id| host.app.terminal(id).is_some() && host.focused(id))
+            && input_files(output).len() == 1
+    })?;
+    host.event(
+        iced::Event::Window(iced::window::Event::Focused),
+        mouse::Cursor::Unavailable,
+    );
+    host.redraw();
+    let source = host.app.active_target().unwrap();
+    let first = host.app.active_session().unwrap();
+    host.update(Message::Control(Control::Split(source, Direction::Right)));
+    host.until(|host| {
+        host.app
+            .active_session()
+            .is_some_and(|id| id != first && host.app.terminal(id).is_some() && host.focused(id))
+    })?;
+    let second = host.app.active_session().unwrap();
+    let second_target = host.app.model().target(second).unwrap();
+    let delayed = host.app.update(Message::Control(Control::Focus(source)));
+    host.update(Message::Control(Control::Focus(second_target)));
+    host.until(|host| host.focused(second))?;
+    host.finish(delayed)?;
+    check(
+        host.app.active_session() == Some(second),
+        "delayed focus changed model selection",
+    )?;
+    check(
+        host.focused(second) && !host.focused(first),
+        "delayed task focused an older still-visible owner instead of the model-active session",
+    )
+}
+
+fn verify_header_once(host: &mut Host, output: &Path) -> io::Result<()> {
+    use pike::app::{Control, Direction};
+    host.update(Message::WindowFocused(true));
+    host.until(|host| {
+        host.app
+            .active_session()
+            .is_some_and(|id| host.app.terminal(id).is_some() && host.focused(id))
+            && input_files(output).len() == 1
+    })?;
+    host.event(
+        iced::Event::Window(iced::window::Event::Focused),
+        mouse::Cursor::Unavailable,
+    );
+    host.redraw();
+    let source = host.app.active_target().unwrap();
+    let first = host.app.active_session().unwrap();
+    host.update(Message::Control(Control::Split(source, Direction::Right)));
+    host.until(|host| {
+        host.app
+            .active_session()
+            .is_some_and(|id| id != first && host.app.terminal(id).is_some() && host.focused(id))
+            && input_files(output).len() == 2
+    })?;
+    let bounds = host.bounds(first).unwrap();
+    let actions = host.controls;
+    host.click(iced::Point::new(bounds.x + 40.0, bounds.y - 14.0));
+    host.until(|host| host.app.active_session() == Some(first) && host.focused(first))?;
+    check(
+        host.controls == actions + 1,
+        &format!(
+            "pane header expected one focus action, observed {}",
+            host.controls - actions
+        ),
+    )
 }

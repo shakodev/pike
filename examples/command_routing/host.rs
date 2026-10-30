@@ -79,6 +79,26 @@ impl Host {
         }
     }
 
+    /// Execute a deliberately delayed real task after later selections have
+    /// completed, so focus-ordering regressions do not depend on a scheduler.
+    pub fn finish(&mut self, task: Task<Message>) -> io::Result<()> {
+        if let Some(mut stream) = task::into_stream(task) {
+            loop {
+                let action = self
+                    .executor
+                    .block_on(async {
+                        tokio::time::timeout(Duration::from_secs(10), stream.next()).await
+                    })
+                    .map_err(io::Error::other)?;
+                let Some(action) = action else {
+                    break;
+                };
+                self.action(action)?;
+            }
+        }
+        Ok(())
+    }
+
     fn subscribe(&mut self) {
         for future in self.subscriptions.update(
             subscription::into_recipes(self.app.subscription()).into_iter(),
