@@ -60,6 +60,7 @@ impl App {
             let tab_id = self.model.workspace().active().expect("active tab");
             let presentation = self.resize_layout.as_ref().filter(|p| p.tab == tab_id);
             let source = presentation.map(|p| &p.grid).unwrap_or_else(|| tab.grid());
+            let divider = super::resize::Divider::default();
             let grid = PaneGrid::new(source, |handle, pane, _| {
                 let target = PaneTarget {
                     tab: tab_id,
@@ -74,19 +75,21 @@ impl App {
                 .height(HEADER)
                 .into();
                 let content = column![header.map(Message::Control), self.pane(pane.session)];
-                pane_grid::Content::new(container(content).padding(BORDER).clip(true).style(
-                    move |theme: &iced::Theme| container::Style {
-                        border: Border {
-                            width: BORDER,
-                            color: if focused {
-                                theme.palette().primary
-                            } else {
-                                theme.extended_palette().background.strong.color
+                pane_grid::Content::new(divider.content(
+                    container(content).padding(BORDER).clip(true).style(
+                        move |theme: &iced::Theme| container::Style {
+                            border: Border {
+                                width: BORDER,
+                                color: if focused {
+                                    theme.palette().primary
+                                } else {
+                                    theme.extended_palette().background.strong.color
+                                },
+                                ..Default::default()
                             },
                             ..Default::default()
                         },
-                        ..Default::default()
-                    },
+                    ),
                 ))
             })
             .spacing(GUTTER)
@@ -109,9 +112,12 @@ impl App {
             );
             // Scrollbar dragging provides safe panning even while the terminal
             // owns wheel events. Both renderer and pointer paths clip to viewport.
-            let active = self.active_session().and_then(|id| self.terminal(id));
+            let active = self
+                .active_session()
+                .and_then(|id| self.terminal(id))
+                .filter(|_| self.window_focus.is_focused());
             let grid: Element<'_, Message> = if source.maximized().is_none() {
-                super::resize::divider_focus(grid, source.layout(), active)
+                divider.grid(grid, source.layout(), active)
             } else {
                 grid.into()
             };
