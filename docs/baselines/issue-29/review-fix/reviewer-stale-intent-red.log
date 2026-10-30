@@ -1,0 +1,37 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-reviewer-2)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.07s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-8047c988abb10012)
+
+running 2 tests
+test app::tests::tabs::reviewer2_cancelled_close_preserves_pending_launch_intent ... ok
+test app::tests::tabs::reviewer2_stale_no_op_controls_preserve_pending_launch_focus ... 
+thread 'app::tests::tabs::reviewer2_stale_no_op_controls_preserve_pending_launch_focus' (8011388) panicked at /Users/daan.hoedjes/orca/workspaces/pike/pike-reviewer-2/docs/baselines/issue-29-reviewer2/intent_probe.rs:33:5:
+stale no-op controls superseded a valid intent: ["closed session: pending-intent-retained=false, attached-pane-selected=false", "closed tab: pending-intent-retained=false, attached-pane-selected=false"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    app::tests::tabs::reviewer2_stale_no_op_controls_preserve_pending_launch_focus
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 116 filtered out; finished in 0.24s
+
+error: test failed, to rerun pass `-p pike --lib`

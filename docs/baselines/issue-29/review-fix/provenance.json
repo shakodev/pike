@@ -1,0 +1,161 @@
+{
+  "merged_base": "52f5f90675c11ce15d19a11554c9105f803056a3",
+  "initial_source": "b45c4cd726756444617922a07be63dcf33e0e105",
+  "initial_publication": "042061d6365c7e0b7cbd15627a5c634dc4b4331b",
+  "first_correction_source": "678ebc1d3b5c94182b24db0c2a0921f57dcba0ce",
+  "source_head": "81523ac06aa7c69ba96bc77e03ad9d2fd16c5841",
+  "source_files": {
+    "examples/live_tabs.rs": {
+      "git_blob": "c46ee4031316331e6f00c984ec41b27029c3d928",
+      "sha256": "3004d2913e7db47bf5bfcf1d1ed708e7de6723ab03048fd9b82d1812e64be393"
+    },
+    "examples/support/live_tabs_widget.rs": {
+      "git_blob": "adcd4ee7eff6a2fde38d28129fe4b3600652055b",
+      "sha256": "f7e4cdd51418787a5fb748476dfaf2dcb12b83f776fb7428fb6ebf589195b0ec"
+    },
+    "src/app.rs": {
+      "git_blob": "b400ee7eca5ca01d9e2348d32a43e9daa3cf020d",
+      "sha256": "5cd8b3ad48e94426b29cf879093d7f773cca129998f38e26f72f0d8cd71514db"
+    },
+    "src/app/close.rs": {
+      "git_blob": "6ecbe3bd1c0971eec0ebd4350b127ce4a0ceacd0",
+      "sha256": "3e017f3e5a33f6842a413ab4962a62db4d29a2a0322f0cb79b45293caf0f4382"
+    },
+    "src/app/resize.rs": {
+      "git_blob": "a9c777139ac703a1c3a2512a3a265b7244c77f23",
+      "sha256": "70498daf81b3a853197f1c49850cec9d776327dd6a2953f6f241c3c5f65ad5a9"
+    },
+    "src/app/split.rs": {
+      "git_blob": "e70766c7b17cba7639dc8769caa6f04a5d9ff95a",
+      "sha256": "9224b1854807b716f9c3833710b564ada7d7f18561423b347afb97b40870996b"
+    },
+    "src/app/startup.rs": {
+      "git_blob": "f0d6adb41fd35b0f55993b19eae1dd9905f67762",
+      "sha256": "cd17a129cfbbf00663c42050ae2e4a0ab52d4c74633ab56669ecf9119faaec81"
+    },
+    "src/app/tabs.rs": {
+      "git_blob": "e6826bf9edb05d9812d41b00490ba67ce0a49dbf",
+      "sha256": "4c5061b390b9ef1662a743b5b37b04ff31be2ad35247291e2e7b3f5c52a174b1"
+    },
+    "src/app/tests.rs": {
+      "git_blob": "93cf4d1ed9271a9a9943cdce316b480c1bac96eb",
+      "sha256": "5935dfd302bf0fd95317f212eb721966b37519003815896d4be4e627e1e26391"
+    },
+    "src/app/tests/tabs.rs": {
+      "git_blob": "687521660aa3b6c24c62153ba77a1e287ec03e55",
+      "sha256": "6c16e2b998ea348c7029ba41a3b9f6ff5f152c0f0f41a72f58b6d852b565ab53"
+    },
+    "src/app/view.rs": {
+      "git_blob": "0f1abed8d16761b13b281524ecc959603bebdef5",
+      "sha256": "6c09b7a4985ea263e015f052c302197a5370258341fb10c6b793ea6608be535f"
+    },
+    "src/layout.rs": {
+      "git_blob": "14515b51cd5428e8a64a5abdeab0802187be1505",
+      "sha256": "2d3692b43a1a5853a693eabb42fb868e81cbda12107f90e53ae1aae7736c4e1a"
+    },
+    "src/lib.rs": {
+      "git_blob": "8dbf1d59e5268db776a31b247673bc1208755454",
+      "sha256": "3fec36a5c65144c596eac5b97129bfb8d3f45bacb81485674e2e45e3381ed236"
+    },
+    "src/tabs.rs": {
+      "git_blob": "21e9731c95edacdf71d91065fcc3fecad456e673",
+      "sha256": "c4867cbb66e8d4655cf0d3de43b1cca949597435f8861db08c6a307c4f53bc5f"
+    },
+    "src/tabs/tests.rs": {
+      "git_blob": "e1e4be249b80aecc2050bcb1aeebe988db6c906c",
+      "sha256": "f87577df37819b912ff7e15e79aca5b4f5b1f6e0f4af517fdcd2da0a69ee706e"
+    },
+    "src/terminal.rs": {
+      "git_blob": "4b7cfeb2827efea3e94d49451ac900e1f6f59ac0",
+      "sha256": "0d5b5e5233519bd7d7d18186872a8aede5683655a111dbda78d49e800c7f9e0d"
+    },
+    "src/workspace.rs": {
+      "git_blob": "a115c330c988030b8959c8419089934783bb4b14",
+      "sha256": "105f5cd4a2f3d9aff045f046969ad616fd689365f7a760b0a30aea53098cf127"
+    }
+  },
+  "fixture_binary_source_head": "678ebc1d3b5c94182b24db0c2a0921f57dcba0ce",
+  "fixture_binary_sha256": "5a8d851df8aa4582bedeeb932ea82f30c25dc30932dc17337dcf390b72c92fe8",
+  "fixture_reuse": "Final production delta adds only empty non-window close guard; GUI normal close branch unchanged; changed branches covered by final five native tests.",
+  "native_fixture": {
+    "result": "passed",
+    "child_pids": [
+      55503,
+      55507,
+      55520,
+      55528
+    ],
+    "activation_dispatch_us": [
+      239,
+      241,
+      262,
+      249,
+      234,
+      234,
+      227
+    ],
+    "physical_input": false
+  },
+  "host": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+  "renderer": "default wgpu",
+  "native_windows_execution": false,
+  "receipts_sha256": {
+    "affected-native-green.log": "e6e52787f305dbb34d8a131d50626fbff3dae6fc627a941c4fa0cefa1fe0ce9a",
+    "author-original-red.log": "2c0dab61db51d7e6358b399faefcbe8a664902f97b66eedc291e319321382e3f",
+    "clippy.log": "282a2d77451983edd2911deaf4bb48f360deb77b019c030c7b774dbd0e024e40",
+    "commands.json": "55bfc77f1511566e3e411196318e1d7848ea13b23f82b7e3aca91bc8de06e21d",
+    "diff-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fixture-build.log": "bfb85bee891bf60a3364194a262bd15d2f4ce143f08921ef8a62932a5181293f",
+    "format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-final/55503/cwd.txt": "ec3f710bd4e4d8528077fb66cf65f99c2ba057d58ac85c83b0e18047cc4d7d2d",
+    "native-final/55503/fixture-input.txt": "e3746ab18be984e3c6c16468716acb746399ceacbcb4d2985759b6789c4f5e14",
+    "native-final/55503/profile.txt": "32d91847eed001469006e68c6212f8e13a8a081b08ebf17a5f0a0e819ab90d5c",
+    "native-final/55503/ready.txt": "b24d6d33736ecd5604a4b17bc9c6481039fac362bb7df044ef1c10a2bfd21db6",
+    "native-final/55507/background.go": "4cd0e21a9a0795a14ec9aa5f0e7d1abff0492565770e43eafdf1e3e8afed1f33",
+    "native-final/55507/background.txt": "4bd6edae02098ecfb3a5f311249693ae44685638a047cac5d2e099e70892f161",
+    "native-final/55507/cwd.txt": "ec3f710bd4e4d8528077fb66cf65f99c2ba057d58ac85c83b0e18047cc4d7d2d",
+    "native-final/55507/exit.go": "4cd0e21a9a0795a14ec9aa5f0e7d1abff0492565770e43eafdf1e3e8afed1f33",
+    "native-final/55507/fixture-input.txt": "e3746ab18be984e3c6c16468716acb746399ceacbcb4d2985759b6789c4f5e14",
+    "native-final/55507/input.bin": "e8ff255252eea550dee4ef5912c37daab1c1d63ae3d2b3bb2f88ef55f8c2b1dd",
+    "native-final/55507/profile.txt": "32d91847eed001469006e68c6212f8e13a8a081b08ebf17a5f0a0e819ab90d5c",
+    "native-final/55507/ready.txt": "b24d6d33736ecd5604a4b17bc9c6481039fac362bb7df044ef1c10a2bfd21db6",
+    "native-final/55520/cwd.txt": "ec3f710bd4e4d8528077fb66cf65f99c2ba057d58ac85c83b0e18047cc4d7d2d",
+    "native-final/55520/fixture-input.txt": "e3746ab18be984e3c6c16468716acb746399ceacbcb4d2985759b6789c4f5e14",
+    "native-final/55520/profile.txt": "32d91847eed001469006e68c6212f8e13a8a081b08ebf17a5f0a0e819ab90d5c",
+    "native-final/55520/ready.txt": "b24d6d33736ecd5604a4b17bc9c6481039fac362bb7df044ef1c10a2bfd21db6",
+    "native-final/55528/cwd.txt": "ec3f710bd4e4d8528077fb66cf65f99c2ba057d58ac85c83b0e18047cc4d7d2d",
+    "native-final/55528/fixture-input.txt": "e3746ab18be984e3c6c16468716acb746399ceacbcb4d2985759b6789c4f5e14",
+    "native-final/55528/input.bin": "1d720afc50d28ca787041facb69082a55fe52a11072cdb2a9dba4f8afe5493aa",
+    "native-final/55528/profile.txt": "32d91847eed001469006e68c6212f8e13a8a081b08ebf17a5f0a0e819ab90d5c",
+    "native-final/55528/ready.txt": "b24d6d33736ecd5604a4b17bc9c6481039fac362bb7df044ef1c10a2bfd21db6",
+    "native-final/completed.txt": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13",
+    "native-final/events.txt": "3403f7fb52795a81e64a619604d897c3e7698802df580be8bffa00c0426091eb",
+    "native-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "restart-original-red.log": "05f86bf0e7920aa10c77cf92528bb8e94b8ded5c4a434892cb91a6ab76c2d731",
+    "restart-unprimed-fixture.log": "955de4fae2ca95bd671c0d4669e7f2a83b2b4928e5b4dce7b581f27f1f7aa0ff",
+    "reviewer-complete-probe.rs": "d68be9f42438809597453280d0434c978b199216071e1f3173dcd0890d4f83e3",
+    "reviewer-focus-probe.rs": "d68be9f42438809597453280d0434c978b199216071e1f3173dcd0890d4f83e3",
+    "reviewer-intent-probe.rs": "74fa438abbe1375de53c885e685b76829a7cbe067ac3916226e6d07b889997dd",
+    "reviewer-original-red.log": "ff005ebf0fc4b4735b875ff4938ab49290414f8060b2b3ad2e614551ddf33b38",
+    "reviewer-restart-red.log": "d88c5aa361781f3b03de8d5d1e1dfd056a02d3a29fdf7534756c67e54a6923b9",
+    "reviewer-stale-intent-red.log": "79dc071a6483210e4d0c235517a5bd4a8369f323f1dbcf96c73e0f17c2171d8c",
+    "sensitive-green.log": "ac7e1c4d2495a92039eb75d7bfd4f7cd8515979daa470daab690e0420f870ac5",
+    "stale-controls-original-red.log": "5e6a618ddd5372dd11983e3e904f5bdb8f7c8daab2859beefad42db648cd1525",
+    "stale-intent-clippy.log": "3ea8eafd0a5ad47eb4e058740618e4160e9c3b253d107dda67bc921b446431da",
+    "stale-intent-green.log": "bf3ce395d75df466947f26eaa493213d34698cc8343a0502d5e016d253dd8be6",
+    "stale-intent-windows-cross-clippy.log": "ea2dbd67bd40fab54279a9aa36072d1cb18773f1ccd9ec0fe44310322aee65d2",
+    "windows-cross-clippy.log": "68ab9a65bcf0b218e43dde748483623a00cb9bc0d510d66f69ba520f4ec26211"
+  },
+  "unchanged": [
+    "vendor",
+    "Cargo.toml",
+    "Cargo.lock",
+    "src/app/focus.rs",
+    "src/app/resize/capture.rs",
+    "src/layout/resize.rs",
+    "src/session.rs",
+    "src/launch.rs"
+  ],
+  "actions": "off",
+  "later_publication_delta": "documentation and bounded synthetic artifacts only"
+}

@@ -1,5 +1,14 @@
 # R29 — live tabs
 
+Current corrected implementation source:
+**`81523ac06aa7c69ba96bc77e03ad9d2fd16c5841`** on the same PR77.
+Independent review found two gaps in the initial source described below;
+both were reproduced and corrected, followed by a stale empty-close guard. The
+[review correction report](issue-29-review-fix.md) records the immutable reds,
+fixed behavior, sensitive native greens and refreshed final checks. Initial
+receipts below remain historical evidence; they are not relabeled as proof of
+the corrected focus/cache paths.
+
 Branch `issue-29-live-tabs` started from exact merged R28/PR75 main
 `b29a7756f06007f4b6f6872f93b2d2038b8519fd`. Original branch
 `issue-28-close-policy` and `checkpoint/b-r29-from-r28-394d973` retain
@@ -10,7 +19,7 @@ Independent model checkpoint `2bf91fa` and prepared fixture checkpoint `17c9961`
 were preserved before integrating actual merged R25/PR76 main
 `52f5f90675c11ce15d19a11554c9105f803056a3` **once**, in merge `6a8b029`.
 Shared host work began only after the coordinator released that gate.
-Verified, committed and pushed implementation source:
+Initial committed and pushed implementation source:
 **`b45c4cd726756444617922a07be63dcf33e0e105`**. Later publication adds only
 reports and synthetic receipts; exact final head is in the PR/coordinator
 handoff. [Provenance](../baselines/issue-29/provenance.json) records source,
@@ -46,8 +55,10 @@ Changed source groups:
   active viewport area until its keyed sensor reports layout, and preserve
   R25's frozen fallback. Only lightweight layout state is cached, bounded by
   retained tabs and pruned on removal; hidden trees are never fitted.
-- `src/app/tests.rs`, `src/app/tests/tabs.rs`: seven host regressions, including
-  explicit native deferred-IME and frozen-presentation cases.
+- `src/app/tests.rs`, `src/app/tests/tabs.rs`: seven initial host regressions,
+  including explicit native deferred-IME/frozen-presentation cases, followed by
+  eight review regressions for deferred split/retry, hidden close/restart,
+  stale controls, Cancel and empty-window owned cleanup.
 - `examples/live_tabs.rs`, `examples/support/live_tabs_widget.rs`: finite actual
   App/native Iced fixture using a public New tab button, public widget encoder,
   native focus operations and four controlled child processes.
@@ -87,7 +98,7 @@ Iced/iced_term APIs were inspected first.
 | `cargo fmt --package pike -- --check` | Passed; `format.log`. |
 | Source/report `git diff 52f5f906 --check -- src examples docs/verification` | Passed; `diff-check.log`. Byte-preserved raw receipts remain outside this source/report whitespace check. |
 
-The native fixture observed distinct child PIDs 44617/44620/44628/44631,
+The initial native fixture at `b45c4cd` observed child PIDs 44617/44620/44628/44631,
 inherited profile/cwd, matching **128×32** initial terminals and nested **63×15**
 panes. Switching away before attachment preserved focus with **0 snapshots /
 0 viewport cells** in the hidden attachment. Hidden output produced 64 updates
@@ -107,11 +118,13 @@ acknowledged native cleanup, set its exit flag, built no snapshot, preserved
 active focus and displayed its final sentinel on activation. Confirmed aggregate
 shutdown used the normal App cleanup acknowledgement.
 
-These are individual debug synthetic/macOS samples, not release percentiles,
+These initial observations are debug synthetic/macOS samples, not release percentiles,
 CPU/RAM budgets or physical input verification. The harness has bounded input,
 a 20-second scenario deadline and 25-second failed-cleanup escape. No oracle or
-deadline was relaxed, and all executed checks passed first run; later source
-changes added only the two joint tests. No development failure was discarded.
+deadline was relaxed. Initial checks passed their first execution, but later
+independent probes exposed the two additional focus/cache paths. Their native
+reds, author reproductions, one fixture-setup failure and corrected greens are
+all retained in the linked correction report.
 
 ## Reused evidence and limits
 
