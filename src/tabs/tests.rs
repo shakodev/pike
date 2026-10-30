@@ -5,6 +5,18 @@ use crate::workspace::{Error, Model};
 use iced::widget::pane_grid::{Axis, Node};
 
 #[test]
+fn title_draft_keeps_editable_spaces_and_save_applies_blank_reset_policy() {
+    assert_eq!(title_draft("My "), "My ");
+    assert_eq!(title_draft(" My \nproject\u{202e} "), " My project ");
+    assert_eq!(
+        Title::new(&title_draft(" My project ")).unwrap().as_str(),
+        "My project"
+    );
+    assert!(Title::new(&title_draft(" \n\t ")).is_none());
+    assert_eq!(title_draft(&"🦀".repeat(400)).chars().count(), TITLE_LIMIT);
+}
+
+#[test]
 fn title_policy_preserves_unicode_and_plain_text_but_strips_chrome_controls() {
     let value = "  café e\u{301} 日本語 👩\u{200d}💻 <b>&title</b>\n\t\x1b\u{7f}\u{85}\u{9b}\u{061c}\u{200e}\u{200f}\u{2028}\u{2029}\u{202a}\u{202e}\u{2066}\u{2069}  ";
     let title = Title::new(value).unwrap();

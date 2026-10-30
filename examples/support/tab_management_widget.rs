@@ -65,9 +65,11 @@ pub fn click(
     None
 }
 
-struct Targets {
+pub struct Targets {
     points: Vec<Point>,
-    scrolls: Vec<Point>,
+    pub scrolls: Vec<Point>,
+    pub labels: Vec<(String, Point)>,
+    pub containers: Vec<(Option<Id>, Rectangle)>,
     translation: Vector,
     viewport: Rectangle,
     pending: Option<(Vector, Rectangle)>,
@@ -78,6 +80,8 @@ impl Default for Targets {
         Self {
             points: Vec::new(),
             scrolls: Vec::new(),
+            labels: Vec::new(),
+            containers: Vec::new(),
             translation: Vector::ZERO,
             viewport: Rectangle::with_size(SIZE),
             pending: None,
@@ -90,16 +94,25 @@ impl Operation for Targets {
         let old = (self.translation, self.viewport);
         if let Some((translation, bounds)) = self.pending.take() {
             self.viewport = self.viewport.intersection(&bounds).unwrap_or_default();
-            self.translation = self.translation + translation;
+            self.translation += translation;
         }
         operate(self);
         (self.translation, self.viewport) = old;
     }
 
-    fn container(&mut self, _id: Option<&Id>, bounds: Rectangle) {
+    fn container(&mut self, id: Option<&Id>, bounds: Rectangle) {
         let point = bounds.center() - self.translation;
         if self.viewport.contains(point) {
             self.points.push(point);
+            self.containers
+                .push((id.cloned(), bounds - self.translation));
+        }
+    }
+
+    fn text(&mut self, _: Option<&Id>, bounds: Rectangle, text: &str) {
+        let point = bounds.center() - self.translation;
+        if self.viewport.contains(point) {
+            self.labels.push((text.to_owned(), point));
         }
     }
 

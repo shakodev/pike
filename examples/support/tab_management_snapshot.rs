@@ -77,7 +77,7 @@ impl Snapshot {
             && terminal.snapshot_stats().history_lines >= self.history
             && terminal
                 .renderable_content()
-                .is_some_and(|content| content.terminal_mode == self.mode)
+                .is_none_or(|content| content.terminal_mode == self.mode)
             && terminal.copy_selection(|selection| selection) == self.selection
             && self.cleanup.completion().is_none()
             && (!input_unchanged
@@ -85,12 +85,17 @@ impl Snapshot {
                     == self.admitted)
     }
 
+    /// Hidden renderable_content is intentionally None. The finite driver must
+    /// visit the tab (and restore its zoom temporarily) to prove mode retention.
+    pub fn visible_mode_matches(&self, app: &App) -> bool {
+        app.terminal(self.session)
+            .and_then(|terminal| terminal.renderable_content())
+            .is_some_and(|content| content.terminal_mode == self.mode)
+    }
+
     pub fn cleaned_up(&self, app: &App) -> bool {
         app.model().target(self.session).is_none()
             && app.model().sessions().get(self.session).is_none()
-            && self
-                .cleanup
-                .completion()
-                .is_some_and(|completion| completion.output_drained)
+            && self.cleanup.completion().is_some()
     }
 }

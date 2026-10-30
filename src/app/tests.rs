@@ -16,6 +16,7 @@ mod interaction;
 mod paste;
 mod resize;
 mod split;
+mod tab_management;
 mod tabs;
 
 fn profile(script: &str) -> BackendSettings {

@@ -1,11 +1,12 @@
 //! Tab controls use the same reservation, launch pool and focus path as panes.
-use iced::widget::{button, row};
 use iced::{Element, Task};
 
 use super::{App, Control, Message};
 use crate::identity::TabId;
 use crate::launch::LaunchRequest;
 use crate::session::Effect;
+use crate::tab_strip::{self, Item, TabAction};
+use crate::tabs::{Selection, Title, display_title};
 use crate::workspace::Error;
 
 impl App {
@@ -66,34 +67,87 @@ impl App {
         self.focus_active()
     }
 
-    pub(super) fn tabs_view(&self) -> Element<'_, Control> {
-        let workspace = self.model.workspace();
-        let tabs = workspace
+    pub(super) fn select_tab(&mut self, selection: Selection) -> Task<Message> {
+        let Some(tab) = self.model.workspace().selection_target(selection) else {
+            return self.command_refused(super::commands::Error::MissingTab);
+        };
+        self.activate_tab(tab)
+    }
+
+    /// Labels follow the remembered focused session; reset clears only its OSC
+    /// title. The manual override is independent of session exit/restart.
+    pub fn tab_title(&self, id: TabId) -> Option<Title> {
+        let tab = self.model.workspace().tab(id)?;
+        let session = tab.grid().get(tab.focused())?.session;
+        let osc = self
+            .sessions
+            .entries
+            .get(&session)
+            .and_then(|entry| entry.title.as_ref());
+        let profile = self.profiles.get(&session).map_or("", |profile| {
+            profile.program.rsplit(['/', '\\']).next().unwrap_or("")
+        });
+        Some(display_title(tab.manual_name(), osc, profile))
+    }
+
+    pub(super) fn tab_items(&self) -> Vec<Item> {
+        self.model
+            .workspace()
             .order()
             .iter()
-            .enumerate()
-            .fold(row![], |tabs, (index, id)| {
-                let activity = workspace.tab(*id).expect("ordered tab").activity();
-                let mut label = format!("Tab {}", index + 1);
-                for (set, indicator) in [
-                    (activity.unread, " · unread"),
-                    (activity.bell, " · bell"),
-                    (activity.exited, " · exited"),
-                ] {
-                    if set {
-                        label.push_str(indicator);
-                    }
+            .map(|id| Item {
+                id: *id,
+                title: self.tab_title(*id).expect("ordered tab"),
+                activity: self
+                    .model
+                    .workspace()
+                    .tab(*id)
+                    .expect("ordered tab")
+                    .activity(),
+            })
+            .collect()
+    }
+
+    pub(super) fn tab_action(&mut self, action: TabAction) -> Task<Message> {
+        if self.interaction_blocked() {
+            return Task::none();
+        }
+        match action {
+            TabAction::BeginRename(tab) => return self.begin_tab_rename(tab),
+            TabAction::OpenOverflow => return self.begin_tab_overflow(),
+            TabAction::Select(selection) => return self.select_tab(selection),
+            TabAction::ResetName(tab) => {
+                if self.model.reset_tab_name(tab).is_err() {
+                    self.notice =
+                        Some("That tab is no longer open. Select an existing tab to rename it.");
+                } else {
+                    self.notice = None;
                 }
-                tabs.push(
-                    button(iced::widget::text(label))
-                        .on_press(Control::ActivateTab(*id))
-                        .style(if workspace.active() == Some(*id) {
-                            button::primary
-                        } else {
-                            button::secondary
-                        }),
-                )
-            });
-        tabs.spacing(4).wrap().into()
+            }
+            TabAction::Move {
+                tab,
+                anchor,
+                placement,
+            } => {
+                if self.model.reorder_tab(tab, anchor, placement).is_err() {
+                    self.notice = Some(
+                        "Those tabs are no longer available. Try moving the selected tab again.",
+                    );
+                } else {
+                    self.notice = None;
+                }
+            }
+        }
+        self.focus_active()
+    }
+
+    pub(super) fn tabs_view(&self) -> Element<'_, Control> {
+        tab_strip::view(
+            self.tab_items(),
+            self.model.workspace().active(),
+            Control::ActivateTab,
+            Control::CloseTab,
+            Control::TabAction,
+        )
     }
 }

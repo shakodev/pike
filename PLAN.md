@@ -141,7 +141,7 @@ Defaults use Ctrl+Shift where possible to leave ordinary shell controls availabl
 | Copy / paste | Ctrl+Shift+C / Ctrl+Shift+V; Shift+Insert pastes |
 | History navigation | Shift+PageUp/Down; Shift+Home/End |
 | Font larger / smaller / reset | Ctrl+Shift+Plus / Ctrl+Shift+Minus / Ctrl+Shift+0 |
-| Rename tab / shortcut help | Context menu initially / F1 |
+| Rename tab / all tabs / shortcut help | Ctrl+Shift+R / Ctrl+Shift+L / F1; bare F2 remains terminal-owned |
 | Interrupt shell | Ctrl+C passes through unchanged |
 
 Routing order: active modal/IME composition rules → recognized application shortcut → focused terminal encoder. App shortcuts are captured **before** child widgets receive them, using a small advanced-widget wrapper or a narrow iced_term hook. Do not depend on post-dispatch subscriptions: a key can otherwise both split a pane and reach the shell. Do not use `BindingAction::Ignore` to suppress input: the 0.8.0 character path can fall through to text. Modifier changes must remain synchronized, repeated create/close keys are suppressed, and AltGr must remain printable on non-US layouts. Window focus loss resets transient modifiers and drag/composition state appropriately.

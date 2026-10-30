@@ -154,7 +154,7 @@ impl Host {
         );
     }
 
-    fn operate(&mut self, operation: &mut dyn Operation) {
+    pub fn operate(&mut self, operation: &mut dyn Operation) {
         let mut ui = UserInterface::build(
             self.app.view(),
             Size::new(1200.0, 800.0),

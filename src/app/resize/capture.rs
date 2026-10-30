@@ -2,14 +2,14 @@
 //! subscriptions run too late to prevent shell input.
 use iced::advanced::{
     Clipboard, Layout, Shell, Widget, layout, mouse, overlay, renderer,
-    widget::{Operation, Tree, tree},
+    widget::{Id, Operation, Tree, tree},
 };
 use iced::keyboard::{Event as KeyEvent, Key, Modifiers, key::Named};
 use iced::{Element, Event, Length, Rectangle, Size, Vector};
 use std::{cell::Cell, rc::Rc};
 
 use super::ResizeStep;
-use crate::app::{Control, Message};
+use crate::app::{Control, DialogAction, Message};
 
 pub(crate) fn capture<'a>(
     content: impl Into<Element<'a, Message>>,
@@ -24,7 +24,38 @@ pub(crate) fn capture<'a>(
         on_key,
         divider: None,
         pointer_blocked: None,
+        editor: None,
     })
+}
+
+/// Same interception boundary, with immediate native composition ownership for
+/// a unique modal text input. Existing terminal/help/divider calls are unchanged.
+pub(crate) fn capture_text<'a>(
+    content: impl Into<Element<'a, Message>>,
+    input: Id,
+    token: u64,
+    window: iced_term::WindowFocus,
+    on_key: fn(&KeyEvent) -> Option<KeyAction>,
+) -> Element<'a, Message> {
+    Element::new(Capture {
+        content: content.into(),
+        suspended: false,
+        active: None,
+        on_key,
+        divider: None,
+        pointer_blocked: None,
+        editor: Some(Editor {
+            input,
+            token,
+            window,
+        }),
+    })
+}
+
+struct Editor {
+    input: Id,
+    token: u64,
+    window: iced_term::WindowFocus,
 }
 
 /// Share admission across PaneGrid and its pane contents. Element::map creates
@@ -44,6 +75,7 @@ impl Divider {
             on_key: resize_key,
             divider: None,
             pointer_blocked: Some(self.0.clone()),
+            editor: None,
         })
     }
 
@@ -70,6 +102,7 @@ fn divider_focus<'a>(
         on_key: resize_key,
         divider: Some(node),
         pointer_blocked: Some(pointer_blocked),
+        editor: None,
     })
 }
 
@@ -80,6 +113,7 @@ struct Capture<'a> {
     on_key: fn(&KeyEvent) -> Option<KeyAction>,
     divider: Option<&'a iced::widget::pane_grid::Node>,
     pointer_blocked: Option<Rc<Cell<bool>>>,
+    editor: Option<Editor>,
 }
 
 #[derive(Default)]
@@ -87,6 +121,9 @@ struct State {
     blurred: bool,
     pressed_owner: Option<u64>,
     cancel_resize: bool,
+    editor: Option<(Id, u64)>,
+    opened: bool,
+    composing: bool,
 }
 
 /// Single shared interception boundary for future R26 command mapping. None
@@ -124,7 +161,13 @@ impl Widget<Message, iced::Theme, iced::Renderer> for Capture<'_> {
         tree::Tag::of::<State>()
     }
     fn state(&self) -> tree::State {
-        tree::State::new(State::default())
+        tree::State::new(State {
+            editor: self
+                .editor
+                .as_ref()
+                .map(|editor| (editor.input.clone(), editor.token)),
+            ..State::default()
+        })
     }
     fn size(&self) -> Size<Length> {
         self.content.as_widget().size()
@@ -137,6 +180,18 @@ impl Widget<Message, iced::Theme, iced::Renderer> for Capture<'_> {
     }
     fn diff(&self, tree: &mut Tree) {
         let state = tree.state.downcast_mut::<State>();
+        let editor = self
+            .editor
+            .as_ref()
+            .map(|editor| (editor.input.clone(), editor.token));
+        if state.editor != editor {
+            state.editor = editor;
+            state.opened = false;
+            state.composing = false;
+            // TextInput's generic tree tag does not encode its public widget
+            // ID. A fresh dialog must not inherit a previous editor's preedit.
+            tree.children = vec![Tree::new(self.content.as_widget())];
+        }
         // Latch owner loss even if another view diff restores the old owner
         // before the next event. Preserve all child terminal widget state.
         if self.divider.is_some()
@@ -197,6 +252,84 @@ impl Widget<Message, iced::Theme, iced::Renderer> for Capture<'_> {
             }
             Event::Window(iced::window::Event::Focused) => state.blurred = false,
             _ => {}
+        }
+        if let Some(editor) = &self.editor {
+            use iced::advanced::input_method::Event as Ime;
+            let mut focused =
+                iced::advanced::widget::operation::focusable::is_focused(editor.input.clone());
+            self.content.as_widget_mut().operate(
+                &mut tree.children[0],
+                layout,
+                renderer,
+                &mut iced::advanced::widget::operation::black_box(&mut focused),
+            );
+            let focused = matches!(
+                focused.finish(),
+                iced::advanced::widget::operation::Outcome::Some(true)
+            );
+            let was_composing = state.composing;
+            let was_opened = state.opened;
+            let enabled = !self.suspended && !state.blurred && editor.window.is_focused();
+            if !focused {
+                state.opened = false;
+                state.composing = false;
+            }
+            let blocked =
+                if !enabled {
+                    state.opened = false;
+                    state.composing = false;
+                    matches!(event, Event::Keyboard(_) | Event::InputMethod(_))
+                } else {
+                    match event {
+                        Event::InputMethod(Ime::Opened) if focused => {
+                            state.opened = true;
+                            state.composing = false;
+                            false
+                        }
+                        Event::InputMethod(Ime::Closed) => {
+                            state.opened = false;
+                            state.composing = false;
+                            false
+                        }
+                        Event::InputMethod(Ime::Preedit(value, _)) if state.opened => {
+                            state.composing = !value.is_empty();
+                            false
+                        }
+                        Event::InputMethod(Ime::Commit(_)) if state.opened => {
+                            state.composing = false;
+                            false
+                        }
+                        Event::InputMethod(_) => true,
+                        Event::Keyboard(
+                            KeyEvent::KeyPressed { .. } | KeyEvent::KeyReleased { .. },
+                        ) if state.composing => true,
+                        _ => false,
+                    }
+                };
+            if was_composing != state.composing {
+                shell.publish(Message::Control(Control::TabDialog(
+                    editor.token,
+                    DialogAction::Composing(state.composing),
+                )));
+            }
+            if (was_opened && (!enabled || !focused))
+                || matches!(event, Event::Window(iced::window::Event::Unfocused))
+            {
+                self.content.as_widget_mut().update(
+                    &mut tree.children[0],
+                    &Event::InputMethod(Ime::Closed),
+                    layout,
+                    cursor,
+                    renderer,
+                    clipboard,
+                    shell,
+                    viewport,
+                );
+            }
+            if blocked {
+                shell.capture_event();
+                return;
+            }
         }
         if self.divider.is_some()
             && state.pressed_owner.is_some()
