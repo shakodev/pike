@@ -238,3 +238,107 @@ fn modal_close_owns_new_tab_and_switch_and_last_tab_leaves_reopenable_empty_wind
     assert!(empty.active_session().is_some());
     shutdown(&mut empty, &executor);
 }
+
+#[test]
+fn switching_frozen_tabs_restores_bounded_presentation_and_prunes_closed_owners() {
+    let (executor, mut app, first) = source();
+    let first_tab = app.active_target().unwrap().tab;
+    let size = Size::new(960.0, 600.0);
+    drop(app.update(Message::GridSize(first_tab, size)));
+    let request = executor.enter(|| app.begin_new_tab()).unwrap();
+    let second = receive(&mut app, &executor, request);
+    let second_tab = app.active_target().unwrap().tab;
+    assert_eq!(app.resize_cache.len(), 1);
+    drop(app.update(Message::Control(Control::ActivateTab(first_tab))));
+    drop(app.update(Message::GridSize(first_tab, Size::new(20_000.0, 20_000.0))));
+    assert!(app.resize_layout.as_ref().unwrap().frozen);
+    drop(app.update(Message::Control(Control::ActivateTab(second_tab))));
+    assert_eq!(app.resize_layout.as_ref().unwrap().size, size);
+    assert!(app.resize_layout.as_ref().unwrap().frozen);
+    let hidden = app.terminal(first.session).unwrap();
+    let snapshots = hidden.snapshot_stats().snapshots;
+    let work = hidden.work_stats();
+    // Delayed sensors and hidden footer changes cannot fit the hidden tree.
+    drop(app.update(Message::GridSize(first_tab, Size::new(300.0, 200.0))));
+    drop(app.update(Message::Terminal((
+        first.session,
+        Event::BackendCall(
+            first.session.get(),
+            B::ImeRejected(iced_term::ImeError::WrongSession),
+        ),
+    ))));
+    assert_eq!(
+        app.terminal(first.session)
+            .unwrap()
+            .snapshot_stats()
+            .snapshots,
+        snapshots
+    );
+    assert_eq!(app.terminal(first.session).unwrap().work_stats(), work);
+    assert_eq!(
+        app.grid_size,
+        Some((second_tab, Size::new(20_000.0, 20_000.0)))
+    );
+    drop(app.update(Message::Control(Control::ActivateTab(first_tab))));
+    assert_eq!(app.resize_layout.as_ref().unwrap().tab, first_tab);
+    assert_eq!(app.resize_layout.as_ref().unwrap().size, size);
+    assert!(app.resize_layout.as_ref().unwrap().frozen);
+    app.close(app.active_target().unwrap());
+    assert_eq!(app.active_session(), Some(second));
+    assert!(app.resize_cache.is_empty());
+    assert_eq!(app.resize_layout.as_ref().unwrap().tab, second_tab);
+    shutdown(&mut app, &executor);
+}
+
+#[test]
+#[ignore = "requires native graphics; run explicitly for tab IME ownership"]
+fn tab_switch_invalidates_deferred_ime_without_restoring_old_tokens() {
+    use iced::advanced::renderer::Headless;
+    let (executor, mut app, first) = source();
+    let renderer = executor
+        .block_on(<iced::Renderer as Headless>::new(
+            iced::Font::MONOSPACE,
+            iced::Pixels(14.0),
+            None,
+        ))
+        .expect("native renderer");
+    let first_tab = app.active_target().unwrap().tab;
+    let token = super::ime::request(app.terminal(first.session).unwrap(), &renderer);
+    let held = token.clone();
+    let request = executor.enter(|| app.begin_new_tab()).unwrap();
+    let second = receive(&mut app, &executor, request);
+    drop(app.update(Message::Terminal((
+        first.session,
+        Event::BackendCall(first.session.get(), B::ImeCommit(token)),
+    ))));
+    drop(app.update(Message::Control(Control::ActivateTab(first_tab))));
+    for token in [held.clone(), held] {
+        drop(app.update(Message::Terminal((
+            first.session,
+            Event::BackendCall(first.session.get(), B::ImeCommit(token)),
+        ))));
+    }
+    let admitted = |id| {
+        let status = app.terminal(id).unwrap().input_status();
+        status.written_bytes + status.outstanding_bytes + status.cancelled_bytes
+    };
+    assert_eq!(admitted(first.session), 0);
+    assert_eq!(admitted(second), 0);
+    let fresh = super::ime::request(app.terminal(first.session).unwrap(), &renderer);
+    for token in [fresh.clone(), fresh] {
+        drop(app.update(Message::Terminal((
+            first.session,
+            Event::BackendCall(first.session.get(), B::ImeCommit(token)),
+        ))));
+    }
+    let status = app.terminal(first.session).unwrap().input_status();
+    assert_eq!(
+        status.written_bytes + status.outstanding_bytes + status.cancelled_bytes,
+        "你好".len()
+    );
+    drop(app.update(Message::Terminal((
+        first.session,
+        Event::BackendCall(first.session.get(), B::Write(b"\n".to_vec())),
+    ))));
+    shutdown(&mut app, &executor);
+}

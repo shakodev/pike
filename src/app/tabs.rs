@@ -47,7 +47,8 @@ impl App {
     }
 
     pub(super) fn new_tab(&mut self) -> Task<Message> {
-        let launch = self.begin_new_tab()
+        let launch = self
+            .begin_new_tab()
             .map(Self::receive)
             .unwrap_or_else(Task::none);
         // A refused toolbar action leaves the source terminal ready to type.

@@ -17,6 +17,7 @@ mod focus;
 mod resize;
 mod split;
 mod startup;
+mod tabs;
 mod view;
 pub use resize::ResizeStep;
 pub use split::Direction;
@@ -37,6 +38,8 @@ pub enum Message {
 #[derive(Clone, Copy)]
 pub enum Control {
     New,
+    NewTab,
+    ActivateTab(TabId),
     Retry(SessionId),
     UseDefault(SessionId),
     CloseSession(SessionId),
@@ -64,6 +67,7 @@ pub struct App {
     focus_on_attach: BTreeSet<SessionId>,
     grid_size: Option<(TabId, Size)>,
     resize_layout: Option<resize::Presentation>,
+    resize_cache: BTreeMap<TabId, resize::Presentation>,
     close_policy: close::Policy,
 }
 
@@ -106,6 +110,7 @@ impl App {
     }
 
     fn synchronize(&mut self) {
+        self.synchronize_resize_tab();
         self.profiles
             .retain(|id, _| self.model.sessions().get(*id).is_some());
         self.focus_on_attach.retain(|id| {
@@ -174,6 +179,8 @@ impl App {
         }
         match message {
             Message::Control(Control::New) => return self.open(),
+            Message::Control(Control::NewTab) => return self.new_tab(),
+            Message::Control(Control::ActivateTab(tab)) => return self.activate_tab(tab),
             Message::Control(Control::Retry(id)) => return self.retry(id, false),
             Message::Control(Control::UseDefault(id)) => return self.retry(id, true),
             Message::Control(Control::CloseSession(id)) => {
