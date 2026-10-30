@@ -140,6 +140,11 @@ impl App {
     }
 
     fn commit_close(&mut self, sessions: Vec<SessionId>, window: bool) -> Task<Message> {
+        // A stale pane/tab scope has no authority over a newer launch choice.
+        // Window close still owns pool cleanup even after every pane is gone.
+        if sessions.is_empty() && !window {
+            return Task::none();
+        }
         self.focus_on_attach.clear();
         if window {
             // Admission stops before signaling any worker. Pool shutdown also
