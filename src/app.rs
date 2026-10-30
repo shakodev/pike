@@ -13,6 +13,7 @@ use crate::workspace::Model;
 
 mod close;
 pub use close::CloseAction;
+pub mod commands;
 mod focus;
 mod resize;
 mod split;
@@ -52,6 +53,9 @@ pub enum Control {
     ResizeStep(ResizeStep),
     ResizeKey(u64, ResizeStep),
     ResizeFocus(u64),
+    Command(commands::Command),
+    KeyCommand(Option<SessionId>, commands::Command),
+    DismissHelp,
 }
 
 #[derive(Default)]
@@ -69,6 +73,8 @@ pub struct App {
     resize_layout: Option<resize::Presentation>,
     resize_cache: BTreeMap<TabId, resize::Presentation>,
     close_policy: close::Policy,
+    focus_authority: focus::Authority,
+    command_state: commands::State,
 }
 
 impl App {
@@ -124,6 +130,11 @@ impl App {
             .flatten();
         self.sessions
             .synchronize(&self.model, active, &self.window_focus);
+        self.focus_authority
+            .synchronize(active.filter(|_| self.window_focus.is_focused()));
+        self.command_state
+            .fonts
+            .retain(|id, _| self.model.sessions().get(*id).is_some());
         self.refresh_resize_layout();
     }
 
@@ -181,12 +192,27 @@ impl App {
         // Native lifecycle/protocol delivery remains active throughout teardown.
         if self.interaction_blocked()
             && (matches!(&message, Message::Control(control)
-            if !matches!(control, Control::CloseAction(_)))
+            if !matches!(control, Control::CloseAction(_))
+                && !(matches!(control, Control::DismissHelp) && self.command_state.help.is_some()
+                    && !self.exiting && !self.close_policy.confirming()))
                 || matches!(&message, Message::GridSize(..)))
         {
             return Task::none();
         }
         match message {
+            Message::Control(Control::Command(command)) => return self.run_command(command),
+            Message::Control(Control::KeyCommand(owner, command)) => {
+                if owner == self.active_session()
+                    && self.window_focus.is_focused()
+                    && self
+                        .active_session()
+                        .and_then(|id| self.terminal(id))
+                        .is_none_or(|terminal| !terminal.is_composing())
+                {
+                    return self.run_command(command);
+                }
+            }
+            Message::Control(Control::DismissHelp) => return self.dismiss_help(),
             Message::Control(Control::New) => return self.open(),
             Message::Control(Control::NewTab) => return self.new_tab(),
             Message::Control(Control::ActivateTab(tab)) => return self.activate_tab(tab),
@@ -280,6 +306,9 @@ impl App {
             Message::WindowFocused(focused) => {
                 self.window_focus.set_focused(focused);
                 self.synchronize();
+                if focused {
+                    return self.focus_active();
+                }
             }
             Message::GridSize(tab, size) => {
                 if self.model.workspace().active() == Some(tab) && resize::valid_area(size) {

@@ -99,6 +99,7 @@ impl App {
             ..
         }) = self.sessions.entries.get_mut(&id)
         {
+            self.command_state.fonts.insert(id, font.clone());
             terminal.handle(iced_term::Command::ChangeFont(font));
             self.refresh_resize_layout();
         }

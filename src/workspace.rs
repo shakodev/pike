@@ -242,6 +242,28 @@ impl Model {
         Ok(())
     }
 
+    /// Directional selection uses the canonical split tree. It never allocates,
+    /// closes or replaces a session; an outside edge preserves current focus.
+    pub fn focus_adjacent(
+        &mut self,
+        source: PaneTarget,
+        direction: iced::widget::pane_grid::Direction,
+    ) -> Result<Option<PaneTarget>, Error> {
+        self.validate(source)?;
+        let Some(pane) = self.workspace.tabs[&source.tab]
+            .grid
+            .adjacent(source.pane, direction)
+        else {
+            return Ok(None);
+        };
+        let target = PaneTarget {
+            tab: source.tab,
+            pane,
+        };
+        self.focus(target)?;
+        Ok(Some(target))
+    }
+
     /// Swap positions within one tab, keeping pane handles and sessions intact.
     /// Cross-tab moves use move_to_tab, which returns the new scoped handle.
     pub fn swap(&mut self, a: PaneTarget, b: PaneTarget) -> Result<(), Error> {

@@ -1,0 +1,32 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.93s
+     Running unittests src/lib.rs (target/issue-20/debug/deps/pike-500ef254f7c5c953)
+
+running 9 tests
+test app::commands::tests::exact_modifiers_leave_altgr_interrupt_and_terminal_defaults_to_child ... ok
+test app::commands::tests::font_and_help_defaults_and_release_preserve_input_transitions ... ok
+test app::commands::tests::structural_defaults_dispatch_once_and_capture_repeats ... ok
+test app::commands::tests::directions_repeat_but_leave_resize_chords_to_existing_mapper ... ok
+test app::commands::tests::ordered_tab_selection_and_navigation_are_typed ... ok
+test app::commands::host::tests::unavailable_terminal_and_empty_workspace_remain_usable_for_help ... ok
+test app::commands::host::tests::delayed_key_cannot_close_a_newer_owner_or_bypass_help_priority ... ok
+test app::commands::host::tests::missing_tab_is_typed_atomic_and_recovers_through_existing_activation ... ok
+test app::commands::host::tests::new_tab_capacity_refusal_uses_the_existing_guard_and_retains_current_owner ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 125 filtered out; finished in 0.01s
+

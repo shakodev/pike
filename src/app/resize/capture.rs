@@ -1,5 +1,5 @@
-//! A single pre-child interceptor, deliberately limited to resize. R26 can
-//! extend this boundary. Event subscriptions run too late to prevent shell input.
+//! Shared pre-child application command and resize interceptor. Event
+//! subscriptions run too late to prevent shell input.
 use iced::advanced::{
     Clipboard, Layout, Shell, Widget, layout, mouse, overlay, renderer,
     widget::{Operation, Tree, tree},

@@ -2368,6 +2368,7 @@ name = "pike"
 version = "0.1.0"
 dependencies = [
  "iced",
+ "iced_runtime",
  "iced_term",
  "tokio",
  "windows-sys 0.59.0",
