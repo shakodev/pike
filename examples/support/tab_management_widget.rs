@@ -5,7 +5,8 @@ use iced::keyboard::{self, Key, Modifiers};
 use iced::{Event, Point, Rectangle, Size, Vector};
 use pike::app::{App, Message};
 
-pub const SIZE: Size = Size::new(1100.0, 720.0);
+// Match the reused command_routing::Host's actual UserInterface viewport.
+pub const SIZE: Size = Size::new(1200.0, 800.0);
 
 /// The messages are emitted by real hit-testing, never manufactured from the
 /// predicate. Only points inside the native fixture viewport are attempted.

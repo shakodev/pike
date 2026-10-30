@@ -185,3 +185,53 @@ fn app_blur_without_widget_events_retires_editor_receipts_and_preserves_the_draf
         "Draft before blur"
     );
 }
+
+#[test]
+#[ignore = "requires local graphics and PTY; run explicitly for new tab modal ownership"]
+fn tab_dialogs_cancel_held_terminal_ime_clones_before_and_after_dismissal() {
+    use iced::advanced::renderer::Headless;
+    let executor = SharedExecutor::new().unwrap();
+    let renderer = executor
+        .block_on(<iced::Renderer as Headless>::new(
+            iced::Font::MONOSPACE,
+            iced::Pixels(14.0),
+            None,
+        ))
+        .unwrap();
+    let mut app = App {
+        profile: waiting(),
+        ..App::default()
+    };
+    drop(app.update(Message::WindowFocused(true)));
+    let (owner, prepared) = launch(&mut app, &executor);
+    drop(app.launched(owner, Ok(prepared)));
+    let tab = app.active_target().unwrap().tab;
+    for action in [TabAction::BeginRename(tab), TabAction::OpenOverflow] {
+        let request = super::ime::request(app.terminal(owner.session).unwrap(), &renderer);
+        let replay = request.clone();
+        let before = app.terminal(owner.session).unwrap().input_status();
+        drop(app.update(Message::Control(Control::TabAction(action))));
+        let token = app.tab_dialog_token().unwrap();
+        drop(app.update(Message::Terminal((
+            owner.session,
+            Event::BackendCall(
+                owner.session.get(),
+                iced_term::BackendCommand::ImeCommit(request),
+            ),
+        ))));
+        drop(app.update(Message::Control(Control::TabDialog(
+            token,
+            DialogAction::Cancel,
+        ))));
+        drop(app.update(Message::Terminal((
+            owner.session,
+            Event::BackendCall(
+                owner.session.get(),
+                iced_term::BackendCommand::ImeCommit(replay),
+            ),
+        ))));
+        assert_eq!(app.terminal(owner.session).unwrap().input_status(), before);
+        assert_eq!(app.active_session(), Some(owner.session));
+    }
+    shutdown(&mut app, &executor);
+}
