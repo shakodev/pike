@@ -3,6 +3,7 @@ use iced::widget::pane_grid::{self, Axis, Node, Pane, Split};
 use iced::{Rectangle, Size};
 
 use crate::identity::{SessionId, TabId};
+use crate::tabs::Activity;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct PaneState {
@@ -55,12 +56,17 @@ impl SplitGeometry {
 pub struct TabState {
     pub(crate) grid: pane_grid::State<PaneState>,
     pub(crate) focused: Pane,
+    pub(crate) activity: Activity,
 }
 
 impl TabState {
     pub(crate) fn new(session: SessionId) -> Self {
         let (grid, focused) = pane_grid::State::new(PaneState { session });
-        Self { grid, focused }
+        Self {
+            grid,
+            focused,
+            activity: Activity::default(),
+        }
     }
 
     pub fn grid(&self) -> &pane_grid::State<PaneState> {
@@ -69,6 +75,10 @@ impl TabState {
 
     pub fn focused(&self) -> Pane {
         self.focused
+    }
+
+    pub fn activity(&self) -> Activity {
+        self.activity
     }
 
     pub(crate) fn split(&mut self, pane: Pane, axis: Axis, state: PaneState) -> Option<Pane> {

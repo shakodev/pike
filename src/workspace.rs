@@ -8,6 +8,7 @@ pub use crate::identity::TabId;
 use crate::identity::{LaunchToken, Reservation, SessionId};
 use crate::layout::{PaneState, PaneTarget, SplitGeometry, TabState, contains_split};
 use crate::session::{Effect, Failure, Lifecycle, SessionRegistry, SpawnDisposition};
+use crate::tabs::ActivityEvent;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Error {
@@ -43,6 +44,15 @@ impl Workspace {
         self.tab(target.tab)?.grid.get(target.pane)
     }
 
+    fn activate(&mut self, id: TabId) {
+        self.tabs
+            .get_mut(&id)
+            .expect("validated tab")
+            .activity
+            .seen();
+        self.active = Some(id);
+    }
+
     fn remove_pane(&mut self, target: PaneTarget) {
         let tab = self.tabs.get_mut(&target.tab).expect("validated tab");
         if tab.grid.len() > 1 {
@@ -62,6 +72,9 @@ impl Workspace {
         self.order.remove(index);
         if self.active == Some(id) {
             self.active = self.order.get(index).or_else(|| self.order.last()).copied();
+            if let Some(next) = self.active {
+                self.activate(next);
+            }
         }
     }
 }
@@ -116,7 +129,7 @@ impl Model {
         self.sessions.insert(reservation);
         self.workspace.tabs.insert(id, tab);
         self.workspace.order.push(id);
-        self.workspace.active = Some(id);
+        self.workspace.activate(id);
         Ok((target, Effect::Spawn(reservation)))
     }
 
@@ -134,7 +147,7 @@ impl Model {
             )
             .ok_or(Error::LayoutExhausted)?;
         self.sessions.insert(reservation);
-        self.workspace.active = Some(target.tab);
+        self.workspace.activate(target.tab);
         Ok((
             PaneTarget {
                 tab: target.tab,
@@ -210,7 +223,7 @@ impl Model {
 
     pub fn activate(&mut self, tab: TabId) -> Result<(), Error> {
         self.workspace.tab(tab).ok_or(Error::StaleTab)?;
-        self.workspace.active = Some(tab);
+        self.workspace.activate(tab);
         Ok(())
     }
 
@@ -223,7 +236,7 @@ impl Model {
             tab.grid.restore();
         }
         tab.focused = target.pane;
-        self.workspace.active = Some(target.tab);
+        self.workspace.activate(target.tab);
         Ok(())
     }
 
@@ -265,7 +278,7 @@ impl Model {
             .split(destination.pane, axis, state)
             .ok_or(Error::LayoutExhausted)?;
         self.workspace.remove_pane(source);
-        self.workspace.active = Some(destination.tab);
+        self.workspace.activate(destination.tab);
         Ok(PaneTarget {
             tab: destination.tab,
             pane,
@@ -342,10 +355,40 @@ impl Model {
         self.sessions.spawn_failed(reservation, failure)
     }
     pub fn exited(&mut self, session: SessionId, code: Option<i32>) -> bool {
-        self.sessions.exited(session, code)
+        let changed = self.sessions.exited(session, code);
+        if changed && let Some(entry) = self.sessions.get(session) {
+            self.record_activity(entry.reservation(), ActivityEvent::Exit);
+        }
+        changed
     }
     pub fn closed(&mut self, session: SessionId) -> bool {
         self.sessions.closed(session)
+    }
+
+    /// Only the current retained owner can mark its hidden tab. Removed panes,
+    /// closing sessions and pre-restart reservations have no activity authority.
+    pub(crate) fn record_activity(&mut self, owner: Reservation, event: ActivityEvent) -> bool {
+        if !self.sessions.get(owner.session).is_some_and(|entry| {
+            entry.reservation() == owner
+                && matches!(
+                    entry.lifecycle(),
+                    Lifecycle::Running | Lifecycle::Exited { .. }
+                )
+        }) {
+            return false;
+        }
+        let Some(target) = self.target(owner.session) else {
+            return false;
+        };
+        if self.workspace.active == Some(target.tab) {
+            return false;
+        }
+        self.workspace
+            .tabs
+            .get_mut(&target.tab)
+            .unwrap()
+            .activity
+            .record(event)
     }
 }
 
