@@ -1,0 +1,16 @@
+ready tab=2 session=1 pid=93541
+ready tab=4 session=3 pid=93544
+ready tab=6 session=5 pid=93547
+ready tab=8 session=7 pid=93550
+ready tab=10 session=9 pid=93553
+ready tab=12 session=11 pid=93556
+ready tab=14 session=13 pid=93559
+ready tab=16 session=15 pid=93562
+ready tab=18 session=17 pid=93565
+ready tab=20 session=19 pid=93568
+ready tab=22 session=21 pid=93571
+ready tab=24 session=23 pid=93574
+bare-F2 remains terminal-owned: exact 1b4f51
+same-view rename preedit Enter/Escape/app-chord suppressed; unopened/blurred/stale commits rejected; fresh retry exact
+manual > bounded sanitized OSC; OSC ResetTitle preserves manual; explicit reset restores launch-profile fallback
+ready tab=2 session=1 pid=93541
