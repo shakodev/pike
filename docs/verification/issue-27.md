@@ -5,9 +5,9 @@ Branch `issue-27-pane-move-zoom` starts at actual merged main
 R28 and R29. Retained R29 branch `issue-29-live-tabs` at
 `d6efdb77566a6e82a95cded93c1345493fdf39d4`, checkpoints, reports and target
 caches remain intact. No reset, rebase, force push, Actions execution or merge
-was performed. The coordinator owns relevant integration and independent review. Initial complete
-source was published as `bedd7f9713a13f74d8ef57beaa0299c9672edf55`; the corrected
-implementation identity and source/binary hashes are in
+was performed. The coordinator owns relevant integration and independent review.
+Initial complete source was published as `bedd7f9713a13f74d8ef57beaa0299c9672edf55`; the corrected
+implementation is `8a8b6b54fbbe547807cb96eeade90b5f504bbe8f`; source/binary hashes are in
 [provenance](../baselines/issue-27/provenance.json).
 
 ## Behavior and source
@@ -88,11 +88,10 @@ Relevant local checks:
 | --- | --- |
 | `cargo test --offline --locked -p pike --lib workspace::moving::tests -- --nocapture` | 3 passed: all pinned edge regions, center/swap, stable reservations/handles/lifecycles, moved zoom tree and atomic stale/self/zoom refusal. |
 | `cargo test --offline --locked -p pike --lib app::panes::tests -- --nocapture` on the initial 3-test module | 3 passed; [gesture-tests.log](../baselines/issue-27/gesture-tests.log). |
-| Exact `app::panes::tests::moved_starting_owner_attaches_hidden_without_reviving_old_focus_intent` | 1 passed; [late-attach-first.log](../baselines/issue-27/late-attach-first.log). Same App code, no selection/width-reflow dependency; native completion awaited for both children. |
+| Exact `app::panes::tests::moved_starting_owner_attaches_hidden_without_reviving_old_focus_intent` | 1 passed; [late-attach-first.log](../baselines/issue-27/late-attach-first.log). Unchanged admission/startup/model path without widget traversal or selected width reflow; native completion awaited for both children. |
 | Exact `app::panes::tests::failed_panes_keep_host_move_zoom_controls_and_stale_controls_are_harmless` | 1 passed on unpatched source; [failed-panes.log](../baselines/issue-27/failed-panes.log). |
 | `cargo clippy --offline --locked -p pike --lib --bin pike --tests --example pane_moving -- -D warnings` | Passed on corrected unpatched source; [final-clippy.log](../baselines/issue-27/final-clippy.log). |
 | `cargo build --offline --locked -p pike --example pane_moving` and `target/debug/examples/pane_moving docs/baselines/issue-27/native-final` | Passed; [native evidence](../baselines/issue-27/native-final/), [build](../baselines/issue-27/final-fixture-build.log). |
-
 | `cargo fmt -p pike -- --check`; `git diff --check -- src examples docs/verification` | Passed; `final-format.log`, `final-diff-check.log`. |
 | Same targeted Clippy command with `--target x86_64-pc-windows-msvc` | Passed; [final-windows-cross-clippy.log](../baselines/issue-27/final-windows-cross-clippy.log). Compilation only. |
 | `target/debug/examples/pane_moving docs/baselines/issue-27/native-ime-pointer-final --ime-pointer` | Passed; [final preedit pointer evidence](../baselines/issue-27/native-ime-pointer-final/). |
@@ -101,7 +100,8 @@ Relevant local checks:
 
 The complete unpatched fixture checks center/pane-edge/grid-edge moves, scoped
 SessionId/Reservation/widget identity and synthetic PID files; unchanged-column
-selection, real-width clearing and restored copy; header-only zero-byte input (admission totals and child files);
+selection, real-width clearing and restored copy; header-only zero-byte input
+(admission totals and child files);
 exact SGR content press/release; raw/App blur, owner/modal round trips, Escape,
 outside cancel, fresh press and pre-restart release rejection. It verifies
 restored/maximized cell counts against actual widget bounds and checks actual
@@ -141,7 +141,8 @@ checkpoint and are not necessary final R27 checks.
 This is native macOS execution with synthetic Iced events, the headless native
 renderer, actual App/runtime tasks/subscriptions and real controlled PTYs. It is
 not physical keyboard/monitor, a native Windows/ConPTY run or a release resource
-benchmark. Windows MSVC cross-Clippy passed; native Windows execution remains unperformed.
+benchmark. Windows MSVC cross-Clippy passed; native Windows execution remains
+unperformed.
 No release RAM/CPU/latency claim is made. Existing inherited iced_winit deprecation
 warnings and the block future-compatibility notice remain in receipts.
 
