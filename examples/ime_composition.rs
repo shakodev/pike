@@ -351,6 +351,31 @@ fn verify(
             Some("@"),
         ),
     )?;
+    for (modifiers, text) in [
+        (Modifiers::empty(), " "),
+        (Modifiers::CTRL | Modifiers::ALT, "\u{a0}"),
+        (
+            Modifiers::CTRL | Modifiers::ALT | Modifiers::SHIFT,
+            "\u{a0}",
+        ),
+    ] {
+        let (events, _, captured, _) = scene.dispatch(
+            a,
+            renderer,
+            key(
+                keyboard::Key::Named(keyboard::key::Named::Space),
+                modifiers,
+                Some(text),
+            ),
+        );
+        check(captured, "printable named Space escaped the terminal")?;
+        check(
+            matches!(events.as_slice(), [Event::BackendCall(id, BackendCommand::Write(bytes))]
+                if *id == a.id && bytes == text.as_bytes()),
+            "named Space did not emit exactly one text write",
+        )?;
+        route(a, events)?;
+    }
     scene.route(
         a,
         renderer,
@@ -366,7 +391,7 @@ fn verify(
         ),
     )?;
     check(
-        admitted(a) == "你好é´@\x03".len(),
+        admitted(a) == "你好é´@ \u{a0}\u{a0}\x03".len(),
         "commit/dead-key/AltGr/copy byte count differs",
     )?;
     ready(executor, a, "pike:ime:moved")?;
@@ -456,7 +481,7 @@ fn fixture(index: usize, output: &Path) -> io::Result<()> {
     write!(io::stdout().lock(), "\x1b[3;5H\x1b]2;pike:ime:ready\x07")?;
     io::stdout().flush()?;
     let expected = if index == 0 {
-        "你好é´@\x03!"
+        "你好é´@ \u{a0}\u{a0}\x03!"
     } else {
         "界!"
     };

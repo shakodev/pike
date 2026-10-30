@@ -78,6 +78,252 @@ fn accepted(term: &Terminal) -> usize {
 }
 
 #[test]
+fn ime_public_row_named_space_altgr_text_and_nontext_binding_priority() {
+    use iced::advanced::{renderer::Headless, widget::operation};
+
+    let mut a = Live::new(19004);
+    let mut b = Live::new(19005);
+    b.0.set_window_focus(a.0.backend.window_focus.clone());
+    b.0.set_focused(false);
+    let renderer = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .unwrap()
+        .block_on(<iced::Renderer as Headless>::new(
+            iced::Font::MONOSPACE,
+            iced::Pixels(14.0),
+            None,
+        ))
+        .expect("offscreen test renderer");
+    let size = Size::new(800.0, 240.0);
+    fn row<'a>(a: &'a Terminal, b: &'a Terminal) -> iced::Element<'a, Event> {
+        iced::widget::row![TerminalView::show(a), TerminalView::show(b)].into()
+    }
+    let mut tree = Tree::empty();
+    {
+        let mut view = row(&a.0, &b.0);
+        tree.diff(view.as_widget());
+        let node = view.as_widget_mut().layout(
+            &mut tree,
+            &renderer,
+            &iced_core::layout::Limits::new(size, size),
+        );
+        view.as_widget_mut().operate(
+            &mut tree,
+            Layout::new(&node),
+            &renderer,
+            &mut operation::focusable::focus::<()>(a.0.widget_id().clone()),
+        );
+    }
+    let mut dispatch = |a: &Terminal, b: &Terminal, event| {
+        let mut view = row(a, b);
+        tree.diff(view.as_widget());
+        let node = view.as_widget_mut().layout(
+            &mut tree,
+            &renderer,
+            &iced_core::layout::Limits::new(size, size),
+        );
+        let mut events = Vec::new();
+        let mut shell = iced_core::Shell::new(&mut events);
+        view.as_widget_mut().update(
+            &mut tree,
+            &event,
+            Layout::new(&node),
+            Cursor::Unavailable,
+            &renderer,
+            &mut iced_core::clipboard::Null,
+            &mut shell,
+            &Rectangle::with_size(size),
+        );
+        let captured = shell.is_event_captured();
+        (events, captured)
+    };
+    dispatch(&a.0, &b.0, redraw());
+    for (logical_key, modifiers, text, expected, captured) in [
+        (
+            Key::Named(key::Named::Space),
+            Modifiers::CTRL | Modifiers::ALT,
+            Some("\u{a0}"),
+            Some("\u{a0}"),
+            true,
+        ),
+        (
+            Key::Named(key::Named::Space),
+            Modifiers::CTRL | Modifiers::ALT | Modifiers::SHIFT,
+            Some("\u{a0}"),
+            Some("\u{a0}"),
+            true,
+        ),
+        (
+            Key::Character("q".into()),
+            Modifiers::CTRL | Modifiers::ALT,
+            Some("@"),
+            Some("@"),
+            true,
+        ),
+        (
+            Key::Named(key::Named::Space),
+            Modifiers::empty(),
+            Some(" "),
+            Some(" "),
+            true,
+        ),
+        (
+            Key::Named(key::Named::Space),
+            Modifiers::empty(),
+            Some("´"),
+            Some("´"),
+            true,
+        ),
+        (Key::Unidentified, Modifiers::empty(), None, None, false),
+        (Key::Unidentified, Modifiers::empty(), Some(""), None, false),
+        (
+            Key::Character("e".into()),
+            Modifiers::empty(),
+            Some("é"),
+            Some("é"),
+            true,
+        ),
+        (
+            Key::Character("c".into()),
+            Modifiers::CTRL,
+            Some("c"),
+            Some("\x03"),
+            true,
+        ),
+        (
+            Key::Character("c".into()),
+            Modifiers::CTRL | Modifiers::SHIFT,
+            Some("c"),
+            None,
+            true,
+        ),
+        (
+            Key::Named(key::Named::Space),
+            Modifiers::CTRL,
+            Some("\u{a0}"),
+            None,
+            false,
+        ),
+        (
+            Key::Named(key::Named::Space),
+            Modifiers::ALT,
+            Some("\u{a0}"),
+            None,
+            false,
+        ),
+        (
+            Key::Named(key::Named::Space),
+            Modifiers::CTRL | Modifiers::ALT | Modifiers::LOGO,
+            Some("\u{a0}"),
+            None,
+            false,
+        ),
+        (
+            Key::Named(key::Named::Space),
+            Modifiers::CTRL | Modifiers::ALT,
+            None,
+            None,
+            false,
+        ),
+        (
+            Key::Named(key::Named::Space),
+            Modifiers::CTRL | Modifiers::ALT,
+            Some(""),
+            None,
+            false,
+        ),
+        (
+            Key::Named(key::Named::Space),
+            Modifiers::CTRL | Modifiers::ALT,
+            Some("\0"),
+            None,
+            false,
+        ),
+        (
+            Key::Named(key::Named::ArrowLeft),
+            Modifiers::CTRL | Modifiers::ALT,
+            Some("x"),
+            Some("\x1b[1;7D"),
+            true,
+        ),
+    ] {
+        let event = iced::Event::Keyboard(keyboard::Event::KeyPressed {
+            key: logical_key.clone(),
+            modified_key: logical_key,
+            physical_key: key::Physical::Code(key::Code::Space),
+            location: keyboard::Location::Standard,
+            modifiers,
+            text: text.map(Into::into),
+            repeat: false,
+        });
+        let (events, actual_captured) = dispatch(&a.0, &b.0, event);
+        let writes: Vec<_> = events
+            .into_iter()
+            .map(|event| {
+                let Event::BackendCall(id, Command::Write(bytes)) = event
+                else {
+                    panic!("unexpected keyboard event: {event:?}");
+                };
+                assert_eq!(id, a.0.id, "input reached the unfocused sibling");
+                bytes
+            })
+            .collect();
+        assert_eq!(
+            writes,
+            expected
+                .into_iter()
+                .map(|s| s.as_bytes().to_vec())
+                .collect::<Vec<_>>(),
+            "modifiers={modifiers:?}, text={text:?}"
+        );
+        assert_eq!(actual_captured, captured);
+    }
+    // Explicit nontext bindings still own Space, Ctrl+Space and Alt+Space.
+    // Ctrl+Alt uses bindings too when the OS supplies no printable text.
+    for modifiers in [
+        Modifiers::empty(),
+        Modifiers::CTRL,
+        Modifiers::ALT,
+        Modifiers::CTRL | Modifiers::ALT,
+        Modifiers::CTRL | Modifiers::ALT | Modifiers::SHIFT,
+        Modifiers::CTRL | Modifiers::ALT | Modifiers::LOGO,
+    ] {
+        a.0.handle(crate::Command::AddBindings(vec![(
+            crate::bindings::Binding {
+                target: InputKind::KeyCode(key::Named::Space),
+                modifiers,
+                terminal_mode_include: TermMode::empty(),
+                terminal_mode_exclude: TermMode::empty(),
+            },
+            BindingAction::Esc("space-binding".into()),
+        )]));
+        for text in [None, Some(""), Some("\0")] {
+            let (events, captured) = dispatch(
+                &a.0,
+                &b.0,
+                iced::Event::Keyboard(keyboard::Event::KeyPressed {
+                    key: Key::Named(key::Named::Space),
+                    modified_key: Key::Named(key::Named::Space),
+                    physical_key: key::Physical::Code(key::Code::Space),
+                    location: keyboard::Location::Standard,
+                    modifiers,
+                    text: text.map(Into::into),
+                    repeat: false,
+                }),
+            );
+            assert!(captured);
+            assert!(
+                matches!(events.as_slice(),
+                [Event::BackendCall(id, Command::Write(bytes))]
+                    if *id == a.0.id && bytes == b"space-binding"),
+                "modifiers={modifiers:?}, text={text:?}, events={events:?}"
+            );
+        }
+    }
+}
+
+#[test]
 fn ime_widget_preedit_zero_writes_capture_all_composing_keys_and_commit_once() {
     let mut live = Live::new(19001);
     let term = &mut live.0;
@@ -121,30 +367,37 @@ fn ime_widget_preedit_zero_writes_capture_all_composing_keys_and_commit_once() {
         Key::Character("n".into()),
         Key::Named(key::Named::Enter),
         Key::Named(key::Named::ArrowLeft),
+        Key::Named(key::Named::Space),
         Key::Character("c".into()),
     ] {
-        let event = keyboard::Event::KeyPressed {
-            key: key.clone(),
-            modified_key: key,
-            physical_key: key::Physical::Unidentified(
-                key::NativeCode::Unidentified,
-            ),
-            location: keyboard::Location::Standard,
-            modifiers: Modifiers::CTRL | Modifiers::SHIFT,
-            text: Some("duplicate".into()),
-            repeat: false,
-        };
-        let mut events = Vec::new();
-        let mut shell = iced_core::Shell::new(&mut events);
-        assert!(TerminalView { term }
-            .handle_keyboard_event(
-                &mut state,
-                &mut iced_core::clipboard::Null,
-                &event,
-                &mut shell
-            )
-            .is_none());
-        assert!(shell.is_event_captured());
+        for modifiers in [
+            Modifiers::CTRL | Modifiers::SHIFT,
+            Modifiers::CTRL | Modifiers::ALT,
+            Modifiers::CTRL | Modifiers::ALT | Modifiers::SHIFT,
+        ] {
+            let event = keyboard::Event::KeyPressed {
+                key: key.clone(),
+                modified_key: key.clone(),
+                physical_key: key::Physical::Unidentified(
+                    key::NativeCode::Unidentified,
+                ),
+                location: keyboard::Location::Standard,
+                modifiers,
+                text: Some("duplicate".into()),
+                repeat: false,
+            };
+            let mut events = Vec::new();
+            let mut shell = iced_core::Shell::new(&mut events);
+            assert!(TerminalView { term }
+                .handle_keyboard_event(
+                    &mut state,
+                    &mut iced_core::clipboard::Null,
+                    &event,
+                    &mut shell
+                )
+                .is_none());
+            assert!(shell.is_event_captured());
+        }
     }
     dispatch(
         term,

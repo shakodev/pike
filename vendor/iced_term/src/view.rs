@@ -179,24 +179,30 @@ impl<'a> TerminalView<'a> {
             iced::keyboard::Event::KeyPressed {
                 key,
                 modifiers,
+                text: Some(text),
+                ..
+            } if matches!(
+                key,
+                Key::Character(_)
+                    | Key::Named(iced_core::keyboard::key::Named::Space)
+            ) && modifiers.control()
+                && modifiers.alt()
+                && !modifiers.logo()
+                && !text.is_empty()
+                && !text.chars().any(char::is_control) =>
+            {
+                // Windows reports Space as a named key even for AltGr text.
+                // Preserve that text before bindings, just like character keys.
+                return Some(Command::Write(text.as_bytes().to_vec()));
+            },
+            iced::keyboard::Event::KeyPressed {
+                key,
+                modifiers,
                 text,
                 ..
             } => match &key {
                 // Use the physical character key for bindings even when text is None (e.g., Ctrl/Cmd combos)
                 Key::Character(k) => {
-                    if modifiers.control()
-                        && modifiers.alt()
-                        && !modifiers.logo()
-                    {
-                        if let Some(text) = text.as_ref().filter(|s| {
-                            !s.is_empty() && !s.chars().any(char::is_control)
-                        }) {
-                            // Printable AltGr text is not a Ctrl+Alt shortcut.
-                            return Some(Command::Write(
-                                text.as_bytes().to_vec(),
-                            ));
-                        }
-                    }
                     let lower = k.to_ascii_lowercase();
                     binding_action = self.term.bindings.get_action(
                         InputKind::Char(lower),

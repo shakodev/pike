@@ -425,6 +425,13 @@ and API/overload policy details.
   Composing key presses/releases are captured before bindings, including Enter,
   arrows and control shortcuts. Modifiers stay synchronized. Outside composition,
   dead-key UTF-8/spacing accents and printable AltGr text preserve OS text.
+- Printable Ctrl+Alt text also takes priority for `Key::Named(Space)`, including
+  Shift: pinned Windows winit always names VK_SPACE even when a layout supplies
+  nonbreaking-space text. Character-key AltGr behavior stays the same. Empty,
+  absent/control text, logo combinations and other named keys retain binding
+  behavior; active composition still captures the event first. A public two-view
+  Row regression covers exact writes/capture and nontext Space/Ctrl/Alt bindings;
+  the raw-PTY IME fixture checks both named-Space variants without fallback bytes.
 - Request `Purpose::Terminal` only on RedrawRequested, with the current logical
   cursor/line-height, wide-cell span, pane origin and ancestor clip. Winit applies
   monitor DPI once. No custom text editor, glyph renderer or second output buffer.
