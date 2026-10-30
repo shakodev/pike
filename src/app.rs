@@ -107,7 +107,9 @@ impl App {
                 .get(*id)
                 .is_some_and(|e| self.model.accepts_spawn(e.reservation()))
         });
-        let active = (!self.interaction_blocked()).then(|| self.active_session()).flatten();
+        let active = (!self.interaction_blocked())
+            .then(|| self.active_session())
+            .flatten();
         self.sessions
             .synchronize(&self.model, active, &self.window_focus);
     }
@@ -155,17 +157,23 @@ impl App {
     pub fn update(&mut self, message: Message) -> Task<Message> {
         // Queued workspace actions cannot mutate a set awaiting a decision.
         // Native lifecycle/protocol delivery remains active throughout teardown.
-        if self.interaction_blocked() && (matches!(&message, Message::Control(control)
+        if self.interaction_blocked()
+            && (matches!(&message, Message::Control(control)
             if !matches!(control, Control::CloseAction(_)))
-            || matches!(&message, Message::GridSize(..))) {
+                || matches!(&message, Message::GridSize(..)))
+        {
             return Task::none();
         }
         match message {
             Message::Control(Control::New) => return self.open(),
             Message::Control(Control::Retry(id)) => return self.retry(id, false),
             Message::Control(Control::UseDefault(id)) => return self.retry(id, true),
-            Message::Control(Control::CloseSession(id)) => return self.request_close(close::Scope::Pane(id)),
-            Message::Control(Control::CloseTab(tab)) => return self.request_close(close::Scope::Tab(tab)),
+            Message::Control(Control::CloseSession(id)) => {
+                return self.request_close(close::Scope::Pane(id));
+            }
+            Message::Control(Control::CloseTab(tab)) => {
+                return self.request_close(close::Scope::Tab(tab));
+            }
             Message::Control(Control::CloseAction(action)) => return self.close_action(action),
             Message::Control(Control::Split(target, direction)) => {
                 return self.split(target, direction);
@@ -184,7 +192,8 @@ impl App {
             Message::Launched(reservation, result) => return self.launched(reservation, result),
             Message::Terminal((id, event)) => {
                 if !self.interaction_blocked() || close::background_event(&event) {
-                    self.sessions.route(&mut self.model, &self.window_focus, id, event);
+                    self.sessions
+                        .route(&mut self.model, &self.window_focus, id, event);
                 }
                 if self.model.sessions().get(id).is_none() {
                     self.profiles.remove(&id);

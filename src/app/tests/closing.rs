@@ -3,6 +3,7 @@ use super::*;
 use iced_term::BackendCommand as B;
 use std::time::Instant;
 
+mod ime;
 #[cfg(windows)]
 mod windows;
 
@@ -139,6 +140,78 @@ fn modal_accepts_launch_and_natural_completion_without_closing_or_focusing_a_tar
     assert!(!app.exiting);
     assert_eq!(app.active_session(), Some(ids.session));
     shutdown(&mut app, &executor);
+}
+
+#[test]
+fn in_place_restart_rejects_old_close_launch_and_terminal_events_and_keeps_sibling() {
+    use iced::widget::pane_grid::Axis;
+    let executor = SharedExecutor::new().unwrap();
+    let mut app = App {
+        profile: profile(if cfg!(windows) {
+            "echo PIKE28_RESTART_FINAL&exit /b 4"
+        } else {
+            "printf 'PIKE28_RESTART_FINAL\\r\\n'; exit 4"
+        }),
+        ..App::default()
+    };
+    let (old, ready) = launch(&mut app, &executor);
+    drop(app.launched(old, Ok(ready)));
+    drain_exit(&mut app, &executor, old.session);
+    let target = app.model.target(old.session).unwrap();
+    let (sibling, Effect::Spawn(other)) = app.model.split(target, Axis::Vertical).unwrap() else {
+        unreachable!()
+    };
+    let request = executor
+        .enter(|| app.submit_profile(other, waiting()))
+        .unwrap();
+    let ready = executor.block_on(request.receive()).unwrap();
+    drop(app.launched(other, Ok(ready)));
+    // Keep the restarted child live so stale shutdown would be observable.
+    app.profiles.insert(old.session, waiting());
+    let request = executor
+        .enter(|| app.begin_retry(old.session, false))
+        .unwrap();
+    let next = Reservation {
+        session: request.session,
+        request: request.request,
+    };
+    assert_ne!(next.session, old.session);
+    assert_ne!(next.request, old.request);
+    assert_eq!(app.model.target(next.session), Some(target));
+    let ready = executor.block_on(request.receive()).unwrap();
+    drop(app.launched(next, Ok(ready)));
+    let before = app.terminal(next.session).unwrap().input_status();
+    drop(app.update(Message::Control(Control::CloseSession(old.session))));
+    drop(app.update(Message::Control(Control::Retry(old.session))));
+    drop(app.update(Message::Disposed(old)));
+    drop(app.update(Message::Launched(old, Err(LaunchError::Canceled))));
+    for raw in [old.session.get(), next.session.get()] {
+        drop(app.update(Message::Terminal((
+            old.session,
+            Event::BackendCall(raw, B::RequestShutdown),
+        ))));
+    }
+    assert!(app.close_confirmation().is_none());
+    assert_eq!(
+        app.model.workspace().tab(target.tab).unwrap().grid().len(),
+        2
+    );
+    assert_eq!(
+        app.model.workspace().pane(target).unwrap().session,
+        next.session
+    );
+    assert_eq!(
+        app.model.workspace().pane(sibling).unwrap().session,
+        other.session
+    );
+    assert_eq!(app.terminal(next.session).unwrap().input_status(), before);
+    assert!(!app.terminal(other.session).unwrap().input_status().closed);
+    let handles = [
+        app.terminal(next.session).unwrap().shutdown_handle(),
+        app.terminal(other.session).unwrap().shutdown_handle(),
+    ];
+    shutdown(&mut app, &executor);
+    assert!(handles.iter().all(|handle| handle.completion().is_some()));
 }
 
 fn click_dialog(app: &App, renderer: &iced::Renderer, confirm: bool) -> Vec<Message> {

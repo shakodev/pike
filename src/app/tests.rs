@@ -10,10 +10,10 @@ const DEADLINE: Duration = Duration::from_secs(10);
 
 #[cfg(unix)]
 mod cancellation;
+mod closing;
 mod ime;
 mod interaction;
 mod paste;
-mod closing;
 mod split;
 
 fn profile(script: &str) -> BackendSettings {
@@ -65,7 +65,9 @@ fn shutdown(app: &mut App, executor: &SharedExecutor) {
 
 fn confirm_close(app: &mut App) {
     if let Some((token, _)) = app.close_confirmation() {
-        drop(app.update(Message::Control(Control::CloseAction(CloseAction::Confirm(token)))));
+        drop(app.update(Message::Control(Control::CloseAction(
+            CloseAction::Confirm(token),
+        ))));
     }
 }
 

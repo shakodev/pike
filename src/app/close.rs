@@ -5,7 +5,7 @@ use iced::keyboard::{self, Key, key::Named};
 use iced::{Subscription, Task};
 use iced_term::{BackendCommand, Event};
 
-use super::{App, Control, Message, focus};
+use super::{App, Control, Message};
 use crate::identity::{SessionId, TabId};
 use crate::layout::PaneTarget;
 use crate::session::{Effect, Lifecycle};
@@ -60,6 +60,12 @@ impl Policy {
 }
 
 impl App {
+    /// Modal decisions and shutdown own user interaction; native protocol and
+    /// lifecycle delivery continue. Capture wrappers must defer to this state.
+    pub fn interaction_blocked(&self) -> bool {
+        self.exiting || self.close_policy.confirming()
+    }
+
     /// Stable decision token and targeted live count, also useful to native
     /// hosts driving the same controls without inspecting terminal contents.
     pub fn close_confirmation(&self) -> Option<(u64, usize)> {
@@ -115,21 +121,8 @@ impl App {
         Task::none()
     }
 
-    // Replaced by the merged model's stable lookup during final integration.
     pub(super) fn target_for(&self, session: SessionId) -> Option<PaneTarget> {
-        self.model.workspace().order().iter().find_map(|id| {
-            self.model
-                .workspace()
-                .tab(*id)?
-                .grid()
-                .iter()
-                .find_map(|(pane, state)| {
-                    (state.session == session).then_some(PaneTarget {
-                        tab: *id,
-                        pane: *pane,
-                    })
-                })
-        })
+        self.model.target(session)
     }
 
     pub(super) fn close(&mut self, target: PaneTarget) {
@@ -227,13 +220,9 @@ impl App {
 
     fn restore_close_focus(&mut self, restore: Option<SessionId>) -> Task<Message> {
         if let Some(target) = restore.and_then(|id| self.target_for(id)) {
-            let _ = self.model.focus(target);
-            self.synchronize();
+            return self.select(target);
         }
-        self.active_session()
-            .and_then(|id| self.terminal(id))
-            .map(|terminal| focus::request(terminal.widget_id().clone()))
-            .unwrap_or_else(Task::none)
+        self.focus_active()
     }
 
     pub(super) fn shutdown_complete(&mut self) -> Task<Message> {
@@ -252,6 +241,8 @@ impl App {
             self.model.closed(id);
         }
         self.sessions.entries.clear();
+        self.profiles.clear();
+        self.focus_on_attach.clear();
         iced::exit()
     }
 
@@ -344,12 +335,16 @@ pub(super) fn background_event(event: &Event) -> bool {
     if let BackendCommand::Paste(request) = command {
         request.cancel();
     }
+    if let BackendCommand::ImeCommit(commit) = command {
+        commit.cancel();
+    }
     matches!(
         command,
         BackendCommand::ProcessAlacrittyEvent(_)
             | BackendCommand::EventBridge(_)
             | BackendCommand::InputRejected(_)
             | BackendCommand::PasteRejected(_)
+            | BackendCommand::ImeRejected(_)
     )
 }
 

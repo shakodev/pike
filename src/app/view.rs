@@ -30,7 +30,9 @@ impl App {
     }
 
     pub fn view(&self) -> Element<'_, Message> {
-        if let Some(modal) = self.close_view() { return modal; }
+        if let Some(modal) = self.close_view() {
+            return modal;
+        }
         let mut controls = row![text("Pike").size(22)].spacing(12);
         if !self.exiting {
             if let Some(target) = self.active_target() {
@@ -38,8 +40,7 @@ impl App {
                     .push(button("Split right").on_press(Control::Split(target, Direction::Right)))
                     .push(button("Split down").on_press(Control::Split(target, Direction::Down)));
                 if let Some(id) = self.active_session() {
-                    controls =
-                        controls.push(close::close_button(id));
+                    controls = controls.push(close::close_button(id));
                 }
                 controls = controls.push(close::close_tab_button(target.tab));
                 if let Some(id) = self.active_session()
@@ -67,9 +68,14 @@ impl App {
                 };
                 let focused = handle == tab.focused();
                 let header: Element<'_, Control> = container(
-                    button(text(format!("Terminal {}", pane.session.get())).size(12))
-                        .on_press(Control::Focus(target))
-                        .style(button::text),
+                    row![
+                        button(text(format!("Terminal {}", pane.session.get())).size(12))
+                            .on_press(Control::Focus(target))
+                            .style(button::text)
+                            .width(Fill),
+                        close::close_button(pane.session)
+                    ]
+                    .spacing(4),
                 )
                 .height(HEADER)
                 .into();

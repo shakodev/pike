@@ -274,8 +274,7 @@ impl Probe {
                         ]);
                     } else {
                         assert_ne!(self.failures[0], id);
-                        let target = self.app.active_target().unwrap();
-                        drop(self.app.update(Message::Control(Control::Close(target))));
+                        drop(self.app.update(Message::Control(Control::CloseSession(id))));
                         self.record(&format!(
                             "empty entries={}",
                             self.app.model().sessions().len()

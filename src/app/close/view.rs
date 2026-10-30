@@ -5,7 +5,10 @@ use super::{App, CloseAction, Control, Message};
 use crate::identity::{SessionId, TabId};
 
 pub(crate) fn close_button(id: SessionId) -> Element<'static, Control> {
-    button("Close").on_press(Control::CloseSession(id)).into()
+    button(text("Close").size(12))
+        .padding([2, 6])
+        .on_press(Control::CloseSession(id))
+        .into()
 }
 
 pub(crate) fn close_tab_button(tab: TabId) -> Element<'static, Control> {
