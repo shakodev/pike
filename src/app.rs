@@ -12,9 +12,11 @@ use crate::terminal::{Owner, Sessions};
 use crate::workspace::Model;
 
 mod focus;
+mod resize;
 mod split;
 mod startup;
 mod view;
+pub use resize::ResizeStep;
 pub use split::Direction;
 
 pub enum Message {
@@ -38,6 +40,8 @@ pub enum Control {
     Copy(SessionId),
     Split(PaneTarget, Direction),
     Focus(PaneTarget),
+    Resize(TabId, iced::widget::pane_grid::ResizeEvent),
+    ResizeStep(ResizeStep),
 }
 
 #[derive(Default)]
@@ -52,6 +56,7 @@ pub struct App {
     profiles: BTreeMap<SessionId, BackendSettings>,
     focus_on_attach: BTreeSet<SessionId>,
     grid_size: Option<(TabId, Size)>,
+    resize_layout: Option<resize::Presentation>,
 }
 
 impl App {
@@ -104,6 +109,7 @@ impl App {
         let active = (!self.exiting).then(|| self.active_session()).flatten();
         self.sessions
             .synchronize(&self.model, active, &self.window_focus);
+        self.refresh_resize_layout();
     }
 
     fn close(&mut self, target: PaneTarget) {
@@ -179,6 +185,12 @@ impl App {
                 return self.split(target, direction);
             }
             Message::Control(Control::Focus(target)) => return self.select(target),
+            Message::Control(Control::Resize(tab, event)) => {
+                if self.resize_divider(tab, event) {
+                    return self.focus_active();
+                }
+            }
+            Message::Control(Control::ResizeStep(step)) => self.resize_step(step),
             Message::Control(Control::Copy(id)) => {
                 if !self.exiting
                     && self.active_session() == Some(id)
@@ -191,8 +203,12 @@ impl App {
             }
             Message::Launched(reservation, result) => return self.launched(reservation, result),
             Message::Terminal((id, event)) => {
+                let footer = self.footer_height(id);
                 self.sessions
                     .route(&mut self.model, &self.window_focus, id, event);
+                if footer != self.footer_height(id) {
+                    self.refresh_resize_layout();
+                }
                 if self.model.sessions().get(id).is_none() {
                     self.profiles.remove(&id);
                     self.focus_on_attach.remove(&id);
@@ -220,8 +236,9 @@ impl App {
                 self.synchronize();
             }
             Message::GridSize(tab, size) => {
-                if self.model.workspace().active() == Some(tab) {
+                if self.model.workspace().active() == Some(tab) && resize::valid_area(size) {
                     self.grid_size = Some((tab, size));
+                    self.refresh_resize_layout();
                 }
             }
             Message::CloseWindow if !self.exiting => {

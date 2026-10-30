@@ -4,6 +4,10 @@ use iced::{Rectangle, Size};
 
 use crate::identity::{SessionId, TabId};
 
+mod resize;
+pub use resize::ResizeGeometry;
+pub(crate) use resize::nearest as nearest_split;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct PaneState {
     pub session: SessionId,

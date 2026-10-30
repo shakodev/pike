@@ -6,7 +6,9 @@ use iced::widget::pane_grid::{Axis, Split};
 
 pub use crate::identity::TabId;
 use crate::identity::{LaunchToken, Reservation, SessionId};
-use crate::layout::{PaneState, PaneTarget, SplitGeometry, TabState, contains_split};
+use crate::layout::{
+    PaneState, PaneTarget, ResizeGeometry, SplitGeometry, TabState, contains_split,
+};
 use crate::session::{Effect, Failure, Lifecycle, SessionRegistry, SpawnDisposition};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -281,6 +283,31 @@ impl Model {
             return Err(Error::StaleSplit);
         }
         tab.grid.resize(split, ratio.clamp(0.1, 0.9));
+        Ok(())
+    }
+
+    /// Geometry-aware UI resize. No lifecycle, process, focus or identity edits.
+    pub fn resize_with_geometry(
+        &mut self,
+        tab: TabId,
+        split: Split,
+        ratio: f32,
+        geometry: &ResizeGeometry,
+    ) -> Result<(), Error> {
+        let tab = self.workspace.tabs.get_mut(&tab).ok_or(Error::StaleTab)?;
+        if !contains_split(tab.grid.layout(), split) {
+            return Err(Error::StaleSplit);
+        }
+        if !ratio.is_finite() || !(0.0..=1.0).contains(&ratio) {
+            return Err(Error::InvalidRatio);
+        }
+        if tab.grid.maximized().is_some() {
+            return Err(Error::Geometry);
+        }
+        let ratio = geometry
+            .clamp(tab.grid.layout(), split, ratio)
+            .ok_or(Error::Geometry)?;
+        tab.grid.resize(split, ratio);
         Ok(())
     }
 
