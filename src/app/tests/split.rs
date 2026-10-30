@@ -7,10 +7,17 @@ fn source() -> (SharedExecutor, App, PaneTarget, SessionId) {
 }
 
 fn source_with_limit(limit: u16) -> (SharedExecutor, App, PaneTarget, SessionId) {
+    configured_source(limit, waiting())
+}
+
+fn configured_source(
+    limit: u16,
+    settings: BackendSettings,
+) -> (SharedExecutor, App, PaneTarget, SessionId) {
     let executor = SharedExecutor::new().unwrap();
     let mut app = App {
         model: Model::new(std::num::NonZeroU16::new(limit).unwrap()),
-        profile: waiting(),
+        profile: settings,
         ..App::default()
     };
     drop(app.update(Message::WindowFocused(true)));
@@ -230,6 +237,82 @@ fn visible_sibling_stale_focus_and_keyboard_cannot_change_input_authority() {
         "a queued focus receipt selected an inactive sibling"
     );
     assert_eq!(before, after, "queued sibling input was admitted");
+}
+
+#[cfg(unix)]
+#[test]
+fn visible_sibling_hovered_mouse_and_alternate_wheel_do_not_require_or_steal_focus() {
+    use iced::keyboard::Modifiers;
+    use iced_term::{AlacrittyEvent, AlacrittyPoint, BackendCommand as B, MouseButton, TermMode};
+    let (executor, mut app, target, id) = configured_source(
+        32,
+        profile("printf '\\033[?1049h\\033[?1007h\\033[?1000h\\033[?1006h'; read pike_wait"),
+    );
+    let request = executor
+        .enter(|| app.begin_split(target, Direction::Right))
+        .unwrap();
+    let next = receive(&mut app, &executor, request);
+    let mut events = iced::futures::stream::select_all(
+        into_recipes(app.sessions.subscription())
+            .into_iter()
+            .map(|recipe| recipe.stream(stream::pending().boxed())),
+    );
+    executor.block_on(async {
+        tokio::time::timeout(DEADLINE, async {
+            while !app
+                .terminal(id)
+                .unwrap()
+                .renderable_content()
+                .unwrap()
+                .terminal_mode
+                .contains(TermMode::ALT_SCREEN | TermMode::ALTERNATE_SCROLL | TermMode::SGR_MOUSE)
+            {
+                drop(app.update(Message::Terminal(events.next().await.unwrap())));
+            }
+        })
+        .await
+        .unwrap();
+    });
+    let admitted = |app: &App| {
+        let status = app.terminal(id).unwrap().input_status();
+        status.written_bytes + status.outstanding_bytes + status.cancelled_bytes
+    };
+    let before = admitted(&app);
+    for command in [
+        B::MouseReport(
+            MouseButton::ScrollUp,
+            Modifiers::empty(),
+            AlacrittyPoint::default(),
+            true,
+        ),
+        B::Scroll(1),
+        B::Write(b"blocked\n".to_vec()),
+    ] {
+        drop(app.update(Message::Terminal((
+            id,
+            Event::BackendCall(id.get(), command),
+        ))));
+    }
+    let bytes = admitted(&app) - before;
+    let focused = app
+        .terminal(id)
+        .unwrap()
+        .renderable_content()
+        .unwrap()
+        .focused;
+    assert_eq!(app.active_session(), Some(next));
+    // Finish the synthetic terminal line before cleanup. This is not a Unix
+    // partial-line cancellation fixture.
+    drop(app.update(Message::Terminal((
+        id,
+        Event::BackendCall(
+            id.get(),
+            B::ProcessAlacrittyEvent(AlacrittyEvent::PtyWrite("\n".into())),
+        ),
+    ))));
+    shutdown(&mut app, &executor);
+    assert_eq!(bytes, b"\x1b[<64;1;1M".len() + b"\x1bOA".len());
+    assert!(!focused);
 }
 
 #[test]
