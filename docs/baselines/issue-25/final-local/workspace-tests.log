@@ -1,0 +1,40 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.31s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-8047c988abb10012)
+
+running 16 tests
+test workspace::tests::background_exit_targets_session_and_preserves_layout_and_focus ... ok
+test workspace::tests::geometry_refusal_is_atomic_for_rounding_nested_and_invalid_sizes ... ok
+test workspace::tests::late_or_mismatched_results_never_attach_or_remove_another_entry ... ok
+test workspace::tests::failed_split_keeps_source_and_failed_or_canceled_reservations_are_bounded ... ok
+test workspace::tests::closing_background_tab_does_not_change_active_tab_and_closes_exact_sessions ... ok
+test workspace::tests::layout_edits_preserve_reservations_and_reject_removed_handles ... ok
+test workspace::tests::focus_hidden_pane_restores_layout_and_refocusing_visible_pane_preserves_zoom ... ok
+test workspace::tests::final_pane_deletes_tab_and_final_tab_leaves_empty_window ... ok
+test workspace::tests::guarded_splits_use_exact_half_ratios_and_preserve_the_source ... ok
+test workspace::tests::launch_claim_follows_session_across_moves_and_cannot_be_reissued ... ok
+test workspace::tests::background_zoom_activation_and_focus_keep_the_selected_pane_visible ... ok
+test workspace::tests::layout_overflow_does_not_orphan_a_session_or_remove_move_source ... ok
+test workspace::tests::zoom_nonfocused_pane_synchronizes_focus_when_maximizing_switching_and_restoring ... ok
+test workspace::tests::split_move_swap_and_remove_while_zoomed_preserve_visible_focus ... ok
+test workspace::tests::retained_budget_is_32_and_in_place_retry_preserves_layout_at_capacity ... ok
+test workspace::tests::deterministic_generated_transactions_preserve_invariants_after_every_step ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 64 filtered out; finished in 0.19s
+

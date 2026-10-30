@@ -1,0 +1,8 @@
+mouse-report mode confirmed for both native sessions
+leeway press/move/release: no child input, real drag changed ratio, focus preserved
+raw blur/refocus without release: unheld movement preserves canonical ratio
+owner transfer/restoration: unheld movement preserves canonical ratio
+app blur/refocus: unheld movement preserves canonical ratio
+ordinary pane click/drag after cancellation: terminal input passed through
+fresh divider press resizes; stable sessions/widgets remain live
+cleanup sessions=0

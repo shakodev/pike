@@ -14,9 +14,11 @@ use crate::workspace::Model;
 mod close;
 pub use close::CloseAction;
 mod focus;
+mod resize;
 mod split;
 mod startup;
 mod view;
+pub use resize::ResizeStep;
 pub use split::Direction;
 
 pub enum Message {
@@ -43,6 +45,10 @@ pub enum Control {
     Copy(SessionId),
     Split(PaneTarget, Direction),
     Focus(PaneTarget),
+    Resize(TabId, iced::widget::pane_grid::ResizeEvent),
+    ResizeStep(ResizeStep),
+    ResizeKey(u64, ResizeStep),
+    ResizeFocus(u64),
 }
 
 #[derive(Default)]
@@ -57,6 +63,7 @@ pub struct App {
     profiles: BTreeMap<SessionId, BackendSettings>,
     focus_on_attach: BTreeSet<SessionId>,
     grid_size: Option<(TabId, Size)>,
+    resize_layout: Option<resize::Presentation>,
     close_policy: close::Policy,
 }
 
@@ -112,6 +119,7 @@ impl App {
             .flatten();
         self.sessions
             .synchronize(&self.model, active, &self.window_focus);
+        self.refresh_resize_layout();
     }
 
     fn retry(&mut self, id: SessionId, use_default: bool) -> Task<Message> {
@@ -179,6 +187,25 @@ impl App {
                 return self.split(target, direction);
             }
             Message::Control(Control::Focus(target)) => return self.select(target),
+            Message::Control(Control::Resize(tab, event)) => {
+                if self.resize_divider(tab, event) {
+                    return self.focus_active();
+                }
+            }
+            Message::Control(Control::ResizeStep(step)) => return self.resize_step(step),
+            Message::Control(Control::ResizeKey(origin, step)) => {
+                if self.active_session().is_some_and(|id| id.get() == origin) {
+                    return self.resize_step(step);
+                }
+            }
+            Message::Control(Control::ResizeFocus(origin)) => {
+                if self.resize_allowed()
+                    && self.active_session().is_some_and(|id| id.get() == origin)
+                    && let Some(target) = self.active_target()
+                {
+                    return self.select(target);
+                }
+            }
             Message::Control(Control::Copy(id)) => {
                 if !self.exiting
                     && self.active_session() == Some(id)
@@ -191,9 +218,21 @@ impl App {
             }
             Message::Launched(reservation, result) => return self.launched(reservation, result),
             Message::Terminal((id, event)) => {
+                if self.resize_layout.as_ref().is_some_and(|p| p.frozen)
+                    && matches!(
+                        &event,
+                        Event::BackendCall(_, iced_term::BackendCommand::Resize(..))
+                    )
+                {
+                    return Task::none();
+                }
+                let footer = self.footer_height(id);
                 if !self.interaction_blocked() || close::background_event(&event) {
                     self.sessions
                         .route(&mut self.model, &self.window_focus, id, event);
+                }
+                if footer != self.footer_height(id) {
+                    self.refresh_resize_layout();
                 }
                 if self.model.sessions().get(id).is_none() {
                     self.profiles.remove(&id);
@@ -222,8 +261,9 @@ impl App {
                 self.synchronize();
             }
             Message::GridSize(tab, size) => {
-                if self.model.workspace().active() == Some(tab) {
+                if self.model.workspace().active() == Some(tab) && resize::valid_area(size) {
                     self.grid_size = Some((tab, size));
+                    self.refresh_resize_layout();
                 }
             }
             Message::CloseWindow => return self.request_close(close::Scope::Window),

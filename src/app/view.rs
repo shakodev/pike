@@ -61,7 +61,10 @@ impl App {
             .and_then(|id| self.model.workspace().tab(id))
         {
             let tab_id = self.model.workspace().active().expect("active tab");
-            let grid = PaneGrid::new(tab.grid(), |handle, pane, _| {
+            let presentation = self.resize_layout.as_ref().filter(|p| p.tab == tab_id);
+            let source = presentation.map(|p| &p.grid).unwrap_or_else(|| tab.grid());
+            let divider = super::resize::Divider::default();
+            let grid = PaneGrid::new(source, |handle, pane, _| {
                 let target = PaneTarget {
                     tab: tab_id,
                     pane: handle,
@@ -80,28 +83,59 @@ impl App {
                 .height(HEADER)
                 .into();
                 let content = column![header.map(Message::Control), self.pane(pane.session)];
-                pane_grid::Content::new(container(content).padding(BORDER).clip(true).style(
-                    move |theme: &iced::Theme| container::Style {
-                        border: Border {
-                            width: BORDER,
-                            color: if focused {
-                                theme.palette().primary
-                            } else {
-                                theme.extended_palette().background.strong.color
+                pane_grid::Content::new(divider.content(
+                    container(content).padding(BORDER).clip(true).style(
+                        move |theme: &iced::Theme| container::Style {
+                            border: Border {
+                                width: BORDER,
+                                color: if focused {
+                                    theme.palette().primary
+                                } else {
+                                    theme.extended_palette().background.strong.color
+                                },
+                                ..Default::default()
                             },
                             ..Default::default()
                         },
-                        ..Default::default()
-                    },
+                    ),
                 ))
             })
             .spacing(GUTTER)
             .min_size(0)
+            .on_resize(8, move |event| {
+                Message::Control(Control::Resize(tab_id, event))
+            })
             .on_click(move |pane| {
                 Message::Control(Control::Focus(PaneTarget { tab: tab_id, pane }))
             })
-            .width(Fill)
-            .height(Fill);
+            .width(
+                presentation
+                    .map(|p| iced::Length::Fixed(p.size.width))
+                    .unwrap_or(Fill),
+            )
+            .height(
+                presentation
+                    .map(|p| iced::Length::Fixed(p.size.height))
+                    .unwrap_or(Fill),
+            );
+            // Scrollbar dragging provides safe panning even while the terminal
+            // owns wheel events. Both renderer and pointer paths clip to viewport.
+            let active = self
+                .active_session()
+                .and_then(|id| self.terminal(id))
+                .filter(|_| self.window_focus.is_focused());
+            let grid: Element<'_, Message> = if source.maximized().is_none() {
+                divider.grid(grid, source.layout(), active)
+            } else {
+                grid.into()
+            };
+            let grid = scrollable(grid)
+                .direction(scrollable::Direction::Both {
+                    vertical: scrollable::Scrollbar::new(),
+                    horizontal: scrollable::Scrollbar::new(),
+                })
+                .width(Fill)
+                .height(Fill);
             sensor(grid)
                 .key(tab_id)
                 .on_resize(move |size| Message::GridSize(tab_id, size))
@@ -112,16 +146,43 @@ impl App {
                 .height(Fill)
                 .into()
         };
+        let constrained = self
+            .grid_size
+            .and_then(|(tab, area)| {
+                let geometry = self.resize_geometry(tab, area)?;
+                let node = self.model.workspace().tab(tab)?.grid().layout();
+                Some(geometry.canvas(node).is_none_or(|canvas| {
+                    canvas.width > area.width
+                        || canvas.height > area.height
+                        || node
+                            .pane_regions(GUTTER, 0.0, canvas)
+                            .iter()
+                            .any(|(pane, r)| {
+                                let minimum = geometry.minimum[pane];
+                                r.width < minimum.width || r.height < minimum.height
+                            })
+                }))
+            })
+            .unwrap_or(false);
+        controls = controls.push(
+            text(if constrained {
+                "Size constrained · 20×5 minimum · drag scrollbars to pan"
+            } else {
+                "Resize: Alt+Shift+Arrow · 20×5 minimum"
+            })
+            .size(12),
+        );
         let controls: Element<'_, Control> = controls.wrap().into();
         let mut content = column![controls.map(Message::Control), pane].spacing(8);
         if let Some(notice) = self.notice {
             content = content.push(text(notice));
         }
-        container(content)
-            .padding(8)
-            .width(Fill)
-            .height(Fill)
-            .into()
+        super::resize::capture(
+            container(content).padding(8).width(Fill).height(Fill),
+            self.interaction_blocked() || self.active_target().is_none(),
+            self.active_session().and_then(|id| self.terminal(id)),
+            super::resize::resize_key,
+        )
     }
 
     fn pane(&self, id: SessionId) -> Element<'_, Message> {

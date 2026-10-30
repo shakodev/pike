@@ -1,0 +1,23 @@
+[package]
+name = "pike-r25-independent-review"
+version = "0.1.0"
+edition = "2024"
+[workspace]
+[dependencies]
+pike = { path = "../../../.." }
+iced = { version = "=0.14.0", default-features = false, features = ["advanced", "wgpu", "tokio"] }
+iced_runtime = "=0.14.0"
+iced_term = { version = "=0.8.0", default-features = false }
+tokio = { version = "=1.54.1", default-features = false, features = ["time"] }
+[patch.crates-io]
+iced_term = { path = "../../../../vendor/iced_term" }
+alacritty_terminal = { path = "../../../../vendor/alacritty_terminal" }
+iced_winit = { path = "../../../../vendor/iced_winit" }
+
+[[bin]]
+name = "leeway"
+path = "../pointer-lifecycle/red/leeway-source.rs"
+
+[[bin]]
+name = "blur_drag"
+path = "../pointer-lifecycle/red/blur_drag-source.rs"
