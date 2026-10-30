@@ -107,7 +107,7 @@ impl App {
         // Keep typing in the source during slow preparation. Only a successfully
         // attached, still-owned reservation selects the new pane.
         let _ = self.model.focus(source);
-        self.focus_on_attach.insert(reservation.session);
+        self.focus_after_attach(reservation.session);
         self.submit_profile(reservation, profile)
     }
 

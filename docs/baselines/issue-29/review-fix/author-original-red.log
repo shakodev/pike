@@ -1,0 +1,43 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.81s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-8047c988abb10012)
+
+running 2 tests
+test app::tests::tabs::hidden_close_prunes_cached_session_ids_before_reactivation ... 
+thread 'app::tests::tabs::hidden_close_prunes_cached_session_ids_before_reactivation' (7993616) panicked at src/app/tests/tabs.rs:411:5:
+cached grid retains closed session IDs: [SessionId(1)], closed=SessionId(1)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+test app::tests::tabs::late_split_round_trip_respects_newer_explicit_pane_choice ... 
+thread 'app::tests::tabs::late_split_round_trip_respects_newer_explicit_pane_choice' (7993635) panicked at src/app/tests/tabs.rs:381:5:
+assertion `left == right` failed: late split overrode explicit newer sibling focus; sibling focused=false, pending focused=true
+  left: Some(SessionId(9))
+ right: Some(SessionId(8))
+FAILED
+
+failures:
+
+failures:
+    app::tests::tabs::hidden_close_prunes_cached_session_ids_before_reactivation
+    app::tests::tabs::late_split_round_trip_respects_newer_explicit_pane_choice
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 113 filtered out; finished in 0.23s
+
+error: test failed, to rerun pass `-p pike --lib`

@@ -17,6 +17,7 @@ mod focus;
 mod resize;
 mod split;
 mod startup;
+mod tabs;
 mod view;
 pub use resize::ResizeStep;
 pub use split::Direction;
@@ -37,6 +38,8 @@ pub enum Message {
 #[derive(Clone, Copy)]
 pub enum Control {
     New,
+    NewTab,
+    ActivateTab(TabId),
     Retry(SessionId),
     UseDefault(SessionId),
     CloseSession(SessionId),
@@ -64,6 +67,7 @@ pub struct App {
     focus_on_attach: BTreeSet<SessionId>,
     grid_size: Option<(TabId, Size)>,
     resize_layout: Option<resize::Presentation>,
+    resize_cache: BTreeMap<TabId, resize::Presentation>,
     close_policy: close::Policy,
 }
 
@@ -106,6 +110,7 @@ impl App {
     }
 
     fn synchronize(&mut self) {
+        self.synchronize_resize_tab();
         self.profiles
             .retain(|id, _| self.model.sessions().get(*id).is_some());
         self.focus_on_attach.retain(|id| {
@@ -120,6 +125,13 @@ impl App {
         self.sessions
             .synchronize(&self.model, active, &self.window_focus);
         self.refresh_resize_layout();
+    }
+
+    /// A deferred launch may select its pane only until a newer accepted user
+    /// choice supersedes it. This is launch intent, not widget focus authority.
+    fn focus_after_attach(&mut self, id: SessionId) {
+        self.focus_on_attach.clear();
+        self.focus_on_attach.insert(id);
     }
 
     fn retry(&mut self, id: SessionId, use_default: bool) -> Task<Message> {
@@ -158,8 +170,10 @@ impl App {
         };
         self.sessions.entries.remove(&id);
         self.profiles.remove(&id);
-        self.focus_on_attach.insert(reservation.session);
-        self.submit_profile(reservation, profile)
+        self.focus_after_attach(reservation.session);
+        let launch = self.submit_profile(reservation, profile);
+        self.synchronize();
+        launch
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
@@ -174,6 +188,8 @@ impl App {
         }
         match message {
             Message::Control(Control::New) => return self.open(),
+            Message::Control(Control::NewTab) => return self.new_tab(),
+            Message::Control(Control::ActivateTab(tab)) => return self.activate_tab(tab),
             Message::Control(Control::Retry(id)) => return self.retry(id, false),
             Message::Control(Control::UseDefault(id)) => return self.retry(id, true),
             Message::Control(Control::CloseSession(id)) => {
@@ -186,7 +202,12 @@ impl App {
             Message::Control(Control::Split(target, direction)) => {
                 return self.split(target, direction);
             }
-            Message::Control(Control::Focus(target)) => return self.select(target),
+            Message::Control(Control::Focus(target)) => {
+                if self.model.workspace().pane(target).is_some() {
+                    self.focus_on_attach.clear();
+                }
+                return self.select(target);
+            }
             Message::Control(Control::Resize(tab, event)) => {
                 if self.resize_divider(tab, event) {
                     return self.focus_active();

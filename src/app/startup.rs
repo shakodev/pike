@@ -95,8 +95,11 @@ impl App {
                             reservation.session,
                             Entry::new(reservation, Owner::Attached(Box::new(terminal))),
                         );
-                        if (self.focus_on_attach.remove(&reservation.session) || active)
+                        let requested_focus = self.focus_on_attach.remove(&reservation.session);
+                        if !self.interaction_blocked()
                             && let Some(target) = self.model.target(reservation.session)
+                            && self.model.workspace().active() == Some(target.tab)
+                            && (requested_focus || active)
                         {
                             return self.select(target);
                         }

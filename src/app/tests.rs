@@ -16,6 +16,7 @@ mod interaction;
 mod paste;
 mod resize;
 mod split;
+mod tabs;
 
 fn profile(script: &str) -> BackendSettings {
     #[cfg(windows)]

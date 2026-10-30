@@ -6,5 +6,6 @@ pub mod identity;
 pub mod launch;
 pub mod layout;
 pub mod session;
+pub mod tabs;
 mod terminal;
 pub mod workspace;

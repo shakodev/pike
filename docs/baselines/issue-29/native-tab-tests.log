@@ -1,0 +1,29 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-8047c988abb10012)
+
+running 5 tests
+test app::tests::tabs::delayed_split_in_hidden_tab_cannot_steal_focus ... ok
+test app::tests::tabs::modal_close_owns_new_tab_and_switch_and_last_tab_leaves_reopenable_empty_window ... ok
+test app::tests::tabs::new_tab_inherits_frozen_source_profile_and_late_attachment_stays_hidden ... ok
+test app::tests::tabs::tab_admission_errors_are_retained_redacted_and_restartable_and_limit_is_atomic ... ok
+test app::tests::tabs::tab_switch_refreshes_once_and_rejects_hidden_geometry_input_and_stale_activity ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 104 filtered out; finished in 0.26s
+

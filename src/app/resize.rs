@@ -49,6 +49,41 @@ pub(super) fn valid_area(size: Size) -> bool {
 }
 
 impl App {
+    /// Transfer already-built presentation state; hidden trees are never fitted
+    /// or measured. Keep the active viewport size until its sensor reports the
+    /// next layout, including equal-size tab replacements.
+    pub(super) fn synchronize_resize_tab(&mut self) {
+        self.resize_cache.retain(|tab, cached| {
+            let Some(current) = self.model.workspace().tab(*tab) else {
+                return false;
+            };
+            if cached.grid.panes != current.grid().panes {
+                // Reconcile scoped pane/session ownership only. Preserve
+                // the last bounded canvas/frozen state, with no fitting,
+                // cell measurement, viewport capture or PTY work.
+                cached.grid = current.grid().clone();
+            }
+            true
+        });
+        match (self.grid_size, self.model.workspace().active()) {
+            (Some((old, size)), Some(active)) if old != active => {
+                if let Some(previous) = self.resize_layout.take()
+                    && previous.tab == old
+                    && self.model.workspace().tab(old).is_some()
+                {
+                    self.resize_cache.insert(old, previous);
+                }
+                self.resize_layout = self.resize_cache.remove(&active);
+                self.grid_size = Some((active, size));
+            }
+            (_, None) => {
+                self.grid_size = None;
+                self.resize_layout = None;
+            }
+            _ => {}
+        }
+    }
+
     /// Apply measured font changes on the UI thread and refresh cell constraints.
     /// Settings UI is intentionally deferred; fixtures use this same host path.
     pub fn change_terminal_font(
