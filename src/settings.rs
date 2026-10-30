@@ -179,7 +179,8 @@ impl Settings {
             working_directory: profile.cwd.clone(),
             env: profile.env.clone().into_iter().collect(),
             history: self.history(),
-            ..BackendSettings::default()
+            #[cfg(windows)]
+            escape_args: true,
         })
     }
 }

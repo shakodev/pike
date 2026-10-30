@@ -139,10 +139,12 @@ fn profile_references_and_counts_are_validated() {
         Settings::parse("version = 1\nprofiles = {}"),
         Err(Error::Invalid(Field::Profiles))
     );
-    let mut doc = Document::default();
-    doc.profiles = (0..17)
-        .map(|i| (ProfileId(format!("profile{i}")), Profile::default()))
-        .collect();
+    let doc = Document {
+        profiles: (0..17)
+            .map(|i| (ProfileId(format!("profile{i}")), Profile::default()))
+            .collect(),
+        ..Document::default()
+    };
     assert_eq!(
         validate::document(&doc),
         Err(Error::Invalid(Field::Profiles))
