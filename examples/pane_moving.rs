@@ -41,7 +41,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     let (app, task) = executor.enter(|| App::with_settings(profile));
     let mut host = Host::new(app, task, renderer, executor);
-    let result = verify(&mut host, &output);
+    let result = verify(
+        &mut host,
+        &output,
+        args.get(2).is_some_and(|a| a == "--ime-pointer"),
+    );
     let cleanup = host.cleanup();
     fs::write(output.join("events.txt"), host.evidence.join("\n"))?;
     if let Ok(receipts) = &cleanup {
@@ -165,7 +169,7 @@ fn drag(host: &mut Host, from: Point, to: Point) -> io::Result<()> {
     host.drain()
 }
 
-fn verify(host: &mut Host, output: &Path) -> io::Result<()> {
+fn verify(host: &mut Host, output: &Path, ime_pointer: bool) -> io::Result<()> {
     host.update(Message::WindowFocused(true));
     host.until(|h| {
         h.app
@@ -204,5 +208,9 @@ fn verify(host: &mut Host, output: &Path) -> io::Result<()> {
         host.app.active_session() == Some(first) && host.focused(first),
         "drop lost source focus",
     )?;
-    scenarios::verify(host, output, first, second)
+    if ime_pointer {
+        scenarios::ime_pointer(host, output, first, second)
+    } else {
+        scenarios::verify(host, output, first, second)
+    }
 }

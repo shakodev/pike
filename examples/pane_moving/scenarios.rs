@@ -35,6 +35,71 @@ fn input(host: &mut Host, byte: char) -> io::Result<()> {
     host.drain()
 }
 
+pub(super) fn ime_pointer(
+    host: &mut Host,
+    output: &Path,
+    first: SessionId,
+    second: SessionId,
+) -> io::Result<()> {
+    use iced::advanced::input_method::Event as Ime;
+    owner_file(host, output, first)?;
+    owner_file(host, output, second)?;
+    host.redraw();
+    host.redraw();
+    host.drain()?;
+    host.event(Event::InputMethod(Ime::Opened), mouse::Cursor::Unavailable);
+    host.event(
+        Event::InputMethod(Ime::Preedit("ni".into(), Some(0..2))),
+        mouse::Cursor::Unavailable,
+    );
+    check(
+        host.app.terminal(first).unwrap().is_composing(),
+        "IME did not enter preedit",
+    )?;
+    let bytes = files(output);
+    let admission = admitted(host);
+    let bounds = host.bounds(first).unwrap();
+    drag(
+        host,
+        Point::new(bounds.x + 3.0, bounds.y + 3.0),
+        Point::new(bounds.x + 100.0, bounds.y + 3.0),
+    )?;
+    check(
+        host.app
+            .terminal(first)
+            .unwrap()
+            .copy_selection(|s| s)
+            .is_some(),
+        "composition blocked ordinary terminal content selection",
+    )?;
+    let point = header(host, second);
+    host.click(point);
+    host.drain()?;
+    check(
+        host.app.active_session() == Some(second) && host.focused(second),
+        "composition blocked a fresh pane header focus click",
+    )?;
+    check(
+        !host.app.terminal(first).unwrap().is_composing(),
+        "header owner transfer retained old composition",
+    )?;
+    host.event(
+        Event::InputMethod(Ime::Commit("stale".into())),
+        mouse::Cursor::Unavailable,
+    );
+    host.drain()?;
+    check(
+        files(output) == bytes,
+        "pane pointer/IME transfer wrote preedit or stale commit bytes",
+    )?;
+    check(
+        admitted(host) == admission,
+        "IME pointer transfer admitted asynchronous stale input",
+    )?;
+    host.evidence.push("native preedit preserved content selection and fresh header owner transfer; stale commit admitted zero bytes".into());
+    Ok(())
+}
+
 fn owner_file(host: &mut Host, output: &Path, id: SessionId) -> io::Result<PathBuf> {
     host.until(|h| text(h, id).contains("PIKE27_READY="))?;
     let screen = text(host, id);
@@ -61,6 +126,21 @@ fn files(output: &Path) -> Vec<(PathBuf, Vec<u8>)> {
         .collect();
     values.sort_by(|a, b| a.0.cmp(&b.0));
     values
+}
+
+fn admitted(host: &Host) -> Vec<(SessionId, usize)> {
+    host.app
+        .model()
+        .sessions()
+        .iter()
+        .filter_map(|(id, _)| {
+            let input = host.app.terminal(id)?.input_status();
+            Some((
+                id,
+                input.written_bytes + input.outstanding_bytes + input.cancelled_bytes,
+            ))
+        })
+        .collect()
 }
 
 fn header(host: &mut Host, id: SessionId) -> Point {
@@ -121,6 +201,7 @@ fn move_to(
         .clone();
     expected.drop(source_target.pane, target);
     let before = files(output);
+    let admission = admitted(host);
     let actions = host.controls;
     let from = header(host, source);
     drag(host, from, point)?;
@@ -133,6 +214,10 @@ fn move_to(
         "header drag did not emit exactly one focus and one layout action",
     )?;
     check(files(output) == before, "header drag emitted PTY input")?;
+    check(
+        admitted(host) == admission,
+        "header drag admitted asynchronous PTY input",
+    )?;
     check(
         host.app.active_session() == Some(source) && host.focused(source),
         "header drop lost exclusive source focus",
@@ -218,6 +303,7 @@ pub(super) fn verify(
     let from = Point::new(bounds.x + 3.0, bounds.y + 3.0);
     let to = Point::new(bounds.x + 130.0, bounds.y + 3.0);
     let bytes = files(output);
+    let admission = admitted(host);
     drag(host, from, to)?;
     check(
         layout(host) == before_layout,
@@ -231,6 +317,10 @@ pub(super) fn verify(
     check(
         files(output) == bytes,
         "ordinary content selection wrote PTY bytes",
+    )?;
+    check(
+        admitted(host) == admission,
+        "content selection admitted asynchronous PTY input",
     )?;
     let modes = format!(
         "{:?}",
@@ -524,6 +614,7 @@ fn cancellation(
 ) -> io::Result<()> {
     let before = layout(host);
     let bytes = files(output);
+    let admission = admitted(host);
     // Raw native blur is delivered before the queued App focus message.
     press_header(host, first)?;
     host.event(
@@ -598,6 +689,10 @@ fn cancellation(
     check(
         files(output) == bytes,
         "cancelled header gestures wrote PTY bytes",
+    )?;
+    check(
+        admitted(host) == admission,
+        "cancelled header gesture admitted asynchronous PTY input",
     )?;
     let target = host.app.model().target(second).unwrap();
     move_to(

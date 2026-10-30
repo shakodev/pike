@@ -148,8 +148,7 @@ impl Widget<Message, iced::Theme, iced::Renderer> for Guard<'_> {
         }
         let allowed = self.enabled
             && !state.blurred
-            && self.window.as_ref().is_some_and(WindowFocus::is_focused)
-            && self.active.is_none_or(|terminal| !terminal.is_composing());
+            && self.window.as_ref().is_some_and(WindowFocus::is_focused);
         let escape = matches!(
             event,
             Event::Keyboard(
@@ -166,10 +165,11 @@ impl Widget<Message, iced::Theme, iced::Renderer> for Guard<'_> {
             state.escape = true;
             gestures.cancel();
         }
-        if state
-            .armed
-            .is_some_and(|action| !allowed || !gestures.current(action))
-        {
+        if state.armed.is_some_and(|action| {
+            !allowed
+                || !gestures.current(action)
+                || self.active.is_some_and(|terminal| terminal.is_composing())
+        }) {
             self.blocked.set(true);
             let mut ignored = Vec::new();
             let mut cancellation = Shell::new(&mut ignored);

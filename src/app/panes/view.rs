@@ -138,7 +138,7 @@ impl App {
             &self.pane_gestures,
             &self.window_focus,
             active,
-            self.resize_allowed(),
+            !self.interaction_blocked(),
         );
         let grid = scrollable(grid)
             .direction(scrollable::Direction::Both {

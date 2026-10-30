@@ -5,7 +5,10 @@ Branch `issue-27-pane-move-zoom` starts at actual merged main
 R28 and R29. Retained R29 branch `issue-29-live-tabs` at
 `d6efdb77566a6e82a95cded93c1345493fdf39d4`, checkpoints, reports and target
 caches remain intact. No reset, rebase, force push, Actions execution or merge
-was performed. The coordinator owns relevant integration and independent review.
+was performed. The coordinator owns relevant integration and independent review. Initial complete
+source was published as `bedd7f9713a13f74d8ef57beaa0299c9672edf55`; the corrected
+implementation identity and source/binary hashes are in
+[provenance](../baselines/issue-27/provenance.json).
 
 ## Behavior and source
 
@@ -79,7 +82,7 @@ Cargo uses stable Rust, locked/offline dependencies, one default wgpu renderer,
 `CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR="$PWD/target"`. Native PTY/graphics execution
 runs outside the Codex sandbox. No full-workspace/both-renderer checklist runs.
 
-Verified so far:
+Relevant local checks:
 
 | Command / scope | Result |
 | --- | --- |
@@ -87,12 +90,18 @@ Verified so far:
 | `cargo test --offline --locked -p pike --lib app::panes::tests -- --nocapture` on the initial 3-test module | 3 passed; [gesture-tests.log](../baselines/issue-27/gesture-tests.log). |
 | Exact `app::panes::tests::moved_starting_owner_attaches_hidden_without_reviving_old_focus_intent` | 1 passed; [late-attach-first.log](../baselines/issue-27/late-attach-first.log). Same App code, no selection/width-reflow dependency; native completion awaited for both children. |
 | Exact `app::panes::tests::failed_panes_keep_host_move_zoom_controls_and_stale_controls_are_harmless` | 1 passed on unpatched source; [failed-panes.log](../baselines/issue-27/failed-panes.log). |
-| `cargo clippy --offline --locked -p pike --lib --bin pike --tests --example pane_moving -- -D warnings` | Passed on unpatched source; [development-clippy.log](../baselines/issue-27/development-clippy.log). |
-| `cargo build --offline --locked -p pike --example pane_moving` and `target/debug/examples/pane_moving docs/baselines/issue-27/native-unpatched-complete` | Passed; [native evidence](../baselines/issue-27/native-unpatched-complete/), [build](../baselines/issue-27/unpatched-complete-build.log). |
+| `cargo clippy --offline --locked -p pike --lib --bin pike --tests --example pane_moving -- -D warnings` | Passed on corrected unpatched source; [final-clippy.log](../baselines/issue-27/final-clippy.log). |
+| `cargo build --offline --locked -p pike --example pane_moving` and `target/debug/examples/pane_moving docs/baselines/issue-27/native-final` | Passed; [native evidence](../baselines/issue-27/native-final/), [build](../baselines/issue-27/final-fixture-build.log). |
+
+| `cargo fmt -p pike -- --check`; `git diff --check -- src examples docs/verification` | Passed; `final-format.log`, `final-diff-check.log`. |
+| Same targeted Clippy command with `--target x86_64-pc-windows-msvc` | Passed; [final-windows-cross-clippy.log](../baselines/issue-27/final-windows-cross-clippy.log). Compilation only. |
+| `target/debug/examples/pane_moving docs/baselines/issue-27/native-ime-pointer-final --ime-pointer` | Passed; [final preedit pointer evidence](../baselines/issue-27/native-ime-pointer-final/). |
+| `cargo build --offline --locked -p pike --example command_routing`, then `target/debug/examples/command_routing docs/baselines/issue-27/native-header-once --header-once` and `... native-focus-race --focus-race` | Both passed on corrected source; `native-header-once/completed.txt`, `native-focus-race/completed.txt`. Build is included in `ime-pointer-fix-build.log`. |
+| `python3 docs/baselines/issue-25/main-integration/prepare-probe.py`; `cargo build --offline --locked --manifest-path target/issue-25-integration-probe/Cargo.toml --bin pointer-integration`; `target/debug/pointer-integration` and `... --mouse-report` | Both passed; `pointer-probe-final-build.log`, [normal](../baselines/issue-27/native-pointer-normal.log), [mouse](../baselines/issue-27/native-pointer-mouse.log). Both report `cleanup sessions=0`. |
 
 The complete unpatched fixture checks center/pane-edge/grid-edge moves, scoped
 SessionId/Reservation/widget identity and synthetic PID files; unchanged-column
-selection, real-width clearing and restored copy; header-only zero-byte input;
+selection, real-width clearing and restored copy; header-only zero-byte input (admission totals and child files);
 exact SGR content press/release; raw/App blur, owner/modal round trips, Escape,
 outside cancel, fresh press and pre-restart release rejection. It verifies
 restored/maximized cell counts against actual widget bounds and checks actual
@@ -108,19 +117,31 @@ sentinel, correct footer-adjusted cells and remembered focus; repeated redraws
 create no pending-output snapshots. Native shutdown receipts are retained for
 every attached child, including the exited source and its fresh restart.
 
-The remaining affected R25/R26 native neighbors, cross-Windows Clippy, final
-format/diff review and publication receipts will be added before completion.
-Previously passing unchanged vendor, geometry, lifecycle and R29 cache evidence
-is reused with its original limits; no vendor tests are required by final R27's
-zero vendor diff. The separate experiment's explicit vendor test results remain
-on its checkpoint and are not presented as necessary final R27 checks.
+The changed guard initially used resize admission for all pointer events, which
+also blocked ordinary terminal selection during live IME preedit. The new
+actual-App `--ime-pointer` mode reproduced this at
+[`native-ime-pointer-red`](../baselines/issue-27/native-ime-pointer-red/).
+The correction gates active drags for composition while preserving ordinary
+content pointer delivery and fresh header focus transfer. Final native evidence
+checks content selection during preedit, exclusive header focus transfer, old
+composition retirement, and zero admission for a stale native commit. Shared
+capture/keyboard mapper/focus Authority remain unchanged.
+
+R25's original five pointer/focus/blur regressions and same-borrowed-view IME
+resize admission pass in both normal/mouse modes; modal Cancel/Confirm preserves
+capped membership and exact native cleanup. R26's header-once and deferred focus
+race both pass. These are the neighbors invalidated by the header subtree;
+unchanged complete command, vendor, geometry, lifecycle and R29 cache suites are
+not rerun. Final R27 has zero vendor diff, so no patched-dependency test suite is
+required. The separate experiment's explicit vendor tests remain on its
+checkpoint and are not necessary final R27 checks.
 
 ## Limits
 
 This is native macOS execution with synthetic Iced events, the headless native
 renderer, actual App/runtime tasks/subscriptions and real controlled PTYs. It is
 not physical keyboard/monitor, a native Windows/ConPTY run or a release resource
-benchmark. Windows compilation will be reported separately from native execution.
+benchmark. Windows MSVC cross-Clippy passed; native Windows execution remains unperformed.
 No release RAM/CPU/latency claim is made. Existing inherited iced_winit deprecation
 warnings and the block future-compatibility notice remain in receipts.
 
