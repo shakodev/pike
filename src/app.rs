@@ -15,6 +15,8 @@ mod close;
 pub use close::CloseAction;
 pub mod commands;
 mod focus;
+mod panes;
+pub use panes::DragAction;
 mod resize;
 mod split;
 mod startup;
@@ -52,6 +54,8 @@ pub enum Control {
     Copy(SessionId),
     Split(PaneTarget, Direction),
     Focus(PaneTarget),
+    PaneDrag(DragAction),
+    Zoom(PaneTarget),
     Resize(TabId, iced::widget::pane_grid::ResizeEvent),
     ResizeStep(ResizeStep),
     ResizeKey(u64, ResizeStep),
@@ -79,6 +83,7 @@ pub struct App {
     resize_cache: BTreeMap<TabId, resize::Presentation>,
     close_policy: close::Policy,
     focus_authority: focus::Authority,
+    pane_gestures: panes::Gestures,
     command_state: commands::State,
     tab_dialog: tab_dialog::State,
 }
@@ -122,6 +127,7 @@ impl App {
     }
 
     fn synchronize(&mut self) {
+        self.synchronize_pane_gestures();
         self.synchronize_resize_tab();
         self.profiles
             .retain(|id, _| self.model.sessions().get(*id).is_some());
@@ -246,6 +252,8 @@ impl App {
                 }
                 return self.select(target);
             }
+            Message::Control(Control::PaneDrag(action)) => return self.pane_drag(action),
+            Message::Control(Control::Zoom(target)) => return self.zoom_pane(target),
             Message::Control(Control::Resize(tab, event)) => {
                 if self.resize_divider(tab, event) {
                     return self.focus_active();

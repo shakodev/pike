@@ -1,0 +1,3 @@
+session=1 Completion { reason: Requested, exit_code: None, output_drained: false }
+session=4 Completion { reason: Requested, exit_code: None, output_drained: false }
+session=5 Completion { reason: Requested, exit_code: None, output_drained: false }

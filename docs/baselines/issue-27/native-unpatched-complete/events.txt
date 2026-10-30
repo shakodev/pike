@@ -1,0 +1,20 @@
+center-drop source=1 before=Rectangle { x: 9.0, y: 109.799995, width: 588.0, height: 681.2 } after=Rectangle { x: 603.0, y: 109.799995, width: 588.0, height: 681.2 }
+geometry session=1 bounds=Rectangle { x: 9.0, y: 109.799995, width: 588.0, height: 681.2 } cols=69 rows=37
+geometry session=3 bounds=Rectangle { x: 900.0, y: 109.799995, width: 291.0, height: 681.2 } cols=34 rows=37
+geometry session=4 bounds=Rectangle { x: 603.0, y: 109.799995, width: 291.0, height: 681.2 } cols=34 rows=37
+geometry session=1 bounds=Rectangle { x: 9.0, y: 109.799995, width: 1182.0, height: 681.2 } cols=140 rows=37
+geometry session=1 bounds=Rectangle { x: 9.0, y: 109.799995, width: 588.0, height: 681.2 } cols=69 rows=37
+geometry session=3 bounds=Rectangle { x: 900.0, y: 109.799995, width: 291.0, height: 681.2 } cols=34 rows=37
+geometry session=4 bounds=Rectangle { x: 603.0, y: 109.799995, width: 291.0, height: 681.2 } cols=34 rows=37
+equal-column swap preserved exact selection; real column resize used pinned clearing; fresh restored selection/copy passed
+stable owners=[(SessionId(1), PaneTarget { tab: TabId(2), pane: Pane(0) }, Reservation { session: SessionId(1), request: RequestId(1) }, Id(Unique(0))), (SessionId(3), PaneTarget { tab: TabId(2), pane: Pane(2) }, Reservation { session: SessionId(3), request: RequestId(3) }, Id(Unique(1))), (SessionId(4), PaneTarget { tab: TabId(2), pane: Pane(4) }, Reservation { session: SessionId(4), request: RequestId(4) }, Id(Unique(2)))] child_files=["/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/docs/baselines/issue-27/native-unpatched-complete/96709.bin", "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/docs/baselines/issue-27/native-unpatched-complete/96711.bin", "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/docs/baselines/issue-27/native-unpatched-complete/96713.bin"]
+raw/App blur, owner/modal round trips, outside cancel and fresh restart passed
+native renderer clip session=1 green_pixels=191835 bounds=Rectangle { x: 900.0, y: 109.799995, width: 291.0, height: 681.2 }
+native renderer clip session=1 green_pixels=191835 bounds=Rectangle { x: 9.0, y: 109.799995, width: 588.0, height: 681.2 }
+raw/App blur, owner/modal round trips, outside cancel and fresh restart passed
+content mouse drag delivered exact SGR press/release; header drag admitted zero bytes in mouse mode
+geometry session=1 bounds=Rectangle { x: 900.0, y: 109.799995, width: 291.0, height: 681.2 } cols=34 rows=37
+geometry session=3 bounds=Rectangle { x: 9.0, y: 109.799995, width: 588.0, height: 633.2 } cols=69 rows=34
+geometry session=4 bounds=Rectangle { x: 603.0, y: 109.799995, width: 291.0, height: 681.2 } cols=34 rows=37
+counter 2->3; hidden snapshots=SnapshotStats { snapshots: 19, cells_copied: 39424, viewport_cells: 0, history_lines: 65, history_limit: HistoryLimit(2000), columns: 69, screen_lines: 37 }->SnapshotStats { snapshots: 19, cells_copied: 39424, viewport_cells: 0, history_lines: 2000, history_limit: HistoryLimit(2000), columns: 69, screen_lines: 37 }; query=[27, 91, 51, 55, 59, 49, 82]; completion=Completion { reason: ChildExit, exit_code: Some(37), output_drained: true }
+restart retired source=3 replacement=5 with unchanged layout

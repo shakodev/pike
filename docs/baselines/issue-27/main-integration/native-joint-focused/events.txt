@@ -1,0 +1,22 @@
+center-drop source=1 before=Rectangle { x: 9.0, y: 159.6, width: 588.0, height: 631.4 } after=Rectangle { x: 603.0, y: 159.6, width: 588.0, height: 631.4 }
+geometry session=1 bounds=Rectangle { x: 603.0, y: 159.6, width: 588.0, height: 631.4 } cols=69 rows=34
+geometry session=3 bounds=Rectangle { x: 9.0, y: 159.6, width: 588.0, height: 631.4 } cols=69 rows=34
+joint rename=true blur=false mouse=false: armed drag cancelled, stale tokens rejected, focus/content restored
+joint rename=true blur=true mouse=false: armed drag cancelled, stale tokens rejected, focus/content restored
+joint rename=false blur=false mouse=false: armed drag cancelled, stale tokens rejected, focus/content restored
+joint rename=false blur=true mouse=false: armed drag cancelled, stale tokens rejected, focus/content restored
+geometry session=1 bounds=Rectangle { x: 9.0, y: 159.6, width: 588.0, height: 631.4 } cols=69 rows=34
+geometry session=3 bounds=Rectangle { x: 603.0, y: 159.6, width: 588.0, height: 631.4 } cols=69 rows=34
+geometry session=1 bounds=Rectangle { x: 9.0, y: 159.6, width: 1182.0, height: 631.4 } cols=140 rows=34
+geometry session=1 bounds=Rectangle { x: 9.0, y: 159.6, width: 588.0, height: 631.4 } cols=69 rows=34
+geometry session=3 bounds=Rectangle { x: 603.0, y: 159.6, width: 588.0, height: 631.4 } cols=69 rows=34
+joint rename=true blur=false mouse=true: armed drag cancelled, stale tokens rejected, focus/content restored
+joint rename=true blur=true mouse=true: armed drag cancelled, stale tokens rejected, focus/content restored
+joint rename=false blur=false mouse=true: armed drag cancelled, stale tokens rejected, focus/content restored
+joint rename=false blur=true mouse=true: armed drag cancelled, stale tokens rejected, focus/content restored
+geometry session=1 bounds=Rectangle { x: 603.0, y: 159.6, width: 588.0, height: 631.4 } cols=69 rows=34
+geometry session=3 bounds=Rectangle { x: 9.0, y: 159.6, width: 588.0, height: 631.4 } cols=69 rows=34
+geometry session=1 bounds=Rectangle { x: 9.0, y: 159.6, width: 1182.0, height: 631.4 } cols=140 rows=34
+geometry session=1 bounds=Rectangle { x: 603.0, y: 159.6, width: 588.0, height: 631.4 } cols=69 rows=34
+geometry session=3 bounds=Rectangle { x: 9.0, y: 159.6, width: 588.0, height: 631.4 } cols=69 rows=34
+actual R30 tab metadata, exact R27 owners, fresh drop and zoom/restore geometry preserved
