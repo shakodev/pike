@@ -2,6 +2,9 @@
 
 Issue: https://github.com/shakodev/pike/issues/25.
 
+The [merged-main integration report](issue-25-main-integration.md) records the
+subsequent R28 close/modal/resize integration; all prior evidence below is preserved.
+
 Drag any pane-grid divider, or press **Alt+Shift+Arrow** to move the nearest
 ancestor divider on that axis by one focused terminal cell, rounded to Iced's
 logical-pixel split lattice. Left/up decrease the split coordinate; right/down
