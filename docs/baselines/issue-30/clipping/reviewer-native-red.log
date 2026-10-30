@@ -1,0 +1,7 @@
+Changed pixels in empty chrome beyond the single tab and close control: 4580
+
+thread 'main' (8094126) panicked at docs/baselines/issue-30-reviewer2/clipping_probe.rs:47:5:
+assertion `left == right` failed: long title paints outside its tab into empty adjacent chrome
+  left: 4580
+ right: 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

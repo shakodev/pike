@@ -10,7 +10,7 @@ use crate::layout::{
     PaneState, PaneTarget, ResizeGeometry, SplitGeometry, TabState, contains_split,
 };
 use crate::session::{Effect, Failure, Lifecycle, SessionRegistry, SpawnDisposition};
-use crate::tabs::ActivityEvent;
+use crate::tabs::{ActivityEvent, Placement, Selection, Title};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Error {
@@ -44,6 +44,22 @@ impl Workspace {
     }
     pub fn pane(&self, target: PaneTarget) -> Option<&PaneState> {
         self.tab(target.tab)?.grid.get(target.pane)
+    }
+
+    /// Resolve navigation against the current order. Cycling wraps; direct
+    /// selection outside the retained tab set is harmless and never wraps.
+    pub fn selection_target(&self, selection: Selection) -> Option<TabId> {
+        let index = match selection {
+            Selection::Index(index) => index,
+            Selection::Next | Selection::Previous => {
+                let current = self.order.iter().position(|id| Some(*id) == self.active)?;
+                match selection {
+                    Selection::Next => (current + 1) % self.order.len(),
+                    _ => (current + self.order.len() - 1) % self.order.len(),
+                }
+            }
+        };
+        self.order.get(index).copied()
     }
 
     fn activate(&mut self, id: TabId) {
@@ -226,6 +242,45 @@ impl Model {
     pub fn activate(&mut self, tab: TabId) -> Result<(), Error> {
         self.workspace.tab(tab).ok_or(Error::StaleTab)?;
         self.workspace.activate(tab);
+        Ok(())
+    }
+
+    /// A blank sanitized name resets the manual override. No session, focus,
+    /// activity or launch intent changes; stale tabs cannot rename a neighbor.
+    pub fn rename_tab(&mut self, id: TabId, name: &str) -> Result<(), Error> {
+        let tab = self.workspace.tabs.get_mut(&id).ok_or(Error::StaleTab)?;
+        tab.manual_name = Title::new(name);
+        Ok(())
+    }
+
+    pub fn reset_tab_name(&mut self, id: TabId) -> Result<(), Error> {
+        self.rename_tab(id, "")
+    }
+
+    /// Reposition by stable identities. Validate both before touching order;
+    /// pane trees, subscriptions, activity, focus and sessions stay untouched.
+    pub fn reorder_tab(
+        &mut self,
+        id: TabId,
+        anchor: TabId,
+        placement: Placement,
+    ) -> Result<(), Error> {
+        self.workspace.tab(id).ok_or(Error::StaleTab)?;
+        self.workspace.tab(anchor).ok_or(Error::StaleTab)?;
+        if id == anchor {
+            return Ok(());
+        }
+        let order = &mut self.workspace.order;
+        let source = order
+            .iter()
+            .position(|tab| *tab == id)
+            .expect("ordered tab");
+        order.remove(source);
+        let destination = order
+            .iter()
+            .position(|tab| *tab == anchor)
+            .expect("ordered anchor");
+        order.insert(destination + usize::from(placement == Placement::After), id);
         Ok(())
     }
 
@@ -443,3 +498,6 @@ impl Model {
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod tab_tests;

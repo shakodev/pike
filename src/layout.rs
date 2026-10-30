@@ -3,7 +3,7 @@ use iced::widget::pane_grid::{self, Axis, Node, Pane, Split};
 use iced::{Rectangle, Size};
 
 use crate::identity::{SessionId, TabId};
-use crate::tabs::Activity;
+use crate::tabs::{Activity, Title};
 
 mod resize;
 pub use resize::ResizeGeometry;
@@ -61,6 +61,7 @@ pub struct TabState {
     pub(crate) grid: pane_grid::State<PaneState>,
     pub(crate) focused: Pane,
     pub(crate) activity: Activity,
+    pub(crate) manual_name: Option<Title>,
 }
 
 impl TabState {
@@ -70,6 +71,7 @@ impl TabState {
             grid,
             focused,
             activity: Activity::default(),
+            manual_name: None,
         }
     }
 
@@ -83,6 +85,10 @@ impl TabState {
 
     pub fn activity(&self) -> Activity {
         self.activity
+    }
+
+    pub fn manual_name(&self) -> Option<&Title> {
+        self.manual_name.as_ref()
     }
 
     pub(crate) fn split(&mut self, pane: Pane, axis: Axis, state: PaneState) -> Option<Pane> {

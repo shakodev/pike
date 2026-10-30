@@ -8,7 +8,7 @@ use iced_term::{BackendCommand, BackendCompletion, Event, ShutdownHandle, Termin
 use crate::identity::{Reservation, SessionId};
 use crate::launch::{CancelLaunch, LaunchError};
 use crate::session::Lifecycle;
-use crate::tabs::ActivityEvent;
+use crate::tabs::{ActivityEvent, Title};
 use crate::workspace::Model;
 
 pub(crate) enum Owner {
@@ -24,6 +24,7 @@ pub(crate) struct Entry {
     pub ended: bool,
     pub completion: Option<BackendCompletion>,
     pub notice: Option<String>,
+    pub title: Option<Title>,
 }
 
 impl Entry {
@@ -34,6 +35,7 @@ impl Entry {
             ended: false,
             completion: None,
             notice: None,
+            title: None,
         }
     }
 
@@ -250,6 +252,8 @@ impl Sessions {
         // Protocol replies and lifecycle receipts remain origin-bound and do
         // not require visibility or keyboard focus.
         match terminal.handle(iced_term::Command::ProxyToBackend(command)) {
+            Action::ChangeTitle(title) => entry.title = Title::new(&title),
+            Action::ResetTitle => entry.title = None,
             Action::ChildExit(_) | Action::Shutdown { .. } => entry.ended = true,
             Action::BackendCompleted(completion) => {
                 entry.ended = true;

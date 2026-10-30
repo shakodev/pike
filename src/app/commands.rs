@@ -67,6 +67,8 @@ pub enum Command {
     ToggleZoom,
     Font(FontChange),
     Help,
+    RenameTab,
+    ListTabs,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -102,6 +104,8 @@ pub fn resolve(event: &keyboard::Event) -> Option<Resolution> {
                     b'q' => Command::CloseTab,
                     b'o' => Command::Split(Direction::Right),
                     b'e' => Command::Split(Direction::Down),
+                    b'r' => Command::RenameTab,
+                    b'l' => Command::ListTabs,
                     b'1'..=b'8' => Command::SelectTab(TabSelection::Index(character - b'1')),
                     b'9' => Command::SelectTab(TabSelection::Last),
                     b'+' | b'=' => Command::Font(FontChange::Larger),
@@ -146,6 +150,8 @@ impl Command {
                 | Self::Split(_)
                 | Self::ToggleZoom
                 | Self::Help
+                | Self::RenameTab
+                | Self::ListTabs
         )
     }
 }
@@ -174,6 +180,8 @@ mod tests {
             (Key::Character("t".into()), Command::NewTab),
             (Key::Character("W".into()), Command::ClosePane),
             (Key::Character("q".into()), Command::CloseTab),
+            (Key::Character("r".into()), Command::RenameTab),
+            (Key::Character("l".into()), Command::ListTabs),
             (Key::Character("o".into()), Command::Split(Direction::Right)),
             (Key::Character("E".into()), Command::Split(Direction::Down)),
             (Key::Named(Named::Enter), Command::ToggleZoom),
@@ -236,6 +244,7 @@ mod tests {
             ),
             (Key::Character("é".into()), Modifiers::empty()),
             (Key::Unidentified, Modifiers::empty()),
+            (Key::Named(Named::F2), Modifiers::empty()),
             (Key::Named(Named::Space), Modifiers::CTRL | Modifiers::ALT),
             (
                 Key::Character("c".into()),

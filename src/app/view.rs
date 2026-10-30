@@ -36,6 +36,9 @@ impl App {
         if let Some(help) = self.help_view() {
             return help;
         }
+        if let Some(dialog) = self.tab_dialog_view() {
+            return dialog;
+        }
         let mut controls = row![text("Pike").size(22)].spacing(12);
         if !self.exiting {
             if let Some(target) = self.active_target() {
