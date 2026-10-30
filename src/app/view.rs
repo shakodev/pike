@@ -3,7 +3,7 @@ use iced::{Border, Element, Fill};
 use iced_term::TerminalView;
 
 use super::{
-    App, Control, Direction, Message,
+    App, Control, Direction, Message, close,
     split::{BORDER, FOOTER, GUTTER, HEADER},
 };
 use crate::identity::SessionId;
@@ -30,6 +30,7 @@ impl App {
     }
 
     pub fn view(&self) -> Element<'_, Message> {
+        if let Some(modal) = self.close_view() { return modal; }
         let mut controls = row![text("Pike").size(22)].spacing(12);
         if !self.exiting {
             if let Some(target) = self.active_target() {
@@ -38,8 +39,9 @@ impl App {
                     .push(button("Split down").on_press(Control::Split(target, Direction::Down)));
                 if let Some(id) = self.active_session() {
                     controls =
-                        controls.push(button("Close terminal").on_press(Control::CloseSession(id)));
+                        controls.push(close::close_button(id));
                 }
+                controls = controls.push(close::close_tab_button(target.tab));
                 if let Some(id) = self.active_session()
                     && self.terminal(id).is_some()
                 {

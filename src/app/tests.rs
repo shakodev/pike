@@ -1,6 +1,6 @@
 use super::*;
 use crate::executor::SharedExecutor;
-use crate::session::Failure;
+use crate::session::{Effect, Failure};
 use iced::Executor;
 use iced::advanced::subscription::into_recipes;
 use iced::futures::{StreamExt, stream};
@@ -13,6 +13,7 @@ mod cancellation;
 mod ime;
 mod interaction;
 mod paste;
+mod closing;
 mod split;
 
 fn profile(script: &str) -> BackendSettings {
@@ -54,11 +55,18 @@ fn launch(app: &mut App, executor: &SharedExecutor) -> (Reservation, Box<Prepare
 
 fn shutdown(app: &mut App, executor: &SharedExecutor) {
     drop(app.update(Message::CloseWindow));
+    confirm_close(app);
     executor.block_on(async {
         tokio::time::timeout(DEADLINE, app.launches.shutdown())
             .await
             .unwrap();
     });
+}
+
+fn confirm_close(app: &mut App) {
+    if let Some((token, _)) = app.close_confirmation() {
+        drop(app.update(Message::Control(Control::CloseAction(CloseAction::Confirm(token)))));
+    }
 }
 
 #[test]
@@ -216,7 +224,7 @@ fn canceled_prepared_success_is_disposed_without_attaching_or_replacing_retry() 
     ));
     assert!(app.terminal(old.session).is_none());
     assert_eq!(app.active_session(), Some(current.session));
-    drop(app.update(Message::Control(Control::Close(stale_target))));
+    drop(app.update(Message::Control(Control::CloseSession(old.session))));
     drop(app.launched(old, Err(LaunchError::WorkerFailed)));
     assert!(app.terminal(current.session).is_some());
     executor.block_on(async {
@@ -459,6 +467,7 @@ fn aggregate_shutdown_acknowledges_disposal_even_when_bridge_receipts_are_queued
     let handle = app.terminal(ids.session).unwrap().shutdown_handle();
     assert_eq!(app.update(Message::ShutdownComplete).units(), 0);
     drop(app.update(Message::CloseWindow));
+    confirm_close(&mut app);
     executor.block_on(async {
         tokio::time::timeout(DEADLINE, app.launches.shutdown())
             .await

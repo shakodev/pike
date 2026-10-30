@@ -1,0 +1,15 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.55s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-4528372b9e7b7ed8)
+
+running 4 tests
+test app::tests::closing::actual_modal_buttons_cancel_restore_focus_and_confirm_only_the_owned_session ... ignored, requires a local graphics device; run explicitly for close controls
+test app::tests::closing::close_during_output_is_nonblocking_idempotent_and_waits_for_native_receipt ... pike28 native output close dispatch_us=217 cleanup_ms=603
+ok
+test app::tests::closing::stalled_reader_window_timeout_wait_remains_responsive_until_actual_cleanup ... pike28 native stalled close_us=115 deadline_ms=3006 wait_us=9 total_ms=3008
+ok
+test app::tests::closing::success_error_exit_keeps_final_sentinel_and_bounded_read_only_model ... ok
+
+test result: ok. 3 passed; 0 failed; 1 ignored; 0 measured; 67 filtered out; finished in 4.06s
+

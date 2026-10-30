@@ -6,7 +6,7 @@ mod fixture_input;
 use iced::advanced::widget::{operate, operation::focusable};
 use iced::widget::text;
 use iced::{Element, Task};
-use pike::app::{App, Control, Message};
+use pike::app::{App, CloseAction, Control, Message};
 use pike::identity::SessionId;
 use pike::session::Lifecycle;
 use std::{
@@ -169,7 +169,18 @@ impl Probe {
 
     fn close(&mut self) -> Task<ProbeMessage> {
         self.closing = true;
-        self.app.update(Message::CloseWindow).map(ProbeMessage::App)
+        let request = self.app.update(Message::CloseWindow);
+        // Synthetic fixture: explicitly exercise the same token-bound confirm
+        // control a user selects in the application dialog.
+        let confirm = self
+            .app
+            .close_confirmation()
+            .map_or_else(Task::none, |(token, _)| {
+                self.app.update(Message::Control(Control::CloseAction(
+                    CloseAction::Confirm(token),
+                )))
+            });
+        Task::batch([request, confirm]).map(ProbeMessage::App)
     }
 
     fn update(&mut self, message: ProbeMessage) -> Task<ProbeMessage> {

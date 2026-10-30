@@ -390,6 +390,12 @@ impl LaunchPool {
         })
     }
 
+    /// A receipt can authorize normal window exit only after every worker has
+    /// returned its permit following native disposal, including late prepare.
+    pub(crate) fn shutdown_complete(&self) -> bool {
+        self.closed && self.sessions.available_permits() == self.session_limit as usize
+    }
+
     /// Stop admission immediately; await all starting/live/disposal ownership
     /// without polling. Keep the shared runtime alive until this future resolves.
     pub fn shutdown(&mut self) -> impl Future<Output = ()> + Send + 'static {

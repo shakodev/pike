@@ -28,4 +28,4 @@ iced_winit = { path = "vendor/iced_winit" }
 
 [target.'cfg(windows)'.dev-dependencies]
 # Windows-only controlled console/clipboard fixtures; no production clipboard backend.
-windows-sys = { version = "=0.59.0", features = ["Win32_Foundation", "Win32_System_Console", "Win32_System_DataExchange", "Win32_System_Memory", "Win32_UI_WindowsAndMessaging"] }
+windows-sys = { version = "=0.59.0", features = ["Win32_Foundation", "Win32_System_Console", "Win32_System_DataExchange", "Win32_System_Memory", "Win32_System_Threading", "Win32_UI_WindowsAndMessaging"] }
