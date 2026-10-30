@@ -34,36 +34,60 @@ impl App {
         let presentation = self.resize_layout.as_ref().filter(|p| p.tab == tab_id);
         let source = presentation.map(|p| &p.grid).unwrap_or_else(|| tab.grid());
         let divider = super::super::resize::Divider::default();
+        let boundary = super::gesture::Boundary::default();
         let grid = PaneGrid::new(source, |handle, pane, _| {
             let focused = handle == tab.focused();
-            let header: Element<'_, Control> = container(
+            let target = PaneTarget {
+                tab: tab_id,
+                pane: handle,
+            };
+            let controls: Element<'_, Control> = container(
                 row![
-                    container(text(format!("Terminal {}", pane.session.get())).size(12))
-                        .padding([5, 10])
-                        .width(Fill),
+                    button(
+                        text(if source.maximized().is_some() {
+                            "Restore"
+                        } else {
+                            "Max"
+                        })
+                        .size(12)
+                    )
+                    .padding([2, 6])
+                    .on_press(Control::Zoom(target)),
                     close::close_button(pane.session)
                 ]
                 .spacing(4),
             )
             .height(HEADER)
+            .align_y(iced::Alignment::Center)
             .into();
-            let content = column![header.map(Message::Control), self.pane(pane.session)];
+            let title = pane_grid::TitleBar::new(super::gesture::title(
+                container(text(format!("Terminal {}", pane.session.get())).size(12))
+                    .padding([5, 10]),
+            ))
+            .controls(controls.map(Message::Control))
+            .always_show_controls();
             pane_grid::Content::new(
-                divider.content(container(content).padding(BORDER).clip(true).style(
-                    move |theme: &iced::Theme| container::Style {
-                        border: Border {
-                            width: BORDER,
-                            color: if focused {
-                                theme.palette().primary
-                            } else {
-                                theme.extended_palette().background.strong.color
-                            },
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    },
-                )),
+                divider.content(
+                    boundary.body(
+                        container(self.pane(pane.session))
+                            .padding(BORDER)
+                            .clip(true),
+                    ),
+                ),
             )
+            .title_bar(title)
+            .style(move |theme: &iced::Theme| container::Style {
+                border: Border {
+                    width: BORDER,
+                    color: if focused {
+                        theme.palette().primary
+                    } else {
+                        theme.extended_palette().background.strong.color
+                    },
+                    ..Default::default()
+                },
+                ..Default::default()
+            })
         })
         .spacing(GUTTER)
         .min_size(0)
@@ -71,6 +95,23 @@ impl App {
             Message::Control(Control::Resize(tab_id, event))
         })
         .on_click(move |pane| Message::Control(Control::Focus(PaneTarget { tab: tab_id, pane })))
+        .on_drag(move |event| {
+            let pane = match event {
+                pane_grid::DragEvent::Picked { pane }
+                | pane_grid::DragEvent::Dropped { pane, .. }
+                | pane_grid::DragEvent::Canceled { pane } => pane,
+            };
+            let target = PaneTarget { tab: tab_id, pane };
+            let owner = self
+                .model
+                .sessions()
+                .get(source.get(pane).expect("view pane").session)
+                .expect("view owner")
+                .reservation();
+            Message::Control(Control::PaneDrag(
+                self.pane_gestures.action(target, owner, event),
+            ))
+        })
         .width(
             presentation
                 .map(|p| iced::Length::Fixed(p.size.width))
@@ -92,6 +133,13 @@ impl App {
         } else {
             grid.into()
         };
+        let grid = boundary.grid(
+            grid,
+            &self.pane_gestures,
+            &self.window_focus,
+            active,
+            self.resize_allowed(),
+        );
         let grid = scrollable(grid)
             .direction(scrollable::Direction::Both {
                 vertical: scrollable::Scrollbar::new(),

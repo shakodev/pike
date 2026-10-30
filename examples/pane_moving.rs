@@ -6,6 +6,8 @@ mod fixture_input;
 #[allow(dead_code)]
 #[path = "command_routing/host.rs"]
 mod host;
+#[path = "pane_moving/scenarios.rs"]
+mod scenarios;
 
 use host::Host;
 use iced::advanced::renderer::Headless;
@@ -79,6 +81,62 @@ fn child(output: &Path) -> io::Result<()> {
             Ok(_) => {
                 file.write_all(&byte)?;
                 file.flush()?;
+                match byte[0] {
+                    b't' => {
+                        let output = output.to_owned();
+                        std::thread::spawn(move || {
+                            for tick in 1..=100 {
+                                println!("PIKE27_TICK={tick}\r");
+                                let _ = io::stdout().flush();
+                                let _ = fs::write(
+                                    output.join(format!("{pid}.ticks")),
+                                    tick.to_string(),
+                                );
+                                std::thread::sleep(std::time::Duration::from_millis(25));
+                            }
+                        });
+                    }
+                    b'm' => {
+                        print!("\x1b[?1000h\x1b[?1006h");
+                        io::stdout().flush()?;
+                    }
+                    b'g' => {
+                        print!("\x1b[48;2;0;255;0m\x1b[2J\x1b[HPIKE27_GREEN\x1b[0m");
+                        io::stdout().flush()?;
+                    }
+                    b'n' => {
+                        print!("\x1b[?1000l\x1b[?1006l");
+                        io::stdout().flush()?;
+                    }
+                    b'f' => {
+                        let deadline =
+                            std::time::Instant::now() + std::time::Duration::from_secs(10);
+                        while !output.join(format!("{pid}.go")).exists() {
+                            if std::time::Instant::now() >= deadline {
+                                return Err(io::Error::other("flood gate timeout"));
+                            }
+                            std::thread::sleep(std::time::Duration::from_millis(5));
+                        }
+                        for line in 0..3000 {
+                            println!("PIKE27_FLOOD_{line}\r");
+                        }
+                        print!("\x1b[6n");
+                        io::stdout().flush()?;
+                        let mut reply = Vec::new();
+                        while reply.len() < 64 {
+                            io::stdin().read_exact(&mut byte)?;
+                            reply.push(byte[0]);
+                            if byte[0] == b'R' {
+                                break;
+                            }
+                        }
+                        fs::write(output.join(format!("{pid}.query")), &reply)?;
+                        println!("PIKE27_FINAL_SENTINEL={pid}\r");
+                        io::stdout().flush()?;
+                        std::process::exit(37);
+                    }
+                    _ => {}
+                }
             }
             Err(e) if e.kind() == io::ErrorKind::Interrupted => {}
             Err(e) => return Err(e),
@@ -107,7 +165,7 @@ fn drag(host: &mut Host, from: Point, to: Point) -> io::Result<()> {
     host.drain()
 }
 
-fn verify(host: &mut Host, _output: &Path) -> io::Result<()> {
+fn verify(host: &mut Host, output: &Path) -> io::Result<()> {
     host.update(Message::WindowFocused(true));
     host.until(|h| {
         h.app
@@ -145,5 +203,6 @@ fn verify(host: &mut Host, _output: &Path) -> io::Result<()> {
     check(
         host.app.active_session() == Some(first) && host.focused(first),
         "drop lost source focus",
-    )
+    )?;
+    scenarios::verify(host, output, first, second)
 }
