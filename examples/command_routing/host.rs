@@ -2,7 +2,7 @@
 use iced::advanced::clipboard::{Clipboard, Kind};
 use iced::advanced::widget::operation::{self, Operation, Outcome};
 use iced::futures::{FutureExt, StreamExt, channel::mpsc, future};
-use iced::{Executor, Point, Rectangle, Size, Task, event, mouse};
+use iced::{Executor, Point, Rectangle, Task, event, mouse};
 use iced_runtime::futures::subscription::{self, Tracker};
 use iced_runtime::user_interface::{Cache, UserInterface};
 use iced_runtime::{Action, task};
@@ -11,6 +11,8 @@ use pike::executor::SharedExecutor;
 use pike::identity::SessionId;
 use std::io;
 use std::time::{Duration, Instant};
+
+use crate::host_viewport;
 
 #[derive(Default)]
 pub struct FixtureClipboard(pub Option<String>);
@@ -120,7 +122,7 @@ impl Host {
     pub fn event(&mut self, event: iced::Event, cursor: mouse::Cursor) -> event::Status {
         let mut ui = UserInterface::build(
             self.app.view(),
-            Size::new(1200.0, 800.0),
+            host_viewport::SIZE,
             std::mem::replace(&mut self.cache, Cache::new()),
             &mut self.renderer,
         );
@@ -157,7 +159,7 @@ impl Host {
     pub fn operate(&mut self, operation: &mut dyn Operation) {
         let mut ui = UserInterface::build(
             self.app.view(),
-            Size::new(1200.0, 800.0),
+            host_viewport::SIZE,
             std::mem::replace(&mut self.cache, Cache::new()),
             &mut self.renderer,
         );

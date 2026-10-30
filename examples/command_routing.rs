@@ -5,6 +5,8 @@
 mod fixture_input;
 #[path = "command_routing/host.rs"]
 mod host;
+#[path = "support/host_viewport.rs"]
+mod host_viewport;
 #[path = "command_routing/scenarios.rs"]
 mod scenarios;
 

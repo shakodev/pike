@@ -56,6 +56,7 @@ harness.write_text("\n".join(
     '#[allow(dead_code)]\n#[path = ' + json.dumps(str(root / "examples/support" / filename))
     + ']\nmod ' + module + ';'
     for module, filename in [
+        ("host_viewport", "host_viewport.rs"),
         ("child", "tab_management_child.rs"),
         ("widget", "tab_management_widget.rs"),
         ("snapshot", "tab_management_snapshot.rs"),

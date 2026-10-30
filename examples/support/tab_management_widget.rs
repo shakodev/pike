@@ -2,11 +2,10 @@
 use iced::advanced::widget::{Id, Operation, Tree, operation};
 use iced::advanced::{Layout, Shell, clipboard, layout, mouse};
 use iced::keyboard::{self, Key, Modifiers};
-use iced::{Event, Point, Rectangle, Size, Vector};
+use iced::{Event, Point, Rectangle, Vector};
 use pike::app::{App, Message};
 
-// Match the reused command_routing::Host's actual UserInterface viewport.
-pub const SIZE: Size = Size::new(1200.0, 800.0);
+pub use crate::host_viewport::SIZE;
 
 /// The messages are emitted by real hit-testing, never manufactured from the
 /// predicate. Only points inside the native fixture viewport are attempted.

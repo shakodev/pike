@@ -4,6 +4,8 @@ mod child;
 #[allow(dead_code)]
 #[path = "command_routing/host.rs"]
 mod host;
+#[path = "support/host_viewport.rs"]
+mod host_viewport;
 #[path = "tab_management/scenarios.rs"]
 mod scenarios;
 #[path = "support/tab_management_snapshot.rs"]
