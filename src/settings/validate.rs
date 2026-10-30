@@ -68,6 +68,7 @@ pub(super) fn document(doc: &Document) -> Result<(), Error> {
         if profile.env.len() > 64
             || profile.env.iter().any(|(key, value)| {
                 key.is_empty()
+                    || !key.is_ascii()
                     || key.len() > 256
                     || key.contains(['=', '\0'])
                     || key.chars().any(char::is_control)

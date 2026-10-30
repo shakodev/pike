@@ -178,3 +178,19 @@ fn shortcuts_have_a_typed_bounded_schema_with_canonical_duplicate_and_reserved_c
     assert!(Settings::parse(&source.replace("reload-settings", "arbitrary-script")).is_err());
     assert!(Settings::parse(&source.replace("'F5'", "'unknown'")).is_err());
 }
+
+#[test]
+fn function_key_numeric_aliases_cannot_bypass_canonical_chord_uniqueness() {
+    for alias in ["f05", "f+5", "f0005", "F05"] {
+        let source = format!(
+            "version = 1\n[[shortcuts]]\ncommand = 'reload-settings'\nkey = 'f5'\nmodifiers = ['ctrl', 'shift']\n[[shortcuts]]\ncommand = 'new-tab'\nkey = '{alias}'\nmodifiers = ['shift', 'ctrl']"
+        );
+        assert_eq!(
+            Settings::parse(&source),
+            Err(Error::Invalid(Field::Shortcuts)),
+            "alias {alias} bypassed duplicate detection"
+        );
+    }
+    let one = Settings::parse("version = 1\n[[shortcuts]]\ncommand = 'reload-settings'\nkey = 'f0005'\nmodifiers = ['ctrl', 'shift']").unwrap();
+    assert!(one.to_toml().unwrap().contains("key = \"f5\""));
+}

@@ -85,7 +85,7 @@ impl fmt::Display for Error {
                 Field::Shell => "profiles.shell must be an unquoted executable name or absolute path, at most 4096 bytes, without controls; use no shell field for the platform default.",
                 Field::Args => "profiles.args accepts at most 64 literal arguments, at most 4096 bytes each / 16384 bytes total, without NUL; explicit shell is required for arguments.",
                 Field::Cwd => "profiles.cwd must name an existing absolute directory, at most 4096 bytes, without controls.",
-                Field::Environment => "profiles.env accepts at most 64 overrides (16384 bytes total); names must be nonempty without '=' or NUL, and values must not contain NUL; names are case-insensitively unique.",
+                Field::Environment => "profiles.env accepts at most 64 overrides (16384 bytes total); names must be nonempty ASCII without controls, '=' or NUL, and values must not contain NUL; names are case-insensitively unique.",
                 Field::Font => "font.family is unsupported; choose a documented monospace family.",
                 Field::FontSize => "font.size must be finite and between 10 and 28 DIP.",
                 Field::History => "history must be between 0 and 10000 lines.",

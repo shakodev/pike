@@ -116,13 +116,18 @@ fn save(
     fs::create_dir_all(parent).map_err(|e| Error::io(Operation::CreateDirectory, e))?;
     let (temporary, mut file) = temporary(parent)?;
     let cleanup = Temporary(temporary);
-    file.write_all(text.as_bytes())
-        .map_err(|e| Error::io(Operation::Write, e))?;
-    checkpoint(Stage::Written, &cleanup.0).map_err(|e| Error::io(Operation::Write, e))?;
-    file.sync_all()
-        .map_err(|e| Error::io(Operation::Flush, e))?;
-    checkpoint(Stage::Flushed, &cleanup.0).map_err(|e| Error::io(Operation::Flush, e))?;
-    drop(file); // Windows replacement cannot assume an open handle permits delete.
+    let write_result = (|| {
+        file.write_all(text.as_bytes())
+            .map_err(|e| Error::io(Operation::Write, e))?;
+        checkpoint(Stage::Written, &cleanup.0).map_err(|e| Error::io(Operation::Write, e))?;
+        file.sync_all()
+            .map_err(|e| Error::io(Operation::Flush, e))?;
+        checkpoint(Stage::Flushed, &cleanup.0).map_err(|e| Error::io(Operation::Flush, e))
+    })();
+    // Close on failure too, before Temporary tries to delete its own file.
+    // Windows replacement/cleanup cannot assume an open handle permits delete.
+    drop(file);
+    write_result?;
     // Check again immediately before commit, so a newly broken file survives.
     if let Some(source) = read(path)?
         && Settings::parse(&source).is_err()

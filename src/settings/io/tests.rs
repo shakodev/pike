@@ -1,6 +1,31 @@
 use super::*;
 use std::sync::atomic::{AtomicU64, Ordering};
 
+#[test]
+fn non_ascii_override_names_are_rejected_before_commit_while_unicode_values_remain_literal() {
+    let directory = Directory::new();
+    let mut store = Store::new(directory.file());
+    fs::write(
+        directory.file(),
+        "version = 1\nhistory = 41\n[profiles.default.env]\nPIKE31 = '日本語 🦀'",
+    )
+    .unwrap();
+    store.reload().unwrap();
+    let valid = store.active().clone();
+    assert_eq!(
+        valid.launch(valid.default_profile()).unwrap().env["PIKE31"],
+        "日本語 🦀"
+    );
+    let invalid = "version = 1\n[profiles.default.env]\n'É' = 'one'\n'é' = 'two'";
+    fs::write(directory.file(), invalid).unwrap();
+    assert_eq!(
+        store.reload(),
+        Err(Error::Invalid(super::super::Field::Environment))
+    );
+    assert_eq!(store.active(), &valid);
+    assert_eq!(fs::read_to_string(directory.file()).unwrap(), invalid);
+}
+
 struct Directory(PathBuf);
 impl Directory {
     fn new() -> Self {

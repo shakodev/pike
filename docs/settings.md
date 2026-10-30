@@ -49,7 +49,7 @@ creation; this is independent of later `cd` commands inside the shell.
 | `profiles.<id>.shell` | Optional unquoted executable name or existing absolute file path; 1–4096 UTF-8 bytes, no controls or double quotes. Bare names use the existing platform PATH resolution at launch; final OS executable/access errors appear in the affected pane. |
 | `profiles.<id>.args` | Literal argument array; explicit shell required, at most 64 entries, 4096 bytes each / 16384 bytes total, no NUL. Empty individual arguments and Unicode are preserved. Windows uses existing CRT escaping; version 1 does not expose raw command-line mode. |
 | `profiles.<id>.cwd` | Optional existing absolute directory, up to 4096 bytes, no controls. No variable/tilde expansion. |
-| `profiles.<id>.env` | Inherited environment plus at most 64 explicit overrides, 16384 bytes total including names/terminators. Names: 1–256 bytes, no controls, `=` or NUL; values up to 4096 bytes, no NUL. Case-insensitive duplicate ASCII names are refused. The launch adapter retains its final platform validation and inheritance behavior. No process-global mutation occurs. |
+| `profiles.<id>.env` | Inherited environment plus at most 64 explicit overrides, 16384 bytes total including names/terminators. Names: 1–256 **ASCII** bytes, no controls, `=` or NUL; values up to 4096 bytes, Unicode supported, no NUL. Case-insensitive duplicate names are refused. The narrower override-name schema makes Windows ordinal case validation predictable without another launcher; inherited Unicode/non-Unicode environment data still uses the existing backend unchanged. No process-global mutation occurs. |
 | `font.family` | `monospace`, `consolas`, `cascadia-mono`, `menlo`, `deja-vu-sans-mono`; default `monospace` prefers Consolas on Windows, generic monospace elsewhere. Named-family fallback remains Iced's system-font behavior; no fonts are bundled. The bounded static family set avoids accumulating interned names during reload. |
 | `font.size` | Finite number, 10–28 DIP; default 14. Relative line height remains the adapter's 1.3; monitor DPI is managed by Iced. |
 | `theme` | `dark` (default), `light`, `system`. System changes use the existing Iced OS theme event; no polling. Both terminal palette and application chrome follow the selection. |
@@ -120,7 +120,8 @@ At most 64 entries; commands and canonical chords must be unique. Modifier
 names are `ctrl`, `shift`, `alt`, with no duplicates. Key names are ASCII letters,
 digits, `+`/`=` (one canonical key), `-`, `F1`–`F12`, `tab`, `enter`, `left`,
 `right`, `up`, `down`, case-insensitive. Unsupported names and unknown schema
-fields are rejected. The schema reserves application-safe chord families:
+fields are rejected. Numeric function-key aliases (such as `f05` or `f+5`)
+normalize to `f5` before duplicate checks and serialization. The schema reserves application-safe chord families:
 Ctrl+Shift keys except terminal copy/paste C/V; Alt or Alt+Shift arrows; Ctrl+Tab;
 bare F1. Ctrl+C, AltGr text and unmodified typing cannot be remapped through it.
 This schema is data for the common resolver's future R32 configuration, with no

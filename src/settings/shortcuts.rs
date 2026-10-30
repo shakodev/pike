@@ -63,15 +63,21 @@ impl TryFrom<String> for Key {
         let function = key
             .strip_prefix('f')
             .and_then(|n| n.parse::<u8>().ok())
-            .is_some_and(|n| (1..=12).contains(&n));
+            .filter(|n| (1..=12).contains(n));
         if single
-            || function
+            || function.is_some()
             || matches!(
                 key.as_str(),
                 "tab" | "enter" | "left" | "right" | "up" | "down"
             )
         {
-            Ok(Self(if key == "=" { "+".into() } else { key }))
+            Ok(Self(if let Some(number) = function {
+                format!("f{number}")
+            } else if key == "=" {
+                "+".into()
+            } else {
+                key
+            }))
         } else {
             Err("unsupported shortcut key")
         }
