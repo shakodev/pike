@@ -1,0 +1,50 @@
+{
+  "old_published_head": "bccf900b4f75fcf313b40fc68bc32b1cb779f61e",
+  "actual_main": "5d34cb74b99f5e7e6865789f645e5fe519ba2d94",
+  "verified_corrected_source": "924fc02edad382fa108c24c180b280ade53e4336",
+  "source_changes": [
+    "vendor/alacritty_terminal/PATCHES.md",
+    "vendor/alacritty_terminal/src/tty/unix.rs",
+    "vendor/alacritty_terminal/src/tty/unix/tests.rs"
+  ],
+  "source_blobs": {
+    "vendor/alacritty_terminal/src/tty/unix.rs": "fe1331b1751488d92d419f82ce76d6e6b3aa2c71",
+    "vendor/alacritty_terminal/src/tty/unix/tests.rs": "8244f314eeb8d53f496ebe9c29fe8ca13a4f09b9",
+    "vendor/alacritty_terminal/PATCHES.md": "3741aab38d1466d4fc99c74ee6f1662d9b9fb74f"
+  },
+  "app_test_blob_old": "b16c6f4d64a3411b29b6aef76ece4b5447abcb5f",
+  "app_test_blob_corrected": "b16c6f4d64a3411b29b6aef76ece4b5447abcb5f",
+  "native_host": "aarch64-apple-darwin",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "build_jobs": 4,
+  "codex_home": "/Users/daan.hoedjes/.codex-personal",
+  "native_tests_outside_sandbox": true,
+  "remote_ci_executed": false,
+  "native_windows_executed": false,
+  "linux_executed": false,
+  "physical_checks_executed": false,
+  "release_resource_budgets_measured": false,
+  "reviewer_receipts": [
+    {
+      "original": "/private/tmp/pike-reviewer2-issue28-critical.log",
+      "retained": "reviewer-critical.log",
+      "sha256": "1e2f5c665f20543444e92fd0d54a24cc452254b2c54b4b75eb69b215dbb41bb7"
+    },
+    {
+      "original": "/private/tmp/pike-reviewer2-issue28-output-close-isolated.log",
+      "retained": "reviewer-output-close-isolated.log",
+      "sha256": "bf4d2f2638439171ab49eeac63e8be04fbc63492a9dd4d04357db2eae18d8700"
+    },
+    {
+      "original": "/private/tmp/pike-reviewer2-issue28-output-close-sampled.log",
+      "retained": "reviewer-output-close-sampled.log",
+      "sha256": "204a8234640351b595cf56f71456fef657752ad3d48254115dc6f7d01c3a1d8a"
+    },
+    {
+      "original": "/private/tmp/pike-reviewer2-issue28-output-close.sample.txt",
+      "retained": "reviewer-output-close.sample.txt",
+      "sha256": "8f872d537dd0684ec488045cb04d2e27d53074e310eb1d7d8434901cdb905a5f"
+    }
+  ]
+}

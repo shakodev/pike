@@ -52,7 +52,7 @@ fn ime_errors_are_visible_only_on_their_origin_without_writing_input() {
     shutdown(&mut app, &executor);
 }
 
-fn request(terminal: &Terminal, renderer: &iced::Renderer) -> ImeCommit {
+pub(super) fn request(terminal: &Terminal, renderer: &iced::Renderer) -> ImeCommit {
     use iced::advanced::input_method::Event as Ime;
     let mut view = TerminalView::show(terminal);
     let mut tree = Tree::new(view.as_widget());

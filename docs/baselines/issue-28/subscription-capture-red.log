@@ -1,0 +1,41 @@
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14)
+error[E0080]: evaluation panicked: The Subscription closure provided is not non-capturing. Closures given to Subscription::map or filter_map cannot capture external variables. If you need to capture state, consider using Subscription::with.
+   --> /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iced_futures-0.14.0/src/subscription.rs:289:13
+    |
+289 |             check_zero_sized::<F>();
+    |             ^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `iced::Subscription::<iced::keyboard::Event>::map::<{closure@src/app/close.rs:271:36: 271:48}, app::Message>::{constant#0}` failed inside this call
+    |
+note: inside `iced::advanced::iced_graphics::iced_futures::subscription::check_zero_sized::<{closure@src/app/close.rs:271:36: 271:48}>`
+   --> /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panic.rs:62:8
+    |
+    = note: the failure occurred here
+    |
+   ::: /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iced_futures-0.14.0/src/subscription.rs:498:9
+    |
+498 | /         panic!(
+499 | |             "The Subscription closure provided is not non-capturing. \
+500 | |             Closures given to Subscription::map or filter_map cannot \
+501 | |             capture external variables. If you need to capture state, \
+502 | |             consider using Subscription::with."
+503 | |         );
+    | |_________- in this macro invocation
+
+note: erroneous constant encountered
+   --> /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iced_futures-0.14.0/src/subscription.rs:288:9
+    |
+288 | /         const {
+289 | |             check_zero_sized::<F>();
+290 | |         }
+    | |_________^
+
+note: the above error was encountered while instantiating `fn Subscription::<Event>::map::<{closure@close.rs:271:36}, Message>`
+   --> src/app/close.rs:271:13
+    |
+271 |             keyboard::listen().map(move |event| Message::CloseKey(token, event))
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: the full name for the type has been written to '/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/target/debug/deps/pike-4528372b9e7b7ed8.long-type-3310302474315913196.txt'
+    = note: consider using `--verbose` to print the full type name to the console
+
+For more information about this error, try `rustc --explain E0080`.
+error: could not compile `pike` (lib test) due to 1 previous error
