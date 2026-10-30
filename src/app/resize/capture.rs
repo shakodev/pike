@@ -2,7 +2,7 @@
 //! extend this boundary. Event subscriptions run too late to prevent shell input.
 use iced::advanced::{
     Clipboard, Layout, Shell, Widget, layout, mouse, overlay, renderer,
-    widget::{Operation, Tree},
+    widget::{Operation, Tree, tree},
 };
 use iced::keyboard::{Event as KeyEvent, Key, Modifiers, key::Named};
 use iced::{Element, Event, Length, Rectangle, Size, Vector};
@@ -21,6 +21,21 @@ pub(crate) fn capture<'a>(
         suspended,
         active,
         on_key,
+        divider: None,
+    })
+}
+
+pub(crate) fn divider_focus<'a>(
+    content: impl Into<Element<'a, Message>>,
+    node: &'a iced::widget::pane_grid::Node,
+    active: Option<&'a iced_term::Terminal>,
+) -> Element<'a, Message> {
+    Element::new(Capture {
+        content: content.into(),
+        suspended: true,
+        active,
+        on_key: resize_key,
+        divider: Some(node),
     })
 }
 
@@ -29,6 +44,13 @@ struct Capture<'a> {
     suspended: bool,
     active: Option<&'a iced_term::Terminal>,
     on_key: fn(&KeyEvent) -> Option<KeyAction>,
+    divider: Option<&'a iced::widget::pane_grid::Node>,
+}
+
+#[derive(Default)]
+struct State {
+    blurred: bool,
+    pressed_owner: Option<u64>,
 }
 
 /// Single shared interception boundary for future R26 command mapping. None
@@ -62,6 +84,12 @@ pub(crate) fn resize_key(event: &KeyEvent) -> Option<KeyAction> {
 }
 
 impl Widget<Message, iced::Theme, iced::Renderer> for Capture<'_> {
+    fn tag(&self) -> tree::Tag {
+        tree::Tag::of::<State>()
+    }
+    fn state(&self) -> tree::State {
+        tree::State::new(State::default())
+    }
     fn size(&self) -> Size<Length> {
         self.content.as_widget().size()
     }
@@ -106,19 +134,68 @@ impl Widget<Message, iced::Theme, iced::Renderer> for Capture<'_> {
         shell: &mut Shell<'_, Message>,
         viewport: &Rectangle,
     ) {
+        let state = tree.state.downcast_mut::<State>();
+        match event {
+            Event::Window(iced::window::Event::Unfocused) => {
+                state.blurred = true;
+                state.pressed_owner = None;
+            }
+            Event::Window(iced::window::Event::Focused) => state.blurred = false,
+            _ => {}
+        }
         // Read at dispatch time: Opened/Preedit can update the terminal's IME
         // owner without an application message or a rebuilt parent view.
         if !self.suspended
+            && !state.blurred
             && self.active.is_none_or(|terminal| !terminal.is_composing())
             && let Event::Keyboard(key) = event
             && let Some(action) = (self.on_key)(key)
         {
             if let KeyAction::Dispatch(control) = action {
+                let control = match control {
+                    Control::ResizeStep(step) => {
+                        if let Some(active) = self.active {
+                            Control::ResizeKey(active.id, step)
+                        } else {
+                            return;
+                        }
+                    }
+                    control => control,
+                };
                 shell.publish(Message::Control(control));
             }
             shell.capture_event();
             return;
         }
+        // PaneGrid itself unfocuses child terminals before inspecting gutters.
+        // Remember the stable input owner for both a tap and a real drag. Hit
+        // testing uses the pinned widget's exact spacing+leeway calculation.
+        let preserve = if !state.blurred
+            && let Some(node) = self.divider
+        {
+            match event {
+                Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)) => {
+                    state.pressed_owner = cursor.position_over(layout.bounds()).and_then(|point| {
+                        let point = point - iced::Vector::new(layout.bounds().x, layout.bounds().y);
+                        node.split_regions(super::GUTTER, 0.0, layout.bounds().size())
+                            .values()
+                            .any(|(axis, region, ratio)| {
+                                axis.split_line_bounds(*region, *ratio, super::GUTTER + 8.0)
+                                    .contains(point)
+                            })
+                            .then(|| self.active.map(|terminal| terminal.id))
+                            .flatten()
+                    });
+                    state.pressed_owner
+                }
+                Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left)) => {
+                    state.pressed_owner.take()
+                }
+                _ => None,
+            }
+        } else {
+            None
+        };
         self.content.as_widget_mut().update(
             &mut tree.children[0],
             event,
@@ -129,6 +206,19 @@ impl Widget<Message, iced::Theme, iced::Renderer> for Capture<'_> {
             shell,
             viewport,
         );
+        if let Some(owner) = preserve
+            && let Some(active) = self.active.filter(|terminal| terminal.id == owner)
+        {
+            self.content.as_widget_mut().operate(
+                &mut tree.children[0],
+                layout,
+                renderer,
+                &mut iced::advanced::widget::operation::focusable::focus::<()>(
+                    active.widget_id().clone(),
+                ),
+            );
+            shell.publish(Message::Control(Control::ResizeFocus(owner)));
+        }
     }
     fn draw(
         &self,

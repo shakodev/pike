@@ -1,0 +1,5 @@
+divider-tap focused=false
+plain-key write-messages=0
+resize-key focused=false
+queued-resize-after-blur changed=true
+cleanup sessions=0

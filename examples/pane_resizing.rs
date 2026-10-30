@@ -407,8 +407,52 @@ impl Probe {
         self.record("events.txt", format_args!("begin-case={}", self.case));
         CURRENT_CASE.store(self.case, std::sync::atomic::Ordering::Relaxed);
         match self.case {
-            0 => {}
+            0 => widget::prime(&self.app, &self.renderer, &mut self.tree, self.size),
             1 | 2 => {
+                let mut tasks = vec![];
+                if self.case == 1 {
+                    for outside in [false, true] {
+                        let tap = widget::tap(
+                            &self.app,
+                            &self.renderer,
+                            &mut self.tree,
+                            self.size,
+                            outside,
+                        );
+                        if tap
+                            .iter()
+                            .any(|m| matches!(m, Message::Control(Control::Resize(..))))
+                            || !widget::focused(
+                                &self.app,
+                                &self.renderer,
+                                &mut self.tree,
+                                self.size,
+                            )
+                        {
+                            return self
+                                .close(Some("no-motion divider tap lost persistent widget focus"));
+                        }
+                        tasks.extend(tap.into_iter().map(|message| self.apply(message)));
+                    }
+                    let typing = widget::text(
+                        &self.app,
+                        &self.renderer,
+                        &mut self.tree,
+                        self.size,
+                        "q tap",
+                    );
+                    if !typing.iter().any(|m| {
+                        matches!(
+                            m,
+                            Message::Terminal((_, Event::BackendCall(_, BackendCommand::Write(_))))
+                        )
+                    }) {
+                        return self
+                            .close(Some("typing after divider tap produced no shell input"));
+                    }
+                    tasks.extend(typing.into_iter().map(|message| self.apply(message)));
+                    self.record("events.txt", "persistent no-motion tap and outside release retained focus; widget query sent without refocus");
+                }
                 let messages = widget::drag(
                     &self.app,
                     &self.renderer,
@@ -422,10 +466,10 @@ impl Probe {
                 {
                     return self.close(Some("actual pane_grid drag did not publish resize"));
                 }
-                let tasks: Vec<_> = messages
-                    .into_iter()
-                    .map(|message| self.apply(message))
-                    .collect();
+                if !widget::focused(&self.app, &self.renderer, &mut self.tree, self.size) {
+                    return self.close(Some("persistent widget lost focus after drag/release"));
+                }
+                tasks.extend(messages.into_iter().map(|message| self.apply(message)));
                 let widget = self
                     .app
                     .terminal(self.app.active_session().unwrap())
@@ -443,6 +487,24 @@ impl Probe {
             }
             3 | 4 => {
                 drop(self.apply(Message::WindowFocused(true)));
+                if self.case == 3
+                    && !widget::blur_priority(&self.app, &self.renderer, &mut self.tree, self.size)
+                {
+                    return self.close(Some("same-view blur allowed resize or shell input"));
+                }
+                drop(self.apply(Message::WindowFocused(true)));
+                if self.case == 3
+                    && !widget::composition_priority(
+                        &self.app,
+                        &self.renderer,
+                        &mut self.tree,
+                        self.size,
+                    )
+                {
+                    return self.close(Some(
+                        "live IME ownership did not retain priority through empty preedit/commit",
+                    ));
+                }
                 let messages = widget::key(
                     &self.app,
                     &self.renderer,
@@ -452,7 +514,7 @@ impl Probe {
                 );
                 if messages
                     .iter()
-                    .filter(|m| matches!(m, Message::Control(Control::ResizeStep(_))))
+                    .filter(|m| matches!(m, Message::Control(Control::ResizeKey(_, _))))
                     .count()
                     != 1
                     || messages.iter().any(|m| {
@@ -595,6 +657,22 @@ impl Probe {
         Task::batch(tasks)
     }
     fn verify(&mut self) -> Task<ProbeMessage> {
+        if self.case == 1 {
+            let id = self.ids.last().unwrap();
+            let text = fs::read_to_string(
+                self.output
+                    .join(self.pids[id].to_string())
+                    .join("sizes.csv"),
+            )
+            .unwrap_or_default();
+            if !text.lines().any(|line| line.starts_with("tap,")) {
+                return self.close(Some("child did not accept widget typing after divider tap"));
+            }
+            self.record(
+                "events.txt",
+                "native child acknowledged public-widget query after divider tap",
+            );
+        }
         for id in &self.ids {
             let terminal = self.app.terminal(*id).unwrap();
             if terminal.widget_id() != &self.widgets[id] || terminal.input_status().closed {

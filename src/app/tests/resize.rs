@@ -34,6 +34,42 @@ fn resize_minimize_restore_font_and_repeated_dimensions_keep_native_session() {
         .splits()
         .next()
         .unwrap();
+    let snapshot = |app: &App| {
+        format!(
+            "{:?}",
+            app.model
+                .workspace()
+                .tab(target.tab)
+                .unwrap()
+                .grid()
+                .layout()
+        )
+    };
+    let initial = snapshot(&app);
+    drop(app.update(Message::WindowFocused(false)));
+    drop(app.update(Message::Control(Control::ResizeKey(
+        next.session.get(),
+        ResizeStep::Right,
+    ))));
+    drop(app.update(Message::Control(Control::ResizeStep(ResizeStep::Right))));
+    assert_eq!(snapshot(&app), initial);
+    drop(app.update(Message::WindowFocused(true)));
+    // A key captured before an owner transfer cannot resize the new owner's
+    // ancestor after the update queue selects it.
+    drop(app.update(Message::Control(Control::Focus(target))));
+    drop(app.update(Message::Control(Control::ResizeKey(
+        next.session.get(),
+        ResizeStep::Right,
+    ))));
+    assert_eq!(snapshot(&app), initial);
+    let effect = app.update(Message::Control(Control::ResizeKey(
+        ids.session.get(),
+        ResizeStep::Right,
+    )));
+    assert!(
+        effect.units() > 0,
+        "keyboard resize must restore actual widget focus"
+    );
     drop(app.update(Message::Control(Control::Resize(
         target.tab,
         ResizeEvent { split, ratio: 0.0 },
@@ -110,5 +146,26 @@ fn resize_minimize_restore_font_and_repeated_dimensions_keep_native_session() {
     }
     assert_eq!(app.terminal(ids.session).unwrap().widget_id(), &original);
     assert!(!app.terminal(ids.session).unwrap().input_status().closed);
+    drop(app.update(Message::GridSize(target.tab, Size::new(20_000.0, 20_000.0))));
+    let native_before = app.terminal(ids.session).unwrap().work_stats().pty_resizes;
+    drop(app.update(Message::Terminal((
+        ids.session,
+        Event::BackendCall(
+            ids.session.get(),
+            iced_term::BackendCommand::Resize(Some(Size::new(1000.0, 500.0)), None),
+        ),
+    ))));
+    assert_eq!(
+        app.terminal(ids.session).unwrap().work_stats().pty_resizes,
+        native_before
+    );
+    app.close(app.model.target(next.session).unwrap());
+    let presented = app.resize_layout.as_ref().unwrap();
+    assert_eq!(
+        presented.grid.panes,
+        app.model.workspace().tab(target.tab).unwrap().grid().panes
+    );
+    assert_eq!(presented.grid.len(), 1);
+    assert!(presented.frozen);
     shutdown(&mut app, &executor);
 }

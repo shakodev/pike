@@ -10,8 +10,8 @@ use super::{
 use crate::identity::TabId;
 use crate::layout::{ResizeGeometry, nearest_split};
 
-mod capture;
-pub(super) use capture::{capture, resize_key};
+pub(super) mod capture;
+pub(super) use capture::{capture, divider_focus, resize_key};
 
 /// Move the nearest divider on this axis by one focused terminal cell.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -26,6 +26,7 @@ pub(super) struct Presentation {
     pub tab: TabId,
     pub size: Size,
     pub grid: iced::widget::pane_grid::State<crate::layout::PaneState>,
+    pub frozen: bool,
 }
 
 impl ResizeStep {
@@ -70,20 +71,30 @@ impl App {
     pub(super) fn refresh_resize_layout(&mut self) {
         let next = self.grid_size.and_then(|(tab, area)| {
             let source = self.model.workspace().tab(tab)?;
-            let (size, grid) = self
-                .resize_geometry(tab, area)?
-                .presentation(source.grid())?;
-            Some(Presentation { tab, size, grid })
+            let mut geometry = self.resize_geometry(tab, area)?;
+            if let Some((size, grid)) = geometry.presentation(source.grid()) {
+                return Some(Presentation {
+                    tab,
+                    size,
+                    grid,
+                    frozen: false,
+                });
+            }
+            // Reuse only bounded geometry. Pane/session membership always
+            // comes from today's canonical tree, including close and restart.
+            let previous = self.resize_layout.as_ref().filter(|p| p.tab == tab)?;
+            geometry.area = previous.size;
+            let (size, grid) = geometry
+                .presentation(source.grid())
+                .unwrap_or_else(|| (previous.size, source.grid().clone()));
+            Some(Presentation {
+                tab,
+                size,
+                grid,
+                frozen: true,
+            })
         });
-        if let Some(next) = next {
-            self.resize_layout = Some(next);
-        } else if self
-            .resize_layout
-            .as_ref()
-            .is_some_and(|p| self.model.workspace().tab(p.tab).is_none())
-        {
-            self.resize_layout = None;
-        }
+        self.resize_layout = next;
     }
     pub(super) fn resize_geometry(&self, tab: TabId, area: Size) -> Option<ResizeGeometry> {
         let tab = self.model.workspace().tab(tab)?;
@@ -123,7 +134,7 @@ impl App {
     }
 
     pub(super) fn resize_divider(&mut self, tab: TabId, event: ResizeEvent) -> bool {
-        if self.exiting || self.model.workspace().active() != Some(tab) {
+        if !self.resize_allowed() || self.model.workspace().active() != Some(tab) {
             return false;
         }
         let Some((_, area)) = self.grid_size.filter(|(id, _)| *id == tab) else {
@@ -144,32 +155,41 @@ impl App {
         accepted
     }
 
-    pub(super) fn resize_step(&mut self, step: ResizeStep) {
-        if self.exiting {
-            return;
+    fn resize_allowed(&self) -> bool {
+        !self.exiting
+            && self.window_focus.is_focused()
+            && self
+                .active_session()
+                .and_then(|id| self.terminal(id))
+                .is_none_or(|terminal| !terminal.is_composing())
+    }
+
+    pub(super) fn resize_step(&mut self, step: ResizeStep) -> iced::Task<super::Message> {
+        if !self.resize_allowed() {
+            return iced::Task::none();
         }
         let Some(target) = self.active_target() else {
-            return;
+            return iced::Task::none();
         };
         let Some((_, area)) = self.grid_size.filter(|(id, _)| *id == target.tab) else {
-            return;
+            return iced::Task::none();
         };
         let Some(geometry) = self.resize_geometry(target.tab, area) else {
-            return;
+            return iced::Task::none();
         };
         let tab = self.model.workspace().tab(target.tab).unwrap();
         let Some(split) = nearest_split(tab.grid().layout(), target.pane, step.axis()) else {
-            return;
+            return iced::Task::none();
         };
         let Some((canvas, grid)) = geometry.presentation(tab.grid()) else {
-            return;
+            return iced::Task::none();
         };
         let Some((_, bounds, ratio)) = grid
             .layout()
             .split_regions(GUTTER, 0.0, canvas)
             .remove(&split)
         else {
-            return;
+            return iced::Task::none();
         };
         let Some(cell) = self
             .active_session()
@@ -177,18 +197,22 @@ impl App {
             .and_then(|terminal| terminal.renderable_content())
             .map(|c| c.terminal_size)
         else {
-            return;
+            return iced::Task::none();
         };
         let delta = match step.axis() {
             Axis::Vertical => cell.cell_width / bounds.width,
             Axis::Horizontal => cell.cell_height / bounds.height,
         };
-        self.resize_divider(
+        if self.resize_divider(
             target.tab,
             ResizeEvent {
                 split,
                 ratio: (ratio + step.sign() * delta).clamp(0.0, 1.0),
             },
-        );
+        ) {
+            self.focus_active()
+        } else {
+            iced::Task::none()
+        }
     }
 }

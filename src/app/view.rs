@@ -109,6 +109,12 @@ impl App {
             );
             // Scrollbar dragging provides safe panning even while the terminal
             // owns wheel events. Both renderer and pointer paths clip to viewport.
+            let active = self.active_session().and_then(|id| self.terminal(id));
+            let grid: Element<'_, Message> = if source.maximized().is_none() {
+                super::resize::divider_focus(grid, source.layout(), active)
+            } else {
+                grid.into()
+            };
             let grid = scrollable(grid)
                 .direction(scrollable::Direction::Both {
                     vertical: scrollable::Scrollbar::new(),
@@ -159,7 +165,7 @@ impl App {
         }
         super::resize::capture(
             container(content).padding(8).width(Fill).height(Fill),
-            self.exiting || !self.window_focus.is_focused() || self.active_target().is_none(),
+            self.exiting || self.active_target().is_none(),
             self.active_session().and_then(|id| self.terminal(id)),
             super::resize::resize_key,
         )

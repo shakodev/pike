@@ -42,6 +42,8 @@ pub enum Control {
     Focus(PaneTarget),
     Resize(TabId, iced::widget::pane_grid::ResizeEvent),
     ResizeStep(ResizeStep),
+    ResizeKey(u64, ResizeStep),
+    ResizeFocus(u64),
 }
 
 #[derive(Default)]
@@ -190,7 +192,21 @@ impl App {
                     return self.focus_active();
                 }
             }
-            Message::Control(Control::ResizeStep(step)) => self.resize_step(step),
+            Message::Control(Control::ResizeStep(step)) => return self.resize_step(step),
+            Message::Control(Control::ResizeKey(origin, step)) => {
+                if self.active_session().is_some_and(|id| id.get() == origin) {
+                    return self.resize_step(step);
+                }
+            }
+            Message::Control(Control::ResizeFocus(origin)) => {
+                if !self.exiting
+                    && self.window_focus.is_focused()
+                    && self.active_session().is_some_and(|id| id.get() == origin)
+                    && let Some(target) = self.active_target()
+                {
+                    return self.select(target);
+                }
+            }
             Message::Control(Control::Copy(id)) => {
                 if !self.exiting
                     && self.active_session() == Some(id)
@@ -203,6 +219,14 @@ impl App {
             }
             Message::Launched(reservation, result) => return self.launched(reservation, result),
             Message::Terminal((id, event)) => {
+                if self.resize_layout.as_ref().is_some_and(|p| p.frozen)
+                    && matches!(
+                        &event,
+                        Event::BackendCall(_, iced_term::BackendCommand::Resize(..))
+                    )
+                {
+                    return Task::none();
+                }
                 let footer = self.footer_height(id);
                 self.sessions
                     .route(&mut self.model, &self.window_focus, id, event);
