@@ -15,6 +15,7 @@ mod close;
 pub use close::CloseAction;
 pub mod commands;
 mod focus;
+mod panes;
 mod resize;
 mod split;
 mod startup;
