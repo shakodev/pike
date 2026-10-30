@@ -160,7 +160,8 @@ impl App {
         super::resize::capture(
             container(content).padding(8).width(Fill).height(Fill),
             self.exiting || !self.window_focus.is_focused() || self.active_target().is_none(),
-            self.active_session(),
+            self.active_session().and_then(|id| self.terminal(id)),
+            super::resize::resize_key,
         )
     }
 

@@ -2,43 +2,43 @@
 //! extend this boundary. Event subscriptions run too late to prevent shell input.
 use iced::advanced::{
     Clipboard, Layout, Shell, Widget, layout, mouse, overlay, renderer,
-    widget::{Operation, Tree, tree},
+    widget::{Operation, Tree},
 };
 use iced::keyboard::{Event as KeyEvent, Key, Modifiers, key::Named};
 use iced::{Element, Event, Length, Rectangle, Size, Vector};
 
 use super::ResizeStep;
 use crate::app::{Control, Message};
-use crate::identity::SessionId;
 
 pub(crate) fn capture<'a>(
     content: impl Into<Element<'a, Message>>,
     suspended: bool,
-    scope: Option<SessionId>,
+    active: Option<&'a iced_term::Terminal>,
+    on_key: fn(&KeyEvent) -> Option<KeyAction>,
 ) -> Element<'a, Message> {
     Element::new(Capture {
         content: content.into(),
         suspended,
-        scope,
+        active,
+        on_key,
     })
 }
 
 struct Capture<'a> {
     content: Element<'a, Message>,
     suspended: bool,
-    scope: Option<SessionId>,
+    active: Option<&'a iced_term::Terminal>,
+    on_key: fn(&KeyEvent) -> Option<KeyAction>,
 }
 
-#[derive(Default)]
-struct State {
-    scope: Option<SessionId>,
-    composing: bool,
+/// Single shared interception boundary for future R26 command mapping. None
+/// delegates untouched; Consume swallows releases without repeating an action.
+pub(crate) enum KeyAction {
+    Consume,
+    Dispatch(Control),
 }
 
-fn shortcut(event: &Event) -> Option<(ResizeStep, bool)> {
-    let Event::Keyboard(event) = event else {
-        return None;
-    };
+pub(crate) fn resize_key(event: &KeyEvent) -> Option<KeyAction> {
     let (key, modifiers, pressed) = match event {
         KeyEvent::KeyPressed { key, modifiers, .. } => (key, modifiers, true),
         KeyEvent::KeyReleased { key, modifiers, .. } => (key, modifiers, false),
@@ -54,7 +54,11 @@ fn shortcut(event: &Event) -> Option<(ResizeStep, bool)> {
         Key::Named(Named::ArrowDown) => ResizeStep::Down,
         _ => return None,
     };
-    Some((step, pressed))
+    Some(if pressed {
+        KeyAction::Dispatch(Control::ResizeStep(step))
+    } else {
+        KeyAction::Consume
+    })
 }
 
 impl Widget<Message, iced::Theme, iced::Renderer> for Capture<'_> {
@@ -64,26 +68,10 @@ impl Widget<Message, iced::Theme, iced::Renderer> for Capture<'_> {
     fn size_hint(&self) -> Size<Length> {
         self.content.as_widget().size_hint()
     }
-    fn tag(&self) -> tree::Tag {
-        tree::Tag::of::<State>()
-    }
-    fn state(&self) -> tree::State {
-        tree::State::new(State {
-            scope: self.scope,
-            composing: false,
-        })
-    }
     fn children(&self) -> Vec<Tree> {
         vec![Tree::new(self.content.as_widget())]
     }
     fn diff(&self, tree: &mut Tree) {
-        let state = tree.state.downcast_mut::<State>();
-        if state.scope != self.scope || self.suspended {
-            *state = State {
-                scope: self.scope,
-                composing: false,
-            };
-        }
         tree.diff_children(std::slice::from_ref(&self.content));
     }
     fn layout(
@@ -118,22 +106,15 @@ impl Widget<Message, iced::Theme, iced::Renderer> for Capture<'_> {
         shell: &mut Shell<'_, Message>,
         viewport: &Rectangle,
     ) {
-        let state = tree.state.downcast_mut::<State>();
-        match event {
-            Event::InputMethod(iced::advanced::input_method::Event::Opened)
-            | Event::InputMethod(iced::advanced::input_method::Event::Preedit(_, _)) => {
-                state.composing = true
-            }
-            Event::InputMethod(iced::advanced::input_method::Event::Closed)
-            | Event::Window(iced::window::Event::Unfocused) => state.composing = false,
-            _ => {}
-        }
+        // Read at dispatch time: Opened/Preedit can update the terminal's IME
+        // owner without an application message or a rebuilt parent view.
         if !self.suspended
-            && !state.composing
-            && let Some((step, pressed)) = shortcut(event)
+            && self.active.is_none_or(|terminal| !terminal.is_composing())
+            && let Event::Keyboard(key) = event
+            && let Some(action) = (self.on_key)(key)
         {
-            if pressed {
-                shell.publish(Message::Control(Control::ResizeStep(step)));
+            if let KeyAction::Dispatch(control) = action {
+                shell.publish(Message::Control(control));
             }
             shell.capture_event();
             return;

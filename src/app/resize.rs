@@ -11,7 +11,7 @@ use crate::identity::TabId;
 use crate::layout::{ResizeGeometry, nearest_split};
 
 mod capture;
-pub(super) use capture::capture;
+pub(super) use capture::{capture, resize_key};
 
 /// Move the nearest divider on this axis by one focused terminal cell.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
