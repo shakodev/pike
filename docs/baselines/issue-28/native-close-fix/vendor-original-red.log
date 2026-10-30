@@ -1,0 +1,37 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling memchr v2.8.3
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.154
+   Compiling aho-corasick v1.1.5
+   Compiling itoa v1.0.18
+   Compiling fastrand v2.5.0
+   Compiling atomic-waker v1.1.2
+   Compiling cursor-icon v1.2.0
+   Compiling arrayvec v0.7.8
+   Compiling futures-io v0.3.34
+   Compiling piper v0.2.5
+   Compiling regex-automata v0.4.18
+   Compiling syn v3.0.9
+   Compiling serde_derive v1.0.229
+   Compiling serde v1.0.229
+   Compiling vte v0.15.0
+   Compiling alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/vendor/alacritty_terminal)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.39s
+     Running unittests src/lib.rs (target/debug/deps/alacritty_terminal-da7c3e294e0471c9)
+
+running 1 test
+test tty::unix::tests::dropping_output_backlog_closes_master_and_reaps_child_before_returning ... 
+thread 'tty::unix::tests::dropping_output_backlog_closes_master_and_reaps_child_before_returning' (7307198) panicked at vendor/alacritty_terminal/src/tty/unix/tests.rs:51:10:
+native disposal still pending with an unread output backlog: Timeout
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    tty::unix::tests::dropping_output_backlog_closes_master_and_reaps_child_before_returning
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 159 filtered out; finished in 10.14s
+
+error: test failed, to rerun pass `-p alacritty_terminal --lib`

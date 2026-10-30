@@ -1,5 +1,15 @@
 # R28 — scoped close, retained exit, restart and window shutdown
 
+**Native cleanup correction:** the historical evidence below is preserved.
+Independent review reproduced required close-under-output failures at published
+head `bccf900b4f75fcf313b40fc68bc32b1cb779f61e`; the earlier passing sample does
+not supersede those native failures. Corrected source
+`924fc02edad382fa108c24c180b280ade53e4336` fixes the demonstrated Unix master
+drop order, with unchanged ten-second app oracle, native red/green, explicit
+vendor resource tests and retained failures in the
+[correction report](issue-28-native-close-fix.md). That report supersedes this
+report's statements that no vendor correction was needed for R28 acceptance.
+
 Implemented on actual merged main
 `5d34cb74b99f5e7e6865789f645e5fe519ba2d94` (includes #24 at `609d702`).
 Verified source commit: `7667a6dbcbdbfcb7b90de689ee5d2bcc99fccbf9`.

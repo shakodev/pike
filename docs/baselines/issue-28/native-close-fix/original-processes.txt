@@ -1,0 +1,3 @@
+  PID  PPID  PGID   SESS STAT WCHAN  COMMAND
+44994 44991 44991      0 S    -      /Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/target/debug/deps/pike-8047c988abb10012 app::tests::closing::close_during_output_is_nonblocking_idempotent_and_waits_for_native_receipt --exact --nocapture --test-threads=1
+44995 44994 44995      0 ?Es  -      (bash)
