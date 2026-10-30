@@ -18,6 +18,7 @@ pub struct ShutdownHandle {
     requested: Arc<AtomicBool>,
     completion: watch::Receiver<Option<BackendCompletion>>,
     pending_paste: Arc<crate::paste::PasteSlot>,
+    ime: Arc<crate::ime::Session>,
 }
 
 impl ShutdownHandle {
@@ -26,6 +27,7 @@ impl ShutdownHandle {
         events: Sender,
         completion: watch::Receiver<Option<BackendCompletion>>,
         pending_paste: Arc<crate::paste::PasteSlot>,
+        ime: Arc<crate::ime::Session>,
     ) -> Self {
         Self {
             notifier,
@@ -33,6 +35,7 @@ impl ShutdownHandle {
             requested: Arc::new(AtomicBool::new(false)),
             completion,
             pending_paste,
+            ime,
         }
     }
 
@@ -41,6 +44,7 @@ impl ShutdownHandle {
     /// whether backend cleanup has completed. Observe `wait`/`completion` for that.
     pub fn request_close(&self) -> bool {
         self.pending_paste.cancel();
+        self.ime.cancel();
         if self.completion().is_some()
             || self.requested.swap(true, Ordering::AcqRel)
         {

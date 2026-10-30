@@ -1,0 +1,81 @@
+[
+  {
+    "name": "adapter-fmt",
+    "argv": [
+      "cargo",
+      "fmt",
+      "-p",
+      "iced_term",
+      "--",
+      "--check"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "probe-fmt",
+    "argv": [
+      "rustfmt",
+      "--edition",
+      "2024",
+      "--check",
+      "examples/ime_composition.rs"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "adapter-clippy",
+    "argv": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "-p",
+      "iced_term",
+      "--lib",
+      "--tests",
+      "--no-default-features",
+      "--features",
+      "iced/tiny-skia,iced/tokio",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "probe-clippy",
+    "argv": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "--no-default-features",
+      "--features",
+      "renderer-tiny-skia",
+      "--example",
+      "ime_composition",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "release-build",
+    "argv": [
+      "cargo",
+      "build",
+      "--release",
+      "--locked",
+      "--offline",
+      "--no-default-features",
+      "--features",
+      "renderer-tiny-skia",
+      "--bin",
+      "pike",
+      "--example",
+      "ime_composition"
+    ],
+    "exit_code": 0
+  }
+]

@@ -1,0 +1,35 @@
+{
+  "base_main": "713020604d2df41de84d31797eb7128818521eff",
+  "os": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "renderer": "tiny-skia",
+  "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=\"$PWD/target/issue-20\" cargo build --release --locked --no-default-features --features renderer-tiny-skia --example ime_composition; /usr/bin/time -l target/issue-20/release/examples/ime_composition target/issue-19-ime/probe-4",
+  "binary_sha256": "4df16c4797e535752aead9dcaf74ad65645f5c9160a90a220c89691fab437f60",
+  "source_sha256": {
+    "examples/ime_composition.rs": "7114fecdb9f3bdefd1b446f747f70a4a6ac441a4862b4aadb2ab0bdb9307e1f3",
+    "src/main.rs": "b584db944af7c72f9db705f9bc4ef8e91b20187527145f2b93cb2c4d89faf0c7",
+    "vendor/iced_term/src/ime.rs": "d7131316a31dfd5dded5d4a3bad75b51a7a74f1c5d89ae8839efce69a74764fd",
+    "vendor/iced_term/src/ime/tests.rs": "f3b6933f1b34d918c4138ead576481d7b2807d45c2230cdfbc928ee0ced84fcb",
+    "vendor/iced_term/src/view/ime.rs": "39a669c7143fb43f4edd13d83b71138ef5a7d7972ab1b51ac827f4f603e0d0d9",
+    "vendor/iced_term/src/view/ime/tests.rs": "e169274d34495666cc953cc02a19c513f0c442787d274aca4d5718feed4e1adc",
+    "vendor/iced_term/src/view.rs": "a24d1b2a14281b3af6b42a1c7e41a390b39d58730be9d1dc294acc66517c7e26",
+    "vendor/iced_term/src/backend.rs": "fb6245a230b76848f7fd3216165373b309b17931b74305b7bf582b1892f32ad4",
+    "vendor/iced_term/src/terminal.rs": "f5bc3777fe78f1ab0cf1d65a75744ba1918f3848e4e37378e814b5da97badcb0",
+    "vendor/iced_term/src/window_focus.rs": "d8114f88a7d5b263645d032c0839c293fa3c05f48b7bcb2e89c665f5d441f7f0",
+    "vendor/iced_term/src/lifecycle.rs": "28314e5b70cda9efa3059caa7cf906c68327a15211122716adc5d867d365ad85",
+    "vendor/iced_term/src/backend/history_tests.rs": "b8794645749ffc097fcc675257681e56d1ac80b77460745601bd7b516e86ae73",
+    "vendor/iced_term/src/lib.rs": "31971cc362e550dcd8a6f4d2fafcb49ebdbba2da5d7d8e4a24267d72bba919ce",
+    "vendor/iced_term/src/actions.rs": "4a3ac3c3504bd89302304fb2b2763921a3b2ad1a7e1174034ad3b97a6489e73b"
+  },
+  "cargo_lock_sha256": "f2499ce171f71875ac098ef7b52161139645cf5f6fa81ac2c778bcffa2f8b367",
+  "fixture_pids_absent": [
+    23363,
+    23369
+  ],
+  "limitations": [
+    "Synthetic Iced IME events on Mac PTY, not native Windows IME delivery",
+    "No physical keyboard, candidate-window screenshot or monitor/DPI test",
+    "Single whole-probe time/RSS observation, not GUI idle/private bytes or latency budget",
+    "Actions OFF; no remote CI"
+  ]
+}

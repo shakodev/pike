@@ -138,10 +138,16 @@ impl Sessions {
             .and_then(|tab| model.workspace().tab(tab))
             .and_then(|tab| tab.grid().get(tab.focused()))
             .is_some_and(|pane| pane.session == origin);
-        if let BackendCommand::Paste(request) = &command {
+        if matches!(
+            command,
+            BackendCommand::Paste(_) | BackendCommand::ImeCommit(_)
+        ) {
             let accepts = raw == origin.get()
                 && active
-                && request.session_id() == origin.get()
+                && match &command {
+                    BackendCommand::Paste(request) => request.session_id() == origin.get(),
+                    _ => true, // IME's opaque owner is checked again by the adapter.
+                }
                 && window.is_focused()
                 && self.entries.get(&origin).is_some_and(|entry| {
                     model.sessions().get(origin).is_some_and(|session| {
@@ -150,13 +156,19 @@ impl Sessions {
                     }) && !entry.ended
                         && entry.terminal().is_some_and(|terminal| {
                             terminal.id == raw
+                                && terminal.is_visible()
                                 && !terminal.input_status().closed
                                 && terminal.renderable_content().is_some_and(|c| c.focused)
                         })
                 });
             if !accepts {
-                // Invalidate every clone, releasing the bounded pending slot.
-                request.cancel();
+                // Invalidate every clone before any early identity/lifecycle
+                // return, even when the owner was removed from the host.
+                match &command {
+                    BackendCommand::Paste(request) => request.cancel(),
+                    BackendCommand::ImeCommit(commit) => commit.cancel(),
+                    _ => unreachable!(),
+                }
                 return;
             }
         }
@@ -251,6 +263,7 @@ impl Sessions {
                 entry.notice = Some(format!("Input was not sent: {error}"))
             }
             Action::PasteRejected(error) => entry.notice = Some(error.to_string()),
+            Action::ImeRejected(error) => entry.notice = Some(error.to_string()),
             Action::EventBridgeError(_) => {
                 entry.notice =
                     Some("Terminal output stopped. Close this terminal to recover.".into())

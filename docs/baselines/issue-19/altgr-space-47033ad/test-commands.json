@@ -1,0 +1,52 @@
+[
+  {
+    "name": "vendor-ime-green",
+    "argv": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "iced_term",
+      "--lib",
+      "--no-default-features",
+      "--features",
+      "iced/tiny-skia,iced/tokio",
+      "ime"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "vendor-bindings",
+    "argv": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "iced_term",
+      "--lib",
+      "--no-default-features",
+      "--features",
+      "iced/tiny-skia,iced/tokio",
+      "bindings::tests"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "author-key-green",
+    "argv": [
+      "cargo",
+      "run",
+      "--locked",
+      "--offline",
+      "--manifest-path",
+      "target/issue-19-ime/author-key-cases/Cargo.toml",
+      "--bin",
+      "pike-r19-key-cases-review",
+      "--",
+      "target/issue-19-ime/author-key-green"
+    ],
+    "exit_code": 0
+  }
+]

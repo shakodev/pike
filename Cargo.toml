@@ -8,6 +8,7 @@ description = "A lightweight, Windows-first terminal multiplexer"
 [workspace]
 members = ["vendor/iced_term", "vendor/alacritty_terminal"]
 default-members = ["."]
+exclude = ["vendor/iced_winit"]
 resolver = "3"
 
 [features]
@@ -23,6 +24,7 @@ tokio = { version = "=1.54.1", default-features = false, features = ["rt-multi-t
 [patch.crates-io]
 iced_term = { path = "vendor/iced_term" }
 alacritty_terminal = { path = "vendor/alacritty_terminal" }
+iced_winit = { path = "vendor/iced_winit" }
 
 [target.'cfg(windows)'.dev-dependencies]
 # Windows-only controlled console/clipboard fixtures; no production clipboard backend.

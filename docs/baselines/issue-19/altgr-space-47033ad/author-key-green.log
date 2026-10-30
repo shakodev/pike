@@ -1,0 +1,48 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> /Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> /Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_term)
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13)
+   Compiling pike-r19-row-ime-review v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-19-ime/author-key-cases)
+warning: unused import: `Event as Ime`
+ --> src/key-cases.rs:1:36
+  |
+1 | use iced::advanced::input_method::{Event as Ime, InputMethod};
+  |                                    ^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Point`
+ --> src/key-cases.rs:6:38
+  |
+6 | use iced::{Element, Event, Executor, Point, Rectangle, Size};
+  |                                      ^^^^^
+
+warning: function `admitted` is never used
+  --> src/key-cases.rs:29:4
+   |
+29 | fn admitted(t:&Terminal)->usize{let s=t.input_status();s.outstanding_bytes+s.written_bytes+s.cancelled_bytes}
+   |    ^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `pike-r19-row-ime-review` (bin "pike-r19-key-cases-review") generated 3 warnings (run `cargo fix --bin "pike-r19-key-cases-review" -p pike-r19-row-ime-review` to apply 2 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.16s
+     Running `target/issue-20/debug/pike-r19-key-cases-review target/issue-19-ime/author-key-green`
+ordinary-space: expected=[32], actual=[[32]], captured=true
+dead-key-space: expected=[194, 180], actual=[[194, 180]], captured=true
+character-altgr: expected=[64], actual=[[64]], captured=true
+named-space-altgr: expected=[194, 160], actual=[[194, 160]], captured=true
+named-space-shift-altgr: expected=[194, 160], actual=[[194, 160]], captured=true

@@ -15,6 +15,7 @@ pub enum Action {
     EventBridgeError(crate::EventBridgeError),
     InputRejected(crate::InputError),
     PasteRejected(crate::PasteError),
+    ImeRejected(crate::ImeError),
     #[default]
     Ignore,
 }

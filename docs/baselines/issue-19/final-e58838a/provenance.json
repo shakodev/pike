@@ -1,0 +1,79 @@
+{
+  "source_commit": "560e32fe576f0feb9f9d5d19d86b2ea57b8d0498",
+  "base_main": "e58838a828c9deabaa340f7119d9ce38374b4447",
+  "os": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "renderer": "tiny-skia",
+  "environment": {
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_TARGET_DIR": "$PWD/target/issue-20"
+  },
+  "build_command": "cargo build --release --locked --offline --no-default-features --features renderer-tiny-skia --bin pike --example ime_composition",
+  "probe_command": "/usr/bin/time -l target/issue-20/release/examples/ime_composition target/issue-19-ime/probe-6",
+  "binary_sha256": {
+    "ime_composition": "6e1a10fa534b266ef3d4050e56dd382067ff1eaebf2e8b50a26b5888733d2882",
+    "pike": "11bde4033d7a5935b2e8fecdf5c6bdbee20bf448c99fb6e04929b086b0160e51"
+  },
+  "source_sha256": {
+    "Cargo.toml": "5fbbfd0715c5e7cf4433505047177376cf1fde0a08f325bdcb03708bd023fa30",
+    "Cargo.lock": "f89e89582c78c0afde076852aa068de8cd4d26a478bdad96ac0a9f3dec3edc2d",
+    "examples/ime_composition.rs": "44c565d3cf493cb6ac4ea823e37a15fb51e7fcd295e71f20bc80d151ba6017cf",
+    "src/main.rs": "fd6049c42bcd02f3dafe535849373b99faf73c2b10182f9f67aaa83c51abc252",
+    "src/lib.rs": "bc088af69189e06dbadc1da46cc3530daa01f161ec26bc6aa3b7bdd6ddd43be8",
+    "src/app.rs": "88a0c70e706693e576595ec887f688560bb731c8cd67906eec1283a8ee0d35c7",
+    "src/app/tests.rs": "c7be3d7b9557a2e1f028b2af62caad421e7693d417a9f4e7578f6b27d6535954",
+    "src/app/tests/ime.rs": "2e73cc86cf1c0482817230f12c3fd00014db194ab4a35b5be824ad1252055ecc",
+    "src/terminal.rs": "be5c7760f0b325cb0d8bd640be8c01c000ea11b5a036e4e31debf98d5c51f94c",
+    "vendor/iced_term/src/ime.rs": "56904c15e0ce6baf4bd7201b7565b0ebc76cc76ea0cb1bfddee92411994c1b58",
+    "vendor/iced_term/src/ime/tests.rs": "f3b6933f1b34d918c4138ead576481d7b2807d45c2230cdfbc928ee0ced84fcb",
+    "vendor/iced_term/src/view/ime.rs": "39a669c7143fb43f4edd13d83b71138ef5a7d7972ab1b51ac827f4f603e0d0d9",
+    "vendor/iced_term/src/view/ime/tests.rs": "e169274d34495666cc953cc02a19c513f0c442787d274aca4d5718feed4e1adc",
+    "vendor/iced_term/src/view.rs": "f6b5fd861a363187c2b238bdc4a68cebc2cae5cb998e794522d965ef571567f0",
+    "vendor/iced_term/src/backend.rs": "0f89446d7cc4297252af1bf7167f3a9d869c3040a19be691db86d38e1b6f4c3b",
+    "vendor/iced_term/src/terminal.rs": "f5bc3777fe78f1ab0cf1d65a75744ba1918f3848e4e37378e814b5da97badcb0",
+    "vendor/iced_term/src/window_focus.rs": "d8114f88a7d5b263645d032c0839c293fa3c05f48b7bcb2e89c665f5d441f7f0",
+    "vendor/iced_term/src/lifecycle.rs": "28314e5b70cda9efa3059caa7cf906c68327a15211122716adc5d867d365ad85",
+    "vendor/iced_term/src/backend/history_tests.rs": "b8794645749ffc097fcc675257681e56d1ac80b77460745601bd7b516e86ae73",
+    "vendor/iced_term/src/lib.rs": "90f1f83ea87e4736a82fa7ab21330f6271506bb340f1972bffe63a1e96a3c2d6",
+    "vendor/iced_term/src/actions.rs": "4a3ac3c3504bd89302304fb2b2763921a3b2ad1a7e1174034ad3b97a6489e73b",
+    "vendor/iced_winit/src/window.rs": "8a254a837d41e816a180e941a671ccfe5c2c9ab185427062aa05276b13181bb6",
+    "vendor/iced_winit/src/window/ime.rs": "71c4ec55497e20bbc9e21364edaeae64cba65ad63a3952f8e825428ca3ebf2b3",
+    "vendor/iced_winit/src/lib.rs": "ba9fc11df9bc27959d5f26633bb81b42c47f459a3d4f8609cdacefddb133dce8",
+    "vendor/iced_winit/Cargo.toml": "1931e5f26d014a2b17a74028ae5d73f0d155aa2d1bc265b8db43fd43198835f1"
+  },
+  "cargo_lock_sha256": "f89e89582c78c0afde076852aa068de8cd4d26a478bdad96ac0a9f3dec3edc2d",
+  "fixture_pids_absent": [
+    10232,
+    10239,
+    15976,
+    15982,
+    16598,
+    16604,
+    23363,
+    23369,
+    43432,
+    43438,
+    80956,
+    80961
+  ],
+  "retained_runtime_evidence": "Unchanged runtime source from saved2ead558; 2 green tests and one intentionally red logical-only cache regression; explicit Clippy allowed only existing upstream deprecations.",
+  "final_results": {
+    "adapter_ime_after_runtime_path": 11,
+    "adapter_owner_after_cancel_api": 1,
+    "host_ime_explicit_graphics": 2,
+    "host_paste_explicit_graphics": 2,
+    "host_key_focus": 1,
+    "adapter_clippy_exit": 0,
+    "host_clippy_exit": 0,
+    "release_build_exit": 0,
+    "probe_exit": 0
+  },
+  "limitations": [
+    "Synthetic Iced events on macOS PTY, not native Windows IME delivery",
+    "No physical CJK/dead-key/AltGr keyboard or actual native candidate/monitor test",
+    "Fake runtime native setter and coordinate conversions are synthetic only",
+    "One prior macOS cleanup timeout remains undiagnosed and was not reproduced",
+    "Single complete-probe timing/RSS observation, not GUI idle/private bytes or latency budgets",
+    "Actions OFF; no remote CI"
+  ]
+}

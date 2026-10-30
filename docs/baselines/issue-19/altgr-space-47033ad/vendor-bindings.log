@@ -1,0 +1,28 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+     Running unittests src/lib.rs (target/issue-20/debug/deps/iced_term-ca704ebef456280b)
+
+running 6 tests
+test bindings::tests::add_new_custom_keyboard_binding ... ok
+test bindings::tests::add_mouse_binding ... ok
+test bindings::tests::add_custom_keyboard_bindings_that_replace_current ... ok
+test bindings::tests::add_many_new_custom_keyboard_bindings ... ok
+test bindings::tests::get_action_with_custom_bindings ... ok
+test bindings::tests::get_action ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 114 filtered out; finished in 0.00s
+

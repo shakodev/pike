@@ -1,0 +1,49 @@
+   Compiling iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: method `scale_factor` is never used
+  --> vendor/iced_winit/src/window/ime.rs:13:8
+   |
+12 | pub(super) trait Window {
+   |                  ------ method in this trait
+13 |     fn scale_factor(&self) -> f64;
+   |        ^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `iced_winit` (lib test) generated 3 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.78s
+     Running unittests src/lib.rs (target/issue-20/debug/deps/iced_winit-fa12398e872b8ad6)
+
+running 1 test
+test window::ime::tests::stationary_cursor_dpi_refresh_calls_native_area_without_disabling ... FAILED
+
+failures:
+
+---- window::ime::tests::stationary_cursor_dpi_refresh_calls_native_area_without_disabling stdout ----
+
+thread 'window::ime::tests::stationary_cursor_dpi_refresh_calls_native_area_without_disabling' (4077056) panicked at vendor/iced_winit/src/window/ime.rs:118:9:
+assertion `left == right` failed
+  left: [(PhysicalPosition { x: 40, y: 80 }, PhysicalSize { width: 8, height: 20 })]
+ right: [(PhysicalPosition { x: 40, y: 80 }, PhysicalSize { width: 8, height: 20 }), (PhysicalPosition { x: 50, y: 100 }, PhysicalSize { width: 10, height: 25 }), (PhysicalPosition { x: 60, y: 120 }, PhysicalSize { width: 12, height: 30 }), (PhysicalPosition { x: 80, y: 160 }, PhysicalSize { width: 16, height: 40 })]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    window::ime::tests::stationary_cursor_dpi_refresh_calls_native_area_without_disabling
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p iced_winit --lib`
