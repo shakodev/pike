@@ -1,0 +1,17 @@
+ready tab=2 session=1 pid=97328
+ready tab=4 session=3 pid=97331
+ready tab=6 session=5 pid=97334
+ready tab=8 session=7 pid=97337
+ready tab=10 session=9 pid=97340
+ready tab=12 session=11 pid=97343
+ready tab=14 session=13 pid=97346
+ready tab=16 session=15 pid=97350
+ready tab=18 session=17 pid=97354
+ready tab=20 session=19 pid=97359
+ready tab=22 session=21 pid=97363
+ready tab=24 session=23 pid=97366
+bare-F2 remains terminal-owned: exact 1b4f51
+same-view rename preedit Enter/Escape/app-chord suppressed; unopened/blurred/stale commits rejected; fresh retry exact
+manual > bounded sanitized OSC; OSC ResetTitle preserves manual; explicit reset restores launch-profile fallback
+ready tab=2 session=25 pid=97374
+12 tabs / 13 distinctive children: reordered last to first; exact SessionId/TabId/PID/widget/registry and hidden nested ratios/zoom/focus preserved

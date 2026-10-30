@@ -277,3 +277,54 @@ fn moved_starting_owner_attaches_hidden_without_reviving_old_focus_intent() {
         });
     }
 }
+
+#[test]
+fn actual_tab_dialog_round_trips_reject_pre_modal_pane_drop_receipts() {
+    use crate::{
+        app::{Control, DialogAction},
+        tab_strip::TabAction,
+    };
+    for rename in [true, false] {
+        let (model, gestures, a, _) = fixture();
+        let mut app = App {
+            model,
+            pane_gestures: gestures,
+            ..App::default()
+        };
+        drop(app.update(Message::WindowFocused(true)));
+        drop(app.select(a.target));
+        let action = app.pane_gestures.action(
+            a.target,
+            a.owner,
+            DragEvent::Dropped {
+                pane: a.target.pane,
+                target: Target::Edge(Edge::Bottom),
+            },
+        );
+        assert!(app.pane_gestures.begin(action));
+        let before = format!("{:?}", app.model);
+        drop(app.update(Message::Control(Control::TabAction(if rename {
+            TabAction::BeginRename(a.target.tab)
+        } else {
+            TabAction::OpenOverflow
+        }))));
+        let token = app.tab_dialog_token().unwrap();
+        assert!(!app.pane_gestures.current(action));
+        drop(app.update(Message::WindowFocused(false)));
+        drop(app.update(Message::WindowFocused(true)));
+        let next = app.tab_dialog_token().unwrap();
+        assert_ne!(token, next);
+        drop(app.update(Message::Control(Control::TabDialog(
+            token,
+            DialogAction::Cancel,
+        ))));
+        assert_eq!(app.tab_dialog_token(), Some(next));
+        drop(app.update(Message::Control(Control::TabDialog(
+            next,
+            DialogAction::Cancel,
+        ))));
+        assert!(!app.interaction_blocked());
+        drop(app.update(Message::Control(Control::PaneDrag(action))));
+        assert_eq!(before, format!("{:?}", app.model));
+    }
+}

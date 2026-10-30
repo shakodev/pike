@@ -6,6 +6,8 @@ mod fixture_input;
 #[allow(dead_code)]
 #[path = "command_routing/host.rs"]
 mod host;
+#[path = "support/host_viewport.rs"]
+mod host_viewport;
 #[path = "pane_moving/scenarios.rs"]
 mod scenarios;
 
@@ -212,6 +214,8 @@ fn verify(host: &mut Host, output: &Path, mode: &str) -> io::Result<()> {
         scenarios::ime_pointer(host, output, first, second)
     } else if mode == "--outside-release" {
         scenarios::outside_release(host, output, first, second)
+    } else if mode == "--joint-tabs" {
+        scenarios::joint_dialogs(host, output, first, second)
     } else {
         scenarios::verify(host, output, first, second)
     }

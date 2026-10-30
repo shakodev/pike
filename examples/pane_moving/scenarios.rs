@@ -10,6 +10,18 @@ use std::{
     path::{Path, PathBuf},
 };
 
+#[path = "joint.rs"]
+mod joint;
+
+pub(super) fn joint_dialogs(
+    host: &mut Host,
+    output: &Path,
+    first: SessionId,
+    second: SessionId,
+) -> io::Result<()> {
+    joint::verify(host, output, first, second)
+}
+
 fn text(host: &Host, id: SessionId) -> String {
     host.app
         .terminal(id)
@@ -412,8 +424,8 @@ fn geometry(host: &mut Host, ids: &[SessionId]) -> io::Result<()> {
         check(
             bounds.x >= 8.0
                 && bounds.y >= 0.0
-                && bounds.x + bounds.width <= 1192.1
-                && bounds.y + bounds.height <= 792.1,
+                && bounds.x + bounds.width <= crate::host_viewport::SIZE.width - 7.9
+                && bounds.y + bounds.height <= crate::host_viewport::SIZE.height - 7.9,
             "restored pane escaped its viewport clip",
         )?;
         host.evidence.push(format!(
@@ -639,7 +651,7 @@ fn paint_clip(host: &mut Host, owner: SessionId) -> io::Result<()> {
     };
     use iced::{Color, Rectangle, Size, Theme};
     let bounds = host.bounds(owner).unwrap();
-    let size = Size::new(1200.0, 800.0);
+    let size = crate::host_viewport::SIZE;
     let mut view = host.app.view();
     let mut tree = Tree::new(view.as_widget());
     let node =
@@ -655,12 +667,18 @@ fn paint_clip(host: &mut Host, owner: SessionId) -> io::Result<()> {
         mouse::Cursor::Unavailable,
         &Rectangle::with_size(size),
     );
-    let rgba = Headless::screenshot(&mut host.renderer, Size::new(1200, 800), 1.0, Color::BLACK);
+    let rgba = Headless::screenshot(
+        &mut host.renderer,
+        Size::new(size.width as u32, size.height as u32),
+        1.0,
+        Color::BLACK,
+    );
     let mut green = 0;
     for (index, pixel) in rgba.chunks_exact(4).enumerate() {
         if pixel[1] > 220 && pixel[0] < 40 && pixel[2] < 40 {
             green += 1;
-            let point = Point::new((index % 1200) as f32, (index / 1200) as f32);
+            let width = size.width as usize;
+            let point = Point::new((index % width) as f32, (index / width) as f32);
             check(
                 bounds.expand(1.0).contains(point),
                 "moved terminal painted colored cells outside its current clip",

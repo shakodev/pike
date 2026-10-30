@@ -148,4 +148,38 @@ mod tests {
         );
         assert_eq!(before, format!("{:?}", model));
     }
+
+    #[test]
+    fn pane_move_and_zoom_preserve_tab_names_and_stable_tab_reorder() {
+        let (mut model, [a, b, _]) = fixture();
+        let (other, _) = model.create_tab().unwrap();
+        model.rename_tab(a.tab, "R27 metadata").unwrap();
+        model
+            .reorder_tab(a.tab, other.tab, crate::tabs::Placement::After)
+            .unwrap();
+        let order = model.workspace.order().to_vec();
+        let panes = model.workspace.tab(a.tab).unwrap().grid.panes.clone();
+        let owners: Vec<_> = model
+            .sessions
+            .iter()
+            .map(|(id, entry)| (id, entry.reservation(), entry.lifecycle()))
+            .collect();
+        model
+            .drop_pane(a, Target::Pane(b.pane, Region::Center))
+            .unwrap();
+        model.zoom(a).unwrap();
+        model.zoom(a).unwrap();
+        assert_eq!(model.workspace.order(), order);
+        let tab = model.workspace.tab(a.tab).unwrap();
+        assert_eq!(tab.manual_name().unwrap().as_str(), "R27 metadata");
+        assert_eq!(tab.grid.panes, panes);
+        assert_eq!(
+            owners,
+            model
+                .sessions
+                .iter()
+                .map(|(id, entry)| (id, entry.reservation(), entry.lifecycle()))
+                .collect::<Vec<_>>()
+        );
+    }
 }

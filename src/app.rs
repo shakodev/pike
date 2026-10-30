@@ -20,6 +20,8 @@ pub use panes::DragAction;
 mod resize;
 mod split;
 mod startup;
+mod tab_dialog;
+pub use tab_dialog::DialogAction;
 mod tabs;
 mod view;
 pub use resize::ResizeStep;
@@ -36,6 +38,7 @@ pub enum Message {
     CloseTimeout(u64),
     CloseKey(u64, iced::keyboard::Event),
     GridSize(TabId, Size),
+    TabName(u64, String),
 }
 
 #[derive(Clone, Copy)]
@@ -60,6 +63,8 @@ pub enum Control {
     Command(commands::Command),
     KeyCommand(Option<SessionId>, commands::Command),
     DismissHelp,
+    TabAction(crate::tab_strip::TabAction),
+    TabDialog(u64, DialogAction),
 }
 
 #[derive(Default)]
@@ -80,6 +85,7 @@ pub struct App {
     focus_authority: focus::Authority,
     pane_gestures: panes::Gestures,
     command_state: commands::State,
+    tab_dialog: tab_dialog::State,
 }
 
 impl App {
@@ -199,6 +205,7 @@ impl App {
         if self.interaction_blocked()
             && (matches!(&message, Message::Control(control)
             if !matches!(control, Control::CloseAction(_))
+                && !matches!(control, Control::TabDialog(..))
                 && !(matches!(control, Control::DismissHelp) && self.command_state.help.is_some()
                     && !self.exiting && !self.close_policy.confirming()))
                 || matches!(&message, Message::GridSize(..)))
@@ -206,6 +213,11 @@ impl App {
             return Task::none();
         }
         match message {
+            Message::Control(Control::TabAction(action)) => return self.tab_action(action),
+            Message::Control(Control::TabDialog(token, action)) => {
+                return self.tab_dialog_action(token, action);
+            }
+            Message::TabName(token, value) => self.tab_name(token, &value),
             Message::Control(Control::Command(command)) => return self.run_command(command),
             Message::Control(Control::KeyCommand(owner, command)) => {
                 if owner == self.active_session()
@@ -312,10 +324,15 @@ impl App {
                 }
             }
             Message::WindowFocused(focused) => {
+                if !focused {
+                    self.blur_tab_dialog();
+                }
                 self.window_focus.set_focused(focused);
                 self.synchronize();
                 if focused {
-                    return self.focus_active();
+                    return self
+                        .focus_tab_dialog()
+                        .unwrap_or_else(|| self.focus_active());
                 }
             }
             Message::GridSize(tab, size) => {
@@ -324,7 +341,11 @@ impl App {
                     self.refresh_resize_layout();
                 }
             }
-            Message::CloseWindow => return self.request_close(close::Scope::Window),
+            Message::CloseWindow => {
+                self.tab_dialog.clear();
+                self.command_state.help = None;
+                return self.request_close(close::Scope::Window);
+            }
             Message::ShutdownComplete => return self.shutdown_complete(),
             Message::CloseTimeout(token) => self.close_timeout(token),
             Message::CloseKey(token, event) => return self.close_key(token, event),

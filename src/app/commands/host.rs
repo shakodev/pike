@@ -32,7 +32,7 @@ impl App {
         self.command_state.error
     }
 
-    fn command_refused(&mut self, error: Error) -> Task<Message> {
+    pub(in crate::app) fn command_refused(&mut self, error: Error) -> Task<Message> {
         self.command_state.error = Some(error);
         self.notice = Some(error.message());
         self.focus_active()
@@ -58,27 +58,28 @@ impl App {
                 self.synchronize();
                 Task::none()
             }
-            Command::NextTab | Command::PreviousTab | Command::SelectTab(_) => {
-                let order = self.model.workspace().order();
-                if order.is_empty() {
+            Command::RenameTab => {
+                let Some(tab) = self.model.workspace().active() else {
                     return self.command_refused(Error::MissingTab);
-                }
-                let current = order
-                    .iter()
-                    .position(|tab| Some(*tab) == self.model.workspace().active())
-                    .unwrap_or(0);
-                let index = match command {
-                    Command::NextTab => (current + 1) % order.len(),
-                    Command::PreviousTab => (current + order.len() - 1) % order.len(),
-                    Command::SelectTab(TabSelection::Index(index)) => usize::from(index),
-                    Command::SelectTab(TabSelection::Last) => order.len() - 1,
+                };
+                self.begin_tab_rename(tab)
+            }
+            Command::ListTabs => self.begin_tab_overflow(),
+            Command::NextTab | Command::PreviousTab | Command::SelectTab(_) => {
+                use crate::tabs::Selection;
+                let selection = match command {
+                    Command::NextTab => Selection::Next,
+                    Command::PreviousTab => Selection::Previous,
+                    Command::SelectTab(TabSelection::Index(index)) => {
+                        Selection::Index(usize::from(index))
+                    }
+                    Command::SelectTab(TabSelection::Last) => {
+                        Selection::Index(self.model.workspace().order().len().saturating_sub(1))
+                    }
                     _ => unreachable!(),
                 };
-                let Some(tab) = order.get(index).copied() else {
-                    return self.command_refused(Error::MissingTab);
-                };
                 // Reuse R29's intent invalidation, cache and remembered focus.
-                self.activate_tab(tab)
+                self.select_tab(selection)
             }
             command => {
                 let Some(target) = self.active_target() else {
@@ -146,7 +147,7 @@ impl App {
         self.command_state.help?;
         let content: Element<'_, Control> = column![
             text("Keyboard shortcuts").size(22),
-            text("New tab: Ctrl+Shift+T\nClose pane / tab: Ctrl+Shift+W / Q\nNext / previous tab: Ctrl+Tab / Ctrl+Shift+Tab\nSelect tabs 1–8 / last: Ctrl+Shift+1…8 / 9\nSplit right / down: Ctrl+Shift+O / E\nFocus adjacent pane: Alt+Arrow\nResize divider: Alt+Shift+Arrow\nMaximize / restore: Ctrl+Shift+Enter\nCopy / paste: Ctrl+Shift+C / V; Shift+Insert pastes\nHistory: Shift+PageUp / PageDown / Home / End\nFont larger / smaller / reset: Ctrl+Shift+Plus / Minus / 0\nInterrupt shell: Ctrl+C\nDismiss help: Escape or F1"),
+            text("New tab: Ctrl+Shift+T\nClose pane / tab: Ctrl+Shift+W / Q\nNext / previous tab: Ctrl+Tab / Ctrl+Shift+Tab\nSelect tabs 1–8 / last: Ctrl+Shift+1…8 / 9\nRename tab / all tabs: Ctrl+Shift+R / L\nSplit right / down: Ctrl+Shift+O / E\nFocus adjacent pane: Alt+Arrow\nResize divider: Alt+Shift+Arrow\nMaximize / restore: Ctrl+Shift+Enter\nCopy / paste: Ctrl+Shift+C / V; Shift+Insert pastes\nHistory: Shift+PageUp / PageDown / Home / End\nFont larger / smaller / reset: Ctrl+Shift+Plus / Minus / 0\nInterrupt shell: Ctrl+C\nDismiss help: Escape or F1"),
             button("Return to terminal").on_press(Control::DismissHelp),
         ].spacing(12).into();
         let content: Element<'_, Control> = container(scrollable(content))
