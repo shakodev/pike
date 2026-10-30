@@ -433,6 +433,8 @@ and API/overload policy details.
   owner. A fresh Opened is required before untagged native preedit/commit events
   are accepted. The single follow-up redraw introduces no timer or idle loop.
 - Add redacted owner/epoch-bound `BackendCommand::ImeCommit(ImeCommit)` tokens.
+  Hosts call `ImeCommit::cancel()` before rejecting a queued origin so every held
+  clone is invalidated, including when the owning host entry no longer exists.
   Each is consumed once in existing deferred event order and enters the original
   writer atomically as one UTF-8 sequence, never pasted/framed or Enter-appended.
   Pending requests have separate finite caps of 2 MiB and 256 distinct tokens;

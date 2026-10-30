@@ -56,12 +56,18 @@ impl fmt::Debug for ImeCommit {
 }
 
 impl ImeCommit {
+    /// Discard this deferred input and every held clone when a host rejects its
+    /// origin or input ownership before calling the terminal adapter.
+    pub fn cancel(&self) {
+        self.0.text.lock().unwrap_or_else(|e| e.into_inner()).take();
+    }
+
     pub(crate) fn take(
         &self,
         owner: &Arc<Session>,
     ) -> Result<Option<Box<str>>, ImeError> {
         if !self.0.owner.ptr_eq(&Arc::downgrade(owner)) {
-            self.0.text.lock().unwrap_or_else(|e| e.into_inner()).take();
+            self.cancel();
             return Err(ImeError::WrongSession);
         }
         let state = owner.lock();
