@@ -1,8 +1,8 @@
 //! Synthetic pointer/keyboard/IME delivery through the actual public App view.
-use iced::advanced::widget::{Tree, operation};
+use iced::advanced::widget::{Id, Operation, Tree, operation};
 use iced::advanced::{Layout, Shell, clipboard, layout, mouse};
 use iced::keyboard::{self, Key, Modifiers};
-use iced::{Event, Point, Rectangle, Size};
+use iced::{Event, Point, Rectangle, Size, Vector};
 use pike::app::{App, Message};
 
 pub const SIZE: Size = Size::new(1100.0, 720.0);
@@ -20,38 +20,105 @@ pub fn click(
         .as_widget_mut()
         .layout(&mut tree, renderer, &layout::Limits::new(SIZE, SIZE));
     let root = Layout::new(&node);
-    fn centers(layout: Layout<'_>, found: &mut Vec<Point>) {
-        if Rectangle::with_size(SIZE).contains(layout.bounds().center()) {
-            found.push(layout.bounds().center());
+    // Operations expose scroll translations. Raw layout centers alone would
+    // incorrectly claim a pointer hit on an offscreen overflow-list entry.
+    for _ in 0..4 {
+        let mut targets = Targets::default();
+        view.as_widget_mut()
+            .operate(&mut tree, root, renderer, &mut targets);
+        for position in targets.points {
+            let mut messages = Vec::new();
+            for event in [
+                mouse::Event::ButtonPressed(mouse::Button::Left),
+                mouse::Event::ButtonReleased(mouse::Button::Left),
+            ] {
+                view.as_widget_mut().update(
+                    &mut tree,
+                    &Event::Mouse(event),
+                    root,
+                    mouse::Cursor::Available(position),
+                    renderer,
+                    &mut clipboard::Null,
+                    &mut Shell::new(&mut messages),
+                    &Rectangle::with_size(SIZE),
+                );
+            }
+            if let Some(message) = messages.into_iter().find(|message| accepts(message)) {
+                return Some(message);
+            }
         }
-        for child in layout.children() {
-            centers(child, found);
-        }
-    }
-    let mut points = Vec::new();
-    centers(root, &mut points);
-    for position in points {
-        let mut messages = Vec::new();
-        for event in [
-            mouse::Event::ButtonPressed(mouse::Button::Left),
-            mouse::Event::ButtonReleased(mouse::Button::Left),
-        ] {
+        for position in targets.scrolls {
             view.as_widget_mut().update(
                 &mut tree,
-                &Event::Mouse(event),
+                &Event::Mouse(mouse::Event::WheelScrolled {
+                    delta: mouse::ScrollDelta::Lines { x: -8.0, y: -8.0 },
+                }),
                 root,
                 mouse::Cursor::Available(position),
                 renderer,
                 &mut clipboard::Null,
-                &mut Shell::new(&mut messages),
+                &mut Shell::new(&mut Vec::new()),
                 &Rectangle::with_size(SIZE),
             );
         }
-        if let Some(message) = messages.into_iter().find(|message| accepts(message)) {
-            return Some(message);
-        }
     }
     None
+}
+
+struct Targets {
+    points: Vec<Point>,
+    scrolls: Vec<Point>,
+    translation: Vector,
+    viewport: Rectangle,
+    pending: Option<(Vector, Rectangle)>,
+}
+
+impl Default for Targets {
+    fn default() -> Self {
+        Self {
+            points: Vec::new(),
+            scrolls: Vec::new(),
+            translation: Vector::ZERO,
+            viewport: Rectangle::with_size(SIZE),
+            pending: None,
+        }
+    }
+}
+
+impl Operation for Targets {
+    fn traverse(&mut self, operate: &mut dyn FnMut(&mut dyn Operation)) {
+        let old = (self.translation, self.viewport);
+        if let Some((translation, bounds)) = self.pending.take() {
+            self.viewport = self.viewport.intersection(&bounds).unwrap_or_default();
+            self.translation = self.translation + translation;
+        }
+        operate(self);
+        (self.translation, self.viewport) = old;
+    }
+
+    fn container(&mut self, _id: Option<&Id>, bounds: Rectangle) {
+        let point = bounds.center() - self.translation;
+        if self.viewport.contains(point) {
+            self.points.push(point);
+        }
+    }
+
+    fn scrollable(
+        &mut self,
+        _id: Option<&Id>,
+        bounds: Rectangle,
+        content: Rectangle,
+        translation: Vector,
+        _state: &mut dyn operation::Scrollable,
+    ) {
+        let bounds = bounds - self.translation;
+        if (content.height > bounds.height || content.width > bounds.width)
+            && let Some(visible) = self.viewport.intersection(&bounds)
+        {
+            self.scrolls.push(visible.center());
+        }
+        self.pending = Some((translation, bounds));
+    }
 }
 
 /// Use a single tree for a finite event sequence, including IME preedit/commit.

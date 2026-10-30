@@ -55,3 +55,16 @@ evidence and the corrected R29 focus/cache invariants are retained in the
 R29 reports. No Windows native/ConPTY, physical keyboard/monitor, Linux or
 release RAM/CPU measurements are claimed; #13/#14 physical holds and the #14
 scheduling waiver remain.
+
+Independent follow-up before host handoff: explicit clipped containers now
+bound long unwrapped labels within their button, and overflow takes the modal's
+fresh scroll widget ID. `src/tab_strip/reveal.rs` measures the selected row and
+current viewport, then scrolls only as needed; a stale modal ID has no authority
+over a later view. The new exact local filter
+`cargo test --offline --locked -p pike --lib tab_strip::reveal::tests::overflow_reveal_uses_measured_rows_and_current_scroll_and_rejects_stale_modal_ids -- --exact`
+passed (1 test), and library Clippy above passed for this changed component.
+Existing successful pure model/title/range tests were not repeated. The fixture
+pointer helper now accounts for scroll translations and clipping and uses
+finite actual wheel events to expose offscreen entries. Its complete host
+driver/native run remains pending; component math is not a keyboard/monitor
+or actual-App integration claim.

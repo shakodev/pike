@@ -7,6 +7,13 @@ use iced::{Element, Fill};
 use crate::identity::TabId;
 use crate::tabs::{Activity, Placement, Selection, Title};
 
+mod reveal;
+pub use reveal::reveal;
+
+fn row_id(tab: TabId) -> iced::advanced::widget::Id {
+    iced::advanced::widget::Id::from(format!("tab-overflow-row-{}", tab.get()))
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TabAction {
     BeginRename(TabId),
@@ -99,9 +106,13 @@ pub fn view<'a, M: Clone + 'a>(
             tabs.push(
                 row![
                     button(
-                        text(label)
-                            .size(13)
-                            .wrapping(iced::widget::text::Wrapping::None)
+                        container(
+                            text(label)
+                                .size(13)
+                                .wrapping(iced::widget::text::Wrapping::None)
+                        )
+                        .width(Fill)
+                        .clip(true)
                     )
                     .on_press(activate(item.id))
                     .style(if active == Some(item.id) {
@@ -136,6 +147,7 @@ pub fn view<'a, M: Clone + 'a>(
 pub fn overflow<'a, M: Clone + 'a>(
     items: Vec<Item>,
     selected: Option<TabId>,
+    scroll_id: iced::advanced::widget::Id,
     activate: fn(TabId) -> M,
     close: fn(TabId) -> M,
     cancel: M,
@@ -145,8 +157,16 @@ pub fn overflow<'a, M: Clone + 'a>(
         .enumerate()
         .fold(column![], |rows, (index, item)| {
             rows.push(
-                row![
-                    button(text(item.label(index)).wrapping(iced::widget::text::Wrapping::None))
+                container(
+                    row![
+                        button(
+                            container(
+                                text(item.label(index))
+                                    .wrapping(iced::widget::text::Wrapping::None)
+                            )
+                            .width(Fill)
+                            .clip(true)
+                        )
                         .on_press(activate(item.id))
                         .style(if selected == Some(item.id) {
                             button::primary
@@ -154,9 +174,11 @@ pub fn overflow<'a, M: Clone + 'a>(
                             button::secondary
                         })
                         .width(Fill),
-                    button("Close tab").on_press(close(item.id)),
-                ]
-                .spacing(8),
+                        button("Close tab").on_press(close(item.id)),
+                    ]
+                    .spacing(8),
+                )
+                .id(row_id(item.id)),
             )
         })
         .spacing(4);
@@ -164,7 +186,7 @@ pub fn overflow<'a, M: Clone + 'a>(
         column![
             text("All tabs").size(22),
             text("↑/↓ selects · Enter opens · Escape cancels"),
-            scrollable(rows).height(300).width(Fill),
+            scrollable(rows).id(scroll_id).height(300).width(Fill),
             button("Cancel").on_press(cancel),
         ]
         .spacing(12),
