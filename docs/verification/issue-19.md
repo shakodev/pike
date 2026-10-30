@@ -1,7 +1,7 @@
 # R19 — IME composition without duplicate terminal input
 
-Integrated merged main `be04b8d495fb5af31d77272f39d28c48cf560819`;
-final merged-host integration is pending the coordinator's PR72 merge handoff.
+Integrated actual merged main `e58838a828c9deabaa340f7119d9ce38374b4447`
+(R23 host), preserving merged R17 pointer/history changes from `be04b8d`.
 PR70's priority current-host error fix was delivered at `38fea554689878241508c9baa35cf215608912e3`
 and is part of that merged base; its branch/artifacts remain retained. R19 was
 started independently at8d9 and integrated only actual merged main, with no
@@ -72,10 +72,23 @@ Terminal::set_input_method_enabled(&mut self, enabled: bool)
 Application shortcut routing must yield while composing. For a modal/input owner,
 cancel and disable IME as part of that UI transition; restore it with valid focus
 on exit. No current application modal/chrome or shortcut wrapper is invented here.
-C confirmed these hooks fit R23's actual WindowFocus/session routes. Future R23
-integration must classify BackendCommand::ImeCommit as user input, preserve its
-stable origin/visibility gates and display Action::ImeRejected like PasteRejected.
-No unmerged R23 code was imported; current thin-host error handling is included.
+C confirmed these hooks fit the host's WindowFocus/session routes. Future
+input-owner transitions can use them without changing pane focus semantics.
+The merged host now classifies BackendCommand::ImeCommit as user input, checks
+the matching stable reservation, live/visible owner and pane/window focus, and
+calls ImeCommit::cancel() before every rejection, invalidating all held clones.
+The adapter independently checks the opaque token's actual session and epoch.
+Action::ImeRejected is shown on its origin like PasteRejected. Public-widget
+host tests cover stale raw IDs, removed owners, reservation mismatches, focus,
+blur, replay and exact UTF-8 admission. No application shortcut interceptor or
+modal exists in this host; composing-key priority remains in the widget.
+
+No unmerged R23/R24 code was imported. Sessions::synchronize, split caller focus
+semantics and pointer/history routing are unchanged. C owns R24's separate
+multi-pane visibility/focus extension and the model active-session authority
+checks for Write/Paste/ImeCommit and stale FocusChanged(true). The coordinator
+confirmed this split-specific boundary; R24 must integrate actual merged R19,
+keep focus exclusive and yield future app keyboard shortcuts to is_composing().
 
 ## Exact source inspection
 
@@ -113,61 +126,91 @@ explicitly testable without resolving unused optional workspace-root packages.
 
 ## Targeted local verification
 
-All commands used stable Rust1.97.1, `CARGO_BUILD_JOBS=4` and own warmed
-`CARGO_TARGET_DIR="$PWD/target/issue-20"`. One tiny-skia profile suffices for this
-input/strategy change; no renderer implementation changes. No full-workspace or
-both-renderer round, and no redundant documentation-only builds.
+Verification ran locally on macOS with stable Rust 1.97.1,
+`CARGO_BUILD_JOBS=4` and own `CARGO_TARGET_DIR="$PWD/target/issue-20"`.
+One tiny-skia profile covers the input/strategy changes; no renderer code changed.
+No full-workspace/both-renderer round or remote CI was run. Passing checks were
+reused unless an actual source/integration change affected them.
 
-Passed:
+After the same-version runtime path registration, the adapter IME filter passed
+11 tests (9 IME tests and 2 existing name matches), including bounded preedit,
+UTF-8 once-only commits, owner epochs, blur/modal/close and candidate geometry.
+After adding host cancellation, its affected owner test passed again. The final
+merged-host checks passed 2 IME tests, 2 paste tests and 1 keyboard-focus test;
+the graphics-dependent public-widget tests were explicitly included, not skipped.
+The IME host matrix tests held-clone replay after stale raw IDs, hidden/ended/
+unfocused/blurred sessions, removed owners and reservation mismatches, plus valid
+once-only UTF-8. Error tests preserve the origin and input accounting.
 
 ```sh
 cargo fmt -p iced_term -- --check
-rustfmt --edition 2024 --check src/main.rs examples/ime_composition.rs
-cargo clippy --locked -p iced_term --lib --tests --no-default-features --features iced/tiny-skia,iced/tokio -- -D warnings
-cargo clippy --locked --no-default-features --features renderer-tiny-skia --bin pike --example ime_composition -- -D warnings
-cargo test --locked -p iced_term --lib --no-default-features --features iced/tiny-skia,iced/tokio ime
-cargo test --locked -p iced_term --lib --no-default-features --features iced/tiny-skia,iced/tokio view::ime::tests
-cargo test --locked -p iced_term --lib --no-default-features --features iced/tiny-skia,iced/tokio ime_anchor_is_logical
-cargo test --locked -p iced_term --lib --no-default-features --features iced/tiny-skia,iced/tokio paste
-cargo test --locked -p iced_term --lib --no-default-features --features iced/tiny-skia,iced/tokio bindings::tests
-cargo test --locked -p iced_term --lib --no-default-features --features iced/tiny-skia,iced/tokio backend::selection_tests
-cargo test --locked -p iced_term --lib --no-default-features --features iced/tiny-skia,iced/tokio backend::history_tests
-cargo test --locked -p iced_term --lib --no-default-features --features iced/tiny-skia,iced/tokio focus_reports_require_mode_and_real_effective_transitions
-cargo test --locked --no-default-features --features renderer-tiny-skia --bin pike terminal_errors_are_visible
-cargo build --release --locked --no-default-features --features renderer-tiny-skia --example ime_composition
-/usr/bin/time -l target/issue-20/release/examples/ime_composition target/issue-19-ime/probe-4
+rustfmt --edition 2024 --check src/main.rs src/terminal.rs src/app/tests.rs examples/ime_composition.rs
+cargo test --locked --offline -p iced_term --lib --no-default-features --features iced/tiny-skia,iced/tokio ime
+cargo test --locked --offline -p iced_term --lib --no-default-features --features iced/tiny-skia,iced/tokio ime_cancel_owner_change_and_modal_suspend_invalidate_all_deferred_clones
+cargo test --locked --offline --no-default-features --features renderer-tiny-skia --lib app::tests::ime -- --include-ignored
+cargo test --locked --offline --no-default-features --features renderer-tiny-skia --lib app::tests::paste -- --include-ignored
+cargo test --locked --offline --no-default-features --features renderer-tiny-skia --lib queued_keyboard_requires_current_pane_and_window_focus
+cargo clippy --locked --offline -p iced_term --lib --tests --no-default-features --features iced/tiny-skia,iced/tokio -- -D warnings
+cargo clippy --locked --offline --no-default-features --features renderer-tiny-skia --lib --tests --bin pike --example ime_composition -- -D warnings
+cargo build --release --locked --offline --no-default-features --features renderer-tiny-skia --bin pike --example ime_composition
+/usr/bin/time -l target/issue-20/release/examples/ime_composition target/issue-19-ime/probe-6
 ```
 
-The ime substring run passed11 tests: nine IME tests plus two existing name-matched
-bridge/protocol tests. The changed widget/anchor subset was checked after final
-empty-dead-key/wide-span edge changes. Relevant regressions passed: paste4,
-bindings6, selection/copy5, history4 (a mechanical constructor argument), focus
-reports1, and current-host error visibility1. Alacritty is unchanged; no unrelated
-upstream suite was needed. Formatting, denied-warning lint and source hashes match
-retained final evidence.
+Explicit patched-runtime checks also passed and remain valid: runtime source is
+identical to saved `2ead558`. Its two deterministic tests exercise the production
+cache branch with a fake native setter and real winit coordinate conversion.
+100/125/150/200% scales trigger four physical-area updates without another allow
+call, repeated identical requests do nothing, and movement/purpose/disable retain
+original semantics. Intentionally restoring the logical-only cache fails the
+stationary-DPI test; the red/green logs are retained. This is synthetic evidence,
+not a Windows native setter/candidate-window observation.
 
-The public-widget probe uses synthetic Iced composition events with two actual
-PTY child byte readers, not native OS-generated IME events. It verifies preedit0,
-exact UTF-8/replay-once, composing key/Enter/arrow capture, CJK, dead-key and spacing
-accent, empty key text, AltGr, copy/Ctrl+C, old-A commit rejection after B activation,
-window blur, modal disable/restore, and idle redraw-request absence. A controlled
-VT cursor move changes the candidate from(74.21484,96.649994) to(91.072266,114.85).
-Pane movement/resize and synthetic100/125/150/200% Rescaled events preserve correct
-logical anchoring. This is API strategy evidence, not a physical candidate box.
+```sh
+cargo test --locked --offline -p iced_winit --lib window::ime::tests
+cargo clippy --locked --offline -p iced_winit --lib --tests -- -D warnings -A deprecated
+rustfmt --edition 2024 --config max_width=80,skip_children=true --check vendor/iced_winit/src/window.rs
+rustfmt --edition 2024 --config max_width=80 --check vendor/iced_winit/src/window/ime.rs
+```
 
-[Retained metadata](../baselines/issue-19/) includes current source/executable/lock
-hashes, OS/compiler, cursor rectangles, byte counts and cleanup. Final synthetic
-sessions accepted12 and3 UTF-8/control bytes respectively, then a separate fixture
-finish sentinel. Both children exited0 with output_drained=true and recorded PIDs
-23363/23369 were independently absent. Earlier recorded probe PIDs were also checked.
+The runtime retains two upstream `try_next` deprecation warnings in unchanged
+lib.rs. Its explicit Clippy run allows only that existing warning class; adapter
+and host denied-warning checks pass without an allow flag. An initial runtime
+workspace-member attempt was blocked offline by an unused optional sysinfo;
+excluding the dependency resolved it without adding packages or changing features.
+An excluded dependency cannot be selected with package feature flags, so its
+successful explicit test uses the command above.
 
-Single final release probe, including renderer initialization, two PTYs, raw setup,
-all assertions and cleanup: time-l reported0.56s wall,0.02s user,0.06s system and
-17,940,480-byte maximum RSS (about17.11 MiB). These are one Mac test-program
-observation, not GUI idle/private bytes, input latency percentiles, long-duration
-leak evidence or a Windows/resource-budget claim. An earlier sandboxed profiling
-wrapper denied sysctl after its fixture passed; final profiling used authorized
-process-counter access, retained separately from that unsuccessful wrapper.
+Relevant earlier checks remain valid for unchanged behavior: key bindings 6,
+selection/copy 5, paste 4, pointer 7, widget identity/state 5, paired pointer/focus
+cleanup 1 and protocol focus reports 1. They were not repeated as blanket suites.
+Alacritty is unchanged. One first post-R17 macOS IME fixture timed out during its
+5-second Drop cleanup after body assertions completed. The exact rerun and IME
+subset passed, no source/timeouts were weakened, and the final adapter/host/probe
+runs did not reproduce it. The cause remains undiagnosed; the retained observation
+is a transcription of tool output, not a complete raw failure log.
+
+The final release probe uses synthetic Iced events with two real PTY child byte
+readers. It checks zero preedit writes, exact UTF-8/replay-once, composing key/
+Enter/arrow capture, CJK strings, dead-key/spacing accent/empty text/AltGr,
+Ctrl+C/copy, stale-owner rejection, blur and modal disable/restore. Origin/resize
+and synthetic scale events retain preedit and logical anchoring. Controlled VT
+output moves the model cursor from (74.21484,96.649994) to (91.072266,114.85).
+It requests no continuous idle redraw. This fixture does not exercise the app
+host gate; the separate host tests above do.
+
+Both children received exactly 12 and 3 input bytes respectively, plus a separate
+fixture finish sentinel, then exited 0 with output_drained=true. Final PIDs
+80956/80961 and all ten earlier recorded probe PIDs were independently absent.
+[Final evidence](../baselines/issue-19/final-e58838a/) records source commit
+`560e32fe576f0feb9f9d5d19d86b2ea57b8d0498`, source/binary/lock hashes, OS/compiler,
+commands, candidate rectangles, cleanup, runtime provenance and limitations.
+Initial published evidence remains preserved in the parent directory.
+
+The single complete release-probe observation, including renderer initialization,
+two PTYs, assertions and cleanup, was 0.62 seconds wall, 0.02 user, 0.08 system
+and 17,989,632-byte maximum RSS (about 17.16 MiB). It is not GUI idle/private
+bytes, latency percentiles, long-duration leak evidence or a Windows/resource-
+budget claim. The final process counters were read with authorized local access.
 
 ## Unperformed Windows/physical verification
 
