@@ -1,0 +1,28 @@
+{
+  "source": "e6bd4cd8285d7bafe1531a498037c8977f873ece",
+  "renderer": "native macOS/default wgpu; synthetic standalone pixel probe",
+  "reviewer_red_source": "ca4b9aaa0449e7758be9c41eece45b2fb0f47687",
+  "production_sha256": {
+    "src/tab_strip.rs": "94df5b1c6e80114d8b78df799a2497bde0b64ef42419cbe2b695bf9e3dbfaeed",
+    "src/tab_strip/reveal.rs": "097a586a33ddf76efa05a071a790390afd8a0b7bc356fbfb1c7ee115fd8ed970",
+    "Cargo.toml": "c7b5738660eac9fed54aaa8d009bfc6efc9e3669ba7a2c576df3233b93d2af90",
+    "Cargo.lock": "f89e89582c78c0afde076852aa068de8cd4d26a478bdad96ac0a9f3dec3edc2d"
+  },
+  "artifact_sha256": {
+    "reviewer-native-red.log": "886f5d8070bd9be27f03233d72bd415927e7429c46021a96366c0921564228be",
+    "fixture-helper-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run_probe.py": "93b134aa1724fbd380b17f738626ce8d1fe72725a510040a17a06f1cce3552c2",
+    "native-green.log": "7e0ca48074fcef7fc5936e2c56b1ba1e33a9e9d5549de5b927620c12dac7180d",
+    "clip-long.rgba": "83eec56e4726fb0bed28bb37ed8fa5b1e0f9931324f37250446046cb034ea42e",
+    "reviewer-original-probe.rs": "e68bb88299b2db03f9dcbd9dc4d79a9bfbe6b55850959272c93ce821bb2bf6d1",
+    "commands.json": "f61206dc6550c3102818b200bf0419613f80d844d4fe92fc135e72c430dcf262",
+    "clip-short.rgba": "27590cc26050b186d8d9844d87abc0e6d0acfca4cc9df4ef6690351228da9e8f",
+    "probe-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "library-build.log": "bd1b9330fc60f163fe55f9a083921d46b638b189ee5561cb4e17d87e62064f8b",
+    "author-green-probe.rs": "707cd6e725adf981e0ae0e0c54ef32e6a02dba95745342f755c623cbd6811575"
+  },
+  "native_windows": false,
+  "physical_keyboard_monitor": false,
+  "release_measurements": false,
+  "remote_ci": false
+}

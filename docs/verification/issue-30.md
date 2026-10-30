@@ -68,3 +68,18 @@ pointer helper now accounts for scroll translations and clipping and uses
 finite actual wheel events to expose offscreen entries. Its complete host
 driver/native run remains pending; component math is not a keyboard/monitor
 or actual-App integration claim.
+
+The targeted native pixel oracle now passes on immutable source
+`e6bd4cd8285d7bafe1531a498037c8977f873ece`. Reviewer2 independently reproduced
+**4,580 changed pixels** in empty chrome on `ca4b9aa`; byte-preserved original
+probe/red log are retained under
+[`docs/baselines/issue-30/clipping`](../baselines/issue-30/clipping).
+`python3 docs/baselines/issue-30/clipping/run_probe.py` built the current library
+offline/locked with four jobs and this worktree's target, compiled that same
+probe with only its output directory changed, and ran it outside the sandbox
+using native macOS wgpu: **0 changed pixels** outside the tab and close button.
+It also compiled all three prepared native fixture helpers against the exact
+Cargo-emitted local artifacts. All four subprocesses exited 0; commands, native
+green, raw synthetic renders and source/binary-input hashes are retained there.
+This fixes the demonstrated component rendering failure; it does not replace
+the remaining twelve-process actual-App keyboard/modal/native-close acceptance.
