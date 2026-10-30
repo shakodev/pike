@@ -24,7 +24,7 @@ impl Default for LaunchLimits {
     fn default() -> Self {
         Self {
             jobs: NonZeroU16::new(2).unwrap(),
-            sessions: NonZeroU16::new(16).unwrap(),
+            sessions: NonZeroU16::new(32).unwrap(),
         }
     }
 }

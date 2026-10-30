@@ -1,5 +1,6 @@
 //! Pane presentation and canonical layout; no backend or process ownership.
 use iced::widget::pane_grid::{self, Axis, Node, Pane, Split};
+use iced::{Rectangle, Size};
 
 use crate::identity::{SessionId, TabId};
 
@@ -13,6 +14,41 @@ pub struct PaneState {
 pub struct PaneTarget {
     pub tab: TabId,
     pub pane: Pane,
+}
+
+/// Measured available grid area and per-pane minimum, including chrome.
+/// Uses the same rounding/gutter calculation as the pinned pane_grid widget.
+#[derive(Clone, Copy, Debug)]
+pub struct SplitGeometry {
+    pub area: Size,
+    pub minimum: Size,
+    pub spacing: f32,
+}
+
+impl SplitGeometry {
+    pub(crate) fn admits(self, tab: &TabState, pane: Pane, axis: Axis) -> bool {
+        let positive = |size: Size| {
+            size.width.is_finite()
+                && size.height.is_finite()
+                && size.width > 0.0
+                && size.height > 0.0
+        };
+        if !positive(self.area)
+            || !positive(self.minimum)
+            || !self.spacing.is_finite()
+            || self.spacing < 0.0
+            || tab.grid.maximized().is_some()
+        {
+            return false;
+        }
+        let fits = |r: Rectangle| r.width >= self.minimum.width && r.height >= self.minimum.height;
+        let regions = tab.grid.layout().pane_regions(self.spacing, 0.0, self.area);
+        regions.values().all(|r| fits(*r))
+            && regions.get(&pane).is_some_and(|r| {
+                let (a, b, _) = axis.split(r, 0.5, self.spacing, 0.0, 0.0);
+                fits(a) && fits(b)
+            })
+    }
 }
 
 #[derive(Debug)]

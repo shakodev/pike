@@ -1,18 +1,21 @@
-//! First-pane application integration; workspace transactions own identity.
-use iced::{Subscription, Task};
+//! Application integration; workspace transactions own pane/session identity.
+use iced::{Size, Subscription, Task};
 use iced_term::settings::BackendSettings;
 use iced_term::{Event, Terminal, WindowFocus};
+use std::collections::{BTreeMap, BTreeSet};
 
-use crate::identity::{Reservation, SessionId};
-use crate::launch::{LaunchError, LaunchPool, PreparedSession};
+use crate::identity::{Reservation, SessionId, TabId};
+use crate::launch::{LaunchError, LaunchPool, LaunchRequest, PreparedSession};
 use crate::layout::PaneTarget;
 use crate::session::{Effect, Lifecycle};
 use crate::terminal::{Owner, Sessions};
 use crate::workspace::Model;
 
 mod focus;
+mod split;
 mod startup;
 mod view;
+pub use split::Direction;
 
 pub enum Message {
     Control(Control),
@@ -22,6 +25,7 @@ pub enum Message {
     WindowFocused(bool),
     CloseWindow,
     ShutdownComplete,
+    GridSize(TabId, Size),
 }
 
 #[derive(Clone, Copy)]
@@ -31,6 +35,8 @@ pub enum Control {
     UseDefault(SessionId),
     Close(PaneTarget),
     Copy(SessionId),
+    Split(PaneTarget, Direction),
+    Focus(PaneTarget),
 }
 
 #[derive(Default)]
@@ -42,6 +48,9 @@ pub struct App {
     window_focus: WindowFocus,
     exiting: bool,
     notice: Option<&'static str>,
+    profiles: BTreeMap<SessionId, BackendSettings>,
+    focus_on_attach: BTreeSet<SessionId>,
+    grid_size: Option<(TabId, Size)>,
 }
 
 impl App {
@@ -83,6 +92,14 @@ impl App {
     }
 
     fn synchronize(&mut self) {
+        self.profiles
+            .retain(|id, _| self.model.sessions().get(*id).is_some());
+        self.focus_on_attach.retain(|id| {
+            self.model
+                .sessions()
+                .get(*id)
+                .is_some_and(|e| self.model.accepts_spawn(e.reservation()))
+        });
         let active = (!self.exiting).then(|| self.active_session()).flatten();
         self.sessions
             .synchronize(&self.model, active, &self.window_focus);
@@ -103,22 +120,43 @@ impl App {
     }
 
     fn retry(&mut self, id: SessionId, use_default: bool) -> Task<Message> {
+        self.begin_retry(id, use_default)
+            .map(Self::receive)
+            .unwrap_or_else(Task::none)
+    }
+
+    fn begin_retry(&mut self, id: SessionId, use_default: bool) -> Option<LaunchRequest> {
         if self.exiting
-            || self.active_session() != Some(id)
             || !matches!(
                 self.model.sessions().get(id).map(|e| e.lifecycle()),
                 Some(Lifecycle::Failed(_) | Lifecycle::Exited { .. })
             )
         {
-            return Task::none();
+            return None;
         }
-        if let Some(target) = self.active_target() {
-            self.close(target);
-        }
-        if use_default {
-            self.profile = BackendSettings::default();
-        }
-        self.open()
+        let target = self.model.target(id)?;
+        let profile = if use_default {
+            BackendSettings {
+                working_directory: self
+                    .profiles
+                    .get(&id)
+                    .and_then(|p| p.working_directory.clone()),
+                ..BackendSettings::default()
+            }
+        } else {
+            self.profiles
+                .get(&id)
+                .cloned()
+                .unwrap_or_else(|| self.profile.clone())
+        };
+        let Ok(Effect::Spawn(reservation)) = self.model.restart(target) else {
+            self.notice = Some("Cannot restart this terminal. Close the error pane and try again.");
+            return None;
+        };
+        self.sessions.entries.remove(&id);
+        self.profiles.remove(&id);
+        self.focus_on_attach.insert(reservation.session);
+        self.submit_profile(reservation, profile)
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
@@ -126,7 +164,14 @@ impl App {
             Message::Control(Control::New) => return self.open(),
             Message::Control(Control::Retry(id)) => return self.retry(id, false),
             Message::Control(Control::UseDefault(id)) => return self.retry(id, true),
-            Message::Control(Control::Close(target)) => self.close(target),
+            Message::Control(Control::Close(target)) => {
+                self.close(target);
+                return self.focus_active();
+            }
+            Message::Control(Control::Split(target, direction)) => {
+                return self.split(target, direction);
+            }
+            Message::Control(Control::Focus(target)) => return self.select(target),
             Message::Control(Control::Copy(id)) => {
                 if !self.exiting
                     && self.active_session() == Some(id)
@@ -160,6 +205,11 @@ impl App {
             Message::WindowFocused(focused) => {
                 self.window_focus.set_focused(focused);
                 self.synchronize();
+            }
+            Message::GridSize(tab, size) => {
+                if self.model.workspace().active() == Some(tab) {
+                    self.grid_size = Some((tab, size));
+                }
             }
             Message::CloseWindow if !self.exiting => {
                 self.exiting = true;

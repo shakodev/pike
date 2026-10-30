@@ -1,9 +1,28 @@
 //! A delayed focus request for a removed widget must not unfocus its replacement.
+use crate::layout::PaneTarget;
 use iced::advanced::widget::{
     Id, Operation, operate,
     operation::{Focusable, Outcome, focusable},
 };
 use iced::{Rectangle, Task};
+
+impl super::App {
+    /// Every pane selection (click, attachment, close fallback) uses this route.
+    pub(super) fn select(&mut self, target: PaneTarget) -> Task<super::Message> {
+        if self.exiting || self.model.focus(target).is_err() {
+            return Task::none();
+        }
+        self.synchronize();
+        self.focus_active()
+    }
+
+    pub(super) fn focus_active(&self) -> Task<super::Message> {
+        self.active_session()
+            .and_then(|id| self.terminal(id))
+            .map(|terminal| request(terminal.widget_id().clone()))
+            .unwrap_or_else(Task::none)
+    }
+}
 
 pub(super) fn request(target: Id) -> Task<super::Message> {
     operate(IfPresent {

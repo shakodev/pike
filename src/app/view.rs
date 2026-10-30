@@ -1,17 +1,41 @@
-use iced::widget::{PaneGrid, button, column, container, pane_grid, row, text};
-use iced::{Element, Fill};
+use iced::widget::{PaneGrid, button, column, container, pane_grid, row, scrollable, sensor, text};
+use iced::{Border, Element, Fill};
 use iced_term::TerminalView;
 
-use super::{App, Control, Message};
+use super::{
+    App, Control, Direction, Message,
+    split::{BORDER, FOOTER, GUTTER, HEADER},
+};
 use crate::identity::SessionId;
+use crate::layout::PaneTarget;
 use crate::session::Lifecycle;
 use crate::terminal::Owner;
 
 impl App {
+    pub(super) fn footer_height(&self, id: SessionId) -> f32 {
+        if self
+            .sessions
+            .entries
+            .get(&id)
+            .is_some_and(|entry| entry.ended || entry.notice.is_some())
+            || matches!(
+                self.model.sessions().get(id).map(|e| e.lifecycle()),
+                Some(Lifecycle::Exited { .. })
+            )
+        {
+            FOOTER
+        } else {
+            0.0
+        }
+    }
+
     pub fn view(&self) -> Element<'_, Message> {
         let mut controls = row![text("Pike").size(22)].spacing(12);
         if !self.exiting {
             if let Some(target) = self.active_target() {
+                controls = controls
+                    .push(button("Split right").on_press(Control::Split(target, Direction::Right)))
+                    .push(button("Split down").on_press(Control::Split(target, Direction::Down)));
                 controls = controls.push(button("Close terminal").on_press(Control::Close(target)));
                 if let Some(id) = self.active_session()
                     && self.terminal(id).is_some()
@@ -30,19 +54,54 @@ impl App {
             .active()
             .and_then(|id| self.model.workspace().tab(id))
         {
-            PaneGrid::new(tab.grid(), |_, pane, _| {
-                pane_grid::Content::new(self.pane(pane.session))
+            let tab_id = self.model.workspace().active().expect("active tab");
+            let grid = PaneGrid::new(tab.grid(), |handle, pane, _| {
+                let target = PaneTarget {
+                    tab: tab_id,
+                    pane: handle,
+                };
+                let focused = handle == tab.focused();
+                let header: Element<'_, Control> = container(
+                    button(text(format!("Terminal {}", pane.session.get())).size(12))
+                        .on_press(Control::Focus(target))
+                        .style(button::text),
+                )
+                .height(HEADER)
+                .into();
+                let content = column![header.map(Message::Control), self.pane(pane.session)];
+                pane_grid::Content::new(container(content).padding(BORDER).clip(true).style(
+                    move |theme: &iced::Theme| container::Style {
+                        border: Border {
+                            width: BORDER,
+                            color: if focused {
+                                theme.palette().primary
+                            } else {
+                                theme.extended_palette().background.strong.color
+                            },
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    },
+                ))
+            })
+            .spacing(GUTTER)
+            .min_size(0)
+            .on_click(move |pane| {
+                Message::Control(Control::Focus(PaneTarget { tab: tab_id, pane }))
             })
             .width(Fill)
-            .height(Fill)
-            .into()
+            .height(Fill);
+            sensor(grid)
+                .key(tab_id)
+                .on_resize(move |size| Message::GridSize(tab_id, size))
+                .into()
         } else {
             container(text("No terminal open"))
                 .width(Fill)
                 .height(Fill)
                 .into()
         };
-        let controls: Element<'_, Control> = controls.into();
+        let controls: Element<'_, Control> = controls.wrap().into();
         let mut content = column![controls.map(Message::Control), pane].spacing(8);
         if let Some(notice) = self.notice {
             content = content.push(text(notice));
@@ -59,25 +118,35 @@ impl App {
             return text("Starting terminal…").into();
         };
         match &entry.owner {
-            Owner::Starting(_) => text("Starting terminal…").into(),
+            Owner::Starting(_) => {
+                let content: Element<'_, Control> = column![
+                    text("Starting terminal…"),
+                    button("Cancel startup").on_press(Control::Close(
+                        self.model.target(id).expect("visible starting pane")
+                    ))
+                ]
+                .into();
+                content.map(Message::Control)
+            }
             Owner::Disposing(_) => text("Closing terminal…").into(),
             Owner::Failed(error) => {
                 let failed: Element<'_, Control> = column![
                     text(error.to_string()),
-                    row![
+                    column![
                         button("Retry").on_press(Control::Retry(id)),
-                        button("New default terminal").on_press(Control::UseDefault(id))
+                        button("Use default shell").on_press(Control::UseDefault(id))
                     ]
                     .spacing(8)
                 ]
                 .spacing(8)
                 .into();
-                failed.map(Message::Control)
+                scrollable(failed.map(Message::Control)).height(Fill).into()
             }
             Owner::Attached(terminal) => {
                 let mut content = column![
                     TerminalView::show(terminal).map(move |event| Message::Terminal((id, event)))
                 ];
+                let mut footer = column![];
                 if let Some(Lifecycle::Exited { code }) =
                     self.model.sessions().get(id).map(|e| e.lifecycle())
                 {
@@ -89,12 +158,15 @@ impl App {
                         row![text(status), button("Restart").on_press(Control::Retry(id))]
                             .spacing(8)
                             .into();
-                    content = content.push(status.map(Message::Control));
+                    footer = footer.push(status.map(Message::Control));
                 } else if entry.ended {
-                    content = content.push(text("Terminal exited — finishing output and cleanup…"));
+                    footer = footer.push(text("Terminal exited — finishing output and cleanup…"));
                 }
                 if let Some(notice) = entry.notice.as_deref() {
-                    content = content.push(text(notice));
+                    footer = footer.push(text(notice));
+                }
+                if self.footer_height(id) > 0.0 {
+                    content = content.push(scrollable(footer).height(FOOTER));
                 }
                 content.height(Fill).into()
             }
