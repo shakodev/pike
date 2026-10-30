@@ -276,3 +276,102 @@ The corrected release/native run uses the same commands above with fresh output
 Actions remains off. Native Windows, physical keyboard, mixed-monitor and
 ordinary idle-resource results remain unperformed. Physical #13/#14 holds and
 the #14 scheduling waiver are unchanged.
+
+## Pointer lifecycle follow-up on published 58f2898
+
+The two further native pointer regressions were reproduced before application
+edits at exact published head `58f289853b13a6788c25ddfd9ed498ee2dcbc223`.
+The unchanged reviewer sources, SHA256 hashes, original receipts and fresh local
+red receipts are retained under
+[`pointer-lifecycle/red`](../baselines/issue-25/pointer-lifecycle/red/provenance.json).
+The leeway press at active-terminal `bounds.x + 1` emitted one `SelectStart`;
+a divider press followed by raw/App blur, refocus and an unheld 50-DIP move
+changed the canonical ratio without a new press. The original three corrected
+focus/queued-blur/fallback observations stayed green.
+
+The production correction is committed at exact source head
+`077d092a8d81d9ff0f6dbabf9f02ba9c146fedbf`. `app/resize/capture.rs` now shares a
+small pointer-admission flag between the existing capture widget around
+PaneGrid and the pane contents in `app/view.rs`. This is necessary because
+Iced's `Element::map` creates a fresh Shell, so outer Shell capture alone does
+not prevent terminal selection or mouse reporting. PaneGrid retains its native
+hit test and drag geometry; pane contents skip pointer events throughout that
+gesture. Raw blur, loss of the active owner or composition ownership cancels
+PaneGrid's armed resize with a release before later movement, preserving child
+Trees. Owner loss is latched through view diffs, including restoration before
+the next event. The `capture(content, suspended, active, on_key)`, `KeyAction`
+and `change_terminal_font` interfaces are unchanged. There are no new
+dependencies, vendor changes, background tasks or session/process edits.
+
+All verification below ran locally with four build jobs and the default wgpu
+renderer. [Final source/binary hashes](../baselines/issue-25/pointer-lifecycle/green/provenance.json)
+identify the source checkpoint above; the later evidence commit changes docs
+and receipts only.
+
+| Sensitive observation | Local result |
+|---|---|
+| Exact unchanged leeway source | [Red: 1 child command](../baselines/issue-25/pointer-lifecycle/red/leeway-native.log) → [green: 0](../baselines/issue-25/pointer-lifecycle/green/leeway-native.log) |
+| Exact unchanged blur-drag source | [Red: unheld move resized](../baselines/issue-25/pointer-lifecycle/red/blur-drag-native.log) → [green: ratio unchanged](../baselines/issue-25/pointer-lifecycle/green/blur-drag-native.log) |
+| Original persistent-Tree focus, queued blur and bounded fallback | [All preserved; cleanup 0 sessions](../baselines/issue-25/pointer-lifecycle/green/persistent-native.log) |
+| New asserted pointer fixture, normal terminal mode | [Passed](../baselines/issue-25/pointer-lifecycle/green/pointer-native.log) |
+| New asserted pointer fixture, confirmed native mouse-report mode | [Passed](../baselines/issue-25/pointer-lifecycle/green/pointer-mouse-native.log) |
+| Selected app tests | [28 passed, 4 pre-existing device tests ignored](../baselines/issue-25/pointer-lifecycle/green/app-tests.log) |
+| App and new fixture formatting / selected Clippy | Passed locally, including Windows cross-compilation |
+
+The asserted fixture covers press/move/release in the overlapping terminal edge,
+zero divider PTY admission, actual drag ratio changes, actual widget focus,
+raw blur/refocus with no delivered release, owner transfer/restoration, App-only
+blur, fresh-press recovery and stable live session/widget identities. Its normal
+click/drag guard requires selection to start and extend after cancellation;
+in mouse mode it requires ordinary press/release reports and admitted PTY bytes.
+This rejects an implementation that simply swallows all terminal pointer input.
+Both modes explicitly complete with zero sessions.
+
+The fresh [release geometry run](../baselines/issue-25/pointer-lifecycle/native-macos/summary.json)
+passed 14 cases and 56 independent native dimension comparisons, preserving all
+four session/process/widget identities. There were 75 native resizes and zero
+extra calls for 1,120 repeated identical proposals; all four child PIDs were
+absent after cleanup. The constrained screenshot is retained as raw
+[PPM](../baselines/issue-25/pointer-lifecycle/native-macos/constrained.ppm).
+The 2,925 App dispatch samples measured median 8 µs, p95 48 µs and max 5,766 µs;
+827 redraw deliveries measured median 266 µs, p95 1,125 µs and max 33,529 µs.
+These retain the earlier fixture timing definitions and limitations.
+[`time -l`](../baselines/issue-25/pointer-lifecycle/green/fixture-time.log)
+reported 16.32 seconds wall, 2.66 user, 4.62 system, 160,235,520 bytes maximum
+RSS and 337,003,456 bytes peak footprint. This instrumented fixture includes
+its renderer and headless widget driver; it does not establish application
+idle memory/CPU or Windows performance budgets.
+
+Exact affected commands (repository root, `CARGO_BUILD_JOBS=4`):
+
+```sh
+cargo fmt -p pike -- --check
+cargo clippy --locked -p pike --lib --bin pike --tests --example pane_resizing -- -D warnings
+cargo clippy --locked -p pike --lib --bin pike --tests --example pane_resizing --target x86_64-pc-windows-msvc -- -D warnings
+cargo test --locked -p pike --lib app:: -- --test-threads=1
+cargo build --locked --manifest-path docs/baselines/issue-25/focus-probe/Cargo.toml --target-dir target --bins
+target/debug/leeway
+target/debug/blur_drag
+target/debug/pike-r25-independent-review
+target/debug/pointer_lifecycle
+target/debug/pointer_lifecycle --mouse-report
+rustfmt --edition 2024 --check docs/baselines/issue-25/focus-probe/src/bin/pointer_lifecycle.rs
+cargo clippy --locked --manifest-path docs/baselines/issue-25/focus-probe/Cargo.toml --target-dir target --bin pointer_lifecycle -- -D warnings
+cargo build --release --locked -p pike --example pane_resizing
+/usr/bin/time -l target/release/examples/pane_resizing docs/baselines/issue-25/pointer-lifecycle/native-macos
+python3 docs/baselines/issue-25/summarize.py docs/baselines/issue-25/pointer-lifecycle/native-macos
+git diff --check
+```
+
+Pure geometry/workspace tests were not repeated because this follow-up changes
+only pointer admission/lifecycle and view wrapping; their previously recorded
+5/16 passes remain applicable. No vendor code changed, so no vendor test round
+was needed. Main was fetched before editing and again before the evidence
+commit and remained `5d34cb74b99f5e7e6865789f645e5fe519ba2d94`. Personal account
+`shakodev` was verified and the source checkpoint was non-force pushed to the
+same open PR #76. No GitHub Actions run, merge or external review comment was
+performed; a [local follow-up draft](../baselines/issue-25/pointer-lifecycle/PR76-follow-up-draft.md)
+is retained while the coordinator's publication hold remains in force.
+Native Windows, physical keyboard/monitor, mixed-monitor and ordinary idle
+resource checks remain unperformed. Physical #13/#14 holds and the #14
+scheduling waiver are unchanged.

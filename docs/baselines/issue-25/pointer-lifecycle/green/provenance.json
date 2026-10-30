@@ -1,0 +1,44 @@
+{
+  "app_implementation_head": "077d092a8d81d9ff0f6dbabf9f02ba9c146fedbf",
+  "prior_red_head": "58f289853b13a6788c25ddfd9ed498ee2dcbc223",
+  "host": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+  "renderer": "default renderer-wgpu",
+  "jobs": 4,
+  "native_windows": false,
+  "physical_input": false,
+  "source_and_binary_sha256": {
+    "src/app/resize.rs": "99b4becf9f38f68df2c34375d949ac3a9d83e066bf0d5c5968d412713e4384f3",
+    "src/app/resize/capture.rs": "1594e989e5007f038ecb45b71ce51bacb37bc5595d1b076c5d33710fa1458efa",
+    "src/app/view.rs": "cecb3137ae951e416c4809a262cb4c4e47c6571a0643f425c3a5876c4a9011af",
+    "docs/baselines/issue-25/focus-probe/Cargo.toml": "fb637243a0fabadc34cadc9c9ee139d22c46a57432cb3d43449fdc554c7a1588",
+    "docs/baselines/issue-25/focus-probe/src/main.rs": "ff3c097303d1822a350965faf97b218cbcfcc2ec11ed7c96069e91c92a31e139",
+    "docs/baselines/issue-25/focus-probe/src/bin/pointer_lifecycle.rs": "8c6c8d8e9f52af3bd8a134b4915df573daab06de6e73d5c5f10935306d4a2e39",
+    "docs/baselines/issue-25/pointer-lifecycle/red/leeway-source.rs": "3f6cb2e380ea4cca54e5e99352de45f802d59a653a9ef0afdc76bbfa931e7623",
+    "docs/baselines/issue-25/pointer-lifecycle/red/blur_drag-source.rs": "a37d2a00e6728982e17645f175f8b9934a269e1ec8ceb052be44e138b99eff73",
+    "target/debug/leeway": "0e0210fc019696f46b36fae1cd6c4cd6dd8feb08ef6769f742ef3a401c696505",
+    "target/debug/blur_drag": "096d63c2f3caf5c889f9fdda3567298066e3759f11b0405754f2900205ad2e84",
+    "target/debug/pointer_lifecycle": "07fbe78756671196065b317e351dc4580ce287bdee00f51e5e9183c268712f4b",
+    "target/debug/pike-r25-independent-review": "b219ff3596bc47293dffbc5c42e085f1049753af6b635e0a3fbc9280c775b4d7",
+    "target/release/examples/pane_resizing": "8b6d2d83e808a409cb623739ff441729bf03da90da7303572b252f1678a6037f"
+  },
+  "checks": {
+    "exact_leeway_red_to_green": [
+      1,
+      0
+    ],
+    "exact_blur_drag_red_to_green": [
+      true,
+      false
+    ],
+    "original_three_persistent_tree_regressions": "pass",
+    "pointer_lifecycle_normal": "pass",
+    "pointer_lifecycle_mouse_report": "pass",
+    "app_tests": {
+      "passed": 28,
+      "ignored": 4
+    },
+    "macos_clippy": "pass",
+    "windows_cross_clippy": "pass",
+    "pike_fmt": "pass"
+  }
+}
