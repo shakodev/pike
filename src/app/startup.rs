@@ -21,7 +21,8 @@ impl App {
     }
 
     pub(super) fn submit(&mut self, reservation: Reservation) -> Option<LaunchRequest> {
-        self.submit_profile(reservation, self.profile.clone())
+        let (profile, name) = self.launch_profile(None)?;
+        self.submit_named_profile(reservation, profile, name)
     }
 
     pub(super) fn submit_profile(
@@ -87,8 +88,15 @@ impl App {
             {
                 let active = self.active_session() == Some(reservation.session);
                 // Font/cache attachment occurs here, on Iced's update thread.
-                match ready.attach_hidden(Default::default(), Default::default()) {
+                match ready.attach_hidden(self.settings.active.font().terminal(), self.palette()) {
                     Ok(mut terminal) => {
+                        if self.settings.enabled {
+                            terminal.handle(iced_term::Command::ProxyToBackend(
+                                iced_term::BackendCommand::SetHistoryLimit(
+                                    self.settings.active.history(),
+                                ),
+                            ));
+                        }
                         terminal.set_window_focus(self.window_focus.clone());
                         self.model.spawn_succeeded(reservation);
                         self.sessions.entries.insert(

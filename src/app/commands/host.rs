@@ -65,6 +65,7 @@ impl App {
                 self.begin_tab_rename(tab)
             }
             Command::ListTabs => self.begin_tab_overflow(),
+            Command::ReloadSettings => self.reload_settings(),
             Command::NextTab | Command::PreviousTab | Command::SelectTab(_) => {
                 use crate::tabs::Selection;
                 let selection = match command {
@@ -116,11 +117,11 @@ impl App {
                             .fonts
                             .get(&id)
                             .cloned()
-                            .unwrap_or_default();
+                            .unwrap_or_else(|| self.settings.active.font().terminal());
                         font.size = match change {
                             FontChange::Larger => (font.size + 1.0).min(28.0),
                             FontChange::Smaller => (font.size - 1.0).max(10.0),
-                            FontChange::Reset => FontSettings::default().size,
+                            FontChange::Reset => self.settings.active.font().size,
                         };
                         self.change_terminal_font(id, font);
                         self.focus_active()
@@ -147,6 +148,7 @@ impl App {
         self.command_state.help?;
         let content: Element<'_, Control> = column![
             text("Keyboard shortcuts").size(22),
+            text("Reload settings: Ctrl+Shift+F5 (or Reload settings toolbar button). Shortcut configuration is validated and reserved for the R32 remapping feature."),
             text("New tab: Ctrl+Shift+T\nClose pane / tab: Ctrl+Shift+W / Q\nNext / previous tab: Ctrl+Tab / Ctrl+Shift+Tab\nSelect tabs 1–8 / last: Ctrl+Shift+1…8 / 9\nRename tab / all tabs: Ctrl+Shift+R / L\nSplit right / down: Ctrl+Shift+O / E\nFocus adjacent pane: Alt+Arrow\nResize divider: Alt+Shift+Arrow\nMaximize / restore: Ctrl+Shift+Enter\nCopy / paste: Ctrl+Shift+C / V; Shift+Insert pastes\nHistory: Shift+PageUp / PageDown / Home / End\nFont larger / smaller / reset: Ctrl+Shift+Plus / Minus / 0\nInterrupt shell: Ctrl+C\nDismiss help: Escape or F1"),
             button("Return to terminal").on_press(Control::DismissHelp),
         ].spacing(12).into();

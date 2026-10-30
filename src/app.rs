@@ -16,6 +16,7 @@ pub use close::CloseAction;
 pub mod commands;
 mod focus;
 mod resize;
+mod settings;
 mod split;
 mod startup;
 mod tab_dialog;
@@ -37,6 +38,8 @@ pub enum Message {
     CloseKey(u64, iced::keyboard::Event),
     GridSize(TabId, Size),
     TabName(u64, String),
+    SettingsLoaded(Result<crate::settings::Settings, crate::settings::Error>),
+    SystemTheme(iced::theme::Mode),
 }
 
 #[derive(Clone, Copy)]
@@ -61,6 +64,7 @@ pub enum Control {
     DismissHelp,
     TabAction(crate::tab_strip::TabAction),
     TabDialog(u64, DialogAction),
+    NewProfile(u64, u8),
 }
 
 #[derive(Default)]
@@ -81,11 +85,24 @@ pub struct App {
     focus_authority: focus::Authority,
     command_state: commands::State,
     tab_dialog: tab_dialog::State,
+    settings: settings::State,
 }
 
 impl App {
     pub fn new() -> (Self, Task<Message>) {
-        Self::with_settings(BackendSettings::default())
+        match crate::settings::user_path() {
+            Ok(path) => Self::with_config_path(path),
+            Err(error) => {
+                let mut app = Self::default();
+                app.settings.enabled = true;
+                app.settings.error = Some(error);
+                let task = app.open();
+                (
+                    app,
+                    Task::batch([task, iced::system::theme().map(Message::SystemTheme)]),
+                )
+            }
+        }
     }
 
     /// Structured launch configuration; no process-global environment mutation.
@@ -124,6 +141,9 @@ impl App {
     fn synchronize(&mut self) {
         self.synchronize_resize_tab();
         self.profiles
+            .retain(|id, _| self.model.sessions().get(*id).is_some());
+        self.settings
+            .names
             .retain(|id, _| self.model.sessions().get(*id).is_some());
         self.focus_on_attach.retain(|id| {
             self.model
@@ -176,11 +196,11 @@ impl App {
                 ..BackendSettings::default()
             }
         } else {
-            self.profiles
-                .get(&id)
-                .cloned()
-                .unwrap_or_else(|| self.profile.clone())
+            self.launch_profile(Some(id))?.0
         };
+        let name = (!use_default)
+            .then(|| self.settings.names.get(&id).cloned())
+            .flatten();
         let Ok(Effect::Spawn(reservation)) = self.model.restart(target) else {
             self.notice = Some("Cannot restart this terminal. Close the error pane and try again.");
             return None;
@@ -188,7 +208,7 @@ impl App {
         self.sessions.entries.remove(&id);
         self.profiles.remove(&id);
         self.focus_after_attach(reservation.session);
-        let launch = self.submit_profile(reservation, profile);
+        let launch = self.submit_named_profile(reservation, profile, name);
         self.synchronize();
         launch
     }
@@ -207,6 +227,11 @@ impl App {
             return Task::none();
         }
         match message {
+            Message::SettingsLoaded(result) => return self.settings_loaded(result),
+            Message::SystemTheme(mode) => self.system_theme(mode),
+            Message::Control(Control::NewProfile(generation, index)) => {
+                return self.new_profile(generation, index);
+            }
             Message::Control(Control::TabAction(action)) => return self.tab_action(action),
             Message::Control(Control::TabDialog(token, action)) => {
                 return self.tab_dialog_action(token, action);
@@ -355,6 +380,7 @@ impl App {
             }),
             self.sessions.subscription().map(Message::Terminal),
             self.close_subscription(),
+            iced::system::theme_changes().map(Message::SystemTheme),
         ])
     }
 }

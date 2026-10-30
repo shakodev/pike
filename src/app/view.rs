@@ -1,4 +1,6 @@
-use iced::widget::{PaneGrid, button, column, container, pane_grid, row, scrollable, sensor, text};
+use iced::widget::{
+    PaneGrid, button, column, container, pane_grid, pick_list, row, scrollable, sensor, text,
+};
 use iced::{Border, Element, Fill};
 use iced_term::TerminalView;
 
@@ -176,6 +178,49 @@ impl App {
         );
         let controls: Element<'_, Control> = controls.wrap().into();
         let mut content = column![controls.map(Message::Control)].spacing(8);
+        if !self.exiting && self.settings.enabled {
+            let mut reload = button(if self.settings.pending {
+                "Reloading settings…"
+            } else {
+                "Reload settings (Ctrl+Shift+F5)"
+            });
+            if !self.settings.pending {
+                reload =
+                    reload.on_press(Control::Command(super::commands::Command::ReloadSettings));
+            }
+            let mut settings = row![reload].spacing(8);
+            if !self.settings.pending {
+                let names: Vec<_> = self
+                    .settings
+                    .active
+                    .profiles()
+                    .map(|id| id.as_str().to_owned())
+                    .collect();
+                settings = settings.push(
+                    container(
+                        pick_list(names, None::<String>, move |selected| {
+                            let index = self
+                                .settings
+                                .active
+                                .profiles()
+                                .position(|id| id.as_str() == selected)
+                                .unwrap_or(usize::MAX);
+                            Control::NewProfile(
+                                self.settings.generation,
+                                u8::try_from(index).unwrap_or(u8::MAX),
+                            )
+                        })
+                        .placeholder("New terminal with profile…"),
+                    )
+                    .id("settings-profile-picker"),
+                );
+            }
+            let settings: Element<'_, Control> = settings.into();
+            content = content.push(settings.map(Message::Control));
+            if let Some(error) = self.settings.error {
+                content = content.push(text(format!("{error} Correct settings.toml, then reload; the last valid configuration remains active.")));
+            }
+        }
         if !self.exiting && !self.model.workspace().order().is_empty() {
             content = content.push(self.tabs_view().map(Message::Control));
         }
