@@ -49,6 +49,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         verify(&mut host, &output)
     };
     let cleanup = host.cleanup();
+    fs::write(output.join("commands.txt"), host.evidence.join("\n"))?;
     if let Ok(receipts) = &cleanup {
         fs::write(output.join("cleanup.txt"), receipts.join("\n"))?;
     }

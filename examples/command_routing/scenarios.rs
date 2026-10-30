@@ -42,6 +42,11 @@ fn command(host: &mut Host, event: iced::Event, label: &str, repeat: bool) -> io
     let before = admitted(host);
     let actions = host.controls;
     let status = host.event(event, mouse::Cursor::Unavailable);
+    host.evidence.push(format!(
+        "{label}: status={status:?} app_actions={} owner={:?}",
+        host.controls - actions,
+        host.app.active_session().map(SessionId::get)
+    ));
     check(
         status == iced::event::Status::Captured,
         &format!("{label}: event was not captured"),
@@ -85,6 +90,8 @@ fn selected(host: &mut Host, id: SessionId) -> io::Result<()> {
             "actual widget focus is not exclusive",
         )?;
     }
+    host.evidence
+        .push(format!("exclusive actual widget/model owner={}", id.get()));
     Ok(())
 }
 
@@ -94,6 +101,233 @@ struct Bytes {
 }
 
 impl Bytes {
+    fn local_defaults(&mut self, host: &mut Host, id: SessionId) -> io::Result<()> {
+        selected(host, id)?;
+        let initial = host
+            .app
+            .terminal(id)
+            .unwrap()
+            .renderable_content()
+            .unwrap()
+            .terminal_size
+            .cell_height;
+        character(host, "+", "font larger", false)?;
+        let larger = host
+            .app
+            .terminal(id)
+            .unwrap()
+            .renderable_content()
+            .unwrap()
+            .terminal_size
+            .cell_height;
+        check(
+            larger > initial,
+            "font larger did not change actual cell geometry",
+        )?;
+        character(host, "-", "font smaller", false)?;
+        let smaller = host
+            .app
+            .terminal(id)
+            .unwrap()
+            .renderable_content()
+            .unwrap()
+            .terminal_size
+            .cell_height;
+        check(
+            smaller < larger,
+            "font smaller did not change actual cell geometry",
+        )?;
+        character(host, "+", "font larger before reset", false)?;
+        character(host, "0", "font reset", false)?;
+        check(
+            host.app
+                .terminal(id)
+                .unwrap()
+                .renderable_content()
+                .unwrap()
+                .terminal_size
+                .cell_height
+                == initial,
+            "font reset did not restore actual cell geometry",
+        )?;
+        host.redraw();
+        for key in [
+            Named::ArrowLeft,
+            Named::ArrowRight,
+            Named::ArrowUp,
+            Named::ArrowDown,
+        ] {
+            command(
+                host,
+                press(
+                    Key::Named(key),
+                    Modifiers::ALT | Modifiers::SHIFT,
+                    None,
+                    false,
+                ),
+                "resize direction",
+                false,
+            )?;
+            selected(host, id)?;
+        }
+        command(
+            host,
+            press(Key::Named(Named::F1), Modifiers::empty(), None, false),
+            "shortcut help",
+            false,
+        )?;
+        check(
+            host.app.interaction_blocked() && host.app.close_confirmation().is_none(),
+            "F1 did not open input-owning help",
+        )?;
+        let before = admitted(host);
+        let actions = host.controls;
+        for event in [
+            press(Key::Character("o".into()), APP, Some("o"), false),
+            press(
+                Key::Character("x".into()),
+                Modifiers::empty(),
+                Some("x"),
+                false,
+            ),
+            press(Key::Named(Named::F1), Modifiers::empty(), None, true),
+        ] {
+            host.event(event, mouse::Cursor::Unavailable);
+        }
+        check(
+            host.controls == actions,
+            "help dispatched a workspace command or repeated dismissal",
+        )?;
+        zero_admission(host, &before, "help owns input")?;
+        host.event(
+            press(Key::Named(Named::Escape), Modifiers::empty(), None, false),
+            mouse::Cursor::Unavailable,
+        );
+        host.until(|host| !host.app.interaction_blocked())?;
+        selected(host, id)?;
+        self.type_text(host, id, "f")?;
+
+        for (key, expect_history) in [
+            (Named::Home, true),
+            (Named::PageDown, true),
+            (Named::PageUp, true),
+            (Named::End, false),
+        ] {
+            let before = admitted(host);
+            let actions = host.controls;
+            host.event(
+                press(Key::Named(key), Modifiers::SHIFT, None, false),
+                mouse::Cursor::Unavailable,
+            );
+            zero_admission(host, &before, "history shortcut")?;
+            check(host.controls == actions, "history key became an app action")?;
+            let offset = host
+                .app
+                .terminal(id)
+                .unwrap()
+                .renderable_content()
+                .unwrap()
+                .viewport
+                .display_offset();
+            check(
+                (offset > 0) == expect_history,
+                "history shortcut did not move the actual viewport",
+            )?;
+        }
+        let bounds = host.bounds(id).unwrap();
+        let point = Point::new(bounds.x + 25.0, bounds.y + 25.0);
+        host.click(point);
+        host.click(point);
+        let copied = host
+            .app
+            .terminal(id)
+            .unwrap()
+            .copy_selection(|text| text)
+            .ok_or_else(|| io::Error::other("selection click did not select fixture text"))?;
+        let before = admitted(host);
+        let actions = host.controls;
+        host.event(
+            press(Key::Character("c".into()), APP, Some("\x03"), false),
+            mouse::Cursor::Unavailable,
+        );
+        host.until(|host| host.clipboard.0.as_ref() == Some(&copied))?;
+        check(
+            host.controls == actions,
+            "copy dispatched an unrelated app action",
+        )?;
+        zero_admission(host, &before, "copy selection")?;
+        for (key, modifiers) in [
+            (Key::Character("v".into()), APP),
+            (Key::Named(Named::Insert), Modifiers::SHIFT),
+        ] {
+            host.clipboard.0 = Some("PIKE26_PASTE".into());
+            let before = admitted(host);
+            let actions = host.controls;
+            host.event(
+                press(key, modifiers, Some("\x16"), false),
+                mouse::Cursor::Unavailable,
+            );
+            self.expected
+                .get_mut(&self.owners[&id])
+                .unwrap()
+                .extend_from_slice(b"PIKE26_PASTE");
+            host.until(|host| admitted(host).get(&id) == Some(&(before[&id] + 12)))?;
+            check(
+                host.controls == actions,
+                "paste dispatched an unrelated app action",
+            )?;
+            for (other, count) in before {
+                if other != id {
+                    check(
+                        admitted(host)[&other] == count,
+                        "paste reached an inactive owner",
+                    )?;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn modal_cancel(&mut self, host: &mut Host, id: SessionId, key: &str) -> io::Result<()> {
+        selected(host, id)?;
+        let before = admitted(host);
+        character(host, key, "close shortcut", false)?;
+        check(
+            host.app.close_confirmation().is_some(),
+            "close shortcut skipped existing confirmation consumer",
+        )?;
+        let actions = host.controls;
+        for event in [
+            press(Key::Character(key.into()), APP, Some(key), true),
+            press(Key::Character("t".into()), APP, Some("t"), false),
+            press(
+                Key::Character("x".into()),
+                Modifiers::empty(),
+                Some("x"),
+                false,
+            ),
+        ] {
+            host.event(event, mouse::Cursor::Unavailable);
+        }
+        check(
+            host.controls == actions,
+            "modal dispatched a workspace action",
+        )?;
+        zero_admission(host, &before, "close modal input")?;
+        host.event(
+            press(Key::Named(Named::Escape), Modifiers::empty(), None, false),
+            mouse::Cursor::Unavailable,
+        );
+        host.until(|host| host.app.close_confirmation().is_none())?;
+        selected(host, id)?;
+        character(host, key, "close repeat after cancel", true)?;
+        check(
+            host.app.close_confirmation().is_none(),
+            "close repeat reopened confirmation",
+        )?;
+        self.type_text(host, id, "c")
+    }
+
     fn bind(&mut self, host: &mut Host, output: &Path, id: SessionId) -> io::Result<()> {
         host.until(|_| {
             input_files(output)
@@ -414,6 +648,43 @@ pub fn verify(
         "restore lost the full layout",
     )?;
     bytes.priorities(host, bottom)?;
+    let before = admitted(host);
+    let actions = host.controls;
+    for key in [
+        Key::Character("o".into()),
+        Key::Character("e".into()),
+        Key::Character("t".into()),
+        Key::Character("w".into()),
+        Key::Character("q".into()),
+        Key::Named(Named::Enter),
+    ] {
+        command(
+            host,
+            press(key.clone(), APP, None, true),
+            "structural repeat",
+            true,
+        )?;
+        host.event(
+            iced::Event::Keyboard(iced::keyboard::Event::KeyReleased {
+                modified_key: key.clone(),
+                key,
+                physical_key: iced::keyboard::key::Physical::Unidentified(
+                    iced::keyboard::key::NativeCode::Unidentified,
+                ),
+                location: iced::keyboard::Location::Standard,
+                modifiers: APP,
+            }),
+            mouse::Cursor::Unavailable,
+        );
+    }
+    check(
+        host.controls == actions,
+        "structural key release dispatched an action",
+    )?;
+    zero_admission(host, &before, "structural repeat/release")?;
+    bytes.local_defaults(host, bottom)?;
+    bytes.modal_cancel(host, bottom, "w")?;
+    bytes.modal_cancel(host, bottom, "q")?;
 
     let mut tab_owners = vec![bottom];
     for _ in 1..9 {
