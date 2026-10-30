@@ -63,7 +63,7 @@ impl App {
     /// Modal decisions and shutdown own user interaction; native protocol and
     /// lifecycle delivery continue. Capture wrappers must defer to this state.
     pub fn interaction_blocked(&self) -> bool {
-        self.exiting || self.close_policy.confirming()
+        self.exiting || self.close_policy.confirming() || self.command_state.help.is_some()
     }
 
     /// Stable decision token and targeted live count, also useful to native

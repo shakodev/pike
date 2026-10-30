@@ -5,6 +5,81 @@ use iced::widget::pane_grid::{self, Node, Pane};
 use std::collections::BTreeSet;
 
 #[test]
+fn directional_focus_tracks_nested_geometry_without_lifecycle_effects() {
+    use pane_grid::Direction::{Down, Left, Right, Up};
+    let mut model = Model::default();
+    let (left, first) = model.create_tab().unwrap();
+    let (top, second) = model.split(left, Axis::Vertical).unwrap();
+    let (bottom, third) = model.split(top, Axis::Horizontal).unwrap();
+    let ids = [first, second, third].map(reservation);
+    for ids in ids {
+        model.spawn_succeeded(ids);
+    }
+    let tree = format!(
+        "{:?}",
+        model.workspace().tab(left.tab).unwrap().grid().layout()
+    );
+    model.focus(left).unwrap();
+    for (source, direction, expected) in [
+        (left, Right, Some(top)),
+        (top, Down, Some(bottom)),
+        (bottom, Up, Some(top)),
+        (top, Left, Some(left)),
+        (left, Left, None),
+        (left, Up, None),
+    ] {
+        assert_eq!(model.focus_adjacent(source, direction), Ok(expected));
+        assert_eq!(
+            model.workspace().tab(left.tab).unwrap().focused(),
+            expected.unwrap_or(source).pane
+        );
+        invariants(&model);
+    }
+    assert_eq!(
+        tree,
+        format!(
+            "{:?}",
+            model.workspace().tab(left.tab).unwrap().grid().layout()
+        )
+    );
+    assert_eq!(model.sessions().len(), 3);
+    for ids in ids {
+        assert_eq!(
+            model.sessions().get(ids.session).unwrap().reservation(),
+            ids
+        );
+        assert_eq!(
+            model.sessions().get(ids.session).unwrap().lifecycle(),
+            Lifecycle::Running
+        );
+    }
+}
+
+#[test]
+fn directional_focus_restores_zoom_and_rejects_removed_sources_atomically() {
+    use pane_grid::Direction::{Left, Right};
+    let mut model = Model::default();
+    let (left, _) = model.create_tab().unwrap();
+    let (right, _) = model.split(left, Axis::Vertical).unwrap();
+    model.zoom(right).unwrap();
+    assert_eq!(model.focus_adjacent(right, Left), Ok(Some(left)));
+    assert_eq!(
+        model.workspace().tab(left.tab).unwrap().grid().maximized(),
+        None
+    );
+    model.close_pane(right).unwrap();
+    assert_eq!(model.focus_adjacent(right, Left), Err(Error::StalePane));
+    assert_eq!(model.focus_adjacent(left, Right), Ok(None));
+    assert_eq!(
+        model.workspace().tab(left.tab).unwrap().focused(),
+        left.pane
+    );
+    model.close_pane(left).unwrap();
+    assert_eq!(model.focus_adjacent(left, Right), Err(Error::StaleTab));
+    invariants(&model);
+}
+
+#[test]
 fn guarded_splits_use_exact_half_ratios_and_preserve_the_source() {
     use iced::Size;
     for axis in [Axis::Vertical, Axis::Horizontal] {

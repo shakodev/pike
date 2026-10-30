@@ -33,6 +33,9 @@ impl App {
         if let Some(modal) = self.close_view() {
             return modal;
         }
+        if let Some(help) = self.help_view() {
+            return help;
+        }
         let mut controls = row![text("Pike").size(22)].spacing(12);
         if !self.exiting {
             if let Some(target) = self.active_target() {
@@ -66,16 +69,11 @@ impl App {
             let source = presentation.map(|p| &p.grid).unwrap_or_else(|| tab.grid());
             let divider = super::resize::Divider::default();
             let grid = PaneGrid::new(source, |handle, pane, _| {
-                let target = PaneTarget {
-                    tab: tab_id,
-                    pane: handle,
-                };
                 let focused = handle == tab.focused();
                 let header: Element<'_, Control> = container(
                     row![
-                        button(text(format!("Terminal {}", pane.session.get())).size(12))
-                            .on_press(Control::Focus(target))
-                            .style(button::text)
+                        container(text(format!("Terminal {}", pane.session.get())).size(12))
+                            .padding([5, 10])
                             .width(Fill),
                         close::close_button(pane.session)
                     ]
@@ -184,10 +182,16 @@ impl App {
         }
         super::resize::capture(
             container(content).padding(8).width(Fill).height(Fill),
-            self.interaction_blocked() || self.active_target().is_none(),
+            self.interaction_blocked(),
             self.active_session().and_then(|id| self.terminal(id)),
-            super::resize::resize_key,
+            super::commands::on_key,
         )
+        .map(move |message| match message {
+            Message::Control(Control::Command(command)) => {
+                Message::Control(Control::KeyCommand(self.active_session(), command))
+            }
+            message => message,
+        })
     }
 
     fn pane(&self, id: SessionId) -> Element<'_, Message> {

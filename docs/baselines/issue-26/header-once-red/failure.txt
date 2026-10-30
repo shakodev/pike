@@ -1,0 +1,1 @@
+pane header expected one focus action, observed 2
