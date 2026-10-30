@@ -1,0 +1,6 @@
+divider-tap focused=true
+plain-key write-messages=1
+resize-key focused=true
+queued-resize-after-blur changed=false
+fallback-close model-panes=1 rendered-terminals=1
+cleanup sessions=0

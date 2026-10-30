@@ -14,6 +14,7 @@ mod closing;
 mod ime;
 mod interaction;
 mod paste;
+mod resize;
 mod split;
 
 fn profile(script: &str) -> BackendSettings {
