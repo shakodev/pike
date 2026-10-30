@@ -1,0 +1,11 @@
+session=1 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+session=3 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+session=4 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+session=5 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+session=7 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+session=9 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+session=11 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+session=13 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+session=15 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+session=17 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+session=19 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
