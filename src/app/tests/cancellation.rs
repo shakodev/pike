@@ -6,15 +6,15 @@ use std::num::NonZeroU16;
 use std::sync::mpsc;
 use std::time::Instant;
 
-struct CleanupGate {
-    directory: std::path::PathBuf,
+pub(super) struct CleanupGate {
+    pub(super) directory: std::path::PathBuf,
     // Closing the sole writer releases the child's FIFO read, including when
     // this test unwinds. The child never depends on terminal input for cleanup.
-    writer: Option<std::fs::File>,
+    pub(super) writer: Option<std::fs::File>,
 }
 
 impl CleanupGate {
-    fn new(id: SessionId) -> Self {
+    pub(super) fn new(id: SessionId) -> Self {
         let directory =
             std::env::temp_dir().join(format!("pike23-cancel-{}-{}", std::process::id(), id.get()));
         std::fs::create_dir(&directory).unwrap();
@@ -46,6 +46,15 @@ impl Drop for CleanupGate {
 
 #[test]
 fn cancellation_during_native_preparation_retains_closing_until_disposal() {
+    cancel_during_preparation(false);
+}
+
+#[test]
+fn window_close_during_native_preparation_accounts_for_late_cleanup() {
+    cancel_during_preparation(true);
+}
+
+fn cancel_during_preparation(window: bool) {
     let executor = SharedExecutor::new().unwrap();
     let one = NonZeroU16::new(1).unwrap();
     let mut app = App {
@@ -104,7 +113,17 @@ fn cancellation_during_native_preparation_retains_closing_until_disposal() {
         assert!(started.elapsed() < DEADLINE);
         std::thread::sleep(Duration::from_millis(5)); // Fixture readiness only.
     }
-    app.close(app.active_target().unwrap());
+    drop(app.update(if window {
+        Message::CloseWindow
+    } else {
+        Message::Control(Control::CloseSession(ids.session))
+    }));
+    assert_eq!(app.close_confirmation().unwrap().1, 1);
+    assert_eq!(
+        app.model.sessions().get(ids.session).unwrap().lifecycle(),
+        Lifecycle::Starting
+    );
+    confirm_close(&mut app);
     assert_eq!(handle.completion(), None);
     assert_eq!(app.model.sessions().len(), 1);
     release.send(()).unwrap();
@@ -132,10 +151,18 @@ fn cancellation_during_native_preparation_retains_closing_until_disposal() {
     let retained = app.model.sessions().get(ids.session).map(|e| e.lifecycle());
     let owners = app.sessions.entries.len();
     let unavailable = executor.enter(|| app.begin_open()).is_none();
-    let capacity_held = matches!(
-        executor.enter(|| app.launches.start(waiting())),
-        Err(LaunchError::Busy)
-    );
+    let capacity_held = if window {
+        !app.launches.shutdown_complete()
+            && matches!(
+                executor.enter(|| app.launches.start(waiting())),
+                Err(LaunchError::Closed)
+            )
+    } else {
+        matches!(
+            executor.enter(|| app.launches.start(waiting())),
+            Err(LaunchError::Busy)
+        )
+    };
     let pending_before_release = handle.completion().is_none();
     cleanup.writer.take();
 
@@ -168,6 +195,16 @@ fn cancellation_during_native_preparation_retains_closing_until_disposal() {
     assert!(capacity_held);
     assert!(app.model.sessions().is_empty());
     assert!(app.sessions.entries.is_empty());
+
+    if window {
+        executor.block_on(async {
+            tokio::time::timeout(DEADLINE, app.launches.shutdown())
+                .await
+                .unwrap();
+        });
+        assert!(app.update(Message::ShutdownComplete).units() > 0);
+        return;
+    }
 
     // Replayed late receipts acknowledge nothing twice; retry owns fresh IDs.
     drop(app.launched(ids, Err(LaunchError::Canceled)));

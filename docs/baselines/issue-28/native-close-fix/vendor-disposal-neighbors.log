@@ -1,0 +1,15 @@
+COMMAND: CARGO_BUILD_JOBS=4 cargo test --locked -p alacritty_terminal --lib -- event_loop::lifecycle_tests::io_failure_and_unwind_complete_only_after_backend_disposal_on_worker event_loop::lifecycle_tests::drain_reads_past_one_parser_chunk_to_eof event_loop::lifecycle_tests::eof_disables_io_but_preserves_later_child_exit_and_explicit_close --nocapture --test-threads=1
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running unittests src/lib.rs (target/debug/deps/alacritty_terminal-da7c3e294e0471c9)
+
+running 3 tests
+test event_loop::lifecycle_tests::drain_reads_past_one_parser_chunk_to_eof ... ok
+test event_loop::lifecycle_tests::eof_disables_io_but_preserves_later_child_exit_and_explicit_close ... ok
+test event_loop::lifecycle_tests::io_failure_and_unwind_complete_only_after_backend_disposal_on_worker ... 
+thread 'PTY reader' (7318849) panicked at vendor/alacritty_terminal/src/event_loop/lifecycle_tests.rs:52:9:
+synthetic worker panic
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 157 filtered out; finished in 0.04s
+
