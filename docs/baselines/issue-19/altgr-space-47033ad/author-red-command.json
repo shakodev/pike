@@ -1,0 +1,18 @@
+{
+  "source_commit": "47033ad34fa7e34571b5088fba9dcc35c4f8ee77",
+  "argv": [
+    "cargo",
+    "run",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "target/issue-19-ime/author-key-cases/Cargo.toml",
+    "--bin",
+    "pike-r19-key-cases-review",
+    "--",
+    "target/issue-19-ime/author-key-red"
+  ],
+  "CARGO_BUILD_JOBS": "4",
+  "CARGO_TARGET_DIR": "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20",
+  "exit_code": 1
+}

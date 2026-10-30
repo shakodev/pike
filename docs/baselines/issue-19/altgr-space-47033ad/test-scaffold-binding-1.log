@@ -1,0 +1,49 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_term)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.93s
+     Running unittests src/lib.rs (target/issue-20/debug/deps/iced_term-ca704ebef456280b)
+
+running 12 tests
+test ime::tests::ime_expired_window_owner_still_forces_native_reset ... ok
+test ime::tests::ime_preview_bound_and_invalid_byte_ranges_never_make_a_commit ... ok
+test ime::tests::ime_window_owner_requires_disabled_boundary_and_fresh_opened ... ok
+test ime::tests::ime_cancel_owner_change_and_modal_suspend_invalidate_all_deferred_clones ... ok
+test ime::tests::ime_preedit_is_local_and_commit_is_utf8_once_even_after_native_closed ... ok
+test view::ime::tests::ime_anchor_is_logical_current_fractional_and_clipped ... ok
+test event_bridge::tests::notifications_wake_a_waiting_consumer_without_a_timer ... ok
+test ime::tests::ime_pending_bytes_count_and_last_clone_drop_are_bounded ... ok
+test backend::protocol_tests::vt_queries_use_ordered_model_overrides_and_current_palette_and_dimensions ... ok
+test view::ime::tests::ime_widget_preedit_zero_writes_capture_all_composing_keys_and_commit_once ... ok
+test view::ime::tests::ime_public_row_named_space_altgr_text_and_nontext_binding_priority ... FAILED
+test view::ime::tests::ime_widget_blur_close_modal_and_replacement_reject_stale_commits ... ok
+
+failures:
+
+---- view::ime::tests::ime_public_row_named_space_altgr_text_and_nontext_binding_priority stdout ----
+
+thread 'view::ime::tests::ime_public_row_named_space_altgr_text_and_nontext_binding_priority' (7110370) panicked at vendor/iced_term/src/view/ime/tests.rs:316:13:
+assertion failed: matches!(events.as_slice(), [Event::BackendCall(id, Command::Write(bytes))] if
+    *id == a.0.id && bytes == b"space-binding")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    view::ime::tests::ime_public_row_named_space_altgr_text_and_nontext_binding_priority
+
+test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 108 filtered out; finished in 0.23s
+
+error: test failed, to rerun pass `-p iced_term --lib`

@@ -1,0 +1,27 @@
+{
+  "old_head": "47033ad34fa7e34571b5088fba9dcc35c4f8ee77",
+  "corrected_source_head": "338f226e0fa2d5f39f622913e14664217a3becae",
+  "base_main": "e58838a828c9deabaa340f7119d9ce38374b4447",
+  "os": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "CARGO_BUILD_JOBS": "4",
+  "CARGO_TARGET_DIR": "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20",
+  "renderer": "tiny-skia",
+  "reviewer_reproducer_copy": "Only absolute repository paths in Cargo.toml adapted; fixture source unchanged.",
+  "source_sha256": {
+    "vendor/iced_term/src/view.rs": "c1ac3c4f0480a9dd41b01ee27915cf46105c6dc1a79f7dd33303ea2394344634",
+    "vendor/iced_term/src/view/ime/tests.rs": "b6678ec0c9afbe350c23835df7e3eddff86eae52789248132539a066dbd52c5b",
+    "examples/ime_composition.rs": "12a0c63673a8545a64c82aa3f18e54f354c45cb778aa2ddddbb5ceee637b4a81",
+    "Cargo.lock": "f89e89582c78c0afde076852aa068de8cd4d26a478bdad96ac0a9f3dec3edc2d"
+  },
+  "binary_sha256": {
+    "pike": "54806a3f6fc6f9e596c258358560c21a24be4305e9010127abfda46f3fefba89",
+    "examples/ime_composition": "095547f14194dff15a37f1f178a1c9056218f9cbab579e71434c26257af89378"
+  },
+  "status": "source checkpoint; final host integration awaits actual merged R24",
+  "account_preflight": {
+    "CODEX_HOME": "/Users/daan.hoedjes/.codex-personal",
+    "command": "CODEX_HOME=\"$HOME/.codex-personal\" codex login status",
+    "result": "Logged in using ChatGPT; no work-account fallback"
+  }
+}

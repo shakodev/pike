@@ -1,12 +1,19 @@
 # R19 — IME composition without duplicate terminal input
 
-Integrated actual merged main `e58838a828c9deabaa340f7119d9ce38374b4447`
+Initial baseline integrated actual merged main `e58838a828c9deabaa340f7119d9ce38374b4447`
 (R23 host), preserving merged R17 pointer/history changes from `be04b8d`.
 PR70's priority current-host error fix was delivered at `38fea554689878241508c9baa35cf215608912e3`
 and is part of that merged base; its branch/artifacts remain retained. R19 was
 started independently at8d9 and integrated only actual merged main, with no
 unmerged PR63/70/72 imports. Updated AGENTS/PLAN guidance applies: targeted local
-checks only, no Actions or remote CI. The #14 physical gate is explicitly waived.
+checks only, no Actions or remote CI. The #14 scheduling dependency is explicitly
+waived; the #13/#14 physical validation holds remain open.
+
+The subsequent [named-Space AltGr author correction](issue-19-altgr-space.md)
+preserves this baseline and records its separate red/green evidence. It also
+integrates actual merged R24 main `609d702ffc93bba95414f0e26a4a463d5e720f70`,
+extending its model-active deferred-input gate to IME and verifying visible-sibling
+ownership. The historical R24 boundary described below is resolved by that update.
 
 ## Event, input and lifecycle policy
 
