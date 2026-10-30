@@ -38,7 +38,8 @@ impl App {
             if let Some(target) = self.active_target() {
                 controls = controls
                     .push(button("Split right").on_press(Control::Split(target, Direction::Right)))
-                    .push(button("Split down").on_press(Control::Split(target, Direction::Down)));
+                    .push(button("Split down").on_press(Control::Split(target, Direction::Down)))
+                    .push(button("New tab").on_press(Control::NewTab));
                 if let Some(id) = self.active_session() {
                     controls = controls.push(close::close_button(id));
                 }
@@ -173,7 +174,11 @@ impl App {
             .size(12),
         );
         let controls: Element<'_, Control> = controls.wrap().into();
-        let mut content = column![controls.map(Message::Control), pane].spacing(8);
+        let mut content = column![controls.map(Message::Control)].spacing(8);
+        if !self.exiting && !self.model.workspace().order().is_empty() {
+            content = content.push(self.tabs_view().map(Message::Control));
+        }
+        let mut content = content.push(pane);
         if let Some(notice) = self.notice {
             content = content.push(text(notice));
         }

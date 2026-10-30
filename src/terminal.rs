@@ -8,6 +8,7 @@ use iced_term::{BackendCommand, BackendCompletion, Event, ShutdownHandle, Termin
 use crate::identity::{Reservation, SessionId};
 use crate::launch::{CancelLaunch, LaunchError};
 use crate::session::Lifecycle;
+use crate::tabs::ActivityEvent;
 use crate::workspace::Model;
 
 pub(crate) enum Owner {
@@ -215,7 +216,8 @@ impl Sessions {
         if !visible
             && matches!(
                 command,
-                BackendCommand::Scroll(_)
+                BackendCommand::Resize(..)
+                    | BackendCommand::Scroll(_)
                     | BackendCommand::ScrollHistory(_)
                     | BackendCommand::SelectStart(..)
                     | BackendCommand::SelectUpdate(_)
@@ -232,6 +234,18 @@ impl Sessions {
         // output permits only the adapter's explicitly local history path.
         if !writable && let BackendCommand::Scroll(lines) = command {
             command = BackendCommand::ScrollHistory(iced_term::HistoryScroll::Lines(lines));
+        }
+        let activity = match &command {
+            BackendCommand::ProcessAlacrittyEvent(iced_term::AlacrittyEvent::Wakeup) => {
+                Some(ActivityEvent::Output)
+            }
+            BackendCommand::ProcessAlacrittyEvent(iced_term::AlacrittyEvent::Bell) => {
+                Some(ActivityEvent::Bell)
+            }
+            _ => None,
+        };
+        if let Some(activity) = activity {
+            model.record_activity(entry.reservation, activity);
         }
         // Protocol replies and lifecycle receipts remain origin-bound and do
         // not require visibility or keyboard focus.

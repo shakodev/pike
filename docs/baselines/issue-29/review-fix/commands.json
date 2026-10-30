@@ -1,0 +1,122 @@
+[
+  {
+    "scope": "author-original-red",
+    "production_source_head": "b45c4cd726756444617922a07be63dcf33e0e105",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo test --offline --locked -p pike --lib -- app::tests::tabs::late_split_round_trip app::tests::tabs::hidden_close_prunes --nocapture --test-threads=1",
+    "exit_code": 101,
+    "result": "2 failed; old focus transfer and stale cache IDs",
+    "receipt": "author-original-red.log"
+  },
+  {
+    "scope": "restart-fixture-setup",
+    "production_source_head": "b45c4cd726756444617922a07be63dcf33e0e105",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo test --offline --locked -p pike --lib app::tests::tabs::hidden_restart_updates_cached_owner_and_late_result_respects_newer_selection -- --exact --nocapture --test-threads=1",
+    "exit_code": 101,
+    "result": "fixture not synchronized; absent cached pane; not application proof",
+    "receipt": "restart-unprimed-fixture.log"
+  },
+  {
+    "scope": "restart-old-red",
+    "production_source_head": "b45c4cd726756444617922a07be63dcf33e0e105",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo test --offline --locked -p pike --lib app::tests::tabs::hidden_restart_updates_cached_owner_and_late_result_respects_newer_selection -- --exact --nocapture --test-threads=1",
+    "exit_code": 101,
+    "result": "1 failed; synchronized precondition; obsolete cached SessionId",
+    "receipt": "restart-original-red.log"
+  },
+  {
+    "scope": "sensitive-green",
+    "production_source_head": "678ebc1d3b5c94182b24db0c2a0921f57dcba0ce",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo test --offline --locked -p pike --lib -- app::tests::tabs::late_split_round_trip app::tests::tabs::hidden_close_prunes app::tests::tabs::hidden_restart_updates --nocapture --test-threads=1",
+    "exit_code": 0,
+    "result": "3 passed",
+    "receipt": "sensitive-green.log"
+  },
+  {
+    "scope": "affected-native-green",
+    "production_source_head": "678ebc1d3b5c94182b24db0c2a0921f57dcba0ce",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo test --offline --locked -p pike --lib -- app::tests::tabs:: app::tests::split:: app::tests::resize:: app::tests::closing::modal_accepts_launch_and_natural_completion_without_closing_or_focusing_a_target --include-ignored --skip app::tests::tabs::hidden_close_prunes --skip app::tests::tabs::hidden_restart_updates --skip real_widget_sibling_paste --nocapture --test-threads=1",
+    "exit_code": 0,
+    "result": "21 passed; extended split test adds no-round-trip variant; includes explicit graphics IME",
+    "receipt": "affected-native-green.log"
+  },
+  {
+    "scope": "fixture-build",
+    "production_source_head": "678ebc1d3b5c94182b24db0c2a0921f57dcba0ce",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo build --offline --locked -p pike --example live_tabs",
+    "exit_code": 0,
+    "result": "passed",
+    "receipt": "fixture-build.log"
+  },
+  {
+    "scope": "native-gui",
+    "production_source_head": "678ebc1d3b5c94182b24db0c2a0921f57dcba0ce",
+    "command": "target/debug/examples/live_tabs docs/baselines/issue-29/review-fix/native-final",
+    "exit_code": 0,
+    "result": "passed; 4 native children; App cleanup acknowledged",
+    "receipt": "native-final.log"
+  },
+  {
+    "scope": "first-fix-clippy",
+    "production_source_head": "678ebc1d3b5c94182b24db0c2a0921f57dcba0ce",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo clippy --offline --locked -p pike --lib --bin pike --tests --example live_tabs -- -D warnings",
+    "exit_code": 0,
+    "result": "passed",
+    "receipt": "clippy.log"
+  },
+  {
+    "scope": "first-fix-cross-clippy",
+    "production_source_head": "678ebc1d3b5c94182b24db0c2a0921f57dcba0ce",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo clippy --offline --locked -p pike --lib --bin pike --tests --example live_tabs --target x86_64-pc-windows-msvc -- -D warnings",
+    "exit_code": 0,
+    "result": "passed; compile only",
+    "receipt": "windows-cross-clippy.log"
+  },
+  {
+    "scope": "stale-close-red",
+    "production_source_head": "678ebc1d3b5c94182b24db0c2a0921f57dcba0ce",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo test --offline --locked -p pike --lib app::tests::tabs::stale_controls_cannot_cancel_a_current_attachment_focus_intent -- --exact --nocapture --test-threads=1",
+    "exit_code": 101,
+    "result": "1 failed; stale close retired valid pending intent",
+    "receipt": "stale-controls-original-red.log"
+  },
+  {
+    "scope": "stale-close-green",
+    "production_source_head": "81523ac06aa7c69ba96bc77e03ad9d2fd16c5841",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo test --offline --locked -p pike --lib -- app::tests::tabs::stale_controls app::tests::tabs::cancelled_close_preserves app::tests::tabs::empty_window_close_still app::close::tests::exited_and_failed_close_without_prompt_last_tab_stays_empty_and_can_open_again app::tests::aggregate_shutdown_acknowledges_disposal_even_when_bridge_receipts_are_queued --nocapture --test-threads=1",
+    "exit_code": 0,
+    "result": "5 passed; six isolated stale-control cases, valid Cancel and owned cleanup",
+    "receipt": "stale-intent-green.log"
+  },
+  {
+    "scope": "final-clippy",
+    "production_source_head": "81523ac06aa7c69ba96bc77e03ad9d2fd16c5841",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo clippy --offline --locked -p pike --lib --bin pike --tests --example live_tabs -- -D warnings",
+    "exit_code": 0,
+    "result": "passed",
+    "receipt": "stale-intent-clippy.log"
+  },
+  {
+    "scope": "final-cross-clippy",
+    "production_source_head": "81523ac06aa7c69ba96bc77e03ad9d2fd16c5841",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo clippy --offline --locked -p pike --lib --bin pike --tests --example live_tabs --target x86_64-pc-windows-msvc -- -D warnings",
+    "exit_code": 0,
+    "result": "passed; compile only",
+    "receipt": "stale-intent-windows-cross-clippy.log"
+  },
+  {
+    "scope": "final-format",
+    "production_source_head": "81523ac06aa7c69ba96bc77e03ad9d2fd16c5841",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo fmt --package pike -- --check",
+    "exit_code": 0,
+    "result": "passed",
+    "receipt": "format.log"
+  },
+  {
+    "scope": "final-diff",
+    "production_source_head": "81523ac06aa7c69ba96bc77e03ad9d2fd16c5841",
+    "command": "git diff 52f5f90675c11ce15d19a11554c9105f803056a3 --check -- src examples docs/verification",
+    "exit_code": 0,
+    "result": "passed",
+    "receipt": "diff-check.log"
+  }
+]
