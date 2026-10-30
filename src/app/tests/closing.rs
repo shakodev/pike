@@ -80,6 +80,67 @@ fn success_error_exit_keeps_final_sentinel_and_bounded_read_only_model() {
     }
 }
 
+#[test]
+fn modal_accepts_launch_and_natural_completion_without_closing_or_focusing_a_target() {
+    let executor = SharedExecutor::new().unwrap();
+    let settings = profile(if cfg!(windows) {
+        "echo PIKE28_MODAL_FINAL&exit /b 9"
+    } else {
+        "printf 'PIKE28_MODAL_FINAL\\r\\n'; exit 9"
+    });
+    let mut app = App {
+        profile: settings,
+        ..App::default()
+    };
+    drop(app.update(Message::WindowFocused(true)));
+    let request = executor.enter(|| app.begin_open()).unwrap();
+    let ids = Reservation {
+        session: request.session,
+        request: request.request,
+    };
+    drop(app.update(Message::Control(Control::CloseSession(ids.session))));
+    let (decision, _) = app.close_confirmation().unwrap();
+    let ready = executor.block_on(async {
+        tokio::time::timeout(DEADLINE, request.receive())
+            .await
+            .unwrap()
+            .unwrap()
+    });
+    drop(app.launched(ids, Ok(ready)));
+    assert!(app.close_confirmation().is_some());
+    assert!(
+        !app.terminal(ids.session)
+            .unwrap()
+            .renderable_content()
+            .is_some_and(|c| c.focused)
+    );
+    drain_exit(&mut app, &executor, ids.session);
+    assert_eq!(
+        app.model.sessions().get(ids.session).unwrap().lifecycle(),
+        Lifecycle::Exited { code: Some(9) }
+    );
+    assert_eq!(app.active_session(), Some(ids.session));
+    drop(
+        app.update(Message::Control(Control::CloseAction(CloseAction::Cancel(
+            decision,
+        )))),
+    );
+    let final_text: String = app
+        .terminal(ids.session)
+        .unwrap()
+        .renderable_content()
+        .unwrap()
+        .viewport
+        .cells()
+        .iter()
+        .map(|cell| cell.c)
+        .collect();
+    assert!(final_text.contains("PIKE28_MODAL_FINAL"));
+    assert!(!app.exiting);
+    assert_eq!(app.active_session(), Some(ids.session));
+    shutdown(&mut app, &executor);
+}
+
 fn click_dialog(app: &App, renderer: &iced::Renderer, confirm: bool) -> Vec<Message> {
     use iced::advanced::widget::Tree;
     use iced::advanced::{Layout, Shell, clipboard, layout, mouse};

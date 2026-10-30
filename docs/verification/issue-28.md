@@ -43,6 +43,13 @@ observation handles in the explicit attached-tree fixture.
 - #14/PR63 refs, old unpublished branches, evidence and target caches were not
   reset, dropped or deleted. #13/#14 physical holds and #14 scheduling waiver
   remain unchanged.
+- The development implementation is preserved at
+  `checkpoint/b-r28-development` =
+  `2eba691987fedf0551c68461b0a394ec6a7d05e5`; further fixture expansions are
+  separately retained before integration. The failed initial commit attempt
+  (missing local Git email) changed no files; command-local identity then reused
+  the repository's existing public `shakodev@users.noreply.github.com` identity,
+  without changing global configuration or Codex authentication.
 - This slot is local macOS arm64. The coordinator confirmed no targetable native
   Windows environment exists. No worker/terminal/helper or remote CI was added;
   Actions remains OFF.
@@ -60,6 +67,8 @@ worktree target. Logs are retained under `docs/baselines/issue-28/`.
 | `cargo test --locked -p pike --lib app::tests::closing:: -- --nocapture --test-threads=1` | Three native shell tests passed, one graphics test explicitly ignored; `development-native-tests.log`. |
 | `cargo test --locked -p pike --lib app::tests::closing::actual_modal -- --ignored --nocapture --test-threads=1` | Sandboxed graphics unavailable (`development-controls.log`); native renderer exposed a fixture assertion error on hidden snapshots (`development-controls-native.log`); corrected assertion passed (`development-controls-corrected.log`). |
 | `cargo test --locked -p pike --lib app::close::tests::force_exit_is_scoped -- --nocapture --test-threads=1` | Passed; `development-force.log`. Same-executable witness remained alive. |
+| `cargo test --locked -p pike --lib -- app::tests::cancellation:: app::close::tests::force_exit_is_scoped --nocapture --test-threads=1` | Three expanded pane/window-prepare/Force tests passed; `development-prepare-force.log`. Force bypassed an owned blocking runtime job (19 ms subprocess sample). |
+| `cargo test --locked -p pike --lib app::tests::closing::actual_modal -- --ignored --nocapture --test-threads=1` (native graphics) | Expanded mouse Cancel/Confirm/Wait/Force fixture passed; `development-all-controls.log`. Force effect is inspected, with actual process exit verified separately. |
 
 Measured debug synthetic/macOS development samples: output close dispatch
 217 µs, acknowledged cleanup 603 ms; held-reader close dispatch 115 µs,

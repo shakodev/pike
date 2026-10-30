@@ -233,6 +233,16 @@ fn force_scope_fixture() {
         Ok("force") => {
             use iced::Executor;
             let executor = crate::executor::SharedExecutor::new().unwrap();
+            let (started, observed) = std::sync::mpsc::channel();
+            let (_release, gate) = std::sync::mpsc::channel::<()>();
+            drop(executor.enter(|| {
+                tokio::task::spawn_blocking(move || {
+                    started.send(()).unwrap();
+                    let _ = gate.recv_timeout(Duration::from_secs(5));
+                })
+            }));
+            observed.recv_timeout(Duration::from_secs(5)).unwrap();
+            // Force must bypass runtime Drop's join of this owned blocking job.
             executor.block_on(force_application_exit());
             panic!("force returned");
         }
@@ -308,6 +318,10 @@ fn force_exit_is_scoped_to_its_application() {
             .unwrap(),
     );
     assert!(wait(&mut forced.0).success());
+    assert!(
+        began.elapsed() < Duration::from_secs(1),
+        "force waited for runtime join"
+    );
     assert!(
         witness.0.try_wait().unwrap().is_none(),
         "same-executable witness was terminated"
