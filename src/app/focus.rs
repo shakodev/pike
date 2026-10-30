@@ -109,17 +109,16 @@ impl super::App {
 
     pub(super) fn focus_active(&self) -> Task<super::Message> {
         self.active_session()
-            .and_then(|id| self.terminal(id))
-            .map(|terminal| request(terminal.widget_id().clone()))
+            .and_then(|id| self.terminal(id).map(|terminal| (id, terminal)))
+            .map(|(id, terminal)| {
+                self.focus_authority.request(
+                    id,
+                    terminal.widget_id().clone(),
+                    self.window_focus.clone(),
+                )
+            })
             .unwrap_or_else(Task::none)
     }
-}
-
-pub(super) fn request(target: Id) -> Task<super::Message> {
-    operate(IfPresent {
-        target,
-        found: false,
-    })
 }
 
 struct IfPresent {
@@ -225,6 +224,8 @@ mod tests {
         visit(focus.as_mut(), &target, &other, &mut states);
         assert!(!states[0].0 && states[1].0);
         let mut current = pending(&authority, owner, target.clone(), window.clone());
+        // Background synchronization of an unchanged owner preserves its lease.
+        authority.synchronize(Some(owner));
         visit(current.as_mut(), &target, &other, &mut states);
         let Outcome::Chain(mut focus) = current.finish() else {
             panic!("missing current focus pass")

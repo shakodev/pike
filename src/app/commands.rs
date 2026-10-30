@@ -5,6 +5,41 @@ use iced::widget::pane_grid;
 
 use super::Direction;
 
+mod host;
+pub(super) use host::{State, on_key};
+
+/// Expected refusals keep the current workspace usable and expose recovery.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Error {
+    NoActivePane,
+    TerminalNotReady,
+    MissingTab,
+    NewTabRefused,
+    SplitRefused,
+    Workspace(crate::workspace::Error),
+}
+
+impl Error {
+    pub fn message(self) -> &'static str {
+        match self {
+            Self::NoActivePane => "Open a terminal with Ctrl+Shift+T, then try again.",
+            Self::TerminalNotReady => "Wait for this terminal to start, or retry its error pane.",
+            Self::MissingTab => {
+                "That tab is not open. Choose an existing tab or create one with Ctrl+Shift+T."
+            }
+            Self::NewTabRefused => {
+                "A tab could not be created. Close a pane, wait for cleanup, and try again."
+            }
+            Self::SplitRefused => {
+                "This terminal could not be split. Enlarge the window or wait for startup/cleanup, then try again."
+            }
+            Self::Workspace(_) => {
+                "This pane is no longer available. Select an existing terminal and try again."
+            }
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TabSelection {
     /// Zero-based index into the existing workspace order.

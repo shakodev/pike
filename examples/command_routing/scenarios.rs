@@ -103,6 +103,32 @@ struct Bytes {
 impl Bytes {
     fn local_defaults(&mut self, host: &mut Host, id: SessionId) -> io::Result<()> {
         selected(host, id)?;
+        let tab = host.app.active_target().unwrap().tab;
+        let count = host.app.model().sessions().len();
+        host.update(Message::GridSize(tab, iced::Size::new(80.0, 40.0)));
+        character(host, "o", "geometry refusal", false)?;
+        check(
+            host.app.command_error() == Some(pike::app::commands::Error::SplitRefused),
+            "geometry refusal was not typed",
+        )?;
+        check(
+            host.app.model().sessions().len() == count && host.app.active_session() == Some(id),
+            "refused split mutated ownership",
+        )?;
+        self.type_text(host, id, "g")?;
+        host.redraw();
+        character(host, "8", "missing tab refusal", false)?;
+        check(
+            host.app.command_error() == Some(pike::app::commands::Error::MissingTab),
+            "missing tab refusal was not typed",
+        )?;
+        selected(host, id)?;
+        character(host, "1", "recover existing tab", false)?;
+        check(
+            host.app.command_error().is_none(),
+            "valid activation did not clear command error",
+        )?;
+        selected(host, id)?;
         let initial = host
             .app
             .terminal(id)
@@ -328,6 +354,38 @@ impl Bytes {
         self.type_text(host, id, "c")
     }
 
+    fn close_confirm(&mut self, host: &mut Host, id: SessionId, key: &str) -> io::Result<()> {
+        selected(host, id)?;
+        let handle = host.app.terminal(id).unwrap().shutdown_handle();
+        character(host, key, "close confirmed owner", false)?;
+        check(
+            host.app.close_confirmation().is_some(),
+            "close command did not use the merged modal",
+        )?;
+        for key in [Named::Tab, Named::Enter] {
+            host.event(
+                press(Key::Named(key), Modifiers::empty(), None, false),
+                mouse::Cursor::Unavailable,
+            );
+        }
+        host.until(|host| {
+            host.app.close_confirmation().is_none()
+                && host.app.model().sessions().get(id).is_none()
+                && handle.completion().is_some()
+        })?;
+        host.evidence.push(format!(
+            "confirmed close session={} {:?}",
+            id.get(),
+            handle.completion().unwrap()
+        ));
+        let current = host
+            .app
+            .active_session()
+            .ok_or_else(|| io::Error::other("close lost remaining tab focus"))?;
+        selected(host, current)?;
+        Ok(())
+    }
+
     fn bind(&mut self, host: &mut Host, output: &Path, id: SessionId) -> io::Result<()> {
         host.until(|_| {
             input_files(output)
@@ -425,6 +483,9 @@ impl Bytes {
             press(Key::Unidentified, Modifiers::empty(), Some(""), false),
             "",
         )?;
+        host.redraw();
+        // Owner transfer asks Iced for one follow-up paint across its native
+        // IME disable/enable boundary; drive both paints in this finite host.
         host.redraw();
         host.event(
             iced::Event::InputMethod(Ime::Opened),
@@ -731,8 +792,13 @@ pub fn verify(
     )?;
     selected(host, *tab_owners.last().unwrap())?;
 
+    bytes.close_confirm(host, tab_owners[8], "w")?;
+    bytes.close_confirm(host, tab_owners[7], "q")?;
+
     for id in bytes.owners.keys().copied().collect::<Vec<_>>() {
-        let target = host.app.model().target(id).unwrap();
+        let Some(target) = host.app.model().target(id) else {
+            continue;
+        };
         host.update(Message::Control(Control::Focus(target)));
         selected(host, id)?;
         bytes.type_text(host, id, ".")?;
