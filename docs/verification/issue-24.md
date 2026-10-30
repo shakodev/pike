@@ -93,6 +93,17 @@ are preserved: `app-first` caught duplicate focus-probe scheduling, and
 input. Both completed native cleanup; neither is presented as a passed check.
 The final task report distinguishes this checkpoint from final-head evidence.
 
+The coordinator finalized R24 on actual merged main `e58838a`, its only hard
+dependency, after a single final main checkpoint. Unmerged R19 is not imported;
+A owns the subsequent model-active IME-commit consumer after actual R24 merges.
+An independent source review found no additional blocker beyond the corrected
+stable-session close control. The final host batch passed 25 cases and exposed
+a fixture-only cleanup race in the new hovered-sibling case: it queued a newline
+and closed immediately, permitting cancellation of that queued line. The fixture
+now awaits actual native completion before shutdown of the remaining child; the
+smallest regression passes with the original deadline and product code unchanged.
+The failed batch and repaired-case receipt remain under `target/issue-24/`.
+
 ## Remaining verification limits
 
 Windows-target compilation/lint is cross compilation, not native Windows or

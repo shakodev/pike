@@ -310,6 +310,14 @@ fn visible_sibling_hovered_mouse_and_alternate_wheel_do_not_require_or_steal_foc
             B::ProcessAlacrittyEvent(AlacrittyEvent::PtyWrite("\n".into())),
         ),
     ))));
+    // The newline is accepted asynchronously. Await the child's actual native
+    // completion before shutdown can cancel an unwritten queued line.
+    let completed = app.terminal(id).unwrap().shutdown_handle();
+    executor.block_on(async {
+        tokio::time::timeout(DEADLINE, completed.wait())
+            .await
+            .unwrap();
+    });
     shutdown(&mut app, &executor);
     assert_eq!(bytes, b"\x1b[<64;1;1M".len() + b"\x1bOA".len());
     assert!(!focused);
