@@ -8,7 +8,7 @@ caches remain intact. No reset, rebase, force push, Actions execution or merge
 was performed. The coordinator owns relevant integration and independent review.
 Initial complete source was published as `bedd7f9713a13f74d8ef57beaa0299c9672edf55`; the corrected
 IME-corrected source was `8a8b6b54fbbe547807cb96eeade90b5f504bbe8f`; final
-implementation identity and source/binary hashes are in
+implementation is `f1570215aec61945d57104bdeb5ecd1a17b33811`; source/binary hashes are in
 [provenance](../baselines/issue-27/provenance.json).
 
 ## Behavior and source
@@ -152,7 +152,8 @@ The author fix cancels on CursorLeft/FingerLost, then retires any still-armed
 receipt after terminal release, including unavailable mouse/touch releases. A
 valid Dropped event has already taken the armed receipt, so its one layout
 message keeps admission until App consumes it. No shared capture/focus/terminal
-or vendor changes are made. The final recovery fixture tests cursor-leave plus
+or vendor changes are made. The corrected production source is `f1570215aec61945d57104bdeb5ecd1a17b33811`.
+The final recovery fixture tests cursor-leave plus
 unavailable release, unavailable release alone, touch loss, unavailable touch
 lift and cursor-leave without a release. Every case preserves layout, admits no
 header input, allows fresh content selection, and permits a fresh header press
@@ -174,7 +175,7 @@ renderer with real synthetic PTYs; R1 retains independent re-review ownership.
 
 | Correction command / scope | Result |
 | --- | --- |
-| Same scoped native and Windows cross-Clippy commands above | Passed; `review-fix-clippy.log`, `review-fix-windows-cross-clippy.log`. |
+| Same scoped native and Windows cross-Clippy commands above | Passed; `review-fix-clippy.log`, `review-fix-windows-cross-clippy.log`; final fixture-only native/cross Clippy also passed (`review-final-example-clippy.log`, `review-final-example-windows-clippy.log`). |
 | `cargo fmt -p pike -- --check`; relevant `git diff --check` | Passed; `review-fix-format.log`, `review-fix-diff-check.log`. |
 | `target/debug/examples/pane_moving docs/baselines/issue-27/native-review-fix-complete --outside-release` | Passed all five cancellation variants, fresh content/mouse recovery, exactly one fresh layout action; [receipts](../baselines/issue-27/native-review-fix-complete/). |
 | Complete actual-App pane fixture and focused `--ime-pointer` | Both passed on the corrected release handler; [full](../baselines/issue-27/native-review-full/), [IME](../baselines/issue-27/native-review-ime/). |
