@@ -14,7 +14,9 @@ The host freezes each launch profile/directory, and splits clone that profile
 rather than the mutable application default or a guessed shell cwd. Retry/Use
 default shell replace an error/exit in its existing pane, preserving siblings
 and ratios. The default-shell choice preserves the launch directory. Error and
-startup placeholders remain removable. No tab, settings, move, resize or zoom
+startup placeholders remain removable. Close/cancel controls carry stable session
+IDs, so a queued error-pane close cannot terminate an in-place replacement.
+No tab, settings, move, resize or zoom
 UI is added here.
 
 Admission uses measured cell metrics, the actual grid layout area, 28 DIP

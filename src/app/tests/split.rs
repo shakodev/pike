@@ -118,6 +118,14 @@ fn failed_split_can_retry_in_place_and_limit_or_geometry_refusal_is_actionable()
     assert_eq!(receive(&mut app, &executor, retry), replacement);
     assert_eq!(app.active_session(), Some(replacement));
     assert!(app.terminal(id).is_some());
+    // A queued error-pane close names its old session, never the replacement
+    // now occupying the same stable pane handle.
+    drop(app.update(Message::Control(Control::CloseSession(failed))));
+    assert!(app.terminal(replacement).is_some());
+    assert_eq!(
+        app.model.workspace().pane(failed_target).unwrap().session,
+        replacement
+    );
     app.close(failed_target);
     // A tiny current layout refuses before reservation.
     app.grid_size = Some((target.tab, Size::new(10.0, 10.0)));
@@ -288,6 +296,7 @@ fn removing_a_prepared_split_disposes_only_its_owner_and_keeps_original_input() 
     });
     drop(app.update(Message::Disposed(ids)));
     assert!(app.model.sessions().get(ids.session).is_none());
+    assert!(!app.profiles.contains_key(&ids.session));
     assert!(!app.terminal(id).unwrap().input_status().closed);
     assert_eq!(app.model.sessions().len(), 1);
     // Removed target cannot create a replacement or steal source identity.

@@ -34,6 +34,7 @@ pub enum Control {
     Retry(SessionId),
     UseDefault(SessionId),
     Close(PaneTarget),
+    CloseSession(SessionId),
     Copy(SessionId),
     Split(PaneTarget, Direction),
     Focus(PaneTarget),
@@ -168,6 +169,12 @@ impl App {
                 self.close(target);
                 return self.focus_active();
             }
+            Message::Control(Control::CloseSession(id)) => {
+                if let Some(target) = self.model.target(id) {
+                    self.close(target);
+                    return self.focus_active();
+                }
+            }
             Message::Control(Control::Split(target, direction)) => {
                 return self.split(target, direction);
             }
@@ -185,7 +192,11 @@ impl App {
             Message::Launched(reservation, result) => return self.launched(reservation, result),
             Message::Terminal((id, event)) => {
                 self.sessions
-                    .route(&mut self.model, &self.window_focus, id, event)
+                    .route(&mut self.model, &self.window_focus, id, event);
+                if self.model.sessions().get(id).is_none() {
+                    self.profiles.remove(&id);
+                    self.focus_on_attach.remove(&id);
+                }
             }
             Message::Disposed(reservation) => {
                 let disposed = self.sessions.entries.get(&reservation.session).is_some_and(|entry| {
@@ -200,6 +211,8 @@ impl App {
                     && self.model.closed(reservation.session)
                 {
                     self.sessions.entries.remove(&reservation.session);
+                    self.profiles.remove(&reservation.session);
+                    self.focus_on_attach.remove(&reservation.session);
                 }
             }
             Message::WindowFocused(focused) => {
@@ -242,6 +255,8 @@ impl App {
                     self.model.closed(id);
                 }
                 self.sessions.entries.clear();
+                self.profiles.clear();
+                self.focus_on_attach.clear();
                 return iced::exit();
             }
             Message::ShutdownComplete => {}

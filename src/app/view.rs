@@ -36,7 +36,10 @@ impl App {
                 controls = controls
                     .push(button("Split right").on_press(Control::Split(target, Direction::Right)))
                     .push(button("Split down").on_press(Control::Split(target, Direction::Down)));
-                controls = controls.push(button("Close terminal").on_press(Control::Close(target)));
+                if let Some(id) = self.active_session() {
+                    controls =
+                        controls.push(button("Close terminal").on_press(Control::CloseSession(id)));
+                }
                 if let Some(id) = self.active_session()
                     && self.terminal(id).is_some()
                 {
@@ -121,9 +124,7 @@ impl App {
             Owner::Starting(_) => {
                 let content: Element<'_, Control> = column![
                     text("Starting terminal…"),
-                    button("Cancel startup").on_press(Control::Close(
-                        self.model.target(id).expect("visible starting pane")
-                    ))
+                    button("Cancel startup").on_press(Control::CloseSession(id))
                 ]
                 .into();
                 content.map(Message::Control)
