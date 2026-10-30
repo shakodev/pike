@@ -37,8 +37,10 @@ No session is destroyed or automatically closed to make space.
 Intrinsic sizing sums leaf minima/gutters and is linear in the retained pane
 count, including a 32-deep tree at extreme ratios. Each canvas axis has an
 explicit **16,384 logical-pixel cap**; an unrepresentable constraint keeps the
-last good bounded presentation and native dimensions until a valid layout is
-available. Nonpositive/nonfinite minimize measurements also retain the last
+last good bounded area and native dimensions until a valid layout is
+available. Fallback always reconciles the current pane/session membership;
+unrepresentable leaf areas may be further clipped while PTY resize is frozen.
+Nonpositive/nonfinite minimize measurements also retain the last
 good layout. This cap is a geometry safety limit, not a measured memory budget.
 
 Font metrics and layout are logical pixels. Iced applies monitor scaling once;
@@ -201,4 +203,76 @@ blur and changed-owner rejection are covered. The standalone
 [`focus-probe`](../baselines/issue-25/focus-probe/src/main.rs) reuses the exact
 reviewer red source, executes real App task/focus effects against one persistent
 Tree and checks actual rendered membership after a capped close; its separate
-fixture manifest adds no production dependency. Corrected final receipts follow.
+fixture manifest adds no production dependency.
+
+## Corrected final local results
+
+Implementation checkpoint: **`61acb1bf01ff8fac65a58a89ae56f1b4eeb76797`**, on actual
+merged R19+R24 main `5d34cb74b99f5e7e6865789f645e5fe519ba2d94`. The original red
+snapshots' SHA-256 hashes match the reviewer's immutable receipts. The same exact
+combined probe source, now run against the correction with real Task effects on
+one persistent Tree, reports:
+
+```text
+divider-tap focused=true
+plain-key write-messages=1
+resize-key focused=true
+queued-resize-after-blur changed=false
+fallback-close model-panes=1 rendered-terminals=1
+cleanup sessions=0
+```
+
+The [green log](../baselines/issue-25/corrected-local/persistent-probe-green.log)
+can be compared directly with the unchanged
+[original red log](../baselines/issue-25/reviewer-red/initial-fallback-probe-native.log).
+The author added no test-generated refocus to that reproducer. The four-pane
+fixture's driver likewise primes once, asserts persistent focus after tap and
+outside release, and requires a native child to acknowledge the public-widget
+query before continuing. Its
+[scenario receipts](../baselines/issue-25/native-macos-corrected/events.txt)
+include those tap/input checks, both live drag-focus checks and all 14 exact
+native-size cases. Same-view raw blur and composition checks also passed.
+
+All corrected raw samples and native child reports are under
+[`native-macos-corrected`](../baselines/issue-25/native-macos-corrected/summary.json),
+with [exact source/binary provenance](../baselines/issue-25/native-macos-corrected/provenance.json)
+and a [constrained screenshot](../baselines/issue-25/native-macos-corrected/constrained.png).
+The earlier run is retained as prior-stage evidence, not a final focus verdict.
+
+| Corrected observation | Result |
+|---|---|
+| Finite cases / independent native size comparisons | 14 / 56 passed |
+| Four sessions/processes/widgets | Preserved; all four child PIDs absent after cleanup |
+| Native resize count | 20 / 19 / 18 / 18 = 75 total |
+| Repeated identical proposals | 1,120; zero extra native resizes |
+| 3,039 App dispatch samples | Median 11 µs; p95 55 µs; max 7,497 µs |
+| 794 redraw-event deliveries | Median 306 µs; p95 1,453 µs; max 51,404 µs |
+| 793 redraw-request intervals | Median 9,703 µs; p95 40,597 µs; max 1,777,697 µs |
+
+The same timing definitions/limits above apply. Corrected
+[`time -l` output](../baselines/issue-25/corrected-local/fixture-time.log) reports
+16.96 seconds wall, 3.06 seconds user, 5.42 seconds system, 163,184,640 bytes
+maximum RSS and 340,853,696 bytes peak footprint for the instrumented release
+fixture. These include fixture/renderer work and establish no idle or Windows
+resource budget.
+
+After the relevant focus/admission/fallback changes, selected-target Clippy
+with `-D warnings` passed on macOS and x86_64-pc-windows-msvc, formatting passed,
+and App tests passed **28 / 28**, with the same four existing device tests
+ignored. Logs are under
+[`corrected-local`](../baselines/issue-25/corrected-local/clippy.log). The prior
+**5 geometry / 16 workspace** test successes remain valid: the correction does
+not change geometry/workspace algorithms, so they were not repeated.
+
+Additional exact commands for the sensitive persistent-tree reproduction:
+
+```sh
+CARGO_BUILD_JOBS=4 cargo build --locked --manifest-path docs/baselines/issue-25/focus-probe/Cargo.toml --target-dir target
+target/debug/pike-r25-independent-review
+```
+
+The corrected release/native run uses the same commands above with fresh output
+`docs/baselines/issue-25/native-macos-corrected`. Verification is entirely local;
+Actions remains off. Native Windows, physical keyboard, mixed-monitor and
+ordinary idle-resource results remain unperformed. Physical #13/#14 holds and
+the #14 scheduling waiver are unchanged.

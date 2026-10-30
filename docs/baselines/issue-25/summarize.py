@@ -53,7 +53,8 @@ summary = dict(
 metadata = dict(
     host=platform.platform(), machine=platform.machine(),
     source_base="5d34cb74b99f5e7e6865789f645e5fe519ba2d94",
-    app_implementation_head="22d74e81c27bd66a14c7ba1b7016f0d5c56acf55",
+    app_implementation_head=subprocess.run(["git", "rev-parse", "HEAD"],
+                                          capture_output=True, text=True, check=True).stdout.strip(),
     renderer="default renderer-wgpu", jobs=4,
     commands=["CARGO_BUILD_JOBS=4 cargo build --release --locked -p pike --example pane_resizing",
               "/usr/bin/time -l target/release/examples/pane_resizing " + str(run)],
