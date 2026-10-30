@@ -41,6 +41,7 @@ impl App {
                 return None;
             }
         };
+        self.focus_on_attach.clear();
         let request = self.submit_profile(reservation, profile);
         self.synchronize();
         request
@@ -59,6 +60,7 @@ impl App {
         if self.interaction_blocked() || self.model.activate(tab).is_err() {
             return Task::none();
         }
+        self.focus_on_attach.clear();
         self.notice = None;
         self.synchronize();
         self.focus_active()

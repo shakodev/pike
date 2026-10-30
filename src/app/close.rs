@@ -140,6 +140,7 @@ impl App {
     }
 
     fn commit_close(&mut self, sessions: Vec<SessionId>, window: bool) -> Task<Message> {
+        self.focus_on_attach.clear();
         if window {
             // Admission stops before signaling any worker. Pool shutdown also
             // owns earlier removed panes, queued prepare, and undelivered results.

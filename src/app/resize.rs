@@ -53,8 +53,18 @@ impl App {
     /// or measured. Keep the active viewport size until its sensor reports the
     /// next layout, including equal-size tab replacements.
     pub(super) fn synchronize_resize_tab(&mut self) {
-        self.resize_cache
-            .retain(|tab, _| self.model.workspace().tab(*tab).is_some());
+        self.resize_cache.retain(|tab, cached| {
+            let Some(current) = self.model.workspace().tab(*tab) else {
+                return false;
+            };
+            if cached.grid.panes != current.grid().panes {
+                // Reconcile scoped pane/session ownership only. Preserve
+                // the last bounded canvas/frozen state, with no fitting,
+                // cell measurement, viewport capture or PTY work.
+                cached.grid = current.grid().clone();
+            }
+            true
+        });
         match (self.grid_size, self.model.workspace().active()) {
             (Some((old, size)), Some(active)) if old != active => {
                 if let Some(previous) = self.resize_layout.take()

@@ -127,6 +127,13 @@ impl App {
         self.refresh_resize_layout();
     }
 
+    /// A deferred launch may select its pane only until a newer accepted user
+    /// choice supersedes it. This is launch intent, not widget focus authority.
+    fn focus_after_attach(&mut self, id: SessionId) {
+        self.focus_on_attach.clear();
+        self.focus_on_attach.insert(id);
+    }
+
     fn retry(&mut self, id: SessionId, use_default: bool) -> Task<Message> {
         self.begin_retry(id, use_default)
             .map(Self::receive)
@@ -163,8 +170,10 @@ impl App {
         };
         self.sessions.entries.remove(&id);
         self.profiles.remove(&id);
-        self.focus_on_attach.insert(reservation.session);
-        self.submit_profile(reservation, profile)
+        self.focus_after_attach(reservation.session);
+        let launch = self.submit_profile(reservation, profile);
+        self.synchronize();
+        launch
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
@@ -193,7 +202,12 @@ impl App {
             Message::Control(Control::Split(target, direction)) => {
                 return self.split(target, direction);
             }
-            Message::Control(Control::Focus(target)) => return self.select(target),
+            Message::Control(Control::Focus(target)) => {
+                if self.model.workspace().pane(target).is_some() {
+                    self.focus_on_attach.clear();
+                }
+                return self.select(target);
+            }
             Message::Control(Control::Resize(tab, event)) => {
                 if self.resize_divider(tab, event) {
                     return self.focus_active();
