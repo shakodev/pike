@@ -293,7 +293,12 @@ fn verify(
             renderer,
             iced::Event::Window(iced::window::Event::Rescaled(scale)),
         )?;
-        let InputMethod::Enabled { cursor, preedit: Some(preedit), .. } = scene.route(a, renderer, redraw())? else {
+        let InputMethod::Enabled {
+            cursor,
+            preedit: Some(preedit),
+            ..
+        } = scene.route(a, renderer, redraw())?
+        else {
             return Err(io::Error::other("DPI IME disabled"));
         };
         check(

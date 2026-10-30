@@ -453,5 +453,7 @@ and API/overload policy details.
   key capture, lifecycle, privacy and boundedness. Exact pinned Iced/winit sources
   and targeted local results/Windows limits are in
   [R19 verification](../../docs/verification/issue-19.md).
-- No dependency, feature, lockfile, Alacritty, mouse/history or workflow changes.
+- This adapter patch changes no dependency versions/features, Alacritty or
+  mouse/history behavior. R19 also patches the same-version iced_winit candidate
+  cache for DPI changes; see [its separate ledger](../iced_winit/PATCHES.md).
   Remove when upstream supplies equivalent owner-safe, bounded lifecycle support.

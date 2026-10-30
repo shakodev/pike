@@ -1,6 +1,7 @@
 # R19 — IME composition without duplicate terminal input
 
-Based on refreshed merged main `713020604d2df41de84d31797eb7128818521eff`.
+Integrated merged main `be04b8d495fb5af31d77272f39d28c48cf560819`;
+final merged-host integration is pending the coordinator's PR72 merge handoff.
 PR70's priority current-host error fix was delivered at `38fea554689878241508c9baa35cf215608912e3`
 and is part of that merged base; its branch/artifacts remain retained. R19 was
 started independently at8d9 and integrated only actual merged main, with no
@@ -92,7 +93,23 @@ inject composing keyboard fallbacks and verify they produce no second input.
 its unmatched-text-only suppression and widget-only flags do not supply the
 owner/late-event/cancellation/closed-backend protection needed here. Its rendering
 changes were not duplicated: R18 is already merged. APIs were inspected, not
-assumed from a newer Iced/winit release. No dependencies/features/lockfile changes.
+assumed from a newer Iced/winit release.
+
+The same-version local iced_winit0.14.1 patch includes native window scale in
+the candidate-area cache identity. The original logical-only cache skipped the
+native setter when a stationary cursor moved to another DPI; pinned Windows
+winit converts to physical coordinates only inside that setter, and its
+WM_DPICHANGED branch does not reapply the candidate area. The existing setters
+now run once when scale changes, preserving allowed state and preedit with no
+disable/re-enable, timer or polling. Coordinates stay logical in the adapter.
+
+All12 published archive files are retained:11 are byte-identical, with only
+src/window.rs changed; the new helper, exact upstream MIT license and
+[patch ledger](../../vendor/iced_winit/PATCHES.md) are additional files. Archive
+SHA256 is7589888c8e951899cc688247a69933bb7a0511f0b4b2e122ac3fcd5dacb37f72.
+Root Cargo.lock changes only the same-version iced_winit registry entry to a
+path; no package versions/features change. The excluded path dependency remains
+explicitly testable without resolving unused optional workspace-root packages.
 
 ## Targeted local verification
 
