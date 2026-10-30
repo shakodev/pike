@@ -169,3 +169,157 @@ fn resize_minimize_restore_font_and_repeated_dimensions_keep_native_session() {
     assert!(presented.frozen);
     shutdown(&mut app, &executor);
 }
+
+#[test]
+fn modal_and_frozen_layout_jointly_gate_resize_but_keep_background_delivery() {
+    use iced_term::BackendCommand as B;
+    let executor = SharedExecutor::new().unwrap();
+    let mut app = App {
+        profile: waiting(),
+        ..App::default()
+    };
+    drop(app.update(Message::WindowFocused(true)));
+    let (first, ready) = launch(&mut app, &executor);
+    drop(app.launched(first, Ok(ready)));
+    let target = app.active_target().unwrap();
+    let area = Size::new(960.0, 600.0);
+    drop(app.update(Message::GridSize(target.tab, area)));
+    let request = executor
+        .enter(|| app.begin_split(target, Direction::Right))
+        .unwrap();
+    let second = Reservation {
+        session: request.session,
+        request: request.request,
+    };
+    let ready = executor.block_on(request.receive()).unwrap();
+    drop(app.launched(second, Ok(ready)));
+    let layout = app
+        .model
+        .workspace()
+        .tab(target.tab)
+        .unwrap()
+        .grid()
+        .layout();
+    let split = *layout.splits().next().unwrap();
+    let canonical = format!("{layout:?}");
+    let widget = app.terminal(second.session).unwrap().widget_id().clone();
+    let minimum = app.resize_geometry(target.tab, area).unwrap().minimum;
+    let resize = || {
+        Message::Terminal((
+            second.session,
+            Event::BackendCall(
+                second.session.get(),
+                B::Resize(Some(Size::new(320.0, 240.0)), None),
+            ),
+        ))
+    };
+    drop(app.update(Message::Control(Control::CloseTab(target.tab))));
+    let (token, count) = app.close_confirmation().unwrap();
+    assert_eq!(count, 2);
+    let stats = app.terminal(second.session).unwrap().work_stats();
+    for control in [
+        Control::Resize(target.tab, ResizeEvent { split, ratio: 0.7 }),
+        Control::ResizeStep(ResizeStep::Right),
+        Control::ResizeKey(second.session.get(), ResizeStep::Left),
+        Control::ResizeFocus(first.session.get()),
+        Control::Focus(target),
+    ] {
+        assert_eq!(app.update(Message::Control(control)).units(), 0);
+    }
+    // Direct host font/geometry paths obey the same modal admission boundary.
+    app.change_terminal_font(
+        second.session,
+        iced_term::settings::FontSettings {
+            size: 24.0,
+            ..Default::default()
+        },
+    );
+    assert!(!app.resize_divider(target.tab, ResizeEvent { split, ratio: 0.7 }));
+    drop(app.update(Message::GridSize(target.tab, Size::new(1.0, 1.0))));
+    drop(app.update(resize()));
+    drop(app.update(Message::Terminal((
+        second.session,
+        Event::BackendCall(second.session.get(), B::Write(b"queued".to_vec())),
+    ))));
+    assert_eq!(app.grid_size, Some((target.tab, area)));
+    assert_eq!(app.active_session(), Some(second.session));
+    assert_eq!(app.terminal(second.session).unwrap().work_stats(), stats);
+    assert_eq!(
+        app.terminal(second.session)
+            .unwrap()
+            .input_status()
+            .outstanding_bytes,
+        0
+    );
+    // Rejections reach hidden owners; footer constraints refresh on Cancel.
+    drop(app.update(Message::Terminal((
+        second.session,
+        Event::BackendCall(
+            second.session.get(),
+            B::InputRejected(iced_term::InputError::Full {
+                requested: 7,
+                available: 0,
+            }),
+        ),
+    ))));
+    assert!(app.sessions.entries[&second.session].notice.is_some());
+    drop(
+        app.update(Message::Control(Control::CloseAction(CloseAction::Cancel(
+            token,
+        )))),
+    );
+    let next = app.resize_geometry(target.tab, area).unwrap().minimum;
+    let pane = app.model.target(second.session).unwrap().pane;
+    assert_eq!(
+        next[&pane].height,
+        minimum[&pane].height + super::super::split::FOOTER
+    );
+    assert_eq!(app.terminal(second.session).unwrap().widget_id(), &widget);
+    assert_eq!(
+        format!(
+            "{:?}",
+            app.model
+                .workspace()
+                .tab(target.tab)
+                .unwrap()
+                .grid()
+                .layout()
+        ),
+        canonical
+    );
+    // A fresh key works after Cancel, but a frozen backend size remains blocked.
+    assert!(
+        app.update(Message::Control(Control::ResizeKey(
+            second.session.get(),
+            ResizeStep::Right
+        )))
+        .units()
+            > 0
+    );
+    drop(app.update(Message::GridSize(target.tab, Size::new(20_000.0, 20_000.0))));
+    assert!(app.resize_layout.as_ref().unwrap().frozen);
+    let resizes = app
+        .terminal(second.session)
+        .unwrap()
+        .work_stats()
+        .pty_resizes;
+    drop(app.update(resize()));
+    assert_eq!(
+        app.terminal(second.session)
+            .unwrap()
+            .work_stats()
+            .pty_resizes,
+        resizes
+    );
+    drop(app.update(Message::Control(Control::CloseSession(first.session))));
+    confirm_close(&mut app);
+    let presentation = app.resize_layout.as_ref().unwrap();
+    assert!(presentation.frozen);
+    assert_eq!(
+        presentation.grid.panes,
+        app.model.workspace().tab(target.tab).unwrap().grid().panes
+    );
+    assert_eq!(presentation.grid.len(), 1);
+    shutdown(&mut app, &executor);
+    assert!(app.launches.shutdown_complete());
+}

@@ -56,7 +56,7 @@ impl App {
         id: crate::identity::SessionId,
         font: iced_term::settings::FontSettings,
     ) {
-        if self.exiting {
+        if self.interaction_blocked() {
             return;
         }
         if let Some(crate::terminal::Entry {
@@ -69,6 +69,12 @@ impl App {
         }
     }
     pub(super) fn refresh_resize_layout(&mut self) {
+        // Modal ownership hides terminal snapshots, including measured cells.
+        // Retain bounded geometry until Cancel/Confirm restores visibility;
+        // synchronize then reconciles today's membership and footer metrics.
+        if self.interaction_blocked() {
+            return;
+        }
         let next = self.grid_size.and_then(|(tab, area)| {
             let source = self.model.workspace().tab(tab)?;
             let mut geometry = self.resize_geometry(tab, area)?;
@@ -155,8 +161,8 @@ impl App {
         accepted
     }
 
-    fn resize_allowed(&self) -> bool {
-        !self.exiting
+    pub(super) fn resize_allowed(&self) -> bool {
+        !self.interaction_blocked()
             && self.window_focus.is_focused()
             && self
                 .active_session()

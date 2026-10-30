@@ -300,7 +300,13 @@ impl Probe {
             self.record("events.txt", reason);
         }
         self.closing = true;
-        self.apply(Message::CloseWindow)
+        let request = self.apply(Message::CloseWindow);
+        let confirm = self.app.close_confirmation().map(|(token, _)| {
+            self.apply(Message::Control(Control::CloseAction(
+                pike::app::CloseAction::Confirm(token),
+            )))
+        });
+        Task::batch([request, confirm.unwrap_or_else(Task::none)])
     }
     fn update(&mut self, message: ProbeMessage) -> Task<ProbeMessage> {
         match message {
