@@ -1,0 +1,8 @@
+ready session=1 request=1 pid=23669 cell=Size { width: 8.428711, height: 18.199999 } history=80
+ready session=3 request=3 pid=23672 cell=Size { width: 8.428711, height: 18.199999 } history=80
+live session=1 pid=23669 unchanged-owner cell=Size { width: 12.041016, height: 26.0 } font-measurements=2 history=7/7 palette-OSC=light child-cwd-env-args=before
+live session=3 pid=23672 unchanged-owner cell=Size { width: 12.041016, height: 26.0 } font-measurements=2 history=7/7 palette-OSC=light child-cwd-env-args=before
+ready session=5 request=5 pid=23675 cell=Size { width: 12.041016, height: 26.0 } history=7
+ready session=7 request=7 pid=23679 cell=Size { width: 12.041016, height: 26.0 } history=7
+ready session=8 request=8 pid=23682 cell=Size { width: 12.041016, height: 26.0 } history=7
+new-only cwd/env/args: inherited-b=23675 restarted-a=23682; invalid-file retained; removed-profile refused; IME/help priority passed

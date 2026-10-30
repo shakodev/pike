@@ -1,0 +1,41 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.09s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-508a18dbd30ba2bd)
+
+running 1 test
+test settings::io::tests::non_ascii_override_names_are_rejected_before_commit_while_unicode_values_remain_literal ... FAILED
+
+failures:
+
+---- settings::io::tests::non_ascii_override_names_are_rejected_before_commit_while_unicode_values_remain_literal stdout ----
+
+thread 'settings::io::tests::non_ascii_override_names_are_rejected_before_commit_while_unicode_values_remain_literal' (8305604) panicked at src/settings/io/tests.rs:14:5:
+assertion `left == right` failed
+  left: Ok(())
+ right: Err(Invalid(Environment))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    settings::io::tests::non_ascii_override_names_are_rejected_before_commit_while_unicode_values_remain_literal
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 166 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p pike --lib`

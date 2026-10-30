@@ -1,0 +1,17 @@
+version = 1
+default_profile = 'a'
+history = 7
+theme = 'light'
+close_policy = 'never'
+[font]
+size = 20
+[profiles.a]
+shell = "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/debug/examples/settings_reload"
+args = ['--child', "/private/tmp/pike-r31-native-development-1", 'new-args']
+cwd = "/private/tmp/pike-r31-native-development-1/a-next"
+env = { PIKE31_PROFILE = 'a', PIKE31_REVISION = 'after' }
+[profiles.b]
+shell = "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/debug/examples/settings_reload"
+args = ['--child', "/private/tmp/pike-r31-native-development-1", 'new-args']
+cwd = "/private/tmp/pike-r31-native-development-1/b-next"
+env = { PIKE31_PROFILE = 'b', PIKE31_REVISION = 'after' }

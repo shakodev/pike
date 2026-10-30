@@ -1,0 +1,206 @@
+   Compiling unicode-ident v1.0.27
+   Compiling serde_core v1.0.229
+   Compiling libm v0.2.16
+   Compiling libc v0.2.191
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling log v0.4.34
+   Compiling syn v3.0.9
+   Compiling num-traits v0.2.19
+   Compiling syn v2.0.119
+   Compiling arrayvec v0.7.8
+   Compiling once_cell v1.21.4
+   Compiling bitflags v2.13.2
+   Compiling cfg-if v1.0.5
+   Compiling smallvec v1.16.4
+   Compiling core-foundation-sys v0.8.7
+   Compiling memchr v2.8.3
+   Compiling euclid v0.22.14
+   Compiling raw-window-handle v0.6.2
+   Compiling pin-project-lite v0.2.17
+   Compiling core_maths v0.1.1
+   Compiling foreign-types-shared v0.3.1
+   Compiling rustc-hash v1.1.0
+   Compiling smol_str v0.2.2
+   Compiling futures-sink v0.3.34
+   Compiling futures-core v0.3.34
+   Compiling slab v0.4.12
+   Compiling futures-channel v0.3.34
+   Compiling futures-task v0.3.34
+   Compiling rustc-hash v2.1.3
+   Compiling scopeguard v1.2.0
+   Compiling web-time v1.1.0
+   Compiling unicode-width v0.2.2
+   Compiling futures-io v0.3.34
+   Compiling lilt v0.8.2
+   Compiling lock_api v0.4.14
+   Compiling parking_lot_core v0.9.12
+   Compiling lyon_geom v1.0.20
+   Compiling bytemuck_derive v1.12.1
+   Compiling thiserror-impl v2.0.21
+   Compiling foreign-types-macros v0.2.4
+   Compiling foreign-types v0.5.0
+   Compiling bytemuck v1.25.2
+   Compiling thiserror v2.0.21
+   Compiling zerocopy-derive v0.8.63
+   Compiling futures-macro v0.3.34
+   Compiling font-types v0.12.7
+   Compiling font-types v0.10.1
+   Compiling read-fonts v0.41.0
+   Compiling read-fonts v0.35.0
+   Compiling futures-util v0.3.34
+   Compiling zerocopy v0.8.63
+   Compiling core-foundation v0.10.1
+   Compiling malloc_buf v0.0.6
+   Compiling bit-vec v0.8.0
+   Compiling foldhash v0.2.0
+   Compiling equivalent v1.0.3
+   Compiling glam v0.25.0
+   Compiling half v2.7.1
+   Compiling bytes v1.12.1
+   Compiling hashbrown v0.17.1
+   Compiling iced_core v0.14.0
+   Compiling indexmap v2.14.2
+   Compiling skrifa v0.44.0
+   Compiling hashbrown v0.16.1
+   Compiling bit-set v0.8.0
+   Compiling objc v0.2.7
+   Compiling core-graphics-types v0.2.0
+   Compiling futures v0.3.34
+   Compiling lyon_path v1.0.19
+   Compiling parking_lot v0.12.5
+   Compiling slotmap v1.1.1
+   Compiling codespan-reporting v0.12.0
+   Compiling ttf-parser v0.25.1
+   Compiling tokio v1.54.1
+   Compiling memmap2 v0.9.12
+   Compiling tinyvec v1.13.3
+   Compiling zeno v0.3.3
+   Compiling hexf-parse v0.2.1
+   Compiling yazi v0.2.1
+   Compiling block v0.1.6
+   Compiling metal v0.32.0
+   Compiling swash v0.2.10
+   Compiling iced_futures v0.14.0
+   Compiling naga v27.0.3
+   Compiling fontdb v0.23.0
+   Compiling objc-sys v0.3.5
+   Compiling skrifa v0.37.0
+   Compiling harfrust v0.3.2
+   Compiling wgpu-types v27.0.1
+   Compiling unicode-bidi v0.3.18
+   Compiling self_cell v1.3.0
+   Compiling unicode-segmentation v1.13.3
+   Compiling unicode-script v0.5.8
+   Compiling objc2-encode v4.1.0
+   Compiling rangemap v1.8.0
+   Compiling linebender_resource_handle v0.1.1
+   Compiling unicode-linebreak v0.1.5
+   Compiling sys-locale v0.3.2
+   Compiling profiling v1.0.18
+   Compiling wgpu-hal v27.0.4
+   Compiling cosmic-text v0.15.0
+   Compiling objc2 v0.5.3
+   Compiling block2 v0.5.1
+   Compiling wgpu-core-deps-apple v27.0.0
+   Compiling dispatch v0.2.0
+   Compiling static_assertions v1.1.0
+   Compiling svg_fmt v0.4.5
+   Compiling wgpu-core v27.0.3
+   Compiling objc2-foundation v0.2.2
+   Compiling iced_graphics v0.14.0
+   Compiling errno v0.3.14
+   Compiling float_next_after v1.0.0
+   Compiling lyon_tessellation v1.0.23
+   Compiling etagere v0.2.15
+   Compiling objc2-app-kit v0.2.2
+   Compiling wgpu v27.0.1
+   Compiling iced_debug v0.14.0
+   Compiling lyon_algorithms v1.0.22
+   Compiling core-foundation v0.9.4
+   Compiling cursor-icon v1.2.0
+   Compiling bitflags v1.3.2
+   Compiling lru v0.16.4
+   Compiling proc-macro2-diagnostics v0.10.1
+   Compiling cryoglyph v0.1.0
+   Compiling core-graphics-types v0.1.3
+   Compiling lyon v1.0.19
+   Compiling guillotiere v0.6.2
+   Compiling tracing-attributes v0.1.31
+   Compiling tracing-core v0.1.36
+   Compiling ouroboros_macro v0.18.5
+   Compiling iced_wgpu v0.14.0
+   Compiling tracing v0.1.44
+   Compiling core-graphics v0.23.2
+   Compiling rustix v1.1.5
+   Compiling clipboard_macos v0.1.1
+   Compiling iced_runtime v0.14.0
+   Compiling serde_derive v1.0.229
+   Compiling aliasable v0.1.3
+   Compiling dpi v0.1.2
+   Compiling winit v0.30.13
+   Compiling ouroboros v0.18.5
+   Compiling iced_program v0.14.0
+   Compiling window_clipboard v0.5.1
+   Compiling iced_renderer v0.14.0
+   Compiling signal-hook-registry v1.4.8
+   Compiling aho-corasick v1.1.5
+   Compiling regex-syntax v0.8.11
+   Compiling serde v1.0.229
+   Compiling regex-automata v0.4.18
+   Compiling vte v0.15.0
+   Compiling iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+   Compiling signal-hook v0.3.18
+   Compiling iced_widget v0.14.2
+   Compiling polling v3.11.0
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling rustix-openpty v0.2.0
+   Compiling home v0.5.12
+   Compiling base64 v0.22.1
+   Compiling winnow v1.0.4
+   Compiling anyhow v1.0.104
+   Compiling toml_parser v1.1.5+spec-1.1.0
+   Compiling toml_datetime v1.1.2+spec-1.1.0
+   Compiling alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/alacritty_terminal)
+   Compiling serde_spanned v1.1.2
+   Compiling open v5.4.5
+   Compiling iced v0.14.0
+   Compiling toml_writer v1.1.3+spec-1.1.0
+   Compiling toml v1.1.8+spec-1.1.0
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_term)
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 33.15s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-508a18dbd30ba2bd)
+
+running 12 tests
+test settings::tests::malformed_oversized_unknown_version_and_unknown_fields_are_rejected_without_source_text ... ok
+test settings::tests::profile_references_and_counts_are_validated ... ok
+test settings::tests::missing_fields_have_documented_defaults_and_serialization_roundtrips ... ok
+test settings::tests::ranges_reject_instead_of_clamping_and_accept_exact_boundaries ... ok
+test settings::tests::launch_schema_is_bounded_and_keeps_literals_and_debug_redacted ... ok
+test settings::tests::shortcuts_have_a_typed_bounded_schema_with_canonical_duplicate_and_reserved_chord_checks ... ok
+test settings::io::tests::directories_and_symlinks_are_not_settings_and_io_errors_expose_no_paths ... ok
+test settings::io::tests::actual_permission_errors_preserve_active_and_previous_file ... ok
+test settings::io::tests::a_target_broken_during_save_is_retained_and_replace_failure_never_removes_it ... ok
+test settings::io::tests::missing_does_not_create_files_and_failed_reloads_keep_last_valid_without_touching_broken_bytes ... ok
+test settings::io::tests::explicit_save_replaces_a_complete_existing_file_and_creates_missing_parent_only_when_requested ... ok
+test settings::io::tests::interrupted_write_flush_and_replace_keep_previous_target_and_clean_only_our_temporary ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 148 filtered out; finished in 0.08s
+

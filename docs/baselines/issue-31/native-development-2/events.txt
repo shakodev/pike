@@ -1,0 +1,6 @@
+ready session=1 request=1 pid=21964 cell=Size { width: 8.428711, height: 18.199999 } history=80
+ready session=3 request=3 pid=21967 cell=Size { width: 8.428711, height: 18.199999 } history=80
+live session=1 pid=21964 unchanged-owner cell=Size { width: 12.041016, height: 26.0 } font-measurements=2 history=7/7 palette-OSC=light child-cwd-env-args=before
+live session=3 pid=21967 unchanged-owner cell=Size { width: 12.041016, height: 26.0 } font-measurements=2 history=7/7 palette-OSC=light child-cwd-env-args=before
+ready session=5 request=5 pid=21970 cell=Size { width: 12.041016, height: 26.0 } history=7
+ready session=5 request=5 pid=21970 cell=Size { width: 12.041016, height: 26.0 } history=7

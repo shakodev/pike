@@ -1,0 +1,43 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.23s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-508a18dbd30ba2bd)
+
+running 18 tests
+test app::settings::tests::modal_and_repeat_gates_keep_reload_on_the_existing_command_path_and_reject_stale_profile_choices ... ok
+test app::settings::tests::commit_is_whole_configuration_and_errors_or_unsolicited_receipts_cannot_change_it ... ok
+test app::settings::tests::configured_close_policy_changes_confirmation_without_changing_the_cleanup_owner ... ok
+test settings::io::tests::directories_and_symlinks_are_not_settings_and_io_errors_expose_no_paths ... ok
+test settings::tests::malformed_oversized_unknown_version_and_unknown_fields_are_rejected_without_source_text ... ok
+test app::settings::tests::launch_lookup_reuses_profile_identity_with_current_settings_and_frozen_directory_fallback ... ok
+test settings::tests::missing_fields_have_documented_defaults_and_serialization_roundtrips ... ok
+test settings::tests::function_key_numeric_aliases_cannot_bypass_canonical_chord_uniqueness ... ok
+test settings::tests::profile_references_and_counts_are_validated ... ok
+test settings::tests::launch_schema_is_bounded_and_keeps_literals_and_debug_redacted ... ok
+test settings::tests::ranges_reject_instead_of_clamping_and_accept_exact_boundaries ... ok
+test settings::tests::shortcuts_have_a_typed_bounded_schema_with_canonical_duplicate_and_reserved_chord_checks ... ok
+test settings::io::tests::actual_permission_errors_preserve_active_and_previous_file ... ok
+test settings::io::tests::non_ascii_override_names_are_rejected_before_commit_while_unicode_values_remain_literal ... ok
+test settings::io::tests::a_target_broken_during_save_is_retained_and_replace_failure_never_removes_it ... ok
+test settings::io::tests::missing_does_not_create_files_and_failed_reloads_keep_last_valid_without_touching_broken_bytes ... ok
+test settings::io::tests::explicit_save_replaces_a_complete_existing_file_and_creates_missing_parent_only_when_requested ... ok
+test settings::io::tests::interrupted_write_flush_and_replace_keep_previous_target_and_clean_only_our_temporary ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 149 filtered out; finished in 0.05s
+

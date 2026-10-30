@@ -23,8 +23,15 @@ pub fn configuration(output: &Path, changed: bool, remove_b: bool) -> io::Result
     } else {
         (14, 80, "dark", "confirm-running", "before", "old-args")
     };
+    let family = if !changed {
+        "monospace"
+    } else if cfg!(windows) {
+        "cascadia-mono"
+    } else {
+        "menlo"
+    };
     let mut source = format!(
-        "version = 1\ndefault_profile = 'a'\nhistory = {history}\ntheme = '{theme}'\nclose_policy = '{policy}'\n[font]\nsize = {font}\n"
+        "version = 1\ndefault_profile = 'a'\nhistory = {history}\ntheme = '{theme}'\nclose_policy = '{policy}'\n[font]\nfamily = '{family}'\nsize = {font}\n"
     );
     for name in if remove_b { vec!["a"] } else { vec!["a", "b"] } {
         let cwd = output.join(if changed {
