@@ -4,6 +4,65 @@ use crate::session::{Effect, Lifecycle};
 use crate::workspace::{Error, Model};
 use iced::widget::pane_grid::{Axis, Node};
 
+#[test]
+fn title_policy_preserves_unicode_and_plain_text_but_strips_chrome_controls() {
+    let value = "  café e\u{301} 日本語 👩\u{200d}💻 <b>&title</b>\n\t\x1b\u{7f}\u{85}\u{9b}\u{061c}\u{200e}\u{200f}\u{2028}\u{2029}\u{202a}\u{202e}\u{2066}\u{2069}  ";
+    let title = Title::new(value).unwrap();
+    assert_eq!(
+        title.as_str(),
+        "café e\u{301} 日本語 👩\u{200d}💻 <b>&title</b>"
+    );
+    assert_eq!(format!("{title:?}"), "Title([redacted])");
+    for value in ["", " \n\t\u{2003} ", "\x00\x1b\u{202e}", " \x07 "] {
+        assert!(Title::new(value).is_none());
+    }
+}
+
+#[test]
+fn title_cap_counts_scalars_and_bounds_retained_utf8_even_for_large_input() {
+    for value in ["a", "🦀", "e\u{301}", "👩\u{200d}💻"] {
+        let large = value.repeat(10_000);
+        let title = Title::new(&large).unwrap();
+        assert_eq!(
+            title.as_str(),
+            large.chars().take(TITLE_LIMIT).collect::<String>()
+        );
+        assert_eq!(title.as_str().chars().count(), TITLE_LIMIT);
+        assert!(title.0.len() <= 4 * TITLE_LIMIT);
+        assert!(title.0.capacity() <= 4 * TITLE_LIMIT);
+    }
+    let title = Title::new(&format!(
+        "{}{}tail",
+        "\x1b".repeat(10_000),
+        "界".repeat(257)
+    ))
+    .unwrap();
+    assert_eq!(title.as_str(), "界".repeat(TITLE_LIMIT));
+}
+
+#[test]
+fn manual_title_wins_over_osc_changes_and_reset_then_explicit_reset_restores_fallback() {
+    let manual = Title::new(" My project ");
+    let osc = Title::new("shell title");
+    assert_eq!(
+        display_title(manual.as_ref(), osc.as_ref(), "pwsh").as_str(),
+        "My project"
+    );
+    assert_eq!(
+        display_title(manual.as_ref(), None, "pwsh").as_str(),
+        "My project"
+    );
+    assert_eq!(
+        display_title(None, osc.as_ref(), "pwsh").as_str(),
+        "shell title"
+    );
+    assert_eq!(display_title(None, None, "  pwsh\n").as_str(), "pwsh");
+    assert_eq!(
+        display_title(None, None, "\x1b\u{202e}").as_str(),
+        "Terminal"
+    );
+}
+
 fn owner(effect: Effect) -> Reservation {
     let Effect::Spawn(owner) = effect else {
         panic!("expected launch")
