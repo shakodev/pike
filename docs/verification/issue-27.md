@@ -4,11 +4,11 @@ Branch `issue-27-pane-move-zoom` starts at actual merged main
 `7d715b792c7120b363abc9500ffbfb0837f0a414` (R26 / PR78), including R24, R25,
 R28 and R29. Retained R29 branch `issue-29-live-tabs` at
 `d6efdb77566a6e82a95cded93c1345493fdf39d4`, checkpoints, reports and target
-caches remain intact. No reset, rebase, force push, Actions execution or merge
-was performed. The coordinator owns relevant integration and independent review.
+caches remain intact. No reset, rebase, force push, Actions execution or PR merge
+was performed. The one authorized actual-main integration is recorded below. The coordinator owns relevant integration and independent review.
 Initial complete source was published as `bedd7f9713a13f74d8ef57beaa0299c9672edf55`; the corrected
-IME-corrected source was `8a8b6b54fbbe547807cb96eeade90b5f504bbe8f`; final
-implementation is `f1570215aec61945d57104bdeb5ecd1a17b33811`; source/binary hashes are in
+IME-corrected source was `8a8b6b54fbbe547807cb96eeade90b5f504bbe8f`; pre-integration P1 source is `f1570215aec61945d57104bdeb5ecd1a17b33811`;
+the final integrated implementation is `c0f403cd074feffa71103c1fed7dd94b158abe30`; source/binary hashes are in
 [provenance](../baselines/issue-27/provenance.json).
 
 ## Behavior and source
@@ -186,6 +186,55 @@ Unchanged model/state/late-attach/error-pane tests, vendor/geometry/lifecycle
 algorithms and R26 focus Authority evidence are reused. Only the actual pointer
 paths invalidated by the review fix were rerun. PR79 remains the same issue/PR;
 this author does not self-merge.
+
+## One actual-main integration with R30
+
+The coordinator supplied actual merged main `9bafb5f4f2686d61c45478667737b433bee634ce`
+(PR80 / R30). Pre-integration published head `20e6b8326865b762416deab9a42f0a976b04292e`
+is retained as `checkpoint/b-r27-before-r30-20e6b83`. Exactly one local merge
+produced compiled implementation `c0f403cd074feffa71103c1fed7dd94b158abe30` with
+those two parents. The branch/PR was neither rebased nor force-pushed. The merge
+was clean in App/view/workspace; no conflict resolution rewrote shared root code.
+The first merge invocation stopped before mutation because no ambient Git
+committer identity was configured; the actual merge used existing per-command
+identity without changing global settings.
+
+R27 `panes.rs`, `panes/view.rs`, `panes/gesture.rs` and the pane drop transaction
+are unchanged from P1-corrected f157. Imported R30 capture/dialog/commands/tabs/
+terminal/layout/metadata files are byte-identical to actual 9bafb5f. Both move
+helpers and tab rename/reorder methods remain present. The root keeps C's early
+close/help/tab-dialog returns and top/bottom composition; every dialog ownership
+transition calls the existing synchronize boundary that retires pane gestures.
+There is no additional keyboard mapper or focus Authority.
+
+The reused Host now imports C's canonical `host_viewport`; the pane fixture adds
+that same module and uses its dimensions. Dedicated joint tests are the only
+other integration code additions. Two pure checks verify old pane receipts stay
+retired across actual rename/overflow plus blur/dismiss cycles, and that pane
+moves/zoom preserve manual names, stable tab reorder, session owners and layout.
+The finite actual-App joint fixture covers eight rename/overflow x blur/no-blur x
+normal/mouse combinations: arming a header before the dialog, no hidden pane
+geometry/snapshot, stale dialog token rejection, Save/Cancel/Choose dismissal,
+zero header admission, restored model/widget focus, fresh text selection/exact
+SGR bytes, one fresh header drop, and actual Max/Restore cells/origins. Both
+native PIDs, Reservations, SessionIds, widget IDs and manual metadata survive.
+
+| Integration-only local command / scope | Result |
+| --- | --- |
+| `cargo test --offline --locked -p pike --lib -- actual_tab_dialog_round_trips_reject_pre_modal_pane_drop_receipts pane_move_and_zoom_preserve_tab_names_and_stable_tab_reorder --nocapture` | 2 passed; `main-integration/joint-model-tests.log`. |
+| `cargo build --offline --locked -p pike --example pane_moving`; `target/debug/examples/pane_moving docs/baselines/issue-27/main-integration/native-joint-focused --joint-tabs` | Passed all eight joint cases; [native receipt](../baselines/issue-27/main-integration/native-joint-focused/). |
+| Scoped native and Windows MSVC cross-Clippy (`--lib --bin pike --tests --example pane_moving -- -D warnings`) | Both passed; `main-integration/clippy.log`, `windows-cross-clippy.log`. |
+| `cargo fmt -p pike -- --check`; relevant `git diff --check` | Passed; `main-integration/format.log`, `diff-check.log`. |
+| Rebuilt R26 header-once and R25 pointer-integration normal + mouse-report modes | All passed; `main-integration/header-once/completed.txt`, `pointer-normal.log`, `pointer-mouse.log`; both pointer runs report `cleanup sessions=0`. |
+
+The first joint fixture duplicated raw and App blur delivery, then checked focus
+before the runtime task finished. Its five completed cases and failure remain in
+`main-integration/native-joint`; this is fixture sequencing evidence. The final
+driver consumes actual subscribed blur once, awaits widget focus, and passes
+without a production change. All prior R27/selection/IME/reviewer reds remain.
+The valid unchanged full move/zoom/flood/query/exit/clipping, cancellation,
+state/model/cache/vendor and R26 focus evidence is reused with original source
+identities and limits. No blanket suite, other renderer or CI was run.
 
 ## Limits
 
