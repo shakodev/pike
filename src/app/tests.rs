@@ -12,6 +12,7 @@ const DEADLINE: Duration = Duration::from_secs(10);
 mod cancellation;
 mod interaction;
 mod paste;
+mod split;
 
 fn profile(script: &str) -> BackendSettings {
     #[cfg(windows)]

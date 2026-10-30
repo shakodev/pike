@@ -82,6 +82,20 @@ impl Sessions {
     }
 
     pub fn synchronize(&mut self, model: &Model, active: Option<SessionId>, window: &WindowFocus) {
+        // Clear the previous input owner before enabling another, regardless of
+        // SessionId ordering. Terminal owns transient focus/composition state.
+        for (id, entry) in &mut self.entries {
+            if active != Some(*id)
+                && !entry.ended
+                && let Owner::Attached(terminal) = &mut entry.owner
+                && !terminal.input_status().closed
+            {
+                terminal.set_focused(false);
+            }
+        }
+        let tab = active
+            .and_then(|_| model.workspace().active())
+            .and_then(|id| model.workspace().tab(id));
         for (id, entry) in &mut self.entries {
             let Owner::Attached(terminal) = &mut entry.owner else {
                 continue;
@@ -89,18 +103,21 @@ impl Sessions {
             // Admission closes on the PTY worker before ChildExit reaches the
             // UI queue. Do not send focus traffic into that EOF-drain interval.
             entry.ended |= terminal.input_status().closed;
-            let visible = active == Some(*id)
-                && !matches!(
-                    model.sessions().get(*id).map(|entry| entry.lifecycle()),
-                    Some(Lifecycle::Closing { .. }) | None
-                );
+            let visible = tab.is_some_and(|tab| {
+                tab.grid().iter().any(|(pane, state)| {
+                    state.session == *id && tab.grid().maximized().is_none_or(|max| max == *pane)
+                })
+            }) && !matches!(
+                model.sessions().get(*id).map(|entry| entry.lifecycle()),
+                Some(Lifecycle::Closing { .. }) | None
+            );
             if terminal.is_visible() != visible {
                 terminal.set_visible(visible);
             }
             // ChildExit closes input before delivery. Avoid turning a focus
             // reply to an exited child into a requested shutdown during drain.
             if !entry.ended {
-                terminal.set_focused(visible && window.is_focused());
+                terminal.set_focused(visible && active == Some(*id) && window.is_focused());
             }
         }
     }
@@ -115,8 +132,15 @@ impl Sessions {
         event: Event,
     ) {
         let Event::BackendCall(raw, mut command) = event;
+        let active = model
+            .workspace()
+            .active()
+            .and_then(|tab| model.workspace().tab(tab))
+            .and_then(|tab| tab.grid().get(tab.focused()))
+            .is_some_and(|pane| pane.session == origin);
         if let BackendCommand::Paste(request) = &command {
             let accepts = raw == origin.get()
+                && active
                 && request.session_id() == origin.get()
                 && window.is_focused()
                 && self.entries.get(&origin).is_some_and(|entry| {
@@ -137,6 +161,11 @@ impl Sessions {
             }
         }
         if raw != origin.get() {
+            return;
+        }
+        // Widget focus receipts can be queued across pane selection. Only the
+        // common app selection path transfers input authority to a sibling.
+        if !active && matches!(command, BackendCommand::FocusChanged(true)) {
             return;
         }
         let Some(entry) = self.entries.get_mut(&origin) else {
@@ -162,6 +191,7 @@ impl Sessions {
         // pane/window focus change. Hovered mouse/wheel must not acquire focus.
         if matches!(command, BackendCommand::Write(_))
             && !(writable
+                && active
                 && window.is_focused()
                 && terminal.renderable_content().is_some_and(|c| c.focused))
         {

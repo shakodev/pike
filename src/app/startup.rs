@@ -1,10 +1,11 @@
 //! Execute the model's single-use reservation and UI-thread handoff contract.
-use super::{App, Message, focus};
+use super::{App, Message};
 use crate::identity::Reservation;
 use crate::launch::{LaunchError, LaunchRequest, PreparedSession};
 use crate::session::{Effect, Failure, Lifecycle};
 use crate::terminal::{Entry, Owner};
 use iced::Task;
+use iced_term::settings::BackendSettings;
 
 impl App {
     pub(super) fn begin_open(&mut self) -> Option<LaunchRequest> {
@@ -20,9 +21,24 @@ impl App {
     }
 
     pub(super) fn submit(&mut self, reservation: Reservation) -> Option<LaunchRequest> {
+        self.submit_profile(reservation, self.profile.clone())
+    }
+
+    pub(super) fn submit_profile(
+        &mut self,
+        reservation: Reservation,
+        mut profile: BackendSettings,
+    ) -> Option<LaunchRequest> {
         let token = self.model.claim_launch(reservation)?;
         self.notice = None;
-        match self.launches.start_reserved(token, self.profile.clone()) {
+        // Freeze the launch cwd. Splits inherit this directory even after a
+        // process changes its own cwd; there is no shell integration here.
+        profile.working_directory = profile
+            .working_directory
+            .map(|path| std::path::absolute(&path).unwrap_or(path))
+            .or_else(|| std::env::current_dir().ok());
+        self.profiles.insert(reservation.session, profile.clone());
+        match self.launches.start_reserved(token, profile) {
             Ok(launch) => {
                 self.sessions.entries.insert(
                     reservation.session,
@@ -41,7 +57,7 @@ impl App {
         }
     }
 
-    fn receive(launch: LaunchRequest) -> Task<Message> {
+    pub(super) fn receive(launch: LaunchRequest) -> Task<Message> {
         let reservation = Reservation {
             session: launch.session,
             request: launch.request,
@@ -79,10 +95,12 @@ impl App {
                             reservation.session,
                             Entry::new(reservation, Owner::Attached(Box::new(terminal))),
                         );
-                        self.synchronize();
-                        if active && let Some(terminal) = self.terminal(reservation.session) {
-                            return focus::request(terminal.widget_id().clone());
+                        if (self.focus_on_attach.remove(&reservation.session) || active)
+                            && let Some(target) = self.model.target(reservation.session)
+                        {
+                            return self.select(target);
                         }
+                        self.synchronize();
                     }
                     Err(error) => self.failed(reservation, error),
                 }
@@ -133,6 +151,7 @@ impl App {
             _ => Failure::Spawn,
         };
         if self.model.spawn_failed(reservation, failure) {
+            self.focus_on_attach.remove(&reservation.session);
             if let Some(entry) = self.sessions.entries.get(&reservation.session)
                 && let Owner::Starting(cancel) = &entry.owner
             {
@@ -145,6 +164,7 @@ impl App {
                 );
             } else {
                 self.sessions.entries.remove(&reservation.session);
+                self.profiles.remove(&reservation.session);
             }
         }
     }
