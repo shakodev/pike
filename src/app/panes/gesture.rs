@@ -144,6 +144,8 @@ impl Widget<Message, iced::Theme, iced::Renderer> for Guard<'_> {
                 gestures.cancel();
             }
             Event::Window(iced::window::Event::Focused) => state.blurred = false,
+            Event::Mouse(mouse::Event::CursorLeft)
+            | Event::Touch(iced::touch::Event::FingerLost { .. }) => gestures.cancel(),
             _ => {}
         }
         let allowed = self.enabled
@@ -253,6 +255,20 @@ impl Widget<Message, iced::Theme, iced::Renderer> for Guard<'_> {
                 },
                 message => shell.publish(message),
             }
+        }
+        // Pinned PaneGrid clears its action on release even when no cursor is
+        // available, but emits no DragEvent in that case. Retire our matching
+        // body gate too. A valid Dropped receipt has already taken `armed` and
+        // keeps its admission until the App consumes that one layout action.
+        if matches!(
+            event,
+            Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
+                | Event::Touch(
+                    iced::touch::Event::FingerLifted { .. } | iced::touch::Event::FingerLost { .. }
+                )
+        ) && state.armed.take().is_some()
+        {
+            gestures.cancel();
         }
     }
     fn draw(

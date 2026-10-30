@@ -100,6 +100,163 @@ pub(super) fn ime_pointer(
     Ok(())
 }
 
+pub(super) fn outside_release(
+    host: &mut Host,
+    output: &Path,
+    first: SessionId,
+    second: SessionId,
+) -> io::Result<()> {
+    use iced::touch;
+    let path = owner_file(host, output, first)?;
+    owner_file(host, output, second)?;
+    host.redraw();
+    host.drain()?;
+    let bounds = host.bounds(first).unwrap();
+    let content = host
+        .app
+        .terminal(first)
+        .unwrap()
+        .renderable_content()
+        .unwrap();
+    let cell = content.terminal_size;
+    let selected_row = content
+        .viewport
+        .cells()
+        .chunks(content.viewport.columns())
+        .position(|row| row.iter().filter(|cell| !cell.c.is_whitespace()).count() >= 15)
+        .ok_or_else(|| io::Error::other("no controlled text row for content recovery"))?;
+    let row = bounds.y + (selected_row as f32 + 0.5) * cell.cell_height;
+    for cancellation in 0..5 {
+        drag(
+            host,
+            Point::new(bounds.x + 2.1 * cell.cell_width, row),
+            Point::new(bounds.x + 12.9 * cell.cell_width, row),
+        )?;
+        let baseline = host
+            .app
+            .terminal(first)
+            .unwrap()
+            .copy_selection(|s| s)
+            .ok_or_else(|| io::Error::other("missing baseline selection"))?;
+        let before = layout(host);
+        let input = admitted(host);
+        press_header(host, first)?;
+        if matches!(cancellation, 0 | 4) {
+            host.event(
+                Event::Mouse(mouse::Event::CursorLeft),
+                mouse::Cursor::Unavailable,
+            );
+        }
+        match cancellation {
+            0 | 1 => {
+                host.event(
+                    Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left)),
+                    mouse::Cursor::Unavailable,
+                );
+            }
+            2 => {
+                let position = host.bounds(second).unwrap().center();
+                host.event(
+                    Event::Touch(touch::Event::FingerLost {
+                        id: touch::Finger(1),
+                        position,
+                    }),
+                    mouse::Cursor::Available(position),
+                );
+            }
+            3 => {
+                host.event(
+                    Event::Touch(touch::Event::FingerLifted {
+                        id: touch::Finger(1),
+                        position: Point::ORIGIN,
+                    }),
+                    mouse::Cursor::Unavailable,
+                );
+            }
+            4 => {} // CursorLeft must cancel before any later release arrives.
+            _ => unreachable!(),
+        }
+        host.drain()?;
+        check(
+            layout(host) == before && admitted(host) == input,
+            "outside/lost release changed layout or admitted header input",
+        )?;
+        host.event(
+            Event::Mouse(mouse::Event::CursorEntered),
+            mouse::Cursor::Available(bounds.center()),
+        );
+        drag(
+            host,
+            Point::new(bounds.x + 4.1 * cell.cell_width, row),
+            Point::new(bounds.x + 6.9 * cell.cell_width, row),
+        )?;
+        let selected = host
+            .app
+            .terminal(first)
+            .unwrap()
+            .copy_selection(|s| s)
+            .ok_or_else(|| io::Error::other("missing fresh content selection"))?;
+        check(
+            selected != baseline,
+            "unavailable outside release left content pointer input blocked",
+        )?;
+        host.evidence.push(format!("cancel kind={cancellation}: unchanged layout, zero header admission and fresh content selection"));
+    }
+    input(host, 'm')?;
+    host.until(|h| {
+        h.app
+            .terminal(first)
+            .unwrap()
+            .renderable_content()
+            .unwrap()
+            .terminal_mode
+            .contains(iced_term::TermMode::MOUSE_REPORT_CLICK | iced_term::TermMode::SGR_MOUSE)
+    })?;
+    let before = fs::read(&path)?;
+    let admission = admitted(host);
+    press_header(host, first)?;
+    host.event(
+        Event::Mouse(mouse::Event::CursorLeft),
+        mouse::Cursor::Unavailable,
+    );
+    host.event(
+        Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left)),
+        mouse::Cursor::Unavailable,
+    );
+    host.drain()?;
+    check(
+        admitted(host) == admission,
+        "mouse-mode unavailable header release admitted input",
+    )?;
+    drag(
+        host,
+        Point::new(bounds.x + 2.5 * cell.cell_width, row),
+        Point::new(bounds.x + 4.5 * cell.cell_width, row),
+    )?;
+    let mut expected = before;
+    expected.extend_from_slice(
+        format!(
+            "\x1b[<0;3;{}M\x1b[<0;5;{}m",
+            selected_row + 1,
+            selected_row + 1
+        )
+        .as_bytes(),
+    );
+    host.until(|_| fs::read(&path).is_ok_and(|bytes| bytes == expected))?;
+    host.evidence.push("unavailable outside release in mouse mode: zero header admission; fresh content drag emitted exact SGR bytes".into());
+    let target = host.app.model().target(second).unwrap();
+    let point = host.bounds(second).unwrap().center();
+    move_to(
+        host,
+        first,
+        point,
+        Target::Pane(target.pane, Region::Center),
+        output,
+    )?;
+    host.evidence.push("fresh header press after cancellation emitted exactly one layout effect and zero PTY admission".into());
+    Ok(())
+}
+
 fn owner_file(host: &mut Host, output: &Path, id: SessionId) -> io::Result<PathBuf> {
     host.until(|h| text(h, id).contains("PIKE27_READY="))?;
     let screen = text(host, id);

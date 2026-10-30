@@ -7,7 +7,8 @@ R28 and R29. Retained R29 branch `issue-29-live-tabs` at
 caches remain intact. No reset, rebase, force push, Actions execution or merge
 was performed. The coordinator owns relevant integration and independent review.
 Initial complete source was published as `bedd7f9713a13f74d8ef57beaa0299c9672edf55`; the corrected
-implementation is `8a8b6b54fbbe547807cb96eeade90b5f504bbe8f`; source/binary hashes are in
+IME-corrected source was `8a8b6b54fbbe547807cb96eeade90b5f504bbe8f`; final
+implementation identity and source/binary hashes are in
 [provenance](../baselines/issue-27/provenance.json).
 
 ## Behavior and source
@@ -135,6 +136,55 @@ unchanged complete command, vendor, geometry, lifecycle and R29 cache suites are
 not rerun. Final R27 has zero vendor diff, so no patched-dependency test suite is
 required. The separate experiment's explicit vendor tests remain on its
 checkpoint and are not necessary final R27 checks.
+
+## R1 cancellation correction
+
+Independent review of published head `8661bfb761544b1b0fdfc990c600df1517f9646e`
+found that pinned PaneGrid clears its drag action on a left release with
+`Cursor::Unavailable` without emitting a DragEvent. The companion body gate
+remained armed, suppressing later selection/mouse input. The reviewer reproduced
+selection command counts **3 before / 0 afterward** on the original and
+IME-corrected source. Its original probe, finding and both immutable native reds
+are retained in
+[`reviewer-outside-original`](../baselines/issue-27/reviewer-outside-original/).
+
+The author fix cancels on CursorLeft/FingerLost, then retires any still-armed
+receipt after terminal release, including unavailable mouse/touch releases. A
+valid Dropped event has already taken the armed receipt, so its one layout
+message keeps admission until App consumes it. No shared capture/focus/terminal
+or vendor changes are made. The final recovery fixture tests cursor-leave plus
+unavailable release, unavailable release alone, touch loss, unavailable touch
+lift and cursor-leave without a release. Every case preserves layout, admits no
+header input, allows fresh content selection, and permits a fresh header press
+to emit exactly one layout effect. Real mouse mode emits the exact fresh SGR
+press/release bytes after cancellation.
+
+The original source fails this recovery oracle with `unavailable outside release
+left content pointer input blocked`; that author red and cleanup are retained at
+[`native-outside-release-regression-red`](../baselines/issue-27/native-outside-release-regression-red/).
+The temporary owned source substitution was restored byte-for-byte afterward;
+no branch reset/rewrite was used. Earlier author recovery-fixture attempts
+pressed inside the existing R25 divider leeway and failed their baseline
+selection setup; `native-outside-release-red` / `native-outside-release-green`
+retain those setup failures and are not product red/green evidence. The final
+oracle presses controlled nonblank text safely beyond divider leeway.
+
+All correction verification ran locally, locked/offline, on the same native
+renderer with real synthetic PTYs; R1 retains independent re-review ownership.
+
+| Correction command / scope | Result |
+| --- | --- |
+| Same scoped native and Windows cross-Clippy commands above | Passed; `review-fix-clippy.log`, `review-fix-windows-cross-clippy.log`. |
+| `cargo fmt -p pike -- --check`; relevant `git diff --check` | Passed; `review-fix-format.log`, `review-fix-diff-check.log`. |
+| `target/debug/examples/pane_moving docs/baselines/issue-27/native-review-fix-complete --outside-release` | Passed all five cancellation variants, fresh content/mouse recovery, exactly one fresh layout action; [receipts](../baselines/issue-27/native-review-fix-complete/). |
+| Complete actual-App pane fixture and focused `--ime-pointer` | Both passed on the corrected release handler; [full](../baselines/issue-27/native-review-full/), [IME](../baselines/issue-27/native-review-ime/). |
+| Rebuilt R26 `--header-once` | Passed; `review-header-once/completed.txt`. The unchanged focus race's earlier pass is reused. |
+| Rebuilt R25 pointer-integration normal + `--mouse-report` | Both passed with `cleanup sessions=0`; `review-pointer-normal.log`, `review-pointer-mouse.log`. |
+
+Unchanged model/state/late-attach/error-pane tests, vendor/geometry/lifecycle
+algorithms and R26 focus Authority evidence are reused. Only the actual pointer
+paths invalidated by the review fix were rerun. PR79 remains the same issue/PR;
+this author does not self-merge.
 
 ## Limits
 

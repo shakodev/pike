@@ -44,7 +44,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let result = verify(
         &mut host,
         &output,
-        args.get(2).is_some_and(|a| a == "--ime-pointer"),
+        args.get(2).and_then(|arg| arg.to_str()).unwrap_or(""),
     );
     let cleanup = host.cleanup();
     fs::write(output.join("events.txt"), host.evidence.join("\n"))?;
@@ -169,7 +169,7 @@ fn drag(host: &mut Host, from: Point, to: Point) -> io::Result<()> {
     host.drain()
 }
 
-fn verify(host: &mut Host, output: &Path, ime_pointer: bool) -> io::Result<()> {
+fn verify(host: &mut Host, output: &Path, mode: &str) -> io::Result<()> {
     host.update(Message::WindowFocused(true));
     host.until(|h| {
         h.app
@@ -208,8 +208,10 @@ fn verify(host: &mut Host, output: &Path, ime_pointer: bool) -> io::Result<()> {
         host.app.active_session() == Some(first) && host.focused(first),
         "drop lost source focus",
     )?;
-    if ime_pointer {
+    if mode == "--ime-pointer" {
         scenarios::ime_pointer(host, output, first, second)
+    } else if mode == "--outside-release" {
+        scenarios::outside_release(host, output, first, second)
     } else {
         scenarios::verify(host, output, first, second)
     }
