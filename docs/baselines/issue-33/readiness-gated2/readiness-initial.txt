@@ -1,0 +1,2 @@
+initial_cells_copied=8900
+initial_blank_marker_accepted=false

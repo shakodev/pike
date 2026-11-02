@@ -86,7 +86,12 @@ fn compact<'a, M: Clone + 'a>(
     width: f32,
 ) -> Element<'a, M> {
     let selected = items.iter().position(|item| Some(item.id) == active);
-    let available = (width - 138.0).max(0.0);
+    // Preserve a useful active label before allocating space to less frequent
+    // management actions. Overflow always has its own unclipped target.
+    let slot = 150.0 + tokens::CONTROL + tokens::SPACE;
+    let management_width =
+        (width - slot - tokens::CONTROL - 2.0 * tokens::SPACE).clamp(0.0, 4.0 * tokens::CONTROL);
+    let available = (width - management_width - tokens::CONTROL - 2.0 * tokens::SPACE).max(0.0);
     let capacity = ((available / 180.0).floor() as usize).clamp(1, 5);
     let visible = visible_range(items.len(), selected.unwrap_or(0), capacity);
     let tab_width = ((available - tokens::SPACE * visible.len().saturating_sub(1) as f32)
@@ -177,7 +182,7 @@ fn compact<'a, M: Clone + 'a>(
             .direction(scrollable::Direction::Horizontal(
                 scrollable::Scrollbar::new().width(2).scroller_width(2)
             ))
-            .width(104)
+            .width(management_width)
             .height(tokens::CONTROL),
         container(ui::icon(
             "⋯",
@@ -257,12 +262,14 @@ mod tests {
 
     #[test]
     fn compact_range_is_bounded_and_always_contains_the_selected_tab() {
-        for length in 1..=32 {
-            for active in 0..length {
-                let visible = visible_range(length, active, 5);
-                assert!(visible.contains(&active));
-                assert!(visible.end <= length);
-                assert!(visible.len() <= 5);
+        for capacity in 1..=5 {
+            for length in 1..=32 {
+                for active in 0..length {
+                    let visible = visible_range(length, active, capacity);
+                    assert!(visible.contains(&active));
+                    assert!(visible.end <= length);
+                    assert!(visible.len() <= capacity);
+                }
             }
         }
         assert_eq!(visible_range(0, 0, 1), 0..0);

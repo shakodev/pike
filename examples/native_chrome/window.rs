@@ -95,6 +95,19 @@ impl Probe {
                         .is_some(),
                     "controlled PTY did not attach"
                 );
+                assert!(
+                    self.app
+                        .active_session()
+                        .and_then(|id| self.app.terminal(id))
+                        .and_then(|terminal| terminal.renderable_content())
+                        .is_some_and(|content| content
+                            .viewport
+                            .display_iter()
+                            .map(|indexed| indexed.cell.c)
+                            .collect::<String>()
+                            .contains("PIKE33")),
+                    "controlled prompt snapshot was not ready before native idle measurement"
+                );
                 self.counters = counters(&self.app);
                 self.cpu = cpu();
                 self.redraws = REDRAWS.load(Ordering::Relaxed);

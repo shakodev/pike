@@ -91,6 +91,29 @@ performance claim. A matched after-styling native measurement remains required.
 
 ## Remaining acceptance and limitations
 
+R2 independently found two fixture gaps at the initial `7e1ffb6` checkpoint:
+the nonzero copied-cell readiness check admitted blank initial snapshots, and
+the old move/zoom fixture clicked the former Max button coordinate, now occupied
+by Split down. These are evidence/fixture defects, not demonstrated production
+PTY or maximize failures. The reviewer's exact red images and move/zoom logs are
+preserved in `pike-reviewer-2/docs/baselines/issue-33-reviewer2/`.
+
+Corrections now compile under scoped Clippy. Every visible actual terminal
+snapshot must contain the controlled `PIKE33` marker before capture; a title or
+nonzero copied-cell count alone is insufficient. The deterministic gated-child
+regression passes with **12,900 initial copied cells**, rejects that blank
+snapshot, observes the prompt after releasing the child, retains the same
+reservation, and awaits cleanup (`readiness-gated3/`). Two earlier reproducer
+failures are retained: the blank child initially emitted no wakeup, then the
+fixture correctly hit the production unfocused-input guard until it established
+window focus. The existing move/zoom pointer fixture now queries the actual zoom
+control's stable widget ID and visible translated bounds; its native rerun stays
+after the agreed actual-R32/root integration.
+
+The responsive strip also passes a new 200-DIP native component case at all four
+scales. Management actions yield their visual width to the active tab and the
+overflow hit target; all existing handlers and tab ownership remain unchanged.
+
 After one deliberate actual-R32 integration: compact normal root composition,
 plus/menu/settings affordances, effective shortcut tooltips, and bounded passive
 rows outside terminal clipping. C will integrate its new error data/actions and

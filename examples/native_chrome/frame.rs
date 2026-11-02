@@ -151,6 +151,11 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
     }
     view.as_widget_mut()
         .operate(&mut tree, Layout::new(&node), &host.renderer, &mut metrics);
+    if !metrics.visible.is_empty() && !crate::scenes::prompt_ready(host) {
+        return Err(io::Error::other(format!(
+            "current visible snapshot lacks controlled prompt before {name}"
+        )));
+    }
     // Inspect header geometry separately so widget IDs can never alias a header.
     let mut headers = Metrics {
         viewport,
@@ -166,10 +171,18 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
     view.as_widget_mut()
         .operate(&mut tree, Layout::new(&node), &host.renderer, &mut headers);
     for header in &headers.headers {
-        assert_eq!(header.height, 26.0);
+        if header.height != 26.0 {
+            return Err(io::Error::other(format!(
+                "header is not 26 DIP in {name}: {header:?}"
+            )));
+        }
     }
-    if let Some(strip) = metrics.tab_strip {
-        assert_eq!(strip.height, 34.0);
+    if let Some(strip) = metrics.tab_strip
+        && strip.height != 34.0
+    {
+        return Err(io::Error::other(format!(
+            "strip is not 34 DIP in {name}: {strip:?}"
+        )));
     }
     view.as_widget_mut().update(
         &mut tree,
@@ -193,6 +206,12 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
     );
     let dimensions = Size::new((size.width * scale) as u32, (size.height * scale) as u32);
     let rgba = Headless::screenshot(&mut host.renderer, dimensions, scale, Color::BLACK);
+    // Retain generated red pixels even if a later clipping/legibility check
+    // fails; main still requests and awaits actual App session cleanup.
+    report::screenshot(
+        &output.join(format!("{name}.ppm")),
+        iced::window::Screenshot::new(rgba.clone(), dimensions, scale),
+    )?;
     let mut green = 0;
     for (index, pixel) in rgba.chunks_exact(4).enumerate() {
         if pixel[1] > 90
@@ -204,17 +223,21 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
                 ((index % dimensions.width as usize) as f32 + 0.5) / scale,
                 ((index / dimensions.width as usize) as f32 + 0.5) / scale,
             );
-            assert!(
-                metrics
-                    .visible
-                    .iter()
-                    .any(|bounds| bounds.expand(1.0 / scale).contains(point)),
-                "controlled prompt escaped actual terminal viewport in {name} at {point:?}"
-            );
+            if !metrics
+                .visible
+                .iter()
+                .any(|bounds| bounds.expand(1.0 / scale).contains(point))
+            {
+                return Err(io::Error::other(format!(
+                    "controlled prompt escaped actual terminal viewport in {name} at {point:?}"
+                )));
+            }
         }
     }
-    if !metrics.visible.is_empty() {
-        assert!(green > 20, "no legible controlled prompt in {name}");
+    if !metrics.visible.is_empty() && green <= 20 {
+        return Err(io::Error::other(format!(
+            "no legible controlled prompt in {name}"
+        )));
     }
     fs::write(
         output.join(format!("{name}.txt")),
@@ -223,8 +246,5 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
             metrics.tab_strip, headers.headers, metrics.visible
         ),
     )?;
-    report::screenshot(
-        &output.join(format!("{name}.ppm")),
-        iced::window::Screenshot::new(rgba, dimensions, scale),
-    )
+    Ok(())
 }

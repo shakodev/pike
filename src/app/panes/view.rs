@@ -58,20 +58,26 @@ impl App {
             }
             let controls: Element<'_, Control> = container(
                 controls
-                    .push(ui::icon(
-                        if source.maximized().is_some() {
-                            "↙"
-                        } else {
-                            "↗"
-                        },
-                        "Maximize / restore pane",
-                        Control::Zoom(target),
-                    ))
-                    .push(ui::icon(
-                        "×",
-                        "Close pane",
-                        Control::CloseSession(pane.session),
-                    ))
+                    .push(
+                        container(ui::icon(
+                            if source.maximized().is_some() {
+                                "↙"
+                            } else {
+                                "↗"
+                            },
+                            "Maximize / restore pane",
+                            Control::Zoom(target),
+                        ))
+                        .id(format!("pane-zoom-{}", pane.session.get())),
+                    )
+                    .push(
+                        container(ui::icon(
+                            "×",
+                            "Close pane",
+                            Control::CloseSession(pane.session),
+                        ))
+                        .id(format!("pane-close-{}", pane.session.get())),
+                    )
                     .spacing(0),
             )
             .height(HEADER)

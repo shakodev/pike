@@ -28,6 +28,7 @@ pub fn ready(host: &mut Host) -> io::Result<()> {
             .active()
             .and_then(|tab| host.app.tab_title(tab))
             .is_some_and(|title| title.as_str() == "PIKE33 controlled fixture")
+            && prompt_ready(host)
             && host.app.model().sessions().iter().all(|(id, _)| {
                 host.app
                     .terminal(id)
@@ -35,6 +36,79 @@ pub fn ready(host: &mut Host) -> io::Result<()> {
             })
     })?;
     host.drain()
+}
+
+/// Observe the controlled marker in each currently visible pane's snapshot.
+/// A blank initial snapshot or a child title alone is insufficient evidence.
+/// Only the fixed synthetic fixture marker is examined; nothing is logged.
+pub fn prompt_ready(host: &Host) -> bool {
+    let Some(tab) = host
+        .app
+        .model()
+        .workspace()
+        .active()
+        .and_then(|id| host.app.model().workspace().tab(id))
+    else {
+        return true;
+    };
+    tab.grid()
+        .iter()
+        .filter(|(pane, _)| {
+            tab.grid()
+                .maximized()
+                .is_none_or(|visible| **pane == visible)
+        })
+        .all(|(_, pane)| {
+            host.app.terminal(pane.session).is_none_or(|terminal| {
+                terminal.renderable_content().is_some_and(|content| {
+                    content
+                        .viewport
+                        .display_iter()
+                        .map(|indexed| indexed.cell.c)
+                        .collect::<String>()
+                        .contains("PIKE33")
+                })
+            })
+        })
+}
+
+pub fn verify_readiness(host: &mut Host, output: &Path) -> io::Result<()> {
+    host.update(Message::WindowFocused(true));
+    host.until(|host| {
+        host.redraw();
+        host.app
+            .active_session()
+            .and_then(|id| host.app.terminal(id))
+            .is_some_and(|terminal| terminal.snapshot_stats().cells_copied > 0)
+    })?;
+    let id = host.app.active_session().unwrap();
+    let reservation = host.app.model().sessions().get(id).unwrap().reservation();
+    let initial = host.app.terminal(id).unwrap().snapshot_stats().cells_copied;
+    assert!(
+        !prompt_ready(host),
+        "initial blank snapshot was accepted as a ready prompt"
+    );
+    fs::write(
+        output.join("readiness-initial.txt"),
+        format!("initial_cells_copied={initial}\ninitial_blank_marker_accepted=false\n"),
+    )?;
+    let terminal_id = host.app.terminal(id).unwrap().id;
+    host.update(Message::Terminal((
+        id,
+        iced_term::Event::BackendCall(terminal_id, iced_term::BackendCommand::Write(vec![b'\n'])),
+    )));
+    ready(host)?;
+    assert!(prompt_ready(host));
+    assert_eq!(
+        host.app.model().sessions().get(id).unwrap().reservation(),
+        reservation
+    );
+    fs::write(
+        output.join("readiness.txt"),
+        format!(
+            "initial_cells_copied={initial}\ninitial_blank_marker_accepted=false\nobserved_current_prompt_marker=true\nstable_reservation={reservation:?}\n"
+        ),
+    )
 }
 
 pub fn verify(host: &mut Host, output: &Path) -> io::Result<()> {

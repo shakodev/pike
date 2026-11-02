@@ -37,10 +37,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<_> = std::env::args().collect();
     if args
         .get(1)
-        .is_some_and(|arg| arg == "--child" || arg == "--child-exit")
+        .is_some_and(|arg| arg == "--child" || arg == "--child-exit" || arg == "--child-gated")
     {
-        return child::run(args.get(1).is_some_and(|arg| arg == "--child-exit"))
-            .map_err(Into::into);
+        return child::run(
+            args.get(1).is_some_and(|arg| arg == "--child-exit"),
+            args.get(1).is_some_and(|arg| arg == "--child-gated"),
+        )
+        .map_err(Into::into);
     }
     let output = Path::new(args.get(1).ok_or("expected fresh output directory")?);
     fs::create_dir(output)?;
@@ -60,14 +63,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         return components(&mut renderer, output).map_err(Into::into);
     }
     let config = output.join("settings.toml");
+    let readiness_only = args.get(2).is_some_and(|s| s == "--readiness");
     fs::write(
         &config,
-        scenes::configuration(&std::env::current_exe()?.to_string_lossy(), "--child"),
+        scenes::configuration(
+            &std::env::current_exe()?.to_string_lossy(),
+            if readiness_only {
+                "--child-gated"
+            } else {
+                "--child"
+            },
+        ),
     )?;
     let (app, task) = executor.enter(|| App::with_config_path(config));
     let mut host = host::Host::new(app, task, renderer, executor);
     let idle_only = args.get(2).is_some_and(|s| s == "--idle");
-    let result = if idle_only {
+    let result = if readiness_only {
+        scenes::verify_readiness(&mut host, output)
+    } else if idle_only {
         scenes::ready(&mut host).and_then(|_| idle(&mut host, output))
     } else {
         scenes::verify(&mut host, output)
@@ -82,7 +95,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     )?;
     result?;
     drop(host);
-    if !idle_only {
+    if !idle_only && !readiness_only {
         scenes::error_empty(output)?;
     }
     fs::write(output.join("completed.txt"), "passed\n")?;
@@ -176,7 +189,7 @@ fn components(renderer: &mut iced::Renderer, output: &Path) -> io::Result<()> {
             .map_err(|_| io::Error::other("controlled tab setup"))?;
     }
     for (name, theme) in [("dark", iced::Theme::Dark), ("light", iced::Theme::Light)] {
-        for width in [320.0, 1200.0] {
+        for width in [200.0, 320.0, 1200.0] {
             let size = Size::new(width, pike::ui::tokens::TAB_HEIGHT);
             let items = model
                 .workspace()
