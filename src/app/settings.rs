@@ -114,6 +114,7 @@ impl App {
                 if let Some(generation) = self.settings.generation.checked_add(1) {
                     self.settings.generation = generation;
                     self.settings.active = candidate;
+                    self.refresh_help_reference();
                     self.settings.error = None;
                     self.apply_appearance();
                 } else {

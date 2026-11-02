@@ -1,12 +1,18 @@
 //! Pure application shortcut resolution. Terminal editing bindings stay in the
 //! terminal widget, and the host's single capture wrapper owns IME/modal priority.
-use iced::keyboard::{self, Key, Modifiers, key::Named};
+use iced::keyboard;
+#[cfg(test)]
+use iced::keyboard::{Key, Modifiers, key::Named};
 use iced::widget::pane_grid;
 
 use super::Direction;
 
 mod host;
+mod keymap;
+mod reference;
+pub use host::PasteRequest;
 pub(super) use host::{State, on_key};
+pub use reference::{CommandReference, HelpAction};
 
 /// Expected refusals keep the current workspace usable and expose recovery.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -22,10 +28,10 @@ pub enum Error {
 impl Error {
     pub fn message(self) -> &'static str {
         match self {
-            Self::NoActivePane => "Open a terminal with Ctrl+Shift+T, then try again.",
+            Self::NoActivePane => "Open a terminal from the Commands menu, then try again.",
             Self::TerminalNotReady => "Wait for this terminal to start, or retry its error pane.",
             Self::MissingTab => {
-                "That tab is not open. Choose an existing tab or create one with Ctrl+Shift+T."
+                "That tab is not open. Choose an existing tab or create one from the Commands menu."
             }
             Self::NewTabRefused => {
                 "A tab could not be created. Close a pane, wait for cleanup, and try again."
@@ -55,6 +61,12 @@ pub enum FontChange {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TabMove {
+    Left,
+    Right,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
     NewTab,
     ClosePane,
@@ -70,6 +82,17 @@ pub enum Command {
     RenameTab,
     ListTabs,
     ReloadSettings,
+    CloseWindow,
+    Resize(super::ResizeStep),
+    MovePane(pane_grid::Direction),
+    MoveTab(TabMove),
+    ResetTabName,
+    Retry,
+    UseDefault,
+    Copy,
+    Paste,
+    History(iced_term::HistoryScroll),
+    NewProfile(u8),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -79,67 +102,17 @@ pub enum Resolution {
     Consume,
 }
 
-/// Resolve against each event's modifiers, never a cached modifier snapshot.
-/// Exact modifiers leave Ctrl+C, printable AltGr, dead keys and terminal-owned
-/// copy/paste/history bindings on their established encoder paths. Resize keys
-/// are resolved by the host's existing resize mapper after this returns None.
+/// Compatibility default resolver; live hosts pass the active validated mappings
+/// to resolve_with at the same pre-child capture boundary.
 pub fn resolve(event: &keyboard::Event) -> Option<Resolution> {
-    let keyboard::Event::KeyPressed {
-        key,
-        modifiers,
-        repeat,
-        ..
-    } = event
-    else {
-        return None;
-    };
-    let command = if *modifiers == Modifiers::CTRL | Modifiers::SHIFT {
-        match key {
-            Key::Character(character) => {
-                let [character] = character.as_bytes() else {
-                    return None;
-                };
-                match character.to_ascii_lowercase() {
-                    b't' => Command::NewTab,
-                    b'w' => Command::ClosePane,
-                    b'q' => Command::CloseTab,
-                    b'o' => Command::Split(Direction::Right),
-                    b'e' => Command::Split(Direction::Down),
-                    b'r' => Command::RenameTab,
-                    b'l' => Command::ListTabs,
-                    b'1'..=b'8' => Command::SelectTab(TabSelection::Index(character - b'1')),
-                    b'9' => Command::SelectTab(TabSelection::Last),
-                    b'+' | b'=' => Command::Font(FontChange::Larger),
-                    b'-' => Command::Font(FontChange::Smaller),
-                    b'0' => Command::Font(FontChange::Reset),
-                    _ => return None,
-                }
-            }
-            Key::Named(Named::Tab) => Command::PreviousTab,
-            Key::Named(Named::Enter) => Command::ToggleZoom,
-            Key::Named(Named::F5) => Command::ReloadSettings,
-            _ => return None,
-        }
-    } else if *modifiers == Modifiers::CTRL && *key == Key::Named(Named::Tab) {
-        Command::NextTab
-    } else if *modifiers == Modifiers::ALT {
-        Command::Focus(match key {
-            Key::Named(Named::ArrowLeft) => pane_grid::Direction::Left,
-            Key::Named(Named::ArrowRight) => pane_grid::Direction::Right,
-            Key::Named(Named::ArrowUp) => pane_grid::Direction::Up,
-            Key::Named(Named::ArrowDown) => pane_grid::Direction::Down,
-            _ => return None,
-        })
-    } else if modifiers.is_empty() && *key == Key::Named(Named::F1) {
-        Command::Help
-    } else {
-        return None;
-    };
-    Some(if *repeat && command.suppresses_repeat() {
-        Resolution::Consume
-    } else {
-        Resolution::Dispatch(command)
-    })
+    resolve_with(event, &[])
+}
+
+pub fn resolve_with(
+    event: &keyboard::Event,
+    shortcuts: &[crate::settings::Shortcut],
+) -> Option<Resolution> {
+    keymap::resolve(event, shortcuts)
 }
 
 impl Command {
@@ -155,6 +128,15 @@ impl Command {
                 | Self::RenameTab
                 | Self::ListTabs
                 | Self::ReloadSettings
+                | Self::CloseWindow
+                | Self::MovePane(_)
+                | Self::MoveTab(_)
+                | Self::ResetTabName
+                | Self::Retry
+                | Self::UseDefault
+                | Self::Copy
+                | Self::Paste
+                | Self::NewProfile(_)
         )
     }
 }
@@ -271,19 +253,6 @@ mod tests {
             (Key::Unidentified, Modifiers::empty()),
             (Key::Named(Named::F2), Modifiers::empty()),
             (Key::Named(Named::Space), Modifiers::CTRL | Modifiers::ALT),
-            (
-                Key::Character("c".into()),
-                Modifiers::CTRL | Modifiers::SHIFT,
-            ),
-            (
-                Key::Character("v".into()),
-                Modifiers::CTRL | Modifiers::SHIFT,
-            ),
-            (Key::Named(Named::Insert), Modifiers::SHIFT),
-            (Key::Named(Named::PageUp), Modifiers::SHIFT),
-            (Key::Named(Named::PageDown), Modifiers::SHIFT),
-            (Key::Named(Named::Home), Modifiers::SHIFT),
-            (Key::Named(Named::End), Modifiers::SHIFT),
         ] {
             assert_eq!(resolve(&press(key, modifiers, false)), None);
         }
@@ -293,12 +262,28 @@ mod tests {
     }
 
     #[test]
-    fn directions_repeat_but_leave_resize_chords_to_existing_mapper() {
-        for (key, direction) in [
-            (Named::ArrowLeft, pane_grid::Direction::Left),
-            (Named::ArrowRight, pane_grid::Direction::Right),
-            (Named::ArrowUp, pane_grid::Direction::Up),
-            (Named::ArrowDown, pane_grid::Direction::Down),
+    fn directions_and_resize_share_the_typed_resolver_and_repeat() {
+        for (key, direction, resize) in [
+            (
+                Named::ArrowLeft,
+                pane_grid::Direction::Left,
+                super::super::ResizeStep::Left,
+            ),
+            (
+                Named::ArrowRight,
+                pane_grid::Direction::Right,
+                super::super::ResizeStep::Right,
+            ),
+            (
+                Named::ArrowUp,
+                pane_grid::Direction::Up,
+                super::super::ResizeStep::Up,
+            ),
+            (
+                Named::ArrowDown,
+                pane_grid::Direction::Down,
+                super::super::ResizeStep::Down,
+            ),
         ] {
             assert_eq!(
                 resolve(&press(Key::Named(key), Modifiers::ALT, true)),
@@ -310,7 +295,7 @@ mod tests {
                     Modifiers::ALT | Modifiers::SHIFT,
                     false
                 )),
-                None
+                Some(Resolution::Dispatch(Command::Resize(resize)))
             );
         }
     }

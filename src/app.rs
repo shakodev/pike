@@ -42,6 +42,7 @@ pub enum Message {
     TabName(u64, String),
     SettingsLoaded(Result<crate::settings::Settings, crate::settings::Error>),
     SystemTheme(iced::theme::Mode),
+    CommandPaste(commands::PasteRequest, Option<String>),
 }
 
 #[derive(Clone, Copy)]
@@ -65,7 +66,9 @@ pub enum Control {
     ResizeFocus(u64),
     Command(commands::Command),
     KeyCommand(Option<SessionId>, commands::Command),
+    MappedCommand(Option<SessionId>, u64, commands::Command),
     DismissHelp,
+    HelpAction(u64, commands::HelpAction),
     TabAction(crate::tab_strip::TabAction),
     TabDialog(u64, DialogAction),
     NewProfile(u64, u8),
@@ -226,13 +229,17 @@ impl App {
             && (matches!(&message, Message::Control(control)
             if !matches!(control, Control::CloseAction(_))
                 && !matches!(control, Control::TabDialog(..))
-                && !(matches!(control, Control::DismissHelp) && self.command_state.help.is_some()
+                && !(matches!(control, Control::DismissHelp | Control::HelpAction(..)) && self.command_state.help.is_some()
                     && !self.exiting && !self.close_policy.confirming()))
                 || matches!(&message, Message::GridSize(..)))
         {
             return Task::none();
         }
         match message {
+            Message::CommandPaste(id, text) => return self.command_paste(id, text),
+            Message::Control(Control::HelpAction(token, action)) => {
+                return self.run_help_action(token, action);
+            }
             Message::SettingsLoaded(result) => return self.settings_loaded(result),
             Message::SystemTheme(mode) => self.system_theme(mode),
             Message::Control(Control::NewProfile(generation, index)) => {
@@ -244,6 +251,11 @@ impl App {
             }
             Message::TabName(token, value) => self.tab_name(token, &value),
             Message::Control(Control::Command(command)) => return self.run_command(command),
+            Message::Control(Control::MappedCommand(owner, generation, command)) => {
+                if generation == self.settings.generation {
+                    return self.update(Message::Control(Control::KeyCommand(owner, command)));
+                }
+            }
             Message::Control(Control::KeyCommand(owner, command)) => {
                 if owner == self.active_session()
                     && self.window_focus.is_focused()

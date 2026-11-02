@@ -173,7 +173,7 @@ fn shortcuts_have_a_typed_bounded_schema_with_canonical_duplicate_and_reserved_c
         ),
         format!("version = 1\n{}", one.repeat(65)),
     ] {
-        assert_eq!(Settings::parse(&bad), Err(Error::Invalid(Field::Shortcuts)));
+        assert!(matches!(Settings::parse(&bad), Err(Error::Shortcut { .. })));
     }
     assert!(Settings::parse(&source.replace("reload-settings", "arbitrary-script")).is_err());
     assert!(Settings::parse(&source.replace("'F5'", "'unknown'")).is_err());
@@ -187,7 +187,10 @@ fn function_key_numeric_aliases_cannot_bypass_canonical_chord_uniqueness() {
         );
         assert_eq!(
             Settings::parse(&source),
-            Err(Error::Invalid(Field::Shortcuts)),
+            Err(Error::Shortcut {
+                entry: 2,
+                problem: super::shortcuts::Problem::Duplicate
+            }),
             "alias {alias} bypassed duplicate detection"
         );
     }

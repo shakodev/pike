@@ -15,13 +15,13 @@ pub(crate) fn capture<'a>(
     content: impl Into<Element<'a, Message>>,
     suspended: bool,
     active: Option<&'a iced_term::Terminal>,
-    on_key: fn(&KeyEvent) -> Option<KeyAction>,
+    on_key: impl Fn(&KeyEvent) -> Option<KeyAction> + 'a,
 ) -> Element<'a, Message> {
     Element::new(Capture {
         content: content.into(),
         suspended,
         active,
-        on_key,
+        on_key: Box::new(on_key),
         divider: None,
         pointer_blocked: None,
         editor: None,
@@ -35,13 +35,13 @@ pub(crate) fn capture_text<'a>(
     input: Id,
     token: u64,
     window: iced_term::WindowFocus,
-    on_key: fn(&KeyEvent) -> Option<KeyAction>,
+    on_key: impl Fn(&KeyEvent) -> Option<KeyAction> + 'a,
 ) -> Element<'a, Message> {
     Element::new(Capture {
         content: content.into(),
         suspended: false,
         active: None,
-        on_key,
+        on_key: Box::new(on_key),
         divider: None,
         pointer_blocked: None,
         editor: Some(Editor {
@@ -72,7 +72,7 @@ impl Divider {
             content: content.into(),
             suspended: true,
             active: None,
-            on_key: resize_key,
+            on_key: Box::new(resize_key),
             divider: None,
             pointer_blocked: Some(self.0.clone()),
             editor: None,
@@ -99,18 +99,20 @@ fn divider_focus<'a>(
         content: content.into(),
         suspended: true,
         active,
-        on_key: resize_key,
+        on_key: Box::new(resize_key),
         divider: Some(node),
         pointer_blocked: Some(pointer_blocked),
         editor: None,
     })
 }
 
+type KeyHandler<'a> = Box<dyn Fn(&KeyEvent) -> Option<KeyAction> + 'a>;
+
 struct Capture<'a> {
     content: Element<'a, Message>,
     suspended: bool,
     active: Option<&'a iced_term::Terminal>,
-    on_key: fn(&KeyEvent) -> Option<KeyAction>,
+    on_key: KeyHandler<'a>,
     divider: Option<&'a iced::widget::pane_grid::Node>,
     pointer_blocked: Option<Rc<Cell<bool>>>,
     editor: Option<Editor>,
