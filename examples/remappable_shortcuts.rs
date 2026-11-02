@@ -1,5 +1,8 @@
 //! R32 finite actual-App/Iced/real-PTY shortcut reload acceptance.
 //! All clipboard, configuration and captured bytes are synthetic fixture data.
+#[allow(dead_code)]
+#[path = "support/chrome_actions.rs"]
+mod chrome_actions;
 #[cfg(windows)]
 #[allow(dead_code)]
 #[path = "support/cursor_input.rs"]

@@ -1,7 +1,7 @@
 //! R1 review regression: hold real Enter, then change native/App window focus.
 use super::{
     host::Host,
-    scenarios::{bytes, check, click_label, named},
+    scenarios::{bytes, check, named},
     widget,
 };
 use iced::{
@@ -21,7 +21,7 @@ use std::{io, path::Path};
 pub fn verify(host: &mut Host, owner: SessionId, file: &Path, expected: &[u8]) -> io::Result<()> {
     for native_only in [true, false] {
         for roundtrip in [false, true] {
-            click_label(host, "Commands and shortcuts (")?;
+            crate::chrome_actions::click_id(host, "command-menu-control")?;
             named(host, Named::Home, Modifiers::empty())?;
             named(host, Named::ArrowDown, Modifiers::empty())?; // Close pane.
             let (_, held) = host.held_event(
@@ -90,7 +90,7 @@ pub fn verify(host: &mut Host, owner: SessionId, file: &Path, expected: &[u8]) -
                 token,
             ))));
             host.until(|host| host.focused(owner))?;
-            click_label(host, "Commands and shortcuts (")?;
+            crate::chrome_actions::click_id(host, "command-menu-control")?;
             named(host, Named::End, Modifiers::empty())?;
             named(host, Named::Escape, Modifiers::empty())?;
             host.until(|host| host.focused(owner))?;

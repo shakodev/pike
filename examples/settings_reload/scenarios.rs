@@ -203,37 +203,7 @@ fn select(host: &mut Host, child: &Child) -> io::Result<()> {
     })
 }
 fn choose_b(host: &mut Host) -> io::Result<()> {
-    let mut targets = widget::Targets::default();
-    host.operate(&mut targets);
-    let picker = Id::from("settings-profile-picker");
-    let point = targets
-        .containers
-        .iter()
-        .find(|(id, _)| id.as_ref() == Some(&picker))
-        .map(|(_, bounds)| bounds.center())
-        .ok_or_else(|| io::Error::other("visible profile picker missing"))?;
-    // Existing Iced PickList's command+wheel selects the last option (b), with
-    // no manufactured Control or access to the App's private profile mapping.
-    let modifiers = if cfg!(target_os = "macos") {
-        Modifiers::LOGO
-    } else {
-        Modifiers::CTRL
-    };
-    host.event(
-        Event::Keyboard(iced::keyboard::Event::ModifiersChanged(modifiers)),
-        mouse::Cursor::Available(point),
-    );
-    host.event(
-        Event::Mouse(mouse::Event::WheelScrolled {
-            delta: mouse::ScrollDelta::Lines { x: 0.0, y: 1.0 },
-        }),
-        mouse::Cursor::Available(point),
-    );
-    host.event(
-        Event::Keyboard(iced::keyboard::Event::ModifiersChanged(Modifiers::empty())),
-        mouse::Cursor::Unavailable,
-    );
-    host.drain()
+    crate::chrome_actions::menu(host, pike::app::commands::Command::NewProfile(1))
 }
 
 pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
@@ -382,11 +352,11 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
         )?;
         host.evidence.push(format!("live session={} pid={} unchanged-owner cell={cell:?} font-measurements=2 history=7/7 palette-OSC=light child-cwd-env-args=before", child.session.get(), child.pid));
     }
-    // Broken-file reload uses the visible toolbar control, preserving bytes and
+    // Broken-file reload uses the actual current command menu, preserving bytes and
     // all live settings. No save task runs on either success or failure.
     let broken = "version = 1\nhistory = 10001 # synthetic-invalid";
     fs::write(output.join("settings.toml"), broken)?;
-    click(host, "Reload settings")?;
+    crate::chrome_actions::menu(host, pike::app::commands::Command::ReloadSettings)?;
     host.until(|host| !host.app.settings_pending())?;
     check(
         host.app.settings_error().is_some()
@@ -397,10 +367,10 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
     fs::write(output.join("settings.toml"), &config)?;
     reload(host)?;
     select(host, &b)?;
-    click(host, "New tab")?;
+    crate::chrome_actions::click_id(host, "new-tab-control")?;
     let new_b = ready(host)?;
     new_b.identity(output, "b", true)?;
-    click(host, "Split right")?;
+    click(host, "⊞")?;
     host.until(|host| {
         host.app
             .active_session()
@@ -444,7 +414,7 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
     reload(host)?;
     select(host, &b)?;
     let count = host.app.model().sessions().len();
-    click(host, "New tab")?;
+    crate::chrome_actions::click_id(host, "new-tab-control")?;
     check(
         host.app.settings_error() == Some(pike::settings::Error::MissingProfile)
             && host.app.model().sessions().len() == count

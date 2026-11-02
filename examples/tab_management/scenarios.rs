@@ -154,7 +154,7 @@ fn close_overflow_row(host: &mut Host, tab: TabId) -> io::Result<()> {
     let point = targets
         .labels
         .iter()
-        .find(|(label, point)| label == "Close tab" && row.contains(*point))
+        .find(|(label, point)| label == "×" && row.contains(*point))
         .map(|(_, point)| *point)
         .ok_or_else(|| io::Error::other("close row button missing"))?;
     host.click(point);
@@ -172,7 +172,7 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
         if index % 3 == 0 {
             chord(host, "t")?;
         } else {
-            click(host, |label| label == "New tab")?;
+            crate::chrome_actions::click_id(host, "new-tab-control")?;
         }
         saved.push(ready(host)?);
     }
@@ -299,7 +299,7 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
         host.app.tab_title(tabs[0]).unwrap().as_str() == "Retry name",
         "OSC replaced manual name",
     )?;
-    click(host, |label| label == "Use automatic name")?;
+    crate::chrome_actions::menu(host, pike::app::commands::Command::ResetTabName)?;
     let osc = Title::new(&format!("OSC 日本語 🦀\u{202e}{}", "界".repeat(300))).unwrap();
     host.until(|host| host.app.tab_title(tabs[0]).as_ref() == Some(&osc))?;
     set_name(host, "Pinned manual")?;
@@ -309,7 +309,7 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
         host.app.tab_title(tabs[0]).unwrap().as_str() == "Pinned manual",
         "OSC reset replaced manual name",
     )?;
-    click(host, |label| label == "Use automatic name")?;
+    crate::chrome_actions::menu(host, pike::app::commands::Command::ResetTabName)?;
     let fallback = std::env::current_exe()?
         .file_name()
         .unwrap()
@@ -378,7 +378,10 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
     );
     select(host, tabs[11])?;
     for _ in 0..11 {
-        click(host, |label| label == "Move left")?;
+        crate::chrome_actions::menu(
+            host,
+            pike::app::commands::Command::MoveTab(pike::app::commands::TabMove::Left),
+        )?;
     }
     check(
         host.app.model().workspace().order()[0] == tabs[11],
@@ -458,9 +461,12 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
         Modifiers::CTRL | Modifiers::SHIFT,
     )?;
     chord(host, "1")?;
-    click(host, |label| label == "All tabs (12)")?;
-    click(host, |label| label.starts_with("12 · "))?;
+    crate::chrome_actions::click_id(host, "tab-overflow-control")?;
     let mouse_last = *host.app.model().workspace().order().last().unwrap();
+    crate::chrome_actions::click_id(
+        host,
+        Id::from(format!("tab-overflow-row-{}", mouse_last.get())),
+    )?;
     check(
         host.app.model().workspace().active() == Some(mouse_last),
         "pointer overflow did not reach tab twelve",
@@ -474,12 +480,12 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
         host.app.tab_dialog_selected() == Some(mouse_last),
         "keyboard overflow did not reach last stable tab",
     )?;
-    let title = host.app.tab_title(mouse_last).unwrap();
+    let row = Id::from(format!("tab-overflow-row-{}", mouse_last.get()));
     check(
         targets(host)
-            .labels
+            .containers
             .iter()
-            .any(|(label, _)| label.starts_with(&format!("12 · {}", title.as_str()))),
+            .any(|(id, _)| id.as_ref() == Some(&row)),
         "keyboard-selected overflow row is offscreen",
     )?;
     named(host, Named::Enter)?;
