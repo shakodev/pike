@@ -79,6 +79,7 @@ impl App {
             .into();
             let title = pane_grid::TitleBar::new(super::gesture::title(
                 container(text(format!("Terminal {}", pane.session.get())).size(tokens::SMALL))
+                    .id(format!("pane-header-{}", pane.session.get()))
                     .height(HEADER)
                     .padding([0.0, tokens::INSET])
                     .align_y(iced::Alignment::Center),

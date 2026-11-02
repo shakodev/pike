@@ -74,6 +74,13 @@ pub fn header(theme: &Theme, focused: bool) -> container::Style {
     let p = palette(theme);
     container::Style {
         text_color: Some(if focused { p.text } else { p.muted }),
+        // PaneGrid paints its title after the pane background/border. Repeat
+        // the same 1-DIP outline so the header cannot cover the focus edge.
+        border: Border {
+            width: tokens::BORDER,
+            color: if focused { p.accent } else { p.line },
+            ..Default::default()
+        },
         ..surface(theme)
     }
 }

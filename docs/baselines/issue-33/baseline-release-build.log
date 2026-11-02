@@ -1,0 +1,62 @@
+   Compiling serde_core v1.0.229
+   Compiling winnow v1.0.4
+   Compiling open v5.4.5
+   Compiling toml_writer v1.1.3+spec-1.1.0
+   Compiling toml_parser v1.1.5+spec-1.1.0
+   Compiling bitflags v2.13.2
+   Compiling serde v1.0.229
+   Compiling toml_datetime v1.1.2+spec-1.1.0
+   Compiling serde_spanned v1.1.2
+   Compiling core-graphics-types v0.2.0
+   Compiling iced_core v0.14.0
+   Compiling metal v0.32.0
+   Compiling harfrust v0.3.2
+   Compiling naga v27.0.3
+   Compiling iced_futures v0.14.0
+   Compiling wgpu-types v27.0.1
+   Compiling cosmic-text v0.15.0
+   Compiling objc2-foundation v0.2.2
+   Compiling wgpu-hal v27.0.4
+   Compiling wgpu-core-deps-apple v27.0.0
+   Compiling wgpu-core v27.0.3
+   Compiling iced_graphics v0.14.0
+   Compiling objc2-app-kit v0.2.2
+   Compiling iced_debug v0.14.0
+   Compiling iced_runtime v0.14.0
+   Compiling wgpu v27.0.1
+   Compiling clipboard_macos v0.1.1
+   Compiling rustix v1.1.5
+   Compiling cryoglyph v0.1.0
+   Compiling iced_wgpu v0.14.0
+   Compiling iced_renderer v0.14.0
+   Compiling window_clipboard v0.5.1
+   Compiling winit v0.30.13
+   Compiling iced_program v0.14.0
+   Compiling iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling iced_widget v0.14.2
+   Compiling polling v3.11.0
+   Compiling rustix-openpty v0.2.0
+   Compiling vte v0.15.0
+   Compiling alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/vendor/alacritty_terminal)
+   Compiling iced v0.14.0
+   Compiling toml v1.1.8+spec-1.1.0
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/vendor/iced_term)
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14)
+    Finished `release` profile [optimized] target(s) in 36.28s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

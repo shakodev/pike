@@ -62,7 +62,7 @@ impl App {
                     "Waiting for cleanup of {count} terminal session(s)."
                 ))
             ]
-            .spacing(16);
+            .spacing(tokens::INSET);
             if self.close_policy.timed_out
                 && let Some(token) = self.close_policy.timer
             {
@@ -70,22 +70,27 @@ impl App {
                     .push(text("Wait is selected by default. Tab changes selection; Enter chooses; Escape waits."))
                     .push(row![
                         button(if self.close_policy.force_selected { "Wait" } else { "› Wait" })
+                            .style(style::quiet)
                             .on_press(Control::CloseAction(CloseAction::Wait(token))),
                         button(if self.close_policy.force_selected { "› Force close Pike" } else { "Force close Pike" })
+                            .style(style::quiet)
                             .on_press(Control::CloseAction(CloseAction::Force(token))),
-                    ].spacing(12));
+                    ].spacing(tokens::INSET).wrap());
             }
             content.into()
         } else {
             return None;
         };
         Some(
-            container(scrollable(
-                container(content.map(Message::Control))
-                    .max_width(560)
-                    .padding(16)
-                    .style(style::surface),
-            ))
+            container(
+                container(scrollable(
+                    container(content.map(Message::Control))
+                        .padding(16)
+                        .style(style::surface),
+                ))
+                .max_width(560)
+                .width(Fill),
+            )
             .padding(tokens::INSET)
             .center_x(Fill)
             .center_y(Fill)

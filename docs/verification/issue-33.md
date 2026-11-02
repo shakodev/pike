@@ -3,6 +3,7 @@
 Status: subtree checkpoint for R2; the full task remains in progress. Normal
 workspace composition and shortcut-aware tooltip integration are intentionally
 waiting for actual merged R32, as agreed with the coordinator. No PR is ready.
+Compiled subtree source: `7e1ffb67f7bc776822ecbc31dd8cef28682724d1`.
 
 ## Source and ownership
 
@@ -99,6 +100,19 @@ Still required: final actual-App one/nested-four/eight/overflow/error/empty and
 small-window screenshots at the four scales, terminal prompt/content clipping
 oracles, matched after idle counters, final relevant formatting/lint/tests,
 R2 review/fixes, commit/push and focused issue-closing PR.
+
+The final frame/scenario driver and standalone `native_chrome_idle` now compile
+under scoped Clippy; the broad scene render has deliberately not run yet.
+`frame.rs` measures actual sensor-settled layout, restores the active widget
+focus in the fixture tree, and checks controlled prompt pixels against actual
+translated/clipped terminal bounds. The standalone idle driver shares its child
+and counter implementation across archived-main and styled builds, so the final
+comparison can use the exact same harness after R32 integration.
+
+Screenshots are packaged losslessly with the stdlib-only
+`examples/native_chrome/pack_screenshots.py`. PNG/RGB/source hashes are retained
+in `screenshots.json`; the original generated PPMs are preserved in
+`/private/tmp/pike-r33-preserved-raw`. Original pre-task artifacts were not moved.
 
 Native Windows/ConPTY, Windows snapping, physical keyboard/monitor input and
 mixed-DPI monitor movement are unavailable on this macOS host. Offscreen native

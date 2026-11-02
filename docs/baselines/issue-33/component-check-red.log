@@ -1,0 +1,66 @@
+   Compiling serde_core v1.0.229
+    Checking winnow v1.0.4
+    Checking toml_writer v1.1.3+spec-1.1.0
+    Checking toml_parser v1.1.5+spec-1.1.0
+    Checking bitflags v2.13.2
+    Checking serde v1.0.229
+    Checking toml_datetime v1.1.2+spec-1.1.0
+    Checking serde_spanned v1.1.2
+    Checking core-graphics-types v0.2.0
+    Checking iced_core v0.14.0
+    Checking harfrust v0.3.2
+    Checking metal v0.32.0
+    Checking wgpu-types v27.0.1
+    Checking iced_futures v0.14.0
+    Checking naga v27.0.3
+    Checking objc2-foundation v0.2.2
+    Checking cosmic-text v0.15.0
+    Checking iced_debug v0.14.0
+    Checking iced_graphics v0.14.0
+    Checking iced_runtime v0.14.0
+    Checking rustix v1.1.5
+    Checking iced_program v0.14.0
+    Checking vte v0.15.0
+    Checking toml v1.1.8+spec-1.1.0
+    Checking objc2-app-kit v0.2.2
+    Checking polling v3.11.0
+    Checking rustix-openpty v0.2.0
+    Checking alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/vendor/alacritty_terminal)
+    Checking wgpu-hal v27.0.4
+    Checking clipboard_macos v0.1.1
+    Checking winit v0.30.13
+    Checking window_clipboard v0.5.1
+    Checking wgpu-core-deps-apple v27.0.0
+    Checking wgpu-core v27.0.3
+    Checking iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking wgpu v27.0.1
+    Checking cryoglyph v0.1.0
+    Checking iced_wgpu v0.14.0
+    Checking iced_renderer v0.14.0
+    Checking iced_widget v0.14.2
+    Checking iced v0.14.0
+    Checking iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/vendor/iced_term)
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14)
+error[E0308]: mismatched types
+  --> src/app/panes/view.rs:62:34
+   |
+62 |                     .padding([0, tokens::INSET])
+   |                                  ^^^^^^^^^^^^^ expected integer, found `f32`
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `pike` (lib) due to 1 previous error

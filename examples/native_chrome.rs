@@ -1,4 +1,8 @@
 //! Finite native-renderer/actual-App fixture. Every terminal byte is synthetic.
+#[path = "native_chrome/child.rs"]
+mod child;
+#[path = "native_chrome/frame.rs"]
+mod frame;
 #[allow(dead_code)]
 #[path = "command_routing/host.rs"]
 mod host;
@@ -7,6 +11,8 @@ mod host_viewport;
 #[allow(dead_code)]
 #[path = "compatibility/report.rs"]
 mod report;
+#[path = "native_chrome/scenes.rs"]
+mod scenes;
 #[path = "native_chrome/window.rs"]
 mod window;
 
@@ -17,24 +23,24 @@ use iced::advanced::{
 };
 use iced::{Color, Executor, Rectangle, Size};
 use pike::{
-    app::{App, CloseAction, Control, Direction, Message},
+    app::{App, Control},
     executor::SharedExecutor,
 };
 use std::{
     fs,
-    io::{self, Read, Write},
+    io::{self},
     path::Path,
     time::{Duration, Instant},
 };
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<_> = std::env::args().collect();
-    if args.get(1).is_some_and(|arg| arg == "--child") {
-        print!("\x1b[2J\x1b[H\x1b[32mPIKE33 controlled prompt > \x1b[0m\x1b[?25h");
-        io::stdout().flush()?;
-        let mut byte = [0];
-        while io::stdin().read(&mut byte)? != 0 {}
-        return Ok(());
+    if args
+        .get(1)
+        .is_some_and(|arg| arg == "--child" || arg == "--child-exit")
+    {
+        return child::run(args.get(1).is_some_and(|arg| arg == "--child-exit"))
+            .map_err(Into::into);
     }
     let output = Path::new(args.get(1).ok_or("expected fresh output directory")?);
     fs::create_dir(output)?;
@@ -53,175 +59,38 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if args.get(2).is_some_and(|s| s == "--components") {
         return components(&mut renderer, output).map_err(Into::into);
     }
-    let profile = iced_term::settings::BackendSettings {
-        program: std::env::current_exe()?.to_string_lossy().into_owned(),
-        args: vec!["--child".into()],
-        ..Default::default()
-    };
-    let (app, task) = executor.enter(|| App::with_settings(profile));
+    let config = output.join("settings.toml");
+    fs::write(
+        &config,
+        scenes::configuration(&std::env::current_exe()?.to_string_lossy(), "--child"),
+    )?;
+    let (app, task) = executor.enter(|| App::with_config_path(config));
     let mut host = host::Host::new(app, task, renderer, executor);
-    let result = verify(
-        &mut host,
-        output,
-        args.get(2).is_some_and(|s| s == "--idle"),
-    );
-    host.update(Message::CloseWindow);
-    if let Some((token, _)) = host.app.close_confirmation() {
-        host.update(Message::Control(Control::CloseAction(
-            CloseAction::Confirm(token),
-        )));
+    let idle_only = args.get(2).is_some_and(|s| s == "--idle");
+    let result = if idle_only {
+        scenes::ready(&mut host).and_then(|_| idle(&mut host, output))
+    } else {
+        scenes::verify(&mut host, output)
+    };
+    if let Err(error) = &result {
+        fs::write(output.join("failure.txt"), error.to_string())?;
     }
-    host.until(|host| host.app.model().sessions().is_empty())?;
+    scenes::close(&mut host)?;
     fs::write(
         output.join("cleanup.txt"),
         "All actual App sessions acknowledged native cleanup.\n",
     )?;
     result?;
+    drop(host);
+    if !idle_only {
+        scenes::error_empty(output)?;
+    }
     fs::write(output.join("completed.txt"), "passed\n")?;
     Ok(())
 }
 
-fn ready(host: &mut host::Host) -> io::Result<()> {
-    host.until(|host| {
-        host.redraw();
-        host.app.model().sessions().iter().all(|(id, _)| {
-            host.app
-                .terminal(id)
-                .is_some_and(|term| term.snapshot_stats().cells_copied > 0)
-        })
-    })?;
-    host.drain()
-}
-
-fn verify(host: &mut host::Host, output: &Path, idle_only: bool) -> io::Result<()> {
-    ready(host)?;
-    if idle_only {
-        return idle(host, output);
-    }
-    capture(host, output, "one")?;
-    for (count, direction) in [
-        (2, Direction::Right),
-        (3, Direction::Down),
-        (4, Direction::Right),
-    ] {
-        host.update(Message::Control(Control::Split(
-            host.app.active_target().unwrap(),
-            direction,
-        )));
-        host.until(|host| host.app.model().sessions().len() == count)?;
-        ready(host)?;
-    }
-    capture(host, output, "nested-four")?;
-    for direction in [
-        Direction::Down,
-        Direction::Right,
-        Direction::Down,
-        Direction::Right,
-    ] {
-        // Select the largest terminal so every split remains cell-safe.
-        let targets: Vec<_> = host
-            .app
-            .model()
-            .workspace()
-            .active()
-            .into_iter()
-            .flat_map(|tab| {
-                host.app
-                    .model()
-                    .workspace()
-                    .tab(tab)
-                    .unwrap()
-                    .grid()
-                    .iter()
-                    .map(move |(pane, state)| {
-                        (pike::layout::PaneTarget { tab, pane: *pane }, state.session)
-                    })
-            })
-            .collect();
-        let target = targets
-            .into_iter()
-            .max_by_key(|(_, id)| host.bounds(*id).map_or(0, |r| (r.width * r.height) as u64))
-            .unwrap()
-            .0;
-        let count = host.app.model().sessions().len() + 1;
-        host.update(Message::Control(Control::Split(target, direction)));
-        host.until(|host| host.app.model().sessions().len() == count)?;
-        ready(host)?;
-    }
-    capture(host, output, "eight")?;
-    for _ in 0..8 {
-        let count = host.app.model().sessions().len() + 1;
-        host.update(Message::Control(Control::NewTab));
-        host.until(|host| host.app.model().sessions().len() == count)?;
-        ready(host)?;
-    }
-    capture(host, output, "overflow")?;
-    Ok(())
-}
-
-fn capture(host: &mut host::Host, output: &Path, name: &str) -> io::Result<()> {
-    for scale in [1.0, 1.25, 1.5, 2.0] {
-        let size = host_viewport::SIZE;
-        let viewport = Rectangle::with_size(size);
-        let mut view = host.app.view();
-        let mut tree = Tree::new(view.as_widget());
-        let node = view.as_widget_mut().layout(
-            &mut tree,
-            &host.renderer,
-            &layout::Limits::new(size, size),
-        );
-        view.as_widget_mut().update(
-            &mut tree,
-            &iced::Event::Window(iced::window::Event::RedrawRequested(Instant::now())),
-            Layout::new(&node),
-            mouse::Cursor::Unavailable,
-            &host.renderer,
-            &mut iced::advanced::clipboard::Null,
-            &mut iced::advanced::Shell::new(&mut Vec::new()),
-            &viewport,
-        );
-        host.renderer.reset(viewport);
-        view.as_widget().draw(
-            &tree,
-            &mut host.renderer,
-            &host.app.theme(),
-            &Style::default(),
-            Layout::new(&node),
-            mouse::Cursor::Unavailable,
-            &viewport,
-        );
-        let dimensions = Size::new((size.width * scale) as u32, (size.height * scale) as u32);
-        let rgba = Headless::screenshot(&mut host.renderer, dimensions, scale, Color::BLACK);
-        report::screenshot(
-            &output.join(format!("{name}-{}.ppm", (scale * 100.0) as u32)),
-            iced::window::Screenshot::new(rgba, dimensions, scale),
-        )?;
-    }
-    Ok(())
-}
-
 fn counters(host: &host::Host) -> [u64; 5] {
-    counters_app(&host.app)
-}
-
-fn counters_app(app: &App) -> [u64; 5] {
-    app.model()
-        .sessions()
-        .iter()
-        .filter_map(|(id, _)| app.terminal(id))
-        .fold([0; 5], |mut sum, t| {
-            let work = t.work_stats();
-            for (total, value) in sum.iter_mut().zip([
-                work.font_measurements,
-                work.pty_resizes,
-                work.grid_resizes,
-                work.cache_invalidations,
-                t.snapshot_stats().snapshots,
-            ]) {
-                *total += value;
-            }
-            sum
-        })
+    window::counters(&host.app)
 }
 
 fn idle(host: &mut host::Host, output: &Path) -> io::Result<()> {

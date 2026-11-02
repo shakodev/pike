@@ -95,7 +95,7 @@ impl Probe {
                         .is_some(),
                     "controlled PTY did not attach"
                 );
-                self.counters = super::counters_app(&self.app);
+                self.counters = counters(&self.app);
                 self.cpu = cpu();
                 self.redraws = REDRAWS.load(Ordering::Relaxed);
                 self.start = Some(Instant::now());
@@ -112,7 +112,7 @@ impl Probe {
                     .as_secs_f64();
                 let redraws = REDRAWS.load(Ordering::Relaxed) - self.redraws;
                 let final_cpu = cpu();
-                let deltas: Vec<_> = super::counters_app(&self.app)
+                let deltas: Vec<_> = counters(&self.app)
                     .into_iter()
                     .zip(self.counters)
                     .map(|(a, b)| a - b)
@@ -148,4 +148,24 @@ impl Probe {
     fn view(&self) -> Element<'_, Event> {
         self.app.view().map(Event::App)
     }
+}
+
+pub fn counters(app: &App) -> [u64; 5] {
+    app.model()
+        .sessions()
+        .iter()
+        .filter_map(|(id, _)| app.terminal(id))
+        .fold([0; 5], |mut sum, terminal| {
+            let work = terminal.work_stats();
+            for (total, value) in sum.iter_mut().zip([
+                work.font_measurements,
+                work.pty_resizes,
+                work.grid_resizes,
+                work.cache_invalidations,
+                terminal.snapshot_stats().snapshots,
+            ]) {
+                *total += value;
+            }
+            sum
+        })
 }
