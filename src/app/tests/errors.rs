@@ -705,4 +705,11 @@ fn config_retry_and_command_refusal_keep_current_owner_and_private_values_out_of
     shutdown(&mut app, &executor);
 }
 
+mod cancel;
 mod presentation;
+mod root;
+
+#[cfg(unix)]
+#[path = "../../../docs/baselines/issue-34/reviewer-clipboard-cancel-probe.rs"]
+#[rustfmt::skip]
+mod reviewer_clipboard_cancel;

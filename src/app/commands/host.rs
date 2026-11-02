@@ -18,6 +18,7 @@ pub struct PasteRequest {
     lease: crate::app::focus::InputLease,
     window: iced_term::WindowInputLease,
     consumed: std::sync::Arc<std::sync::atomic::AtomicBool>,
+    recovery: Option<crate::errors::ErrorId>,
 }
 
 #[derive(Default)]
@@ -59,12 +60,12 @@ impl App {
 
     pub(in crate::app) fn command_refused(&mut self, error: Error) -> Task<Message> {
         self.record_command_refusal(error);
-        self.notice = Some(error.message());
         self.focus_active()
     }
 
     fn record_command_refusal(&mut self, error: Error) {
         self.command_state.error = Some(error);
+        self.notice = None;
         self.report_error(
             self.active_session().map_or(
                 crate::errors::Owner::Application,
@@ -186,14 +187,8 @@ impl App {
                         if !self.command_enabled(command) {
                             return self.command_refused(Error::TerminalNotReady);
                         }
-                        let Some(request) = self.begin_command_paste() else {
-                            return self.focus_active();
-                        };
-                        Task::batch([
-                            iced::clipboard::read()
-                                .map(move |text| Message::CommandPaste(request.clone(), text)),
-                            self.focus_active(),
-                        ])
+                        self.read_command_paste(None)
+                            .unwrap_or_else(|| self.focus_active())
                     }
                     Command::History(scroll) => self.update(Message::Terminal((
                         id,
@@ -274,7 +269,21 @@ impl App {
             lease: self.focus_authority.input_lease(id)?,
             window: self.window_focus.input_lease()?,
             consumed: Default::default(),
+            recovery: None,
         })
+    }
+
+    /// The one native reader is shared by commands and owner-bound recovery.
+    pub(in crate::app) fn read_command_paste(
+        &self,
+        recovery: Option<crate::errors::ErrorId>,
+    ) -> Option<Task<Message>> {
+        let mut request = self.begin_command_paste()?;
+        request.recovery = recovery;
+        Some(Task::batch([
+            iced::clipboard::read().map(move |text| Message::CommandPaste(request.clone(), text)),
+            self.focus_active(),
+        ]))
     }
 
     pub(in crate::app) fn command_paste(
@@ -286,7 +295,10 @@ impl App {
         if request
             .consumed
             .swap(true, std::sync::atomic::Ordering::Relaxed)
-            || !self.focus_authority.accepts_input(&request.lease, id)
+        {
+            return Task::none();
+        }
+        if !self.focus_authority.accepts_input(&request.lease, id)
             || !self.window_focus.accepts_input(&request.window)
             || self
                 .model
@@ -299,6 +311,10 @@ impl App {
             || !self.command_enabled(Command::Paste)
             || self.terminal(id).is_none_or(|t| t.is_composing())
         {
+            if let Some(recovery) = request.recovery {
+                self.errors
+                    .cancel_retry(crate::errors::Owner::Session(id), recovery);
+            }
             return Task::none();
         }
         if let Some(terminal) = self

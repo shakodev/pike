@@ -191,12 +191,8 @@ impl Sessions {
         if !active && matches!(command, BackendCommand::FocusChanged(true)) {
             return None;
         }
-        let Some(entry) = self.entries.get_mut(&origin) else {
-            return None;
-        };
-        let Some(session) = model.sessions().get(origin) else {
-            return None;
-        };
+        let entry = self.entries.get_mut(&origin)?;
+        let session = model.sessions().get(origin)?;
         if session.reservation() != entry.reservation {
             return None;
         }

@@ -43,6 +43,12 @@ impl App {
             .record(owner, error, None, None, Instant::now());
     }
 
+    pub(super) fn forget_session_errors(&mut self, id: SessionId) {
+        self.errors.resolve(Owner::Session(id), |_| true);
+        self.clipboard_writes
+            .retain(|owner| owner != Owner::Session(id));
+    }
+
     pub(super) fn error_action(&mut self, id: ErrorId, action: Action) -> Task<Message> {
         self.apply_error_action(id, action, false)
     }
@@ -143,10 +149,10 @@ impl App {
             (Owner::Session(_), Recovery::PasteAgain)
                 if action == Action::Retry && input_authorized =>
             {
-                let task = self.run_command(super::commands::Command::Paste);
-                if task.units() > 0 {
-                    self.errors.begin_retry(id);
-                }
+                let Some(task) = self.read_command_paste(Some(id)) else {
+                    return Task::none();
+                };
+                self.errors.begin_retry(id);
                 task
             }
             (Owner::Session(session), Recovery::CopyAgain)

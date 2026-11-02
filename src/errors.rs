@@ -92,6 +92,11 @@ pub fn renderer_report() -> &'static str {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct ErrorId(u64);
+impl ErrorId {
+    pub fn get(self) -> u64 {
+        self.0
+    }
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Action {
@@ -165,6 +170,25 @@ impl Store {
             return false;
         }
         notice.retrying = true;
+        true
+    }
+
+    /// A revoked asynchronous reply ends only its originating attempt. Rotate
+    /// authority so that its held controls/replies cannot affect a fresh retry.
+    pub fn cancel_retry(&mut self, owner: Owner, id: ErrorId) -> bool {
+        let Some(notice) = self
+            .notices
+            .iter_mut()
+            .find(|n| n.id == id && n.owner == owner && n.retrying)
+        else {
+            return false;
+        };
+        let Some(next) = self.next.checked_add(1) else {
+            return false;
+        };
+        self.next = next;
+        notice.id = ErrorId(next);
+        notice.retrying = false;
         true
     }
 

@@ -389,23 +389,21 @@ impl App {
                     return Task::none();
                 }
                 let footer = self.footer_height(id);
-                if !self.interaction_blocked() || close::background_event(&event) {
-                    if let Some(result) =
+                if (!self.interaction_blocked() || close::background_event(&event))
+                    && let Some(result) =
                         self.sessions
                             .route(&mut self.model, &self.window_focus, id, event)
-                    {
-                        match result {
-                            Err(error) => {
-                                self.report_error(crate::errors::Owner::Session(id), error)
-                            }
-                            Ok(()) => self.errors.resized(crate::errors::Owner::Session(id)),
-                        }
+                {
+                    match result {
+                        Err(error) => self.report_error(crate::errors::Owner::Session(id), error),
+                        Ok(()) => self.errors.resized(crate::errors::Owner::Session(id)),
                     }
                 }
                 if footer != self.footer_height(id) {
                     self.refresh_resize_layout();
                 }
                 if self.model.sessions().get(id).is_none() {
+                    self.forget_session_errors(id);
                     self.profiles.remove(&id);
                     self.focus_on_attach.remove(&id);
                 }
@@ -423,6 +421,7 @@ impl App {
                     && self.model.closed(reservation.session)
                 {
                     self.sessions.entries.remove(&reservation.session);
+                    self.forget_session_errors(reservation.session);
                     self.profiles.remove(&reservation.session);
                     self.focus_on_attach.remove(&reservation.session);
                 }

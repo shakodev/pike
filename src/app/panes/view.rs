@@ -18,7 +18,7 @@ impl App {
             .sessions
             .entries
             .get(&id)
-            .is_some_and(|entry| entry.ended || entry.notice.is_some())
+            .is_some_and(|entry| entry.ended)
             || matches!(
                 self.model.sessions().get(id).map(|e| e.lifecycle()),
                 Some(Lifecycle::Exited { .. })
@@ -296,9 +296,6 @@ impl App {
                     footer = footer.push(
                         text("Terminal exited — finishing output and cleanup…").size(tokens::SMALL),
                     );
-                }
-                if let Some(notice) = entry.notice.as_deref() {
-                    footer = footer.push(text(ui::plain_title(notice, 512)).size(tokens::SMALL));
                 }
                 if self.footer_height(id) > 0.0 {
                     content = content.push(

@@ -180,7 +180,7 @@ fn host_geometry_uses_measured_cells_and_accounts_for_status_chrome() {
         target.tab,
         Size::new(2.0 * width + super::super::split::GUTTER, height),
     ));
-    app.sessions.entries.get_mut(&id).unwrap().notice = Some("synthetic input notice".into());
+    app.sessions.entries.get_mut(&id).unwrap().ended = true;
     assert!(
         executor
             .enter(|| app.begin_split(target, Direction::Right))
@@ -188,7 +188,7 @@ fn host_geometry_uses_measured_cells_and_accounts_for_status_chrome() {
     );
     assert_eq!(app.model.sessions().len(), 1);
     assert!(app.notice.unwrap().contains("20×5"));
-    app.sessions.entries.get_mut(&id).unwrap().notice = None;
+    app.sessions.entries.get_mut(&id).unwrap().ended = false;
     let request = executor
         .enter(|| app.begin_split(target, Direction::Right))
         .unwrap();
