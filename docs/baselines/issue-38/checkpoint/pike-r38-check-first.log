@@ -1,0 +1,73 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13)
+error[E0425]: cannot find type `WindowInputLease` in crate `iced_term`
+  --> src/app/commands/host.rs:19:24
+   |
+19 |     window: iced_term::WindowInputLease,
+   |                        ^^^^^^^^^^^^^^^^ not found in `iced_term`
+
+error[E0425]: cannot find type `WindowInputLease` in crate `iced_term`
+  --> src/app/commands/host.rs:30:55
+   |
+30 |     pub(in crate::app) help_window: Option<iced_term::WindowInputLease>,
+   |                                                       ^^^^^^^^^^^^^^^^ not found in `iced_term`
+
+error[E0599]: no method named `input_lease` found for struct `WindowFocus` in the current scope
+   --> src/app/commands/host.rs:267:39
+    |
+267 |             window: self.window_focus.input_lease()?,
+    |                                       ^^^^^^^^^^^ method not found in `WindowFocus`
+
+error[E0599]: no method named `accepts_input` found for struct `WindowFocus` in the current scope
+   --> src/app/commands/host.rs:282:35
+    |
+282 |             || !self.window_focus.accepts_input(&request.window)
+    |                                   ^^^^^^^^^^^^^ method not found in `WindowFocus`
+
+error[E0599]: no method named `input_lease` found for struct `WindowFocus` in the current scope
+   --> src/app/commands/reference.rs:167:60
+    |
+167 |         self.command_state.help_window = self.window_focus.input_lease();
+    |                                                            ^^^^^^^^^^^ method not found in `WindowFocus`
+
+error[E0599]: no method named `input_lease` found for struct `WindowFocus` in the current scope
+   --> src/app/commands/reference.rs:190:64
+    |
+190 |             self.command_state.help_window = self.window_focus.input_lease();
+    |                                                                ^^^^^^^^^^^ method not found in `WindowFocus`
+
+error[E0599]: no method named `accepts_input` found for struct `WindowFocus` in the current scope
+   --> src/app/commands/reference.rs:210:54
+    |
+210 |             (true, Some(lease)) if self.window_focus.accepts_input(lease) => return,
+    |                                                      ^^^^^^^^^^^^^ method not found in `WindowFocus`
+
+error[E0599]: no method named `accepts_input` found for struct `WindowFocus` in the current scope
+   --> src/app/commands/reference.rs:229:56
+    |
+229 |                 .is_none_or(|lease| !self.window_focus.accepts_input(lease))
+    |                                                        ^^^^^^^^^^^^^ method not found in `WindowFocus`
+
+error[E0599]: no method named `set_host_shortcuts` found for struct `iced_term::Terminal` in the current scope
+  --> src/app/startup.rs:93:34
+   |
+93 |                         terminal.set_host_shortcuts(true);
+   |                                  ^^^^^^^^^^^^^^^^^^ method not found in `iced_term::Terminal`
+
+Some errors have detailed explanations: E0425, E0599.
+For more information about an error, try `rustc --explain E0425`.
+error: could not compile `pike` (lib) due to 9 previous errors

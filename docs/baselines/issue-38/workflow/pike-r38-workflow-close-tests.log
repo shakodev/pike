@@ -1,0 +1,39 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.00s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests examples/renderer_comparison.rs (target/debug/examples/renderer_comparison-15656b035a6a40a0)
+
+running 14 tests
+test probe::interval::tests::late_end_and_nonoverlapping_producer_cannot_qualify_a_run ... ok
+test probe::interval::tests::small_scheduler_jitter_is_allowed_but_clock_reversal_is_not ... ok
+test probe::samples::tests::zero_sample_idle_interval_finishes_without_pending_work ... ok
+test probe::samples::tests::end_revokes_pending_capture_and_incomplete_samples_fail ... ok
+test probe::samples::tests::stale_or_duplicate_nonces_cannot_consume_current_capture ... ok
+test probe::samples::tests::stale_pixels_retry_only_on_frames_with_a_finite_attempt_budget ... ok
+test fixture_input::tests::fixed_commands_accept_cr_lf_and_crlf_without_cooked_newlines ... ok
+test options::tests::scenario_and_split_bounds_match_the_native_matrix ... ok
+test options::tests::rejects_unbounded_or_ambiguous_scenarios ... ok
+test fixture_input::tests::truncated_oversized_and_non_ascii_commands_are_rejected ... ok
+test pixels::tests::fractional_native_cell_edges_are_decoded_from_centers ... ok
+test pixels::tests::blank_or_wrong_nonce_images_cannot_be_valid_latency_evidence ... ok
+test pixels::tests::actual_nonce_accepts_multiple_cell_sizes_and_rejects_old_scene ... ok
+test probe::cancellation_tests::real_close_window_intent_retires_a_delayed_settle ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

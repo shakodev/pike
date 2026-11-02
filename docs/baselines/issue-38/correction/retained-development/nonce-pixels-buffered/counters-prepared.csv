@@ -1,0 +1,2 @@
+session,visible,columns,rows,history,history_limit,snapshots,cells_copied,font_measurements,pty_resizes,grid_resizes,cache_invalidations,input_outstanding,input_queued,input_written,input_cancelled
+1,true,189,51,0,2000,3,17639,1,1,1,4,0,0,14,0

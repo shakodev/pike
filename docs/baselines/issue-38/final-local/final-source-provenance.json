@@ -1,0 +1,24 @@
+{
+  "base_commit": "1174c4d751fa0358d2569a87620eac99f6e94050",
+  "source_state": "final trace-only diagnostic/corrected-label patch recorded separately; exact file hashes below",
+  "files_sha256": {
+    "examples/renderer_comparison.rs": "62d97211fae34328967dcc655e838bd3f27fcd45d039b7d08980293f855f869d",
+    "examples/renderer_comparison/child.rs": "e4c31ec177493b88466102cf0ce833e05243c113950b2299473df6906d693317",
+    "examples/renderer_comparison/interval.rs": "82fd91efdce195b252c7921ee7f6e2eca7ba5b5840836b868ac9700ff41d793e",
+    "examples/renderer_comparison/metrics.rs": "0880dddbcecf06727cfb3d3723ef3117d9384dc3ad9f5d6e3d06cfb63bcc2135",
+    "examples/renderer_comparison/options.rs": "1af73c261ddb3e2c203f1e11a1356e95c544fdca2a27e5cc644b40410afe67f6",
+    "examples/renderer_comparison/pixels.rs": "3cbfc4ca45fdd25f2f6059853910e91b867f5cbb345791525a4bf656436be84b",
+    "examples/renderer_comparison/probe.rs": "d6bc13251805c8498f1c689e997670b499fed7d7210a681340ec0a68336e37c8",
+    "examples/renderer_comparison/samples.rs": "ac27612d8e0578b619fd88db529f7d12343d13f4a41ec9e79ab9201634fbca87",
+    "tools/renderer-comparison.py": "6e5824e559fc8aff5182554288a5f10f6b592989b9271e52819b6dfda9f5c2eb",
+    "tools/renderer_comparison_dry_run.py": "ac9d88aa06a0c42fa40ee542ae7e534dccf44861a9f65e96c9e0c9e05eca05a6",
+    "tools/renderer_comparison_native.py": "58b4c991ab304b25c5d678c7189692a2bfc50ce5a00f25457f7e483b8b46d88c",
+    "tools/renderer_comparison_support.py": "275fe6da7c64c375ccee850ee419ad90adc91eafbd796ab6430817cd73db2eb6",
+    "tools/test_renderer_comparison.py": "4a2a00b2ed57af4218e8e2fdd111df49de45871f21bd7cba700f4fe7a523e3e7",
+    "tools/measure-renderer-comparison.ps1": "6a27bd8fdda5b9b552767b26aeb2976ebd162864aa09b6da72da33a7425f2558",
+    "tools/watch-renderer-comparison-gpu.ps1": "0aab409fa11a37bfb175295e24466db3ec00469e6555239b81ee806c887f48cd"
+  },
+  "production_changes": [],
+  "native_windows_execution": false,
+  "selected_default": null
+}
