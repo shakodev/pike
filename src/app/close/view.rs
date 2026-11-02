@@ -1,18 +1,16 @@
-use iced::widget::{button, column, container, row, text};
+use iced::widget::{button, column, container, row, scrollable, text};
 use iced::{Element, Fill};
 
 use super::{App, CloseAction, Control, Message};
 use crate::identity::{SessionId, TabId};
+use crate::ui::{self, style, tokens};
 
 pub(crate) fn close_button(id: SessionId) -> Element<'static, Control> {
-    button(text("Close").size(12))
-        .padding([2, 6])
-        .on_press(Control::CloseSession(id))
-        .into()
+    ui::icon("×", "Close pane", Control::CloseSession(id))
 }
 
 pub(crate) fn close_tab_button(tab: TabId) -> Element<'static, Control> {
-    button("Close tab").on_press(Control::CloseTab(tab)).into()
+    ui::icon("×", "Close tab", Control::CloseTab(tab))
 }
 
 impl App {
@@ -31,31 +29,35 @@ impl App {
                 c.sessions.len()
             );
             column![
-                text(label).size(22),
-                text(count),
-                text("Cancel is selected. Tab changes selection; Enter chooses; Escape cancels."),
+                text(label).size(tokens::HEADING),
+                text(count).size(tokens::BODY),
+                text("Cancel is selected. Tab changes selection; Enter chooses; Escape cancels.")
+                    .size(tokens::SMALL),
                 row![
                     button(if c.affirmative {
                         "Cancel"
                     } else {
                         "› Cancel"
                     })
+                    .style(style::quiet)
                     .on_press(Control::CloseAction(CloseAction::Cancel(c.token))),
                     button(if c.affirmative {
                         "› Close selected"
                     } else {
                         "Close selected"
                     })
+                    .style(style::quiet)
                     .on_press(Control::CloseAction(CloseAction::Confirm(c.token))),
                 ]
-                .spacing(12),
+                .spacing(tokens::INSET)
+                .wrap(),
             ]
-            .spacing(16)
+            .spacing(tokens::INSET)
             .into()
         } else if self.exiting {
             let count = self.model.sessions().len();
             let mut content = column![
-                text("Closing Pike…").size(22),
+                text("Closing Pike…").size(tokens::HEADING),
                 text(format!(
                     "Waiting for cleanup of {count} terminal session(s)."
                 ))
@@ -78,11 +80,17 @@ impl App {
             return None;
         };
         Some(
-            container(content.map(Message::Control))
-                .padding(24)
-                .center_x(Fill)
-                .center_y(Fill)
-                .into(),
+            container(scrollable(
+                container(content.map(Message::Control))
+                    .max_width(560)
+                    .padding(16)
+                    .style(style::surface),
+            ))
+            .padding(tokens::INSET)
+            .center_x(Fill)
+            .center_y(Fill)
+            .style(style::workspace)
+            .into(),
         )
     }
 }
