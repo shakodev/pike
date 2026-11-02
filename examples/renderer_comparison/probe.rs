@@ -55,6 +55,7 @@ enum Msg {
     App(Message),
     Settle,
     End,
+    TimedEnd(Instant, Instant),
     Deadline,
     Probe,
     Advance,
@@ -238,7 +239,7 @@ impl Probe {
                     self.options.visible,
                     self.options.hidden,
                 );
-                let mut tasks = vec![delay(self.options.seconds, Msg::End), geometry_task(false)];
+                let mut tasks = vec![end_timer(self.options.seconds), geometry_task(false)];
                 if self.options.probes > 0 {
                     tasks.push(Task::done(Msg::Probe));
                 }
@@ -325,6 +326,25 @@ impl Probe {
                     |_| Msg::Probe,
                 )
             }
+            Msg::TimedEnd(armed, woke) => {
+                if self.stage != Stage::Measure || self.closing_requested {
+                    return Task::none();
+                }
+                let began = self.began.expect("measurement began");
+                self.note(
+                    "end_timer_armed_woke_ms",
+                    0,
+                    armed.saturating_duration_since(began).as_secs_f64() * 1000.0,
+                    woke.saturating_duration_since(began).as_secs_f64() * 1000.0,
+                );
+                self.note(
+                    "end_timer_handling_lag_ms",
+                    0,
+                    woke.elapsed().as_secs_f64() * 1000.0,
+                    0,
+                );
+                self.update(Msg::End)
+            }
             Msg::End => {
                 if self.stage != Stage::Measure || self.closing_requested {
                     return Task::none();
@@ -359,8 +379,9 @@ impl Probe {
                     metrics::screenshot(&self.options.output.join(name), &shot)
                         .expect("deferred synthetic proof strip");
                 }
-                self.invalid_evidence |= !self.samples.end();
-                if self.invalid_evidence {
+                let samples_complete = self.samples.end();
+                self.invalid_evidence |= !samples_complete;
+                if !samples_complete {
                     self.note(
                         "incomplete_latency",
                         0,
@@ -729,4 +750,15 @@ fn geometry_task(after: bool) -> Task<Msg> {
             })
         })
     })
+}
+
+fn end_timer(seconds: u64) -> Task<Msg> {
+    Task::perform(
+        async move {
+            let armed = Instant::now();
+            tokio::time::sleep(Duration::from_secs(seconds)).await;
+            (armed, Instant::now())
+        },
+        |(armed, woke)| Msg::TimedEnd(armed, woke),
+    )
 }

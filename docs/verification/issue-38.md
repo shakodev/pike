@@ -1,4 +1,4 @@
-# R38 renderer comparison — in progress, selection pending
+# R38 renderer comparison — workflow/evidence, acceptance incomplete
 
 This work starts from merged main `f1737cfd3b5b85986a9a34acafd4f0c0cf1abfef`
 (R33/PR83). Product renderer, Cargo features/dependencies/defaults, shared runtime,
@@ -61,7 +61,7 @@ callbacks cannot become latency rows; End retires pending work and completion
 requires every requested validated sample. Callback receipt is timed before
 pixel decoding; decoding overhead has its own raw column.
 
-The interval overrun was independently traced to this fixture's unbuffered
+The initial `40f9ee0` interval overrun was independently traced to this fixture's unbuffered
 per-pixel file writes on the UI thread. It was not evidence of a production
 renderer performance defect. The writer now buffers rows. Only bounded first/last
 proof strips are retained, and their artifact encoding happens after measure_end;
@@ -151,3 +151,97 @@ trees, binary/source/build identities, profile tradeoffs, startup repetition,
 portable archive costs, output/text-quality review, and native Windows runs
 remain pending. macOS dry runs cannot select a Windows default or justify a
 hardware fallback. Preserve the separate R13/R14 physical holds and owner14 waiver.
+
+## Final available local verification and unresolved results
+
+Draft [PR #84](https://github.com/shakodev/pike/pull/84) remains incomplete.
+The final finite release experiment used immutable source
+`7221910ccd8ae911c029bdd10765cf9f850a588b`, tiny-skia-only and wgpu-only builds,
+and baseline plus thin-LTO/codegen-1/stripped invocations. Each build retains its
+compiler/source/feature/binary/archive identity. The full native Windows seven-
+profile experiment has **not** been run, and the combined local thin profile
+does not isolate a causal LTO/codegen/stripping tradeoff.
+
+| Short synthetic macOS run family | Cases | Valid workflow | Invalid |
+|---|---:|---:|---:|
+| Passive 1/4/8-visible, 0/8-hidden, empty/saturated, idle/flood | 96 | 66 | 30 |
+| Separate four-visible, two-probe readback diagnostic | 4 | 2 | 2 |
+
+These are three-second workflow runs with synthetic App focus authority, not
+resource budgets, physical input/display measurements or a Windows renderer
+comparison. All 816 announced child instances across these 100 cases were absent
+after their app exited, and every bounded stderr reader finished. The one planned
+matrix was not repeated to replace its reds. The four latency diagnostics contain
+two validated samples each for wgpu; each tiny-skia run obtained only one of two
+before its invalid window ended.
+
+The 30 passive invalid results have distinct causes in the raw evidence:
+
+- 21 tiny-skia flood cases observed 3,811–5,653 ms for a requested 3,000 ms. They
+  fail duration/producer-window validity; minimum producer coverage of the actual
+  parent interval was 53.14%. The extra `invalid_overlap` label also includes the
+  invalid parent duration condition, so it must not be interpreted as an
+  independently established parser failure.
+- Eight cases hit the finite external readiness deadline before `measure_begin`:
+  seven tiny-skia and one wgpu. Announced children were cleaned up. No interval,
+  resource or latency result is claimed for those cases.
+- One wgpu-thin, one-visible/eight-hidden saturated case was rejected before
+  measurement: its visible terminal reported 1,567 history lines rather than
+  2,000. Readiness/history coordination remains unresolved; no saturation pass is
+  inferred from another case.
+
+The passive source-722 trace could additionally emit `incomplete_latency,0,0`
+after any invalid interval even though zero probes were requested. That label-only
+defect is corrected by checking sample completion separately. The retained raw
+trace is unchanged, and those cases remain invalid for their actual timing or
+readiness/history reasons.
+
+A single matched tiny-skia, one-visible/empty-history/no-readback flood diagnostic
+added numeric timer arming/wake/handling observations, without changing the timer
+behavior. It armed 0.132 ms after Begin and woke at 3,001.231 ms; the fixture
+handled the message another 2,603.229 ms later, yielding a 5,604.507 ms window.
+The child was active for 3,002 ms. App and child exited, no child remained and the
+reader finished. This locates that delay after timer wake and before fixture
+message handling; it does **not** distinguish production UI work, fixture work or
+host scheduling. No profiler or matched product-only measurement was performed.
+The earlier unbuffered-image-write diagnosis applies to the earlier development
+red, not automatically to these later readback-free failures.
+
+Raw CSV/JSON, every run's exact manifest row and source/binary/profile identity,
+feature trees, all cleanup outcomes, and the single-case source patch are in
+[`final-local/`](../baselines/issue-38/final-local/). The diagnostic ZIP is about
+1 MiB and excludes binaries and all invented unit-test cost data; its exact hash
+and size are recorded separately. Windows private bytes/working set/CPU/GPU/
+thread/handle costs are unavailable here. Pure parser service time is unmeasured:
+the throughput endpoints distinguish child writes from UI observation of the
+parser sentinel.
+
+Verification ran **locally**, with `CARGO_BUILD_JOBS=4`, locked dependencies and
+this worker's preserved target cache:
+
+| Command / check | Result |
+|---|---|
+| `cargo fmt --all -- --check` | Passed |
+| `cargo clippy --locked -p pike --example renderer_comparison -- -D warnings` | Passed |
+| Same scoped Clippy with `--no-default-features --features renderer-tiny-skia` | Passed |
+| `cargo test --locked -p pike --example renderer_comparison` on each isolated renderer | 14 passed per renderer |
+| `cargo check --locked -p pike --example renderer_comparison --target x86_64-pc-windows-msvc` | Passed; compile only |
+| Author Python evidence/feature/manifest/cap/identity tests | 14 passed |
+| Unchanged R2 semantic cancellation cases | 4 passed, source restored with matching hash |
+| Unchanged R2 aggregation control/rejection bodies with declared schema adapter | 7 passed |
+| Unchanged R2 cohort/terminal-geometry bodies with retained-seed path adapter | 3 passed |
+| Baseline and thin release builds on both isolated renderers | Passed; 4 immutable local artifacts |
+| Finite native macOS dry-run matrix and single attribution case | Results above; reds remain invalid |
+
+No production App/root/focus/capture/session/renderer/lifecycle code, Cargo
+dependency/feature/default/runtime setting, vendor contents or workflow file was
+changed. Patched-dependency tests were not required because no vendor contents
+changed. CI/Actions stayed disabled; no remote verification was run. The old
+`fc5db2b` branch, untracked R32 handoff, prior reports and build cache are preserved.
+
+Remaining gates include the unresolved local readiness/history/timing results,
+the unmerged actual34 boot/renderer/lifecycle integration, native Windows 11
+ConPTY/process/GPU and profile measurements, text-quality/physical checks and an
+independently reviewed decision. The owner confirmed no Windows host is
+available. Product defaults remain unchanged; no fallback or waiver is invented,
+and R38 is not closed. Full task acceptance is **not achieved**.
