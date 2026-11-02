@@ -11,16 +11,33 @@ use std::io;
 
 pub fn click_id(host: &mut Host, id: impl Into<iced::widget::Id>) -> io::Result<()> {
     let id = id.into();
-    let mut targets = widget::Targets::default();
-    host.operate(&mut targets);
-    let point = targets
-        .containers
-        .iter()
-        .find(|(candidate, _)| candidate.as_ref() == Some(&id))
-        .map(|(_, bounds)| bounds.center())
-        .ok_or_else(|| io::Error::other(format!("current chrome target missing: {id:?}")))?;
-    host.click(point);
-    host.drain()
+    for _ in 0..8 {
+        let mut targets = widget::Targets::default();
+        host.operate(&mut targets);
+        if let Some((_, bounds)) = targets
+            .containers
+            .iter()
+            .find(|(candidate, _)| candidate.as_ref() == Some(&id))
+        {
+            host.click(bounds.center());
+            return host.drain();
+        }
+        if host.app.tab_dialog_selected().is_none() {
+            break;
+        }
+        for point in targets.scrolls {
+            host.event(
+                Event::Mouse(mouse::Event::WheelScrolled {
+                    delta: mouse::ScrollDelta::Lines { x: 0.0, y: -6.0 },
+                }),
+                mouse::Cursor::Available(point),
+            );
+        }
+        host.drain()?;
+    }
+    Err(io::Error::other(format!(
+        "current chrome target missing: {id:?}"
+    )))
 }
 
 fn named(host: &mut Host, key: Named) -> io::Result<()> {
