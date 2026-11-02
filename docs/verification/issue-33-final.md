@@ -13,7 +13,7 @@ This report supersedes their incomplete implementation status.
   final checks. Merge: `c212665`. Original branches, reports, reds and build cache
   remain preserved; no reset/rewrite or self-merge occurred.
 - Final production correction: `333d08f4697906903cf68d738713296f4ccf05c9`.
-  Complete scene fixture correction: `dc77f7dd1b49359b406630b9b899d075d4a56142`.
+  Scene fixture correction: `dc77f7dd1b49359b406630b9b899d075d4a56142`.
   Later evidence/report commits do not change production code.
 - Shared root seam was explicitly approved by the coordinator. No App fields
   were added. The exact close/help/tab-dialog priority, R32 effective resolver,
@@ -69,6 +69,10 @@ Evidence root: `docs/baselines/issue-33/`.
 | `cargo build --locked --example native_chrome --example pane_moving` | Passed; `final-title-error-oracles-build.log`. |
 | `target/debug/examples/native_chrome …/accepted-scenes` | Exit 0; **128 rasters**, `completed.txt`, cleanup acknowledged. |
 | `target/debug/examples/pane_moving …/corrected-title-edge-gestures` | Exit 0; first visible title letter pick, full move/zoom, stable owners, selection/copy, mouse/modal cancellation, clipping, hidden output/query/exit and native cleanup. |
+| `cargo clippy --locked --example settings_reload --example tab_management --example remappable_shortcuts -- -D warnings` | Passed after current-UI selector migration; `current-chrome-scroll-clippy.log`. |
+| `target/debug/examples/settings_reload …/current-settings_reload` | Exit 0; real menu/profile/reload/plus/header path, retained owners/settings/PTY bytes and cleanup. |
+| `target/debug/examples/remappable_shortcuts …/current-remappable_shortcuts` | Exit 0; current menu ID, effective map, native fallback bytes, focus/modal lease regressions and cleanup. |
+| `target/debug/examples/tab_management …/current-tab_management-scroll` | Exit 0; twelve-tab actual pointer/keyboard rename, reorder, overflow, targeted close and cleanup. |
 | `git diff --check` | Passed. |
 | Native process audit | 0 task-owned fixture processes remain; `accepted-process-audit.txt`. |
 
@@ -167,6 +171,24 @@ diagnostic above are separately retained and do not erase that result.
   `exact-main-reproduction.txt`. The coordinator explicitly retained R34's narrow
   fixture-boundary repair ownership. No unmerged fix was imported. This also
   prevents claiming an all-target suite pass; scoped checks above are green.
+
+The final affected-fixture audit also found legacy picker/text-toolbar selectors
+in the existing settings, tab-management and remappable-shortcut native drivers.
+Those directly affected R33 selectors were migrated in `3629c02` and `a9ec359`;
+the unchanged `src/` production tree and accepted visual/idle evidence were not
+rerun. Shared finite `examples/support/chrome_actions.rs` measures current
+visible control IDs and drives the actual effective keyboard menu. Profile B is
+one current menu action, reload uses the real menu, plus/header/overflow rows use
+current controls, and the stale-owner test holds a real emitted reload shortcut.
+No App state or manufactured action bypass was added. The initial offscreen
+last-row pointer rejection is retained; the final tab adapter scrolls the actual
+list before clicking its measured visible row. All three native runs pass with
+explicit cleanup. R2 retains its independently reproduced original picker/tab
+selector reds. `current-chrome-fixtures-provenance.json` and
+`current-tab-scroll-provenance.json` identify these fixture sources and binaries.
+`live_tabs` already locates actual emitted NewTab actions rather than text and
+required no selector change. These are fixture-only changes; no production,
+resolver, capture, session or settings algorithm was changed.
 
 Exclusive R2 independently reproduced and then verified inactive controls,
 title-edge dragging, full move/zoom, effective remapped tooltips, help modal input

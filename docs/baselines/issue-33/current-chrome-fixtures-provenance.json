@@ -1,0 +1,24 @@
+{
+  "source": "3629c0226da4b37a1e2432fd1f9b3c3b640433ff",
+  "production_unchanged_from": "333d08f4697906903cf68d738713296f4ccf05c9",
+  "source_sha256": {
+    "examples/tab_management.rs": "f859b186ef62b5b76edd394c9b20271f21a4e49e6852abb0dc1a7e2427a7bd33",
+    "examples/settings_reload.rs": "7a3fdb188d3adb58dce6368174eb35067c6db46c4ff7b0d6ad6cb988d5811872",
+    "examples/remappable_shortcuts.rs": "9bb37cd09b023db04855e6e91aaee793b35e7f5760bbfcd53a9d216d5fcbe7fa",
+    "examples/settings_reload/scenarios.rs": "962621fe43bcf422a5cb699d8639c80b397a9d8533371206fc7cdb7205032ef3",
+    "examples/settings_reload/joint.rs": "db9221b24e102347b246caa5aca21b7333261af6dbfae144331ed8565f6d94f5",
+    "examples/settings_reload/child.rs": "d6e410c9c6cc56ac2ef55f4882a80508b83cb03f3ae501696c2fa6656bee3d68",
+    "examples/tab_management/scenarios.rs": "79b8167305803b602b0d05c1dc507495fa58344edf85f618f3b4b5b42a88cf55",
+    "examples/remappable_shortcuts/scenarios.rs": "2fb73d5fc19e3839cfb7151d823cb53519ee373118a2b510c6c82bcda605a3b3",
+    "examples/remappable_shortcuts/focus.rs": "d071bd0225b84dc60ba64c8096c72fa09f433e2a6f76802b82215cf9c883656b",
+    "examples/support/tab_management_snapshot.rs": "bae1d819a29cbf34f8bfd6e769f4b9a09fe6116495f1fc0bf49c0a60a254d3f7",
+    "examples/support/tab_management_child.rs": "9d1cd1e9d540c076e04de752d8d3b7474e5a4fa92ae396f259c7c8bd05658d45",
+    "examples/support/tab_management_widget.rs": "c51a5f782e95a65c22ee5c07a75ec6d57c8479535f567ae6e595fdfb908e4075",
+    "examples/support/chrome_actions.rs": "a2bbe02aab52a1c3f7cceb1a218ccb876cbcf5402c6cc880c3ecb23211d1bcc4"
+  },
+  "binary_sha256": {
+    "settings_reload": "d50f2d5596ec311b540f4b702e2016c3abd5bf400b319ae22eae6bb57b8d68ee",
+    "tab_management": "5545819258fd834df5d88682ebdd5380f44f29ca9bbe8a86343c2cc148bee8e2",
+    "remappable_shortcuts": "a6a6d7bd16577daf66bf27121bfd72f6518cff9f1b4a2af2614fc1349639cb65"
+  }
+}
