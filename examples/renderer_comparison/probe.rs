@@ -180,6 +180,11 @@ impl Probe {
         match message {
             Msg::Advance => self.advance(),
             Msg::App(message) => {
+                if matches!(&message, Message::CloseWindow) {
+                    self.failed = true;
+                    self.note("interrupted", 0, 0, 0);
+                    return self.close();
+                }
                 if let Message::WindowFocused(value) = &message {
                     self.note("native_focus", 0, value, 0);
                 }
@@ -212,6 +217,9 @@ impl Probe {
                 Task::batch([task, self.advance()])
             }
             Msg::Settle => {
+                if self.stage != Stage::Settle || self.closing_requested || self.failed {
+                    return Task::none();
+                }
                 self.stage = Stage::Measure;
                 self.samples.open();
                 metrics::counters(&self.app, &self.options.output, "before")
@@ -318,6 +326,9 @@ impl Probe {
                 )
             }
             Msg::End => {
+                if self.stage != Stage::Measure || self.closing_requested {
+                    return Task::none();
+                }
                 let actual_ms = self
                     .began
                     .expect("measurement began")
@@ -657,4 +668,42 @@ fn epoch_ms() -> u128 {
         .duration_since(std::time::UNIX_EPOCH)
         .expect("fixture system clock")
         .as_millis()
+}
+
+#[cfg(test)]
+mod cancellation_tests {
+    use super::*;
+    #[test]
+    fn real_close_window_intent_retires_a_delayed_settle() {
+        let output =
+            std::env::temp_dir().join(format!("pike-r38-close-window-{}", std::process::id()));
+        fs::create_dir(&output).unwrap();
+        let options = Options::parse(
+            [
+                "--output",
+                output.to_str().unwrap(),
+                "--workload",
+                "flood",
+                "--probes",
+                "2",
+            ]
+            .into_iter()
+            .map(str::to_owned),
+        )
+        .unwrap();
+        let (mut probe, task) = Probe::new(options, output.join("unpolled-fixture-settings.toml"));
+        drop(task); // No settings, runtime, PTY or real window is started.
+        probe.stage = Stage::Settle;
+        drop(probe.update(Msg::App(Message::CloseWindow)));
+        drop(probe.update(Msg::Settle));
+        assert!(probe.closing_requested && probe.failed);
+        assert!(probe.samples.begin(Instant::now()).is_none());
+        assert!(
+            !fs::read_to_string(output.join("events.csv"))
+                .unwrap()
+                .contains("measure_begin")
+        );
+        drop(probe);
+        fs::remove_dir_all(output).unwrap();
+    }
 }

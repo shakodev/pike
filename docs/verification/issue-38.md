@@ -88,9 +88,36 @@ R34 integration. No vendor source contents, dependencies or production defaults
 changed. The owner has confirmed that no Windows host is available; this creates
 no new waiver and leaves native selection blocked.
 
-Collector/aggregator/build-profile scripts are being implemented and are not
-accepted at this checkpoint. The exact Windows procedure is in
-`docs/verification/issue-38-windows-run.md`. Complete raw machine/counter metadata, feature
+The isolated workflow is implemented in `tools/renderer-comparison.py`, its
+bounded support/dry-run modules, the Windows process collector and finite GPU
+watcher. It builds per-invocation release profiles with isolated native/dev
+feature trees, source/compiler/binary/package identities, finite run manifests,
+20-launch startup manifests, validated per-run summaries and comparative JSON/CSV.
+Comparison reports expose missing/failed manifest coverage, geometry/source/machine
+mismatches, unavailable counters and pending native/review gates; they never
+automatically change defaults. Existing Windows feature and ConPTY package tools
+are reused without modification. Private bytes are summed only across owned
+processes; shared working sets remain separate.
+
+Thirteen Python evidence/feature/manifest/BOM/cost-grouping/coverage regressions
+pass locally. The finite Unix/native watcher independently completed idle and
+flood dry-run scenarios and established app exit, both ready children absent and
+bounded stderr reader completion. Those checks explicitly contain no native
+Windows private-byte/working-set/CPU/GPU values. PowerShell is unavailable on this
+host; execution of the Windows collector, GPU watcher and portable ConPTY package
+steps is unperformed, with no synthetic substitution presented as native data.
+
+R2's later delayed-Settle P2 is corrected: Settle requires its expected state,
+End/close are absorbing, and real CloseWindow intent retires pending work. R2's
+unchanged semantic four-regression adapter passes against the correction, with
+source hashes proving restoration after the test-only append. An additional
+actual CloseWindow intent regression covers that path directly.
+
+The exact Windows procedure is in `docs/verification/issue-38-windows-run.md`.
+Actual R34 has no merged main ref: its unmerged boot API has not been imported.
+Current-main release workflow checks therefore retain the legacy constructor
+scope; final comparison must be repeated on the reviewed actual34 product boot
+path after integration. Complete raw machine/counter metadata, feature
 trees, binary/source/build identities, profile tradeoffs, startup repetition,
 portable archive costs, output/text-quality review, and native Windows runs
 remain pending. macOS dry runs cannot select a Windows default or justify a

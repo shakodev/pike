@@ -35,7 +35,9 @@ impl Samples {
         }
     }
     pub fn open(&mut self) {
-        self.active = true;
+        if !self.ended {
+            self.active = true;
+        }
     }
     pub fn begin(&mut self, now: Instant) -> Option<usize> {
         if !self.active || self.pending.is_some() || self.started == self.requested {
@@ -135,6 +137,11 @@ mod tests {
         assert!(samples.capture(1, now).is_none());
         assert_eq!(samples.completed(), 0);
         assert!(samples.begin(now).is_none());
+        samples.open();
+        assert!(
+            samples.begin(now).is_none(),
+            "ended measurements cannot be reopened"
+        );
     }
     #[test]
     fn stale_or_duplicate_nonces_cannot_consume_current_capture() {
