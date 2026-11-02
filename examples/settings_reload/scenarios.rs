@@ -14,6 +14,9 @@ use pike::{
 };
 use std::{fs, io, path::Path};
 
+#[path = "joint.rs"]
+mod joint;
+
 pub fn configuration(output: &Path, changed: bool, remove_b: bool) -> io::Result<String> {
     let quote = |value: &str| toml::Value::String(value.to_owned()).to_string();
     let shell = quote(&std::env::current_exe()?.to_string_lossy());
@@ -413,6 +416,7 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
         a.intact(host) && b.intact(host),
         "new profile version changed earlier running owners",
     )?;
+    joint::verify(host, output, &new_b, &split_b)?;
     // Exited sessions restart through the existing retry owner, resolving the
     // retained profile ID against the new args/env/cwd configuration.
     fs::write(a.directory(output).join("exit.go"), "exit")?;
