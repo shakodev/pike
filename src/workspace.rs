@@ -12,6 +12,8 @@ use crate::layout::{
 use crate::session::{Effect, Failure, Lifecycle, SessionRegistry, SpawnDisposition};
 use crate::tabs::{ActivityEvent, Placement, Selection, Title};
 
+mod moving;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Error {
     StaleTab,
