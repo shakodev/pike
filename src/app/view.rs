@@ -126,9 +126,16 @@ impl App {
                     .style(style::surface)
                     .id("workspace-notices"),
             );
+        } else {
+            content = content.push(iced::widget::Space::new().width(Fill));
         }
+        // Ordinary Column diffs by position. Keep both passive slots even
+        // when empty so appearance/removal cannot rebuild the healthy grid.
+        // Shrink height lays out to zero; Fixed(0) would be omitted by push.
         if let Some(recovery) = self.passive_error_view() {
             content = content.push(recovery);
+        } else {
+            content = content.push(iced::widget::Space::new().width(Fill));
         }
         let content = content.push(pane);
         super::resize::capture(

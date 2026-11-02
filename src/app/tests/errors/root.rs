@@ -240,6 +240,7 @@ fn root_recovery_row_keeps_background_controls_passive_and_routes_fresh_clipboar
     };
     host.settle();
     host.task(host.app.focus_active());
+    host.type_one();
     let before = accepted(&host.app, healthy.session);
     host.apply(Message::Terminal((
         origin.session,
@@ -254,6 +255,9 @@ fn root_recovery_row_keeps_background_controls_passive_and_routes_fresh_clipboar
     host.settle();
     assert_eq!(host.app.active_session(), Some(healthy.session));
     assert_eq!(accepted(&host.app, healthy.session), before);
+    // No explicit control/focus task may be needed after passive admission.
+    host.type_one();
+    assert_eq!(accepted(&host.app, healthy.session), before + 1);
     let notice = host
         .app
         .latest_error(Owner::Session(origin.session))
@@ -282,7 +286,37 @@ fn root_recovery_row_keeps_background_controls_passive_and_routes_fresh_clipboar
     );
     assert_eq!(host.app.active_session(), Some(healthy.session));
     host.type_one();
-    assert_eq!(accepted(&host.app, healthy.session), before + 1);
+    assert_eq!(accepted(&host.app, healthy.session), before + 2);
+
+    // Last-notice resolution is equally passive, including widget identity.
+    let failed_write = host.app.clipboard_writes.begin(Some(origin)).unwrap();
+    host.apply(Message::ClipboardWritten(
+        failed_write,
+        Err(iced_runtime::clipboard::WriteError::WriteFailed),
+    ));
+    host.settle();
+    let before_resolution = accepted(&host.app, healthy.session);
+    host.type_one();
+    assert_eq!(accepted(&host.app, healthy.session), before_resolution + 1);
+    let successful_write = host.app.clipboard_writes.begin(Some(origin)).unwrap();
+    host.apply(Message::ClipboardWritten(successful_write, Ok(())));
+    host.settle();
+    assert!(
+        host.app
+            .latest_error(Owner::Session(origin.session))
+            .is_none()
+    );
+    host.type_one();
+    assert_eq!(accepted(&host.app, healthy.session), before_resolution + 2);
+
+    // Related constraint rows also keep the same pane child position.
+    for size in [Size::new(220.0, 200.0), Size::new(960.0, 700.0)] {
+        let before_resize = accepted(&host.app, healthy.session);
+        host.size = size;
+        host.settle();
+        host.type_one();
+        assert_eq!(accepted(&host.app, healthy.session), before_resize + 1);
+    }
 
     // A background launch retry also has no authority to select its origin.
     let (_, Effect::Spawn(failed)) = host.app.model.create_tab().unwrap() else {

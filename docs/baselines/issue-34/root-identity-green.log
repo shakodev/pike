@@ -1,0 +1,41 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.83s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-7aa914fb23ec4515)
+
+running 1 test
+test app::tests::errors::root::root_recovery_row_keeps_background_controls_passive_and_routes_fresh_clipboard ... FAILED
+
+failures:
+
+---- app::tests::errors::root::root_recovery_row_keeps_background_controls_passive_and_routes_fresh_clipboard stdout ----
+
+thread 'app::tests::errors::root::root_recovery_row_keeps_background_controls_passive_and_routes_fresh_clipboard' (686986) panicked at src/app/tests/errors/root.rs:260:5:
+assertion `left == right` failed
+  left: 1
+ right: 2
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    app::tests::errors::root::root_recovery_row_keeps_background_controls_passive_and_routes_fresh_clipboard
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 219 filtered out; finished in 0.66s
+
+error: test failed, to rerun pass `--lib`

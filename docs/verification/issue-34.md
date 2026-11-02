@@ -95,7 +95,8 @@ The native Iced/PTY and offscreen checks above ran on macOS. They are not native
 Windows or physical keyboard/monitor checks. New user32 interaction/cancellation,
 ConPTY signed conversion/HRESULT runtime behavior and emergency capacity on a
 native Windows host remain explicit gates; root is asking the owner about host
-availability. No release memory/CPU/responsiveness measurements or physical-input
+availability. The owner has now confirmed that no Windows host is available;
+these native gates remain unexecuted with no new waiver. No release memory/CPU/responsiveness measurements or physical-input
 pass are claimed. No new platform waiver or broader acceptance claim is inferred.
 
 All development reds are retained, including sandbox graphics/socket denial,
@@ -104,3 +105,33 @@ strict probe's portable expectation and earlier renderer-readiness investigation
 The prescribed live-ID heartbeat was natively rejected once with no effects
 (request `f665606d-8684-4d45-8bc4-4a1f8bf83a68`); exact check/status continued,
 and no terminal/task/dispatch capability was substituted or blindly retried.
+
+## Root widget identity correction after PR85 head 50abc7d
+
+R1 reproduced another P1: conditional passive root siblings shifted the ordinary
+Column's pane child and rebuilt its widget tree, losing healthy typing focus.
+The source fix keeps permanent empty slots for both legacy and typed passive
+rows. Empty slots use Shrink height (zero actual layout height), since pinned
+Column::push intentionally omits Fixed(0) children. No passive refocus task,
+selection/capture/gesture change or new authority was introduced.
+
+The expanded actual-root regression is red before the correction
+(`root-identity-red.log`); the first Fixed(0) attempt remains red in the retained
+`root-identity-green.log` despite that early filename. The corrected non-void
+slot version passes in `root-identity-stable-slot-green.log`: default-off first
+error admission, last asynchronous write-success removal, constraint-row
+appearance/removal, explicit background controls and fresh clipboard input all
+preserve exact healthy-owner typing. Formatting and all-target Clippy pass in
+`root-identity-format.log` and `root-identity-clippy.log`.
+
+The unchanged pinned independent root/runtime/Cache probe also confirms healthy
+widget focus stays true across first-error admission and exact x/FRESH34 bytes
+reach only the healthy child; both handles acknowledge cleanup. Its later
+Copy-diagnostics lookup stops at the already-identified no-scroll fixture
+assumption (`root-identity-native-probe`), so this original-body run is retained
+as partial coverage, not advertised as a complete probe pass. R1 owns that
+fixture's scrollbar refinement and will rerun an immutable correction head.
+Shared dependency identities match; the initial comparison incorrectly required
+unused root-lock packages to remain in the standalone probe and is retained
+separately. The corrected comparison permits pruned unused packages and adds
+only the probe package (`root-identity-probe-lock.txt`).
