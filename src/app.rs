@@ -50,6 +50,7 @@ pub enum Message {
         Option<Reservation>,
         Result<(), iced_runtime::clipboard::WriteError>,
     ),
+    NativeCleanup(u64, crate::native_cleanup::Decision),
 }
 
 #[derive(Clone, Copy)]
@@ -279,6 +280,9 @@ impl App {
             }
             Message::Control(Control::ClearDiagnostics) => self.diagnostics.clear(),
             Message::ClipboardWritten(owner, result) => self.clipboard_written(owner, result),
+            Message::NativeCleanup(token, decision) => {
+                return self.native_cleanup_decision(token, decision);
+            }
             Message::SettingsLoaded(result) => return self.settings_loaded(result),
             Message::SystemTheme(mode) => self.system_theme(mode),
             Message::Control(Control::NewProfile(generation, index)) => {
@@ -362,11 +366,16 @@ impl App {
                 }
                 let footer = self.footer_height(id);
                 if !self.interaction_blocked() || close::background_event(&event) {
-                    if let Some(error) =
+                    if let Some(result) =
                         self.sessions
                             .route(&mut self.model, &self.window_focus, id, event)
                     {
-                        self.report_error(crate::errors::Owner::Session(id), error);
+                        match result {
+                            Err(error) => {
+                                self.report_error(crate::errors::Owner::Session(id), error)
+                            }
+                            Ok(()) => self.errors.resized(crate::errors::Owner::Session(id)),
+                        }
                     }
                 }
                 if footer != self.footer_height(id) {
@@ -418,7 +427,10 @@ impl App {
                 return self.request_close(close::Scope::Window);
             }
             Message::ShutdownComplete => return self.shutdown_complete(),
-            Message::CloseTimeout(token) => self.close_timeout(token),
+            Message::CloseTimeout(token) => {
+                self.close_timeout(token);
+                return self.native_cleanup_prompt(token);
+            }
             Message::CloseKey(token, event) => return self.close_key(token, event),
         }
         Task::none()

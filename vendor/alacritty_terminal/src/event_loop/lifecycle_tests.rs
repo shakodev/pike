@@ -39,6 +39,52 @@ impl<W> Drop for FailedPty<W> {
 }
 impl<W> event::OnResize for FailedPty<W> {
     fn on_resize(&mut self, _: WindowSize) {}
+    fn try_on_resize(&mut self, _: WindowSize) -> io::Result<()> {
+        Err(io::Error::new(ErrorKind::PermissionDenied, "SECRET_RESIZE_NATIVE_CONTEXT34"))
+    }
+}
+
+#[test]
+fn fallible_resize_receipt_keeps_worker_and_input_alive_without_private_context() {
+    #[derive(Clone)]
+    struct Recorder(mpsc::Sender<Event>);
+    impl EventListener for Recorder {
+        fn send_event(&self, event: Event) {
+            self.0.send(event).unwrap();
+        }
+    }
+    let (events, received) = mpsc::channel();
+    let listener = Recorder(events);
+    let terminal = Arc::new(FairMutex::new(Term::new(
+        Default::default(),
+        &TermSize::new(80, 24),
+        listener.clone(),
+    )));
+    let (dropping, _dropped) = mpsc::channel();
+    let (release, gate) = mpsc::channel();
+    let pty = FailedPty {
+        reader: TestReader { bytes: io::Cursor::new(Vec::new()), pending: true },
+        writer: io::sink(),
+        dropping,
+        release: gate,
+        panic: false,
+    };
+    let mut event_loop = EventLoop::new(terminal, listener, pty, true, false).unwrap();
+    let sender = event_loop.channel();
+    let size = WindowSize { num_cols: 80, num_lines: 25, cell_width: 8, cell_height: 16 };
+    sender.send(Msg::ResizeTracked { serial: 34, size }).unwrap();
+    assert!(event_loop.drain_recv_channel(false));
+    let Event::ResizeCompleted(result) = received.recv_timeout(Duration::from_secs(1)).unwrap()
+    else {
+        panic!("resize receipt")
+    };
+    assert_eq!(result.serial, 34);
+    assert_eq!(result.size, size);
+    assert_eq!(result.result.unwrap_err().kind, ErrorKind::PermissionDenied);
+    assert!(!format!("{result:?}").contains("SECRET_RESIZE_NATIVE_CONTEXT34"));
+    assert!(!sender.input_status().closed);
+    assert_eq!(sender.send_input(b"still healthy"), Ok(()));
+    release.send(()).unwrap();
 }
 impl<W: Write> EventedReadWrite for FailedPty<W> {
     type Reader = TestReader;

@@ -403,3 +403,129 @@ fn cleanup_timeout_records_original_ids_and_renderer_failure_uses_actual_pool_sh
     assert!(app.errors.is_empty());
     assert!(app.diagnostic_capture().is_empty());
 }
+
+#[test]
+fn current_resize_failure_and_retry_preserve_owner_focus_and_healthy_input() {
+    let executor = SharedExecutor::new().unwrap();
+    let (mut app, healthy, origin) = pair(&executor);
+    app.model
+        .move_to_tab(
+            app.model.target(origin.session).unwrap(),
+            app.model.target(healthy.session).unwrap(),
+            iced::widget::pane_grid::Axis::Vertical,
+        )
+        .unwrap();
+    drop(app.select(app.model.target(healthy.session).unwrap()));
+    let mut events = into_recipes(app.sessions.subscription())
+        .into_iter()
+        .map(|r| r.stream(stream::pending().boxed()))
+        .collect::<Vec<_>>();
+    let mut all = stream::select_all(events.drain(..));
+    route(
+        &mut app,
+        origin.session,
+        B::Resize(Some(Size::new(800.0, 400.0)), Some(Size::new(8.0, 16.0))),
+    );
+    let result = executor.block_on(async {
+        tokio::time::timeout(DEADLINE, async {
+            while let Some((id, event)) = all.next().await {
+                if let Event::BackendCall(
+                    _,
+                    B::ProcessAlacrittyEvent(iced_term::AlacrittyEvent::ResizeCompleted(result)),
+                ) = &event
+                    && id == origin.session
+                    && result.size.num_cols == 100
+                    && result.size.num_lines == 25
+                {
+                    return *result;
+                }
+                drop(app.update(Message::Terminal((id, event))));
+            }
+            panic!("native resize result")
+        })
+        .await
+        .unwrap()
+    });
+    let error = iced_term::ResizeError {
+        kind: std::io::ErrorKind::PermissionDenied,
+        code: Some(5),
+    };
+    route(
+        &mut app,
+        origin.session,
+        B::ProcessAlacrittyEvent(iced_term::AlacrittyEvent::ResizeCompleted(
+            iced_term::ResizeResult {
+                result: Err(error),
+                ..result
+            },
+        )),
+    );
+    let notice = app.latest_error(Owner::Session(origin.session)).unwrap();
+    assert_eq!(notice.error, Error::Resize(error));
+    assert!(!notice.resolved);
+    assert_eq!(app.active_session(), Some(healthy.session));
+    let count = app
+        .terminal(origin.session)
+        .unwrap()
+        .work_stats()
+        .pty_resizes;
+    for _ in 0..1000 {
+        route(
+            &mut app,
+            origin.session,
+            B::Resize(Some(Size::new(800.0, 400.0)), Some(Size::new(8.0, 16.0))),
+        );
+    }
+    assert_eq!(
+        app.terminal(origin.session)
+            .unwrap()
+            .work_stats()
+            .pty_resizes,
+        count
+    );
+    drop(app.update(Message::Control(Control::ErrorAction(
+        notice.id,
+        Action::Retry,
+    ))));
+    assert_eq!(
+        app.terminal(origin.session)
+            .unwrap()
+            .work_stats()
+            .pty_resizes,
+        count + 1
+    );
+    executor.block_on(async {
+        tokio::time::timeout(DEADLINE, async {
+            while let Some(event) = all.next().await {
+                drop(app.update(Message::Terminal(event)));
+                if app
+                    .latest_error(Owner::Session(origin.session))
+                    .is_some_and(|n| n.resolved)
+                {
+                    return;
+                }
+            }
+            panic!("retry acknowledgment")
+        })
+        .await
+        .unwrap();
+    });
+    assert_eq!(
+        app.latest_error(Owner::Session(origin.session)).unwrap().id,
+        notice.id
+    );
+    assert_eq!(app.active_session(), Some(healthy.session));
+    let before = app.terminal(healthy.session).unwrap().input_status();
+    route(&mut app, healthy.session, B::Write(b"r".to_vec()));
+    let after = app.terminal(healthy.session).unwrap().input_status();
+    assert_eq!(
+        after.written_bytes + after.outstanding_bytes + after.cancelled_bytes,
+        before.written_bytes + before.outstanding_bytes + before.cancelled_bytes + 1
+    );
+    drop(app.update(Message::Control(Control::ErrorAction(
+        notice.id,
+        Action::Dismiss,
+    ))));
+    assert!(app.latest_error(Owner::Session(origin.session)).is_none());
+    shutdown(&mut app, &executor);
+}

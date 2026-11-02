@@ -22,24 +22,37 @@ impl App {
     }
     pub(in crate::app) fn error_view(&self, owner: Owner) -> Option<Element<'_, Message>> {
         let notice = self.errors.latest(owner)?;
-        let message = notice.error.message();
+        let message = if notice.resolved {
+            "The terminal size was applied. Dismiss this message when convenient.".into()
+        } else {
+            notice.error.message()
+        };
         let mut actions =
             row![button("Dismiss").on_press(Control::ErrorAction(notice.id, Action::Dismiss))]
                 .spacing(8);
-        let retry = match (owner, notice.error.recovery()) {
-            (Owner::Session(id), Recovery::Restart) if self.restart_ready(id) => {
-                Some("Retry terminal")
+        let retry = if notice.resolved {
+            None
+        } else {
+            match (owner, notice.error.recovery()) {
+                (Owner::Session(id), Recovery::Resize)
+                    if self.terminal(id).is_some_and(|t| !t.input_status().closed) =>
+                {
+                    Some("Retry size")
+                }
+                (Owner::Session(id), Recovery::Restart) if self.restart_ready(id) => {
+                    Some("Retry terminal")
+                }
+                (Owner::Session(id), Recovery::PasteAgain) if self.error_input_owner(id) => {
+                    Some("Try paste again")
+                }
+                (Owner::Session(id), Recovery::CopyAgain) if self.error_input_owner(id) => {
+                    Some("Try copy again")
+                }
+                (Owner::Application, Recovery::ReloadSettings) if !self.settings.pending => {
+                    Some("Retry settings")
+                }
+                _ => None,
             }
-            (Owner::Session(id), Recovery::PasteAgain) if self.error_input_owner(id) => {
-                Some("Try paste again")
-            }
-            (Owner::Session(id), Recovery::CopyAgain) if self.error_input_owner(id) => {
-                Some("Try copy again")
-            }
-            (Owner::Application, Recovery::ReloadSettings) if !self.settings.pending => {
-                Some("Retry settings")
-            }
-            _ => None,
         };
         if let Some(label) = retry {
             actions = actions

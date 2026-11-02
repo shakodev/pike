@@ -361,3 +361,28 @@ fn stream_end_waits_for_distinct_sticky_backend_completion() {
     );
     assert!(matches!(receiver.recv().now_or_never(), Some(None)));
 }
+#[test]
+fn resize_results_use_one_latest_slot_without_consuming_control_capacity() {
+    let (sender, receiver) = super::channel();
+    let size = alacritty_terminal::event::WindowSize {
+        num_cols: 80,
+        num_lines: 25,
+        cell_width: 8,
+        cell_height: 16,
+    };
+    for serial in 1..=10000 {
+        sender.send(Event::ResizeCompleted(
+            alacritty_terminal::event::ResizeResult {
+                serial,
+                size,
+                result: Ok(()),
+            },
+        ));
+    }
+    let mut state = receiver.0.lock();
+    assert!(state.controls.is_empty());
+    assert!(
+        matches!(state.pop(), Some(Delivery::Terminal(Event::ResizeCompleted(result))) if result.serial == 10000)
+    );
+    assert!(state.pop().is_none());
+}

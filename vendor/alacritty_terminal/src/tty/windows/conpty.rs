@@ -1,4 +1,4 @@
-use log::{info, warn};
+use log::info;
 use std::io::{Error, ErrorKind, Result};
 use std::os::windows::io::{AsRawHandle, FromRawHandle, OwnedHandle};
 use std::path::Path;
@@ -364,10 +364,24 @@ pub fn new(config: &Options, window_size: WindowSize) -> Result<Pty> {
 
 impl OnResize for Conpty {
     fn on_resize(&mut self, window_size: WindowSize) {
+        let _ = self.try_on_resize(window_size);
+    }
+
+    fn try_on_resize(&mut self, window_size: WindowSize) -> Result<()> {
+        if window_size.num_cols == 0
+            || window_size.num_lines == 0
+            || window_size.num_cols > i16::MAX as u16
+            || window_size.num_lines > i16::MAX as u16
+        {
+            return Err(ErrorKind::InvalidInput.into());
+        }
         let result = unsafe { (self.api.resize)(self.handle, window_size.into()) };
-        if let Err(error) = hresult(result) {
-            // OnResize has no error return. Keep the existing session alive.
-            warn!("ConPTY resize failed: {error}");
+        // For resize metadata, preserve the signed HRESULT verbatim. Callers
+        // retain only kind/code and never format this as user-facing context.
+        if result >= 0 {
+            Ok(())
+        } else {
+            Err(Error::from_raw_os_error(result))
         }
     }
 }

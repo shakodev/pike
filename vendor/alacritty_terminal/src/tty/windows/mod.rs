@@ -165,8 +165,14 @@ impl EventedPty for Pty {
 
 impl OnResize for Pty {
     fn on_resize(&mut self, window_size: WindowSize) {
+        let _ = self.try_on_resize(window_size);
+    }
+
+    fn try_on_resize(&mut self, window_size: WindowSize) -> std::io::Result<()> {
         if let Some(backend) = self.backend.as_mut() {
-            backend.on_resize(window_size);
+            backend.try_on_resize(window_size)
+        } else {
+            Err(std::io::ErrorKind::BrokenPipe.into())
         }
     }
 }

@@ -40,6 +40,7 @@ struct State {
     controls: VecDeque<(Event, usize)>,
     payload_bytes: usize,
     title: Option<Event>,
+    resize: Option<alacritty_terminal::event::ResizeResult>,
     dirty: bool,
     mouse_dirty: bool,
     cursor_dirty: bool,
@@ -73,6 +74,8 @@ impl State {
             event
         } else if let Some(title) = self.title.take() {
             title
+        } else if let Some(result) = self.resize.take() {
+            Event::ResizeCompleted(result)
         } else if std::mem::take(&mut self.dirty) {
             Event::Wakeup
         } else if std::mem::take(&mut self.mouse_dirty) {
@@ -195,6 +198,7 @@ impl Sender {
             Event::CursorBlinkingChange => state.cursor_dirty = true,
             Event::Bell => state.bell = true,
             Event::ResetTitle => state.title = Some(Event::ResetTitle),
+            Event::ResizeCompleted(result) => state.resize = Some(result),
             Event::Title(title) => {
                 state.title = Some(Event::Title(
                     alacritty_terminal::event::sanitize_title(&title),

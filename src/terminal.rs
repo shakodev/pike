@@ -140,7 +140,7 @@ impl Sessions {
         window: &WindowFocus,
         origin: SessionId,
         event: Event,
-    ) -> Option<crate::errors::Error> {
+    ) -> Option<Result<(), crate::errors::Error>> {
         use crate::errors::Error;
         let Event::BackendCall(raw, mut command) = event;
         let active = model
@@ -261,6 +261,8 @@ impl Sessions {
         // not require visibility or keyboard focus.
         let mut failure = None;
         match terminal.handle(iced_term::Command::ProxyToBackend(command)) {
+            Action::ResizeCompleted(result) => return Some(result.result.map_err(Error::Resize)),
+            Action::LinkOpenFailed => failure = Some(Error::LinkOpen),
             Action::ChangeTitle(title) => entry.title = Title::new(&title),
             Action::ResetTitle => entry.title = None,
             Action::ChildExit(_) | Action::Shutdown { .. } => entry.ended = true,
@@ -315,6 +317,6 @@ impl Sessions {
             }
             _ => {}
         }
-        failure
+        failure.map(Err)
     }
 }

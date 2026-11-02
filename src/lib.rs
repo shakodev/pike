@@ -7,6 +7,7 @@ pub mod executor;
 pub mod identity;
 pub mod launch;
 pub mod layout;
+pub mod native_cleanup;
 pub mod session;
 pub mod settings;
 pub mod startup_report;

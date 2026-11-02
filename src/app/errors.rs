@@ -55,7 +55,19 @@ impl App {
         if self.interaction_blocked() {
             return Task::none();
         }
+        if notice.resolved {
+            return Task::none();
+        }
         match (notice.owner, notice.error.recovery()) {
+            (Owner::Session(session), Recovery::Resize) if action == Action::Retry => {
+                self.update(Message::Terminal((
+                    session,
+                    iced_term::Event::BackendCall(
+                        session.get(),
+                        iced_term::BackendCommand::RetryResize,
+                    ),
+                )))
+            }
             (Owner::Session(session), Recovery::Restart) if self.restart_ready(session) => {
                 if action == Action::UseDefault && !matches!(notice.error, Error::Launch(_)) {
                     return Task::none();

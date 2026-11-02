@@ -10,6 +10,7 @@ use crate::identity::{SessionId, TabId};
 use crate::layout::PaneTarget;
 use crate::session::{Effect, Lifecycle};
 
+mod native;
 mod view;
 pub(super) use view::{close_button, close_tab_button};
 
@@ -46,6 +47,9 @@ pub(super) struct Policy {
     pub(super) timer: Option<u64>,
     pub(super) timed_out: bool,
     force_selected: bool,
+    renderer_failed: bool,
+    native_prompt: Option<(u64, std::sync::Arc<crate::native_cleanup::Prompt>)>,
+    native_reported: Option<u64>,
 }
 
 impl Policy {
@@ -148,6 +152,7 @@ impl App {
     /// Rendering cannot show confirmation. Reuse the one existing shutdown
     /// owner and await every native disposal before allowing the runtime to exit.
     pub(super) fn renderer_shutdown(&mut self) -> Task<Message> {
+        self.close_policy.renderer_failed = true;
         if self.exiting {
             return Task::none();
         }
@@ -231,6 +236,7 @@ impl App {
                     && self.close_policy.timed_out
                     && self.close_policy.timer == Some(token) =>
             {
+                self.cancel_native_prompt();
                 self.close_policy.timed_out = false;
                 self.close_policy.force_selected = false;
                 self.arm_close_timer()
@@ -240,6 +246,7 @@ impl App {
                     && self.close_policy.timed_out
                     && self.close_policy.timer == Some(token) =>
             {
+                self.cancel_native_prompt();
                 // Explicit application-only escape hatch. iced::exit alone can
                 // join a stuck blocking prepare during Runtime::drop. Exiting
                 // this process lets the OS close its owned handles, without a
@@ -261,6 +268,9 @@ impl App {
         if !self.exiting || !self.launches.shutdown_complete() {
             return Task::none();
         }
+        self.cancel_native_prompt();
+        self.close_policy.timer = None;
+        self.close_policy.timed_out = false;
         // Pool permits return only after native disposal, including prepared
         // owners whose typed UI receipts are still queued. No timeout reaches here.
         for id in self

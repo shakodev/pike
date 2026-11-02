@@ -25,6 +25,8 @@ pub enum Error {
     Renderer(iced_runtime::system::RendererFailure),
     Cleanup,
     Worker,
+    Resize(iced_term::ResizeError),
+    LinkOpen,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -37,6 +39,7 @@ pub enum Recovery {
     /// Rejected input is never saved or replayed. The user can type it again.
     Reenter,
     Relaunch,
+    Resize,
 }
 
 impl Error {
@@ -49,6 +52,8 @@ impl Error {
             Self::Config(_) => Recovery::ReloadSettings,
             Self::Renderer(_) => Recovery::Relaunch,
             Self::Cleanup => Recovery::Wait,
+            Self::Resize(_) => Recovery::Resize,
+            Self::LinkOpen => Recovery::Reenter,
         }
     }
 
@@ -64,6 +69,8 @@ impl Error {
             Self::Config(error) => format!("{error} Correct settings.toml, then reload; the last valid settings remain active."),
             Self::Renderer(_) => renderer_report().into(),
             Self::Cleanup => "Terminal cleanup is still pending. Wait for owned resources to close; healthy terminals remain usable.".into(),
+            Self::Resize(_) => "The terminal could not apply its new size. Typing remains available; retry the current size or dismiss this message.".into(),
+            Self::LinkOpen => "Could not open the link. Check the default application, then open the link again.".into(),
         }
     }
 }
@@ -89,6 +96,7 @@ pub struct Notice {
     pub owner: Owner,
     pub error: Error,
     pub count: u32,
+    pub resolved: bool,
 }
 
 /// Bounded UI state, independent of optional diagnostics. A dismissed error can
@@ -108,6 +116,7 @@ impl Store {
         {
             let mut notice = self.notices.remove(position).expect("known notice");
             notice.count = notice.count.saturating_add(1);
+            notice.resolved = false;
             let id = notice.id;
             self.notices.push_back(notice);
             return Some(id);
@@ -122,6 +131,7 @@ impl Store {
             owner,
             error,
             count: 1,
+            resolved: false,
         });
         Some(id)
     }
@@ -152,6 +162,16 @@ impl Store {
     pub fn resolve(&mut self, owner: Owner, mut resolved: impl FnMut(Error) -> bool) {
         self.notices
             .retain(|n| n.owner != owner || !resolved(n.error));
+    }
+
+    /// Retain a recovered resize banner's space until explicit dismissal. This
+    /// prevents its own viewport change from causing an error/success loop.
+    pub fn resized(&mut self, owner: Owner) {
+        for notice in &mut self.notices {
+            if notice.owner == owner && matches!(notice.error, Error::Resize(_)) {
+                notice.resolved = true;
+            }
+        }
     }
 
     pub fn clear(&mut self) {
