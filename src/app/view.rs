@@ -1,7 +1,8 @@
-use iced::widget::{button, column, container, pick_list, row, text};
+use iced::widget::{button, column, container, row, scrollable, text};
 use iced::{Element, Fill};
 
-use super::{App, Control, Direction, Message, close, split::GUTTER};
+use super::{App, Control, Message, commands::Command, split::GUTTER};
+use crate::ui::{self, style, tokens};
 
 impl App {
     pub fn view(&self) -> Element<'_, Message> {
@@ -14,36 +15,58 @@ impl App {
         if let Some(dialog) = self.tab_dialog_view() {
             return dialog;
         }
-        let mut controls = row![text("Pike").size(22)].spacing(12);
-        if !self.exiting {
-            if let Some(target) = self.active_target() {
-                controls = controls
-                    .push(button("Split right").on_press(Control::Split(target, Direction::Right)))
-                    .push(button("Split down").on_press(Control::Split(target, Direction::Down)))
-                    .push(button("New tab").on_press(Control::NewTab));
-                if let Some(id) = self.active_session() {
-                    controls = controls.push(close::close_button(id));
-                }
-                controls = controls.push(close::close_tab_button(target.tab));
-                if let Some(id) = self.active_session()
-                    && self.terminal(id).is_some()
-                {
-                    controls = controls.push(button("Copy selection").on_press(Control::Copy(id)));
-                }
-            } else {
-                controls = controls.push(button("New terminal").on_press(Control::New));
-            }
-        }
-        controls = controls.push(self.command_menu());
-        let pane: Element<'_, Message> = if self.exiting {
-            text("Closing terminals…").into()
-        } else if let Some(tab_id) = self.model.workspace().active() {
-            self.pane_grid(tab_id)
+        let references = self.command_reference();
+        let mut chrome = row![]
+            .spacing(tokens::SPACE)
+            .align_y(iced::Alignment::Center);
+        if !self.exiting && !self.model.workspace().order().is_empty() {
+            chrome = chrome.push(self.tabs_view(&references));
         } else {
-            container(text("No terminal open"))
-                .width(Fill)
-                .height(Fill)
+            chrome = chrome.push(container(text("Pike").size(tokens::BODY)).width(Fill));
+        }
+        chrome = chrome
+            .push(
+                container(ui::icon_maybe(
+                    "+",
+                    ui::command_hint(&references, Command::NewTab, "New terminal tab"),
+                    self.command_enabled(Command::NewTab)
+                        .then_some(Control::NewTab),
+                ))
+                .id("new-tab-control"),
+            )
+            .push(container(self.command_menu()).id("command-menu-control"));
+        let chrome: Element<'_, Control> = container(chrome)
+            .height(tokens::TAB_HEIGHT)
+            .padding([0.0, tokens::SPACE])
+            .style(style::surface)
+            .id("workspace-chrome")
+            .into();
+        let pane: Element<'_, Message> = if self.exiting {
+            container(text("Closing terminals…").size(tokens::BODY))
+                .center(Fill)
                 .into()
+        } else if let Some(tab_id) = self.model.workspace().active() {
+            self.pane_grid(tab_id, &references)
+        } else {
+            let empty: Element<'_, Control> = column![
+                text("No terminal open").size(tokens::HEADING),
+                text("Start a terminal, or choose a profile from the Commands menu.")
+                    .size(tokens::BODY),
+                button(text("New terminal").size(tokens::BODY))
+                    .height(tokens::CONTROL)
+                    .style(style::quiet)
+                    .on_press(Control::New),
+            ]
+            .spacing(tokens::INSET)
+            .into();
+            scrollable(
+                container(empty.map(Message::Control))
+                    .padding(tokens::INSET)
+                    .center(Fill),
+            )
+            .height(Fill)
+            .width(Fill)
+            .into()
         };
         let constrained = self
             .grid_size
@@ -63,68 +86,50 @@ impl App {
                 }))
             })
             .unwrap_or(false);
-        controls = controls.push(
-            text(if constrained {
-                "Size constrained · 20×5 minimum · drag scrollbars to pan"
-            } else {
-                "20×5 minimum · Commands menu lists effective resize bindings"
-            })
-            .size(12),
-        );
-        let controls: Element<'_, Control> = controls.wrap().into();
-        let mut content = column![controls.map(Message::Control)].spacing(8);
+        let mut content = column![chrome.map(Message::Control)].spacing(0);
+        // Passive host rows stay outside the terminal's clipped/pannable area.
+        // R34 can insert its typed error presentation at this same seam.
+        let mut passive = column![].spacing(tokens::SPACE);
+        let mut has_passive = false;
         if !self.exiting && self.settings.enabled {
-            let mut reload = button(if self.settings.pending {
-                "Reloading settings…"
-            } else {
-                "Reload settings"
-            });
-            if !self.settings.pending {
-                reload =
-                    reload.on_press(Control::Command(super::commands::Command::ReloadSettings));
+            if self.settings.pending {
+                passive = passive.push(text("Reloading settings…").size(tokens::SMALL));
+                has_passive = true;
             }
-            let mut settings = row![reload].spacing(8);
-            if !self.settings.pending {
-                let names: Vec<_> = self
-                    .settings
-                    .active
-                    .profiles()
-                    .map(|id| id.as_str().to_owned())
-                    .collect();
-                settings = settings.push(
-                    container(
-                        pick_list(names, None::<String>, move |selected| {
-                            let index = self
-                                .settings
-                                .active
-                                .profiles()
-                                .position(|id| id.as_str() == selected)
-                                .unwrap_or(usize::MAX);
-                            Control::NewProfile(
-                                self.settings.generation,
-                                u8::try_from(index).unwrap_or(u8::MAX),
-                            )
-                        })
-                        .placeholder("New terminal with profile…"),
-                    )
-                    .id("settings-profile-picker"),
-                );
-            }
-            let settings: Element<'_, Control> = settings.into();
-            content = content.push(settings.map(Message::Control));
             if let Some(error) = self.settings.error {
-                content = content.push(text(format!("{error} Correct settings.toml, then reload; the last valid configuration remains active.")));
+                passive = passive.push(text(ui::plain_title(
+                    &format!("{error} Correct settings.toml, then reload from Commands; the last valid configuration remains active."),
+                    512,
+                )).size(tokens::SMALL));
+                has_passive = true;
             }
         }
-        if !self.exiting && !self.model.workspace().order().is_empty() {
-            content = content.push(self.tabs_view().map(Message::Control));
+        if constrained {
+            passive = passive.push(
+                text("Size constrained · 20×5 minimum · drag scrollbars to pan")
+                    .size(tokens::SMALL),
+            );
+            has_passive = true;
         }
-        let mut content = content.push(pane);
         if let Some(notice) = self.notice {
-            content = content.push(text(notice));
+            passive = passive.push(text(ui::plain_title(notice, 512)).size(tokens::SMALL));
+            has_passive = true;
         }
+        if has_passive {
+            content = content.push(
+                container(scrollable(passive).height(iced::Length::Shrink))
+                    .max_height(72.0)
+                    .padding([tokens::SPACE, tokens::INSET])
+                    .style(style::surface)
+                    .id("workspace-notices"),
+            );
+        }
+        let content = content.push(pane);
         super::resize::capture(
-            container(content).padding(8).width(Fill).height(Fill),
+            container(content)
+                .width(Fill)
+                .height(Fill)
+                .style(style::workspace),
             self.interaction_blocked(),
             self.active_session().and_then(|id| self.terminal(id)),
             move |event| {

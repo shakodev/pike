@@ -1,0 +1,322 @@
+[
+  {
+    "png": "eight-dark-100.png",
+    "width": 1200,
+    "height": 800,
+    "rgb_sha256": "a5af99e3c6f79625d955e0625a49a734f8b1b82973ee4cffa2ae1e48cc361968",
+    "png_sha256": "284f9617dd86e0b8cb1904ab4b34805f2c2971a501e6b02d912da9d895ae3889",
+    "source_ppm_sha256": "95abd34702e5604a97c80249b506eae07515b6fe8eb37cab60b3cbf6e6bffc0a"
+  },
+  {
+    "png": "eight-dark-125.png",
+    "width": 1500,
+    "height": 1000,
+    "rgb_sha256": "b8b912c4e7c868b2dd9b074e0fade57641d0d27d6ea8178597a78576462acf23",
+    "png_sha256": "9b07a2b5e3d3a98e585b2aca5b0e975231982fb03df9658e0ac0e46edcac1459",
+    "source_ppm_sha256": "550d7f1ceebe421db21dafd41667a19872cf84997b1db55610779934996cc350"
+  },
+  {
+    "png": "eight-dark-150.png",
+    "width": 1800,
+    "height": 1200,
+    "rgb_sha256": "d8800f77c039fbc0f2bd7a6b5869890f7632c56cb53225bffb600d0037dd2b61",
+    "png_sha256": "b8239d71d9c3e85a20d41e7785691e0a495d1880841e7acf165137291ee2bf28",
+    "source_ppm_sha256": "20233167af2058762f0e10da5d90683a59c585daf072993d41a5554c79418319"
+  },
+  {
+    "png": "eight-dark-200.png",
+    "width": 2400,
+    "height": 1600,
+    "rgb_sha256": "f1041375e3cf7e8049660799d8336864d19f6ece528857fa1d36ea8b419e485c",
+    "png_sha256": "4d62bd45c2b251c851099a0114f3c15f23de18ae9476d339fe18a0d06ee57f4a",
+    "source_ppm_sha256": "7ff4d3ca80573f90e60a0ff15486052875a2c2de6800a1b7a42f5b9cc840b01c"
+  },
+  {
+    "png": "eight-light-100.png",
+    "width": 1200,
+    "height": 800,
+    "rgb_sha256": "33f6720ab4f55542eb499981602d139aa3579439e8f1a25127261bdd5b20ef69",
+    "png_sha256": "8f9b68fdb407295a54ca76e1b2322fce5af8e2b555be67817ba8028e9dd3b2b7",
+    "source_ppm_sha256": "bfcf735078794a8f3f2b2a237f13bf0598790496b1659b939333c27664ba45e1"
+  },
+  {
+    "png": "eight-light-125.png",
+    "width": 1500,
+    "height": 1000,
+    "rgb_sha256": "2910e96010a44868cb50c4dd23ddb42ac4465315307a8bab4d808a5d0602096d",
+    "png_sha256": "c24920f9285db1a8f4615a271f9c2459b71d5bb97074c082addb4ec2f663bd6b",
+    "source_ppm_sha256": "2eef6488e0a88db29a2dce677a7851b5f4ead47e98766d8df7d2f5f53b95c6e8"
+  },
+  {
+    "png": "eight-light-150.png",
+    "width": 1800,
+    "height": 1200,
+    "rgb_sha256": "2553c6ad9a7386b069c12643f1aeb57a76154c17006b0b6bfd883db7d256979b",
+    "png_sha256": "df78e1871dd9c62e488ac4f61803ec4b348df6290c647f1386e86313bd2452cb",
+    "source_ppm_sha256": "4abca057587b30a529032a823ca132a8fe291b2c821437398e10d8df9cff920b"
+  },
+  {
+    "png": "eight-light-200.png",
+    "width": 2400,
+    "height": 1600,
+    "rgb_sha256": "d340367d76bee74029eaa63bb519bc751421888b54e139e3374422af1d2be00a",
+    "png_sha256": "159ef84c1afc41f1c44cb1baca0779333fbbc9ea564027970bcb5852e1856e1d",
+    "source_ppm_sha256": "c2067317cac13013e919dbf257e11b74d3892291edafd75f27024858af17e14e"
+  },
+  {
+    "png": "nested-four-dark-100.png",
+    "width": 1200,
+    "height": 800,
+    "rgb_sha256": "399022aaf9d31a1b3a87ab1cc92b3003d5b16e06aaed78604595be43da4473ab",
+    "png_sha256": "1d64d2e592a041ff34a3bedae8c58fc6d27aeb93083d32e5fb8a89a4ebd30090",
+    "source_ppm_sha256": "dc914f9c2677b8cfaf0c4183f8c0ae54c2b4a39f9d3dc8135a6353d0e3291c21"
+  },
+  {
+    "png": "nested-four-dark-125.png",
+    "width": 1500,
+    "height": 1000,
+    "rgb_sha256": "9357a6c12d63481397b5a772428fb05f16922c9e5840744256e2cdd1ce7b29fc",
+    "png_sha256": "2f9ae8308c3d8b7b801c8dcc96af6fd381ed2157d6de7da224e007076023143a",
+    "source_ppm_sha256": "c09380fc45199d2450050aab489ce914bb4a1ff087851135eb9392bd2766c334"
+  },
+  {
+    "png": "nested-four-dark-150.png",
+    "width": 1800,
+    "height": 1200,
+    "rgb_sha256": "bc07057ee5b1f2f1cabe2f79e2c180fe1caed966fd3be3011f15a9c44b29c713",
+    "png_sha256": "0191be41ac5ccfcd44f3ef87788cc5b247973031ce818184ab63d31299b5745e",
+    "source_ppm_sha256": "9e13e36a0c168b90d32ae0d0b843ad78436b74f8cc26ee3d7de662550edf7cf3"
+  },
+  {
+    "png": "nested-four-dark-200.png",
+    "width": 2400,
+    "height": 1600,
+    "rgb_sha256": "a85dfa4c068c4d7f3e29765acd61556b5b9da8c4505f21375ca5016c982c6b71",
+    "png_sha256": "a1cc8c8245e66219434011e40917fc5081318efade2b77cec9dd8c5e6b1bac48",
+    "source_ppm_sha256": "e57b16c5cf6847c6975e994e27f39e8481433ac7d6427845ced64ffff00cae98"
+  },
+  {
+    "png": "nested-four-light-100.png",
+    "width": 1200,
+    "height": 800,
+    "rgb_sha256": "db3bc3f2fbab20085e80475e7ae9e071d887eab5e7a4cb56a019b2c1f6b89b2f",
+    "png_sha256": "658e26502861a08d749ae128989ca10b422129d0b8a96848597bd43cd130c935",
+    "source_ppm_sha256": "41fdc7bd8a1ccb2eda2fbe09ab702f16bc9942a1584fc98eade84b1a0eda39b5"
+  },
+  {
+    "png": "nested-four-light-125.png",
+    "width": 1500,
+    "height": 1000,
+    "rgb_sha256": "ff493ebddab64005b72d53b36c133f9ec4de6dc2033a0a983974c13ab4ecc4ad",
+    "png_sha256": "e53628660f7352b1f244c4c5ab787cb2fae49e1a6bb1fbfe6ff8901930959c1b",
+    "source_ppm_sha256": "ffb04e8a459a72ebe4820d4cd26bbd6d87a98f3e6c74c460e4955e00e7a67102"
+  },
+  {
+    "png": "nested-four-light-150.png",
+    "width": 1800,
+    "height": 1200,
+    "rgb_sha256": "90d2a6bfa5ace146d62de4d01c945905bfbb79fa86a99bdc36703303637cc508",
+    "png_sha256": "16460085860600c17076722ebc82a0a858ecdc4df1bc70b988da7f90a51ffc03",
+    "source_ppm_sha256": "4b3b1af87241128ec24694ca16ddbb0d37ae7244da10ee99dad3117ebf4fcd34"
+  },
+  {
+    "png": "nested-four-light-200.png",
+    "width": 2400,
+    "height": 1600,
+    "rgb_sha256": "13bb5f19ad4fb01b1444dd3c8bbe11452e6ee4ebba71d0afb55068b326ed280f",
+    "png_sha256": "cb0d8b766518f816464d9e2b107eee7e7e557bae161ec42fa5494d0fe236b27c",
+    "source_ppm_sha256": "f2cc1547de409e91563a480a5344306f382047a6969fff1870cfcbb72dcb5310"
+  },
+  {
+    "png": "one-dark-100.png",
+    "width": 1200,
+    "height": 800,
+    "rgb_sha256": "ee221ea8298dd1bdbfc8548289ad84a1b474ebd5e8a9fdb51b04a7c94ab2f0a8",
+    "png_sha256": "9a2a0cdfa045960ef0d825f799472664896d77f2dbbb9565049f6da15d356831",
+    "source_ppm_sha256": "0756ece341b361b6b02f74bced789c04e5932aaa57ddc0c99a7e3df6abc722a8"
+  },
+  {
+    "png": "one-dark-125.png",
+    "width": 1500,
+    "height": 1000,
+    "rgb_sha256": "65e133cca1ba7563816e3e10bd58582e59797c163298ca5686e6c2d7f598462a",
+    "png_sha256": "079b4fc8dbdab1cd42078c14d57cd6d3a7c843cae5e00ddaea06e0d0e0020c35",
+    "source_ppm_sha256": "c83ee8e362f1191473e3fcbcd17c9c734a57b9d73c9609080d1eaf24e506b263"
+  },
+  {
+    "png": "one-dark-150.png",
+    "width": 1800,
+    "height": 1200,
+    "rgb_sha256": "477ab25313ef90825ffa1cc9aa0beb721e10ae61593fe7aae2f70a1e4a067dfa",
+    "png_sha256": "f70027ac5c61c1da8aec99dd12a8648505e63834d6a7c30afac82873fc38db8a",
+    "source_ppm_sha256": "6e34190a91d39e54c7256faa7b7806d40934c956372aafbdd2fa88746d051f83"
+  },
+  {
+    "png": "one-dark-200.png",
+    "width": 2400,
+    "height": 1600,
+    "rgb_sha256": "46c3acf9bcfcd693e15105199b311033957909095fce8d1323ec52f2c3f3d43e",
+    "png_sha256": "9f284dd844ff2c41c2ffd1ab0996201a8dc110fc2ba8f6ce766f74a58e410598",
+    "source_ppm_sha256": "e03fbbf8159491875b9eed7fc1c5f0f0b26f0eb9a5c8310c060e5452f574cfa0"
+  },
+  {
+    "png": "one-light-100.png",
+    "width": 1200,
+    "height": 800,
+    "rgb_sha256": "2366db7487aba4efbca677cfa21ab4ced40243ea6ceef784a4689a8fc2c41452",
+    "png_sha256": "165eea77d3c94c0a1abc1668773fd44691b8d9a7d6a609944c31149f72ccb4ff",
+    "source_ppm_sha256": "5491ccd2ce9281d13cdd186b855f202697cb3d15a413e1c29bcaf8eac5cbdb87"
+  },
+  {
+    "png": "one-light-125.png",
+    "width": 1500,
+    "height": 1000,
+    "rgb_sha256": "558200b075350dd535d954d89e95f2c302510ed9392abb516966adcae48c1fd3",
+    "png_sha256": "f320c5e5217820973467536001120ea90bd9fc87c61bff0257debd8078755369",
+    "source_ppm_sha256": "ec40c4b9b9c700f324d59286783ffe0e18df3b283558d5d3637c6cd55ce89f4b"
+  },
+  {
+    "png": "one-light-150.png",
+    "width": 1800,
+    "height": 1200,
+    "rgb_sha256": "c622cc2ec0286c04497364adaf8ee3d7a775042ce592662da1e80467fb0e3177",
+    "png_sha256": "389bc8876553f9fc4303656758a7fa081b239bf603b8319c0d59e89068861f7f",
+    "source_ppm_sha256": "539e8e5d2437875c8e57dd2b7a130269c2de482402d3e6e23d31b6e32903b319"
+  },
+  {
+    "png": "one-light-200.png",
+    "width": 2400,
+    "height": 1600,
+    "rgb_sha256": "6af584ee4ec28509b9a28eab40f328eb60d01c31cd6a791b9bfdc5fcb5403476",
+    "png_sha256": "0f57466bb388cd3901777953ba2af461ad799241641c714ee21e418943be9b5d",
+    "source_ppm_sha256": "6a45db5ddf1647b450a76a7e968c429c846c405774988c2fa26d46948a93da78"
+  },
+  {
+    "png": "one-restored-dark-100.png",
+    "width": 1200,
+    "height": 800,
+    "rgb_sha256": "70e0aba1626ee69a021b83642c6aff8dc6b5f0c1e1480e41eb04ee35cc824c77",
+    "png_sha256": "cecce8ad27412f9a0742bd83788c2ff126d4fb4c50713d2057ea9ea438e83453",
+    "source_ppm_sha256": "0ab698f91640a2467c0064c459c0e76ad03cb5ce6ee4557f685de220a043f98c"
+  },
+  {
+    "png": "one-restored-dark-125.png",
+    "width": 1500,
+    "height": 1000,
+    "rgb_sha256": "5500b96de865e68ebcd24bf8a0c322df87abd8562b3f847010e69ba1ba13edd6",
+    "png_sha256": "ef5d30504fdd36d32014025c403100564ccd1b0e75d96a7073b23752dfda24fd",
+    "source_ppm_sha256": "6f8a17f446d84530e4fc44b59ec350526032102b4605dad85742f484f76b142e"
+  },
+  {
+    "png": "one-restored-dark-150.png",
+    "width": 1800,
+    "height": 1200,
+    "rgb_sha256": "4bad99cc75ba2e97f0abbd192a69050403a5694c55225ce3eb2ea1e7a4c05332",
+    "png_sha256": "56708199b2fa8decdac1d6a8d9874ffd5f85b4814b6cbb6d7a10c8086d10e5b2",
+    "source_ppm_sha256": "e90a7fc11bc65cbf99b7a724191c13d6741c7a9ea7cdd96f841b2185cafe8879"
+  },
+  {
+    "png": "one-restored-dark-200.png",
+    "width": 2400,
+    "height": 1600,
+    "rgb_sha256": "f815cf56dfe8c0f46dca08ef82f4c4e8209bf374781faac8ee52352020c87c20",
+    "png_sha256": "2fdfe3ddada5f32800600b5b49409b72dd26b91dcff14c897c31d84ac677cf00",
+    "source_ppm_sha256": "27d19bd675f9c1678af967ac902c2b37c950df9d2230eccb89c26aa5db34badb"
+  },
+  {
+    "png": "one-restored-light-100.png",
+    "width": 1200,
+    "height": 800,
+    "rgb_sha256": "95b1606f23a03a8f9248036e043d4c0bd1d3a94eb96ee048023bee4d8a488808",
+    "png_sha256": "97653cbc89ac8c44a58b945f67b36744e2bd60a72f2bc5a6b63766f2407e8d98",
+    "source_ppm_sha256": "9a1540caa644406aaf328a13723d9dff0d5e10151afd71b364efc6f22f2034db"
+  },
+  {
+    "png": "one-restored-light-125.png",
+    "width": 1500,
+    "height": 1000,
+    "rgb_sha256": "dea2690a175b623010fb6d947d1036c19b888d6674e080af27d2f41ed344f5bb",
+    "png_sha256": "d1f38c8df43b5ea3583a2d23e6d2fdc8bafaa18fa5bcdd792c52bc08f8cb4ea7",
+    "source_ppm_sha256": "9e14f77ec793cc329e7f34d1ec3d6916f4867ff760092e1246fe01fbf30ccd34"
+  },
+  {
+    "png": "one-restored-light-150.png",
+    "width": 1800,
+    "height": 1200,
+    "rgb_sha256": "d0e247e59c62060fb14d4562e87239cc8c6afbad110e7bb64c38370d8b830a5f",
+    "png_sha256": "f3c8509fa37b8c167120a2fab917b8aeebb5f28abc33096cac44c9f938d834dc",
+    "source_ppm_sha256": "0ad9f21e101ac32a1fa40d7c7543bae6d10fe4319bf6a82b9b93e3270f8004b4"
+  },
+  {
+    "png": "one-restored-light-200.png",
+    "width": 2400,
+    "height": 1600,
+    "rgb_sha256": "54ea5741b1baf2891da60d2f1198379ebabb966d5833d161e17d1fab9c2d93b3",
+    "png_sha256": "ec90af50b171788579010fb96f0421027ad2bb73a8f2ba8628286a11553ae1b5",
+    "source_ppm_sha256": "5666bfaf55da104d46bf4dba67d3a77c757027da605d24e35ae48c24891f5216"
+  },
+  {
+    "png": "one-small-dark-100.png",
+    "width": 320,
+    "height": 240,
+    "rgb_sha256": "9440949e1c4ac03179c263908b131ca8d979f414bc215efc49c399a9b7b38873",
+    "png_sha256": "24b75ce71855703a0a86cc060e60d1109964935e7604e1713cc1298479e2c20d",
+    "source_ppm_sha256": "91e6f6b6392f9024a73010b93c5a3778d4178e4e8bf5af3b13553f07464a8ac7"
+  },
+  {
+    "png": "one-small-dark-125.png",
+    "width": 400,
+    "height": 300,
+    "rgb_sha256": "4702b4f84d1831c637cb7b6de0c8f62cc8aced74c0cb51aad390893c5be97642",
+    "png_sha256": "1dae79f4052cdd0be469fac1adb975210c3cb2083ab31272f033524f9de1cc57",
+    "source_ppm_sha256": "eeafe3551093b252beeb02193f941f779c187b81fc0e3368a941da60387df7ef"
+  },
+  {
+    "png": "one-small-dark-150.png",
+    "width": 480,
+    "height": 360,
+    "rgb_sha256": "63b20ae179ae8997fb3fc307e1d2caf6e95bd5b80548ae2fc7279d7afe355c33",
+    "png_sha256": "cd45bf727c53894fa74b7152890b80d50f19f873cb1586f4b9f7bf35525a82cb",
+    "source_ppm_sha256": "489ef04acbf63e6af125f5413637f05bf1ee047606ca945ec674123ff8cbbf57"
+  },
+  {
+    "png": "one-small-dark-200.png",
+    "width": 640,
+    "height": 480,
+    "rgb_sha256": "3ef69ce94b524a43e774387f927a60321d2055fadf96f6dc19403af2d9b4c1d6",
+    "png_sha256": "5647ede0bdb62a7dccf7864ce25ca841434d467245a47b6e59137bf164f183d6",
+    "source_ppm_sha256": "754efe6ecb55c482982f16ac5fae1535312192d9db541f1b8f839f54a765bc9a"
+  },
+  {
+    "png": "one-small-light-100.png",
+    "width": 320,
+    "height": 240,
+    "rgb_sha256": "1e92ef4518126b62610c8c660e67ec31a4c0c6b3af0f53e60f6c6fb2ab4bfd68",
+    "png_sha256": "0b271ac68b8efd25d648748d4fed7b84accdaea261cc9a6091e56b4f0bd2edf4",
+    "source_ppm_sha256": "9a64a0ca49b876ca86f403c2e59adf18d1efb139750ca55e18be00fde6463155"
+  },
+  {
+    "png": "one-small-light-125.png",
+    "width": 400,
+    "height": 300,
+    "rgb_sha256": "ebb99882df4d2d116a895d301656894a83d0cd49795d08365499924909fca9ee",
+    "png_sha256": "774b70bb501f97e075a1bf1b85d7555e0d6e0ca46324e379a861b14203ceaaab",
+    "source_ppm_sha256": "a9df22b50631faf9c518d8333a449c1afe60bf90f02814777cc4dbd10bef3579"
+  },
+  {
+    "png": "one-small-light-150.png",
+    "width": 480,
+    "height": 360,
+    "rgb_sha256": "8ca5d2587f00285434f4cbdd78fb7225424f2e90745b2ead4e7df8571e1df5ae",
+    "png_sha256": "2e1fe50a6de05a043e15a82b1c2ede75bea73f0a0c6d9f94d7efc0525bc25d24",
+    "source_ppm_sha256": "fe0566c7a357be6ee83637b215d7c9ededaa7b2497480a1109e1c0abe8147c2c"
+  },
+  {
+    "png": "one-small-light-200.png",
+    "width": 640,
+    "height": 480,
+    "rgb_sha256": "29f2f71e7fc18b72a271acf88d276d0c64e803d7b371c1cad556c47162b97c21",
+    "png_sha256": "589f87e8ae2c842ca86ca634c29a8a12a3114c910bbaa4f6e8169ff63c83a7e9",
+    "source_ppm_sha256": "d27c73ecf72b8f976cfe8671da2a99f443aa18f2a143ee1f92da105099f170b3"
+  }
+]

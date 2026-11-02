@@ -1,15 +1,16 @@
 use iced::widget::{PaneGrid, button, column, container, pane_grid, row, scrollable, sensor, text};
-use iced::{Border, Element, Fill};
+use iced::{Element, Fill};
 use iced_term::TerminalView;
 
 use super::super::{
-    App, Control, Message, close,
+    App, Control, Direction, Message,
     split::{BORDER, FOOTER, GUTTER, HEADER},
 };
 use crate::identity::{SessionId, TabId};
 use crate::layout::PaneTarget;
 use crate::session::Lifecycle;
 use crate::terminal::Owner;
+use crate::ui::{self, style, tokens};
 
 impl App {
     pub(in crate::app) fn footer_height(&self, id: SessionId) -> f32 {
@@ -29,68 +30,105 @@ impl App {
         }
     }
 
-    pub(in crate::app) fn pane_grid(&self, tab_id: TabId) -> Element<'_, Message> {
+    pub(in crate::app) fn pane_grid(
+        &self,
+        tab_id: TabId,
+        references: &[crate::app::commands::CommandReference],
+    ) -> Element<'_, Message> {
         let tab = self.model.workspace().tab(tab_id).expect("active tab");
         let presentation = self.resize_layout.as_ref().filter(|p| p.tab == tab_id);
         let source = presentation.map(|p| &p.grid).unwrap_or_else(|| tab.grid());
         let divider = super::super::resize::Divider::default();
         let boundary = super::gesture::Boundary::default();
+        use crate::app::commands::Command;
+        let split_right =
+            ui::command_hint(references, Command::Split(Direction::Right), "Split right");
+        let split_down =
+            ui::command_hint(references, Command::Split(Direction::Down), "Split down");
+        let zoom = ui::command_hint(references, Command::ToggleZoom, "Maximize / restore pane");
+        let close = ui::command_hint(references, Command::ClosePane, "Close pane");
         let grid = PaneGrid::new(source, |handle, pane, _| {
             let focused = handle == tab.focused();
             let target = PaneTarget {
                 tab: tab_id,
                 pane: handle,
             };
+            let mut controls = row![];
+            if focused {
+                controls = controls
+                    .push(ui::icon(
+                        "⊞",
+                        split_right.clone(),
+                        Control::Split(target, Direction::Right),
+                    ))
+                    .push(ui::icon(
+                        "⊟",
+                        split_down.clone(),
+                        Control::Split(target, Direction::Down),
+                    ));
+            }
             let controls: Element<'_, Control> = container(
-                row![
-                    button(
-                        text(if source.maximized().is_some() {
-                            "Restore"
-                        } else {
-                            "Max"
-                        })
-                        .size(12)
+                // Keep zoom/close at stable child indices across focus changes.
+                // Focus can change on mouse-down, before their mouse-up arrives.
+                row![controls]
+                    .push(
+                        container(ui::icon(
+                            if source.maximized().is_some() {
+                                "↙"
+                            } else {
+                                "↗"
+                            },
+                            zoom.clone(),
+                            Control::Zoom(target),
+                        ))
+                        .id(format!("pane-zoom-{}", pane.session.get())),
                     )
-                    .padding([2, 6])
-                    .on_press(Control::Zoom(target)),
-                    close::close_button(pane.session)
-                ]
-                .spacing(4),
+                    .push(
+                        container(ui::icon(
+                            "×",
+                            close.clone(),
+                            Control::CloseSession(pane.session),
+                        ))
+                        .id(format!("pane-close-{}", pane.session.get())),
+                    )
+                    .spacing(0),
             )
+            .id(format!("pane-header-controls-{}", pane.session.get()))
             .height(HEADER)
             .align_y(iced::Alignment::Center)
             .into();
             let title = pane_grid::TitleBar::new(super::gesture::title(
-                container(text(format!("Terminal {}", pane.session.get())).size(12))
-                    .padding([5, 10]),
+                container(ui::label(format!("Terminal {}", pane.session.get())))
+                    .id(format!("pane-header-{}", pane.session.get()))
+                    .height(HEADER)
+                    .padding([0.0, tokens::INSET])
+                    .align_y(iced::Alignment::Center),
             ))
             .controls(controls.map(Message::Control))
-            .always_show_controls();
+            .style(move |theme| style::header(theme, focused));
+            // Focus comes from the existing pane/keyboard authority. Inactive
+            // close controls reveal on hover; active controls remain visible.
+            let title = if focused {
+                title.always_show_controls()
+            } else {
+                title
+            };
             pane_grid::Content::new(
                 divider.content(
                     boundary.body(
                         container(self.pane(pane.session))
+                            .id(format!("pane-body-{}", pane.session.get()))
                             .padding(BORDER)
                             .clip(true),
                     ),
                 ),
             )
             .title_bar(title)
-            .style(move |theme: &iced::Theme| container::Style {
-                border: Border {
-                    width: BORDER,
-                    color: if focused {
-                        theme.palette().primary
-                    } else {
-                        theme.extended_palette().background.strong.color
-                    },
-                    ..Default::default()
-                },
-                ..Default::default()
-            })
+            .style(move |theme| style::pane(theme, focused))
         })
         .spacing(GUTTER)
         .min_size(0)
+        .style(style::dividers)
         .on_resize(8, move |event| {
             Message::Control(Control::Resize(tab_id, event))
         })
@@ -115,11 +153,24 @@ impl App {
         .width(
             presentation
                 .map(|p| iced::Length::Fixed(p.size.width))
+                // Failed/starting panes have no terminal font geometry yet.
+                // Use the sensor's viewport instead of Fill inside an unbounded
+                // two-axis scroller, where Fill can collapse to zero.
+                .or_else(|| {
+                    self.grid_size
+                        .filter(|(tab, _)| *tab == tab_id)
+                        .map(|(_, size)| iced::Length::Fixed(size.width))
+                })
                 .unwrap_or(Fill),
         )
         .height(
             presentation
                 .map(|p| iced::Length::Fixed(p.size.height))
+                .or_else(|| {
+                    self.grid_size
+                        .filter(|(tab, _)| *tab == tab_id)
+                        .map(|(_, size)| iced::Length::Fixed(size.height))
+                })
                 .unwrap_or(Fill),
         );
         // Scrollbar dragging provides safe panning even while the terminal
@@ -155,30 +206,68 @@ impl App {
 
     fn pane(&self, id: SessionId) -> Element<'_, Message> {
         let Some(entry) = self.sessions.entries.get(&id) else {
-            return text("Starting terminal…").into();
+            return container(text("Starting terminal…").size(tokens::BODY))
+                .padding(tokens::INSET)
+                .style(style::workspace)
+                .into();
         };
         match &entry.owner {
             Owner::Starting(_) => {
                 let content: Element<'_, Control> = column![
-                    text("Starting terminal…"),
-                    button("Cancel startup").on_press(Control::CloseSession(id))
+                    text("Starting terminal…").size(tokens::BODY),
+                    button(text("Cancel startup").size(tokens::BODY))
+                        .height(tokens::CONTROL)
+                        .style(style::quiet)
+                        .on_press(Control::CloseSession(id))
                 ]
+                .spacing(tokens::INSET)
                 .into();
-                content.map(Message::Control)
+                container(content.map(Message::Control))
+                    .padding(tokens::INSET)
+                    .width(Fill)
+                    .height(Fill)
+                    .style(style::workspace)
+                    .into()
             }
-            Owner::Disposing(_) => text("Closing terminal…").into(),
+            Owner::Disposing(_) => container(text("Closing terminal…").size(tokens::BODY))
+                .padding(tokens::INSET)
+                .width(Fill)
+                .height(Fill)
+                .style(style::workspace)
+                .into(),
             Owner::Failed(error) => {
                 let failed: Element<'_, Control> = column![
-                    text(error.to_string()),
-                    column![
-                        button("Retry").on_press(Control::Retry(id)),
-                        button("Use default shell").on_press(Control::UseDefault(id))
+                    container(text("Terminal could not start").size(tokens::HEADING))
+                        .id(format!("pane-failed-heading-{}", id.get())),
+                    text(ui::plain_title(&error.to_string(), 512)).size(tokens::BODY),
+                    row![
+                        container(
+                            button(text("Retry").size(tokens::BODY))
+                                .height(tokens::CONTROL)
+                                .style(style::quiet)
+                                .on_press(Control::Retry(id))
+                        )
+                        .id(format!("pane-retry-{}", id.get())),
+                        container(
+                            button(text("Use default shell").size(tokens::BODY))
+                                .height(tokens::CONTROL)
+                                .style(style::quiet)
+                                .on_press(Control::UseDefault(id))
+                        )
+                        .id(format!("pane-default-{}", id.get()))
                     ]
-                    .spacing(8)
+                    .spacing(tokens::SPACE)
+                    .wrap()
                 ]
-                .spacing(8)
+                .spacing(tokens::INSET)
                 .into();
-                scrollable(failed.map(Message::Control)).height(Fill).into()
+                scrollable(
+                    container(failed.map(Message::Control))
+                        .padding(tokens::INSET)
+                        .style(style::workspace),
+                )
+                .height(Fill)
+                .into()
             }
             Owner::Attached(terminal) => {
                 let mut content = column![
@@ -192,19 +281,34 @@ impl App {
                         || "Terminal exited (status unavailable)".into(),
                         |code| format!("Terminal exited ({code})"),
                     );
-                    let status: Element<'_, Control> =
-                        row![text(status), button("Restart").on_press(Control::Retry(id))]
-                            .spacing(8)
-                            .into();
+                    let status: Element<'_, Control> = row![
+                        text(status).size(tokens::SMALL),
+                        button(text("Restart").size(tokens::SMALL))
+                            .height(tokens::CONTROL)
+                            .style(style::quiet)
+                            .on_press(Control::Retry(id))
+                    ]
+                    .align_y(iced::Alignment::Center)
+                    .spacing(tokens::INSET)
+                    .into();
                     footer = footer.push(status.map(Message::Control));
                 } else if entry.ended {
-                    footer = footer.push(text("Terminal exited — finishing output and cleanup…"));
+                    footer = footer.push(
+                        text("Terminal exited — finishing output and cleanup…").size(tokens::SMALL),
+                    );
                 }
                 if let Some(notice) = entry.notice.as_deref() {
-                    footer = footer.push(text(notice));
+                    footer = footer.push(text(ui::plain_title(notice, 512)).size(tokens::SMALL));
                 }
                 if self.footer_height(id) > 0.0 {
-                    content = content.push(scrollable(footer).height(FOOTER));
+                    content = content.push(
+                        scrollable(
+                            container(footer)
+                                .padding(tokens::SPACE)
+                                .style(style::surface),
+                        )
+                        .height(FOOTER),
+                    );
                 }
                 content.height(Fill).into()
             }

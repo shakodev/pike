@@ -1,0 +1,1 @@
+center-drop source=1 before=Rectangle { x: 1.0, y: 61.0, width: 596.0, height: 738.0 } after=Rectangle { x: 603.0, y: 61.0, width: 596.0, height: 738.0 }

@@ -1,0 +1,9 @@
+logical=Size { width: 1200.0, height: 800.0 } scale=2 physical=Size { width: 2400, height: 1600 }
+strip=None
+chrome=None
+notices=None
+control_targets=[]
+failed_targets=[]
+headers=[]
+visible_terminals=[]
+green_prompt_pixels=0

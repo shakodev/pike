@@ -151,11 +151,11 @@ impl App {
             [only] => format!("Commands and shortcuts ({only})"),
             [first, rest @ ..] => format!("Commands and shortcuts ({first}; {} more)", rest.len()),
         };
-        button(text(label))
-            .on_press_maybe(
-                (!self.interaction_blocked()).then_some(Control::Command(Command::Help)),
-            )
-            .into()
+        crate::ui::icon_maybe(
+            "≡",
+            label,
+            (!self.interaction_blocked()).then_some(Control::Command(Command::Help)),
+        )
     }
 
     pub(in crate::app) fn open_help(&mut self) -> Task<Message> {

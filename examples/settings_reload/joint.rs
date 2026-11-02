@@ -52,11 +52,7 @@ fn release(host: &mut Host, point: Point) -> io::Result<()> {
 }
 
 fn zoom(host: &mut Host, child: &Child) -> io::Result<()> {
-    let bounds = host
-        .bounds(child.session)
-        .ok_or_else(|| io::Error::other("joint zoom pane missing"))?;
-    host.click(Point::new(bounds.x + bounds.width - 65.0, bounds.y - 14.0));
-    host.drain()
+    crate::chrome_actions::click_id(host, Id::from(format!("pane-zoom-{}", child.session.get())))
 }
 
 pub(super) fn verify(
@@ -75,16 +71,23 @@ pub(super) fn verify(
     let second_input = fs::read(second.directory(output).join("input.bin")).ok();
     // This is a real control emitted by the previous view. Its captured owner
     // must not reload after a later accepted selection.
-    let stale_reload = widget::click(&host.app, &host.renderer, |message| {
-        matches!(
-            message,
-            Message::Control(
-                Control::KeyCommand(_, Command::ReloadSettings)
-                    | Control::MappedCommand(_, _, Command::ReloadSettings)
+    let (_, emitted) = host.held_event(
+        widget::key(
+            Key::Named(Named::F5),
+            Modifiers::CTRL | Modifiers::SHIFT,
+            None,
+        ),
+        mouse::Cursor::Unavailable,
+    );
+    let stale_reload = emitted
+        .into_iter()
+        .find(|message| {
+            matches!(
+                message,
+                Message::Control(Control::MappedCommand(_, _, Command::ReloadSettings))
             )
-        )
-    })
-    .ok_or_else(|| io::Error::other("joint reload control not discoverable"))?;
+        })
+        .ok_or_else(|| io::Error::other("joint actual reload shortcut not emitted"))?;
     host.update(Message::Control(Control::Focus(first.target)));
     host.until(|host| host.focused(first.session))?;
     host.update(stale_reload);

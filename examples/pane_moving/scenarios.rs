@@ -394,12 +394,67 @@ fn move_to(
 }
 
 fn zoom_button(host: &mut Host, id: SessionId) -> io::Result<()> {
-    let bounds = host.bounds(id).unwrap();
-    // Pinned TitleBar right-aligned controls: Close is 42 px; Max/Restore
-    // immediately precedes it. The point lies in either zoom button.
-    let point = Point::new(bounds.x + bounds.width - 65.0, bounds.y - 14.0);
+    use iced::advanced::widget::{Id, Operation, operation};
+    use iced::{Rectangle, Vector};
+    struct Button {
+        id: Id,
+        point: Option<Point>,
+        translation: Vector,
+        viewport: Rectangle,
+        pending: Option<(Vector, Rectangle)>,
+    }
+    impl Operation for Button {
+        fn traverse(&mut self, operate: &mut dyn FnMut(&mut dyn Operation)) {
+            let saved = (self.translation, self.viewport);
+            if let Some((translation, bounds)) = self.pending.take() {
+                self.viewport = self.viewport.intersection(&bounds).unwrap_or_default();
+                self.translation += translation;
+            }
+            operate(self);
+            (self.translation, self.viewport) = saved;
+        }
+        fn container(&mut self, id: Option<&Id>, bounds: Rectangle) {
+            let point = bounds.center() - self.translation;
+            if id == Some(&self.id) && self.viewport.contains(point) {
+                self.point = Some(point);
+            }
+        }
+        fn scrollable(
+            &mut self,
+            _: Option<&Id>,
+            bounds: Rectangle,
+            _: Rectangle,
+            translation: Vector,
+            _: &mut dyn operation::Scrollable,
+        ) {
+            self.pending = Some((translation, bounds - self.translation));
+        }
+    }
+    // Query the actual current control: compact chrome may change its location,
+    // and scroll translation must never turn an offscreen header into a hit.
+    let mut button = Button {
+        id: Id::from(format!("pane-zoom-{}", id.get())),
+        point: None,
+        translation: Vector::ZERO,
+        viewport: Rectangle::with_size(crate::host_viewport::SIZE),
+        pending: None,
+    };
+    host.operate(&mut button);
+    let point = button
+        .point
+        .ok_or_else(|| io::Error::other("no visible actual pane zoom control"))?;
+    let actions = host.controls;
+    let before = layout(host);
     host.click(point);
-    host.drain()
+    host.drain()?;
+    host.evidence.push(format!(
+        "zoom-click session={} point={point:?} actions={} before={before} after={} visible={}",
+        id.get(),
+        host.controls - actions,
+        layout(host),
+        host.app.terminal(id).unwrap().is_visible()
+    ));
+    Ok(())
 }
 
 fn geometry(host: &mut Host, ids: &[SessionId]) -> io::Result<()> {
@@ -422,10 +477,10 @@ fn geometry(host: &mut Host, ids: &[SessionId]) -> io::Result<()> {
             "restored cell dimensions do not match current widget bounds",
         )?;
         check(
-            bounds.x >= 8.0
+            bounds.x >= 0.0
                 && bounds.y >= 0.0
-                && bounds.x + bounds.width <= crate::host_viewport::SIZE.width - 7.9
-                && bounds.y + bounds.height <= crate::host_viewport::SIZE.height - 7.9,
+                && bounds.x + bounds.width <= crate::host_viewport::SIZE.width
+                && bounds.y + bounds.height <= crate::host_viewport::SIZE.height,
             "restored pane escaped its viewport clip",
         )?;
         host.evidence.push(format!(
@@ -596,11 +651,7 @@ pub(super) fn verify(
         .copy_selection(|s| s)
         .ok_or_else(|| io::Error::other("restored content cannot select text"))?;
     host.update(Message::Control(Control::Copy(first)));
-    host.drain()?;
-    check(
-        host.clipboard.0.as_deref() == Some(restored_selection.as_str()),
-        "restored content selection/copy failed",
-    )?;
+    host.until(|host| host.clipboard.0.as_deref() == Some(restored_selection.as_str()))?;
     host.evidence.push("equal-column swap preserved exact selection; real column resize used pinned clearing; fresh restored selection/copy passed".into());
     check(
         format!(

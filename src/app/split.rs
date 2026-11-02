@@ -7,9 +7,9 @@ use crate::workspace::Error;
 use iced::widget::pane_grid::Axis;
 use iced::{Size, Task};
 
-pub(super) const GUTTER: f32 = 4.0;
-pub(super) const HEADER: f32 = 28.0;
-pub(super) const BORDER: f32 = 1.0;
+pub(super) const GUTTER: f32 = crate::ui::tokens::GUTTER;
+pub(super) const HEADER: f32 = crate::ui::tokens::HEADER_HEIGHT;
+pub(super) const BORDER: f32 = crate::ui::tokens::BORDER;
 pub(super) const FOOTER: f32 = 48.0;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

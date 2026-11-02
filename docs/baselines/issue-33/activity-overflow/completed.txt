@@ -1,0 +1,1 @@
+All individual/combined activity markers fit actual overflow viewports with long ASCII/CJK at four scales.

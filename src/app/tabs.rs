@@ -137,13 +137,36 @@ impl App {
         self.focus_active()
     }
 
-    pub(super) fn tabs_view(&self) -> Element<'_, Control> {
-        tab_strip::view(
+    pub(super) fn tabs_view(
+        &self,
+        references: &[super::commands::CommandReference],
+    ) -> Element<'_, Control> {
+        use super::commands::{Command, TabMove};
+        use crate::ui::command_hint;
+        tab_strip::view_with_hints(
             self.tab_items(),
             self.model.workspace().active(),
             Control::ActivateTab,
             Control::CloseTab,
             Control::TabAction,
+            tab_strip::Hints {
+                previous: command_hint(references, Command::PreviousTab, "Previous tab"),
+                next: command_hint(references, Command::NextTab, "Next tab"),
+                rename: command_hint(references, Command::RenameTab, "Rename tab"),
+                reset: command_hint(references, Command::ResetTabName, "Use automatic tab name"),
+                move_left: command_hint(
+                    references,
+                    Command::MoveTab(TabMove::Left),
+                    "Move tab left",
+                ),
+                move_right: command_hint(
+                    references,
+                    Command::MoveTab(TabMove::Right),
+                    "Move tab right",
+                ),
+                close: command_hint(references, Command::CloseTab, "Close tab"),
+                overflow: command_hint(references, Command::ListTabs, "All tabs"),
+            },
         )
     }
 }

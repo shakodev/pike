@@ -12,7 +12,6 @@ use crate::session::{Effect, Lifecycle};
 
 mod native;
 mod view;
-pub(super) use view::{close_button, close_tab_button};
 
 pub(super) const DEADLINE: Duration = Duration::from_secs(3);
 

@@ -14,4 +14,5 @@ pub mod startup_report;
 pub mod tab_strip;
 pub mod tabs;
 mod terminal;
+pub mod ui;
 pub mod workspace;

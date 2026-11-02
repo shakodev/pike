@@ -1,0 +1,14 @@
+{
+  "base": "a5fe9fc4d8f0df53db240155ecebe0088d9898f4",
+  "compiled_subtree_checkpoint": "7e1ffb67f7bc776822ecbc31dd8cef28682724d1",
+  "component_evidence": "components-responsive",
+  "renderer": "wgpu",
+  "platform": "macOS arm64",
+  "native_baseline": "native-before/native-idle.txt",
+  "raw_ppm_preserved_at": "/private/tmp/pike-r33-preserved-raw",
+  "note": "R32 integration and final full-App acceptance remain pending; no completion claim.",
+  "before_harness_sha256": {
+    "native-before-window.rs.txt": "65f0a1b128cc78cae1fdc243139d131ebf9e9a9ad0a2b3401a62e9b530e41936",
+    "native-before-harness.rs.txt": "1bbec8889dce516e7694b9ebc925cb6d2f42258c5069f12ee145fa6916528dfa"
+  }
+}

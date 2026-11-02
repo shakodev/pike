@@ -1,0 +1,6 @@
+version=1
+default_profile='fixture'
+theme='system'
+[profiles.fixture]
+shell="/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/docs/baselines/issue-33/error-oracle-detail/pike33-controlled-invalid-executable"
+args=["--child"]
