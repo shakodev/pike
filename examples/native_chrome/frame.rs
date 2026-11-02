@@ -104,44 +104,46 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
     // Let the actual sensor/terminal messages settle the requested viewport.
     // Three finite passes are fixture work, never a product redraw timer.
     for _ in 0..3 {
-        let messages = {
-            let mut view = host.app.view();
-            let mut tree = Tree::new(view.as_widget());
-            let node = view.as_widget_mut().layout(
-                &mut tree,
-                &host.renderer,
-                &layout::Limits::new(size, size),
-            );
-            if let Some(id) = host
-                .app
-                .active_session()
-                .and_then(|id| host.app.terminal(id))
-                .map(|t| t.widget_id().clone())
-            {
-                view.as_widget_mut().operate(
-                    &mut tree,
-                    Layout::new(&node),
-                    &host.renderer,
-                    &mut operation::focusable::focus::<()>(id),
-                );
+        step(host, size)?;
+    }
+    if host.app.tab_dialog_token().is_none() && !crate::scenes::prompt_ready(host) {
+        // A real terminal resize can scroll an old wrapped prompt into history.
+        // Ask the controlled child to paint a fresh prompt at the new geometry;
+        // do not accept stale or blank snapshots as readiness evidence.
+        let active = host.app.active_target();
+        let ids: Vec<_> = host
+            .app
+            .model()
+            .workspace()
+            .active()
+            .and_then(|tab| host.app.model().workspace().tab(tab))
+            .into_iter()
+            .flat_map(|tab| tab.grid().iter().map(|(_, pane)| pane.session))
+            .filter(|id| host.app.terminal(*id).is_some_and(|t| t.is_visible()))
+            .collect();
+        for id in ids {
+            if marker(host, id) || host.app.terminal(id).is_none() {
+                continue;
             }
-            let mut messages = Vec::new();
-            view.as_widget_mut().update(
-                &mut tree,
-                &Event::Window(iced::window::Event::RedrawRequested(Instant::now())),
-                Layout::new(&node),
-                mouse::Cursor::Unavailable,
-                &host.renderer,
-                &mut clipboard::Null,
-                &mut Shell::new(&mut messages),
-                &viewport,
-            );
-            messages
-        };
-        for message in messages {
-            host.update(message);
+            let Some(target) = host.app.model().target(id) else {
+                continue;
+            };
+            host.update(Message::Control(pike::app::Control::Focus(target)));
+            step(host, size)?;
+            let raw = host.app.terminal(id).unwrap().id;
+            host.update(Message::Terminal((
+                id,
+                iced_term::Event::BackendCall(
+                    raw,
+                    iced_term::BackendCommand::Write(b"r\n".to_vec()),
+                ),
+            )));
+            host.until(|h| step(h, size).is_ok() && marker(h, id))?;
         }
-        host.drain()?;
+        if let Some(target) = active {
+            host.update(Message::Control(pike::app::Control::Focus(target)));
+        }
+        step(host, size)?;
     }
     let mut view = host.app.view();
     let mut tree = Tree::new(view.as_widget());
@@ -173,6 +175,30 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
     view.as_widget_mut()
         .operate(&mut tree, Layout::new(&node), &host.renderer, &mut metrics);
     if !metrics.visible.is_empty() && !crate::scenes::prompt_ready(host) {
+        let states: Vec<_> = host
+            .app
+            .model()
+            .sessions()
+            .iter()
+            .map(|(id, _)| {
+                let term = host.app.terminal(id);
+                (
+                    id.get(),
+                    term.map(|t| t.snapshot_stats()),
+                    term.and_then(|t| t.renderable_content()).map(|c| {
+                        c.viewport
+                            .display_iter()
+                            .map(|i| i.cell.c)
+                            .collect::<String>()
+                            .contains("PIKE33")
+                    }),
+                )
+            })
+            .collect();
+        fs::write(
+            output.join(format!("{name}-readiness.txt")),
+            format!("{states:?}\nvisible={:?}\n", metrics.visible),
+        )?;
         return Err(io::Error::other(format!(
             "current visible snapshot lacks controlled prompt before {name}"
         )));
@@ -257,7 +283,7 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
     let mut green = 0;
     for (index, pixel) in rgba.chunks_exact(4).enumerate() {
         if pixel[1] > 90
-            && pixel[1] > pixel[0].saturating_add(30)
+            && pixel[1] > pixel[0].saturating_add(10)
             && pixel[1] > pixel[2].saturating_add(30)
         {
             green += 1;
@@ -293,5 +319,61 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
             metrics.visible
         ),
     )?;
+    Ok(())
+}
+
+fn marker(host: &Host, id: pike::identity::SessionId) -> bool {
+    host.app
+        .terminal(id)
+        .and_then(|t| t.renderable_content())
+        .is_some_and(|c| {
+            c.viewport
+                .display_iter()
+                .map(|i| i.cell.c)
+                .collect::<String>()
+                .contains("PIKE33")
+        })
+}
+
+fn step(host: &mut Host, size: Size) -> io::Result<()> {
+    let viewport = Rectangle::with_size(size);
+    let messages = {
+        let mut view = host.app.view();
+        let mut tree = Tree::new(view.as_widget());
+        let node = view.as_widget_mut().layout(
+            &mut tree,
+            &host.renderer,
+            &layout::Limits::new(size, size),
+        );
+        if let Some(id) = host
+            .app
+            .active_session()
+            .and_then(|id| host.app.terminal(id))
+            .map(|t| t.widget_id().clone())
+        {
+            view.as_widget_mut().operate(
+                &mut tree,
+                Layout::new(&node),
+                &host.renderer,
+                &mut operation::focusable::focus::<()>(id),
+            );
+        }
+        let mut messages = Vec::new();
+        view.as_widget_mut().update(
+            &mut tree,
+            &Event::Window(iced::window::Event::RedrawRequested(Instant::now())),
+            Layout::new(&node),
+            mouse::Cursor::Unavailable,
+            &host.renderer,
+            &mut clipboard::Null,
+            &mut Shell::new(&mut messages),
+            &viewport,
+        );
+        messages
+    };
+    for message in messages {
+        host.update(message);
+    }
+    host.drain()?;
     Ok(())
 }

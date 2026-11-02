@@ -68,7 +68,9 @@ impl App {
                     ));
             }
             let controls: Element<'_, Control> = container(
-                controls
+                // Keep zoom/close at stable child indices across focus changes.
+                // Focus can change on mouse-down, before their mouse-up arrives.
+                row![controls]
                     .push(
                         container(ui::icon(
                             if source.maximized().is_some() {
@@ -94,13 +96,15 @@ impl App {
             .height(HEADER)
             .align_y(iced::Alignment::Center)
             .into();
-            let title = pane_grid::TitleBar::new(super::gesture::title(
-                container(text(format!("Terminal {}", pane.session.get())).size(tokens::SMALL))
-                    .id(format!("pane-header-{}", pane.session.get()))
-                    .height(HEADER)
-                    .padding([0.0, tokens::INSET])
-                    .align_y(iced::Alignment::Center),
-            ))
+            let title = pane_grid::TitleBar::new(
+                container(super::gesture::title(
+                    text(format!("Terminal {}", pane.session.get())).size(tokens::SMALL),
+                ))
+                .id(format!("pane-header-{}", pane.session.get()))
+                .height(HEADER)
+                .padding([0.0, tokens::INSET])
+                .align_y(iced::Alignment::Center),
+            )
             .controls(controls.map(Message::Control))
             .style(move |theme| style::header(theme, focused));
             // Focus comes from the existing pane/keyboard authority. Inactive

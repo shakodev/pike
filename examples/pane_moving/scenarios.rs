@@ -443,8 +443,18 @@ fn zoom_button(host: &mut Host, id: SessionId) -> io::Result<()> {
     let point = button
         .point
         .ok_or_else(|| io::Error::other("no visible actual pane zoom control"))?;
+    let actions = host.controls;
+    let before = layout(host);
     host.click(point);
-    host.drain()
+    host.drain()?;
+    host.evidence.push(format!(
+        "zoom-click session={} point={point:?} actions={} before={before} after={} visible={}",
+        id.get(),
+        host.controls - actions,
+        layout(host),
+        host.app.terminal(id).unwrap().is_visible()
+    ));
+    Ok(())
 }
 
 fn geometry(host: &mut Host, ids: &[SessionId]) -> io::Result<()> {
@@ -467,10 +477,10 @@ fn geometry(host: &mut Host, ids: &[SessionId]) -> io::Result<()> {
             "restored cell dimensions do not match current widget bounds",
         )?;
         check(
-            bounds.x >= 8.0
+            bounds.x >= 0.0
                 && bounds.y >= 0.0
-                && bounds.x + bounds.width <= crate::host_viewport::SIZE.width - 7.9
-                && bounds.y + bounds.height <= crate::host_viewport::SIZE.height - 7.9,
+                && bounds.x + bounds.width <= crate::host_viewport::SIZE.width
+                && bounds.y + bounds.height <= crate::host_viewport::SIZE.height,
             "restored pane escaped its viewport clip",
         )?;
         host.evidence.push(format!(

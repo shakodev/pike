@@ -9,14 +9,23 @@ pub fn run(exit: bool, gated: bool) -> io::Result<()> {
         let mut start = [0];
         io::stdin().read_exact(&mut start)?;
     }
-    print!(
-        "\x1b]2;PIKE33 controlled fixture\x07\x1b[2J\x1b[H\x1b[32mPIKE33 controlled prompt > \x1b[0m\x1b[?25h"
-    );
-    io::stdout().flush()?;
+    paint()?;
     if exit {
         return Ok(());
     }
     let mut byte = [0];
-    while io::stdin().read(&mut byte)? != 0 {}
+    while io::stdin().read(&mut byte)? != 0 {
+        if byte[0] == b'r' {
+            paint()?;
+        }
+    }
+    Ok(())
+}
+
+fn paint() -> io::Result<()> {
+    print!(
+        "\x1b]2;PIKE33 controlled fixture\x07\x1b[2J\x1b[H\x1b[32mPIKE33 controlled prompt > \x1b[0m\x1b[?25h"
+    );
+    io::stdout().flush()?;
     Ok(())
 }
