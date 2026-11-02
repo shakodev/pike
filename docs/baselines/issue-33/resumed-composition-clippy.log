@@ -1,0 +1,56 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/vendor/iced_term)
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14)
+error[E0425]: cannot find value `constrained` in this scope
+   --> src/app/view.rs:89:12
+    |
+ 89 |           if constrained {
+    |              ^^^^^^^^^^^
+    |
+   ::: /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iced_widget-0.14.2/src/helpers.rs:237:1
+    |
+237 | / pub fn container<'a, Message, Theme, Renderer>(
+238 | |     content: impl Into<Element<'a, Message, Theme, Renderer>>,
+239 | | ) -> Container<'a, Message, Theme, Renderer>
+240 | | where
+241 | |     Theme: container::Catalog + 'a,
+242 | |     Renderer: core::Renderer,
+    | |_____________________________- similarly named function `container` defined here
+    |
+help: a function with a similar name exists
+    |
+ 89 -         if constrained {
+ 89 +         if container {
+    |
+
+error: unused imports: `close_button` and `close_tab_button`
+  --> src/app/close.rs:14:23
+   |
+14 | pub(super) use view::{close_button, close_tab_button};
+   |                       ^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^
+   |
+   = note: `-D unused-imports` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(unused_imports)]`
+
+error: unused import: `split::GUTTER`
+ --> src/app/view.rs:4:55
+  |
+4 | use super::{App, Control, Message, commands::Command, split::GUTTER};
+  |                                                       ^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `pike` (lib) due to 3 previous errors

@@ -86,20 +86,8 @@ fn character(
         false,
     )
 }
-pub(super) fn click_label(host: &mut Host, starts: &str) -> io::Result<()> {
-    let mut targets = widget::Targets::default();
-    host.operate(&mut targets);
-    let point = targets
-        .labels
-        .iter()
-        .find(|(label, _)| label.starts_with(starts))
-        .map(|(_, point)| *point)
-        .ok_or_else(|| io::Error::other(format!("visible label unavailable: {starts}")))?;
-    host.click(point);
-    host.drain()
-}
 fn menu(host: &mut Host, command: Command) -> io::Result<()> {
-    click_label(host, "Commands and shortcuts (")?;
+    crate::chrome_actions::click_id(host, "command-menu-control")?;
     check(
         host.app.interaction_blocked(),
         "actual root menu did not open help",
@@ -394,7 +382,7 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<()> {
         host.app.settings_pending(),
         "reload did not retain its asynchronous pending state",
     )?;
-    click_label(host, "Commands and shortcuts (")?;
+    crate::chrome_actions::click_id(host, "command-menu-control")?;
     let held = widget::click(&host.app, &host.renderer, |message| {
         matches!(
             message,
@@ -439,7 +427,7 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<()> {
     let delayed = host
         .app
         .update(Message::Control(Control::Command(Command::Paste)));
-    click_label(host, "Commands and shortcuts (")?;
+    crate::chrome_actions::click_id(host, "command-menu-control")?;
     named(host, Named::Escape, Modifiers::empty())?;
     host.finish(delayed)?;
     host.drain()?;

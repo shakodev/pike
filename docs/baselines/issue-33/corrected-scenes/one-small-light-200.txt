@@ -1,0 +1,8 @@
+logical=Size { width: 320.0, height: 240.0 } scale=2 physical=Size { width: 640, height: 480 }
+strip=Some(Rectangle { x: 4.0, y: 0.0, width: 252.0, height: 34.0 })
+chrome=Some(Rectangle { x: 0.0, y: 0.0, width: 320.0, height: 34.0 })
+notices=None
+control_targets=[Rectangle { x: 226.0, y: 4.0, width: 26.0, height: 26.0 }, Rectangle { x: 260.0, y: 4.0, width: 26.0, height: 26.0 }, Rectangle { x: 290.0, y: 4.0, width: 26.0, height: 26.0 }]
+headers=[Rectangle { x: 216.0, y: 34.0, width: 104.0, height: 26.0 }]
+visible_terminals=[Rectangle { x: 1.0, y: 61.0, width: 318.0, height: 178.0 }]
+green_prompt_pixels=1467

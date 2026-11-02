@@ -1,0 +1,13 @@
+tab=2 session=1 pid=18574 Completion { reason: Requested, exit_code: None, output_drained: false }
+tab=4 session=3 pid=18577 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+tab=6 session=5 pid=18580 Completion { reason: Requested, exit_code: None, output_drained: false }
+tab=8 session=7 pid=18583 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+tab=10 session=9 pid=18586 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+tab=12 session=11 pid=18589 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+tab=14 session=13 pid=18592 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+tab=16 session=15 pid=18595 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+tab=18 session=17 pid=18598 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+tab=20 session=19 pid=18601 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+tab=22 session=21 pid=18604 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+tab=24 session=23 pid=18607 Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+tab=2 session=25 pid=18620 Completion { reason: Requested, exit_code: None, output_drained: false }

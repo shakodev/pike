@@ -1,0 +1,6 @@
+
+thread 'main' (287095) panicked at examples/native_chrome/components.rs:318:25:
+assertion `left == right` failed: activity marker clipped out of actual overflow viewport
+  left: Some(Rectangle { x: 138.89648, y: 83.8, width: 11.103516, height: 15.599998 })
+ right: Some(Rectangle { x: 138.89648, y: 83.8, width: 11.103516, height: 15.599999 })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

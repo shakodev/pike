@@ -1,0 +1,39 @@
+
+thread 'main' (167112) panicked at /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cosmic-text-0.15.0/src/glyph_cache.rs:100:18:
+attempt to add with overflow
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::panic_const::panic_const_add_overflow
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:175:17
+   3: <cosmic_text::glyph_cache::SubpixelBin>::new
+             at /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cosmic-text-0.15.0/src/glyph_cache.rs:100:18
+   4: <cosmic_text::glyph_cache::CacheKey>::new
+             at /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cosmic-text-0.15.0/src/glyph_cache.rs:45:26
+   5: <cosmic_text::layout::LayoutGlyph>::physical
+             at /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cosmic-text-0.15.0/src/layout.rs:78:33
+   6: <cryoglyph::text_render::TextRenderer>::prepare_with_depth::<core::iter::adapters::filter_map::FilterMap<core::iter::adapters::zip::Zip<core::slice::iter::Iter<iced_graphics::text::Text>, core::slice::iter::Iter<core::option::Option<iced_wgpu::text::prepare::Allocation>>>, iced_wgpu::text::prepare::{closure#1}>, cryoglyph::text_render::zero_depth>
+             at /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cryoglyph-0.1.0/src/text_render.rs:92:31
+   7: <cryoglyph::text_render::TextRenderer>::prepare::<core::iter::adapters::filter_map::FilterMap<core::iter::adapters::zip::Zip<core::slice::iter::Iter<iced_graphics::text::Text>, core::slice::iter::Iter<core::option::Option<iced_wgpu::text::prepare::Allocation>>>, iced_wgpu::text::prepare::{closure#1}>>
+             at /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cryoglyph-0.1.0/src/text_render.rs:334:14
+   8: iced_wgpu::text::prepare
+             at /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iced_wgpu-0.14.0/src/text.rs:638:14
+   9: <iced_wgpu::text::State>::prepare
+             at /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iced_wgpu-0.14.0/src/text.rs:347:34
+  10: <iced_wgpu::Renderer>::prepare
+             at /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iced_wgpu-0.14.0/src/lib.rs:401:27
+  11: <iced_wgpu::Renderer>::draw
+             at /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iced_wgpu-0.14.0/src/lib.rs:146:14
+  12: <iced_wgpu::Renderer>::screenshot
+             at /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iced_wgpu-0.14.0/src/lib.rs:239:32
+  13: <iced_wgpu::Renderer as iced_core::renderer::Headless>::screenshot
+             at /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iced_wgpu-0.14.0/src/lib.rs:979:14
+  14: native_chrome::components
+             at ./examples/native_chrome.rs:360:28
+  15: native_chrome::main
+             at ./examples/native_chrome.rs:54:16
+  16: <fn() -> core::result::Result<(), alloc::boxed::Box<dyn core::error::Error>> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.

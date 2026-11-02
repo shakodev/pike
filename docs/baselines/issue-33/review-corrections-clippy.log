@@ -1,0 +1,86 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14)
+error: this `if` statement can be collapsed
+   --> examples/native_chrome/frame.rs:154:5
+    |
+154 | /     if !metrics.visible.is_empty() {
+155 | |         if !crate::scenes::prompt_ready(host) {
+156 | |             return Err(io::Error::other(format!(
+157 | |                 "current visible snapshot lacks controlled prompt before {name}"
+...   |
+160 | |     }
+    | |_____^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+154 ~     if !metrics.visible.is_empty()
+155 ~         && !crate::scenes::prompt_ready(host) {
+156 |             return Err(io::Error::other(format!(
+157 |                 "current visible snapshot lacks controlled prompt before {name}"
+158 |             )));
+159 ~         }
+    |
+
+error: this `if` statement can be collapsed
+   --> examples/native_chrome/frame.rs:182:5
+    |
+182 | /     if let Some(strip) = metrics.tab_strip {
+183 | |         if strip.height != 34.0 {
+184 | |             return Err(io::Error::other(format!(
+185 | |                 "strip is not 34 DIP in {name}: {strip:?}"
+...   |
+188 | |     }
+    | |_____^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#collapsible_if
+help: collapse nested if block
+    |
+182 ~     if let Some(strip) = metrics.tab_strip
+183 ~         && strip.height != 34.0 {
+184 |             return Err(io::Error::other(format!(
+185 |                 "strip is not 34 DIP in {name}: {strip:?}"
+186 |             )));
+187 ~         }
+    |
+
+error: this `if` statement can be collapsed
+   --> examples/native_chrome/frame.rs:233:5
+    |
+233 | /     if !metrics.visible.is_empty() {
+234 | |         if green <= 20 {
+235 | |             return Err(io::Error::other(format!(
+236 | |                 "no legible controlled prompt in {name}"
+...   |
+239 | |     }
+    | |_____^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#collapsible_if
+help: collapse nested if block
+    |
+233 ~     if !metrics.visible.is_empty()
+234 ~         && green <= 20 {
+235 |             return Err(io::Error::other(format!(
+236 |                 "no legible controlled prompt in {name}"
+237 |             )));
+238 ~         }
+    |
+
+error: could not compile `pike` (example "native_chrome") due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...

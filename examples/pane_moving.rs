@@ -195,7 +195,8 @@ fn verify(host: &mut Host, output: &Path, mode: &str) -> io::Result<()> {
     let second = host.app.active_session().unwrap();
     let before = host.bounds(first).unwrap();
     let destination = host.bounds(second).unwrap();
-    let from = Point::new(before.x + before.width / 2.0, before.y - 14.0);
+    // Visible first title letter must remain draggable after chrome wrapping.
+    let from = Point::new(before.x + 8.0, before.y - 14.0);
     drag(host, from, destination.center())?;
     let after = host.bounds(first).unwrap();
     host.evidence.push(format!(

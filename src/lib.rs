@@ -10,4 +10,5 @@ pub mod settings;
 pub mod tab_strip;
 pub mod tabs;
 mod terminal;
+pub mod ui;
 pub mod workspace;

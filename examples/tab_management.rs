@@ -2,6 +2,9 @@
 #[path = "support/tab_management_child.rs"]
 mod child;
 #[allow(dead_code)]
+#[path = "support/chrome_actions.rs"]
+mod chrome_actions;
+#[allow(dead_code)]
 #[path = "command_routing/host.rs"]
 mod host;
 #[path = "support/host_viewport.rs"]

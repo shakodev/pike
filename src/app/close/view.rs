@@ -1,19 +1,8 @@
-use iced::widget::{button, column, container, row, text};
+use iced::widget::{button, column, container, row, scrollable, text};
 use iced::{Element, Fill};
 
 use super::{App, CloseAction, Control, Message};
-use crate::identity::{SessionId, TabId};
-
-pub(crate) fn close_button(id: SessionId) -> Element<'static, Control> {
-    button(text("Close").size(12))
-        .padding([2, 6])
-        .on_press(Control::CloseSession(id))
-        .into()
-}
-
-pub(crate) fn close_tab_button(tab: TabId) -> Element<'static, Control> {
-    button("Close tab").on_press(Control::CloseTab(tab)).into()
-}
+use crate::ui::{style, tokens};
 
 impl App {
     /// Replace the workspace while modal; terminal widgets receive no native
@@ -31,36 +20,40 @@ impl App {
                 c.sessions.len()
             );
             column![
-                text(label).size(22),
-                text(count),
-                text("Cancel is selected. Tab changes selection; Enter chooses; Escape cancels."),
+                text(label).size(tokens::HEADING),
+                text(count).size(tokens::BODY),
+                text("Cancel is selected. Tab changes selection; Enter chooses; Escape cancels.")
+                    .size(tokens::SMALL),
                 row![
                     button(if c.affirmative {
                         "Cancel"
                     } else {
                         "› Cancel"
                     })
+                    .style(style::quiet)
                     .on_press(Control::CloseAction(CloseAction::Cancel(c.token))),
                     button(if c.affirmative {
                         "› Close selected"
                     } else {
                         "Close selected"
                     })
+                    .style(style::quiet)
                     .on_press(Control::CloseAction(CloseAction::Confirm(c.token))),
                 ]
-                .spacing(12),
+                .spacing(tokens::INSET)
+                .wrap(),
             ]
-            .spacing(16)
+            .spacing(tokens::INSET)
             .into()
         } else if self.exiting {
             let count = self.model.sessions().len();
             let mut content = column![
-                text("Closing Pike…").size(22),
+                text("Closing Pike…").size(tokens::HEADING),
                 text(format!(
                     "Waiting for cleanup of {count} terminal session(s)."
                 ))
             ]
-            .spacing(16);
+            .spacing(tokens::INSET);
             if self.close_policy.timed_out
                 && let Some(token) = self.close_policy.timer
             {
@@ -68,21 +61,32 @@ impl App {
                     .push(text("Wait is selected by default. Tab changes selection; Enter chooses; Escape waits."))
                     .push(row![
                         button(if self.close_policy.force_selected { "Wait" } else { "› Wait" })
+                            .style(style::quiet)
                             .on_press(Control::CloseAction(CloseAction::Wait(token))),
                         button(if self.close_policy.force_selected { "› Force close Pike" } else { "Force close Pike" })
+                            .style(style::quiet)
                             .on_press(Control::CloseAction(CloseAction::Force(token))),
-                    ].spacing(12));
+                    ].spacing(tokens::INSET).wrap());
             }
             content.into()
         } else {
             return None;
         };
         Some(
-            container(content.map(Message::Control))
-                .padding(24)
-                .center_x(Fill)
-                .center_y(Fill)
-                .into(),
+            container(
+                container(scrollable(
+                    container(content.map(Message::Control))
+                        .padding(16)
+                        .style(style::surface),
+                ))
+                .max_width(560)
+                .width(Fill),
+            )
+            .padding(tokens::INSET)
+            .center_x(Fill)
+            .center_y(Fill)
+            .style(style::workspace)
+            .into(),
         )
     }
 }

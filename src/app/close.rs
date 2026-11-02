@@ -11,7 +11,6 @@ use crate::layout::PaneTarget;
 use crate::session::{Effect, Lifecycle};
 
 mod view;
-pub(super) use view::{close_button, close_tab_button};
 
 pub(super) const DEADLINE: Duration = Duration::from_secs(3);
 

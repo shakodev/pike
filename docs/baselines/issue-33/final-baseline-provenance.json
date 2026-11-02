@@ -1,0 +1,10 @@
+{
+  "source": "8543f823c35003528413efbd6b547334532d94c8",
+  "binary_sha256": "20ace36996afb641134179d61a6c0a75aab90fa203cd568340c0a1bf9819574a",
+  "saved_binary": "/private/tmp/pike-r33-final-r32-native-idle-r14",
+  "harness_sha256": {
+    "examples/native_chrome_idle.rs": "b809349daaf2a9cdbe8a01237da8f5538631eb7686e3e591d9dd0bd0b0708771",
+    "examples/native_chrome/window.rs": "877db6a356fdfa4dec3e70911b9f1e3e5af6118ab786c9210a0c8af7cbcf0b97",
+    "examples/native_chrome/child.rs": "d559693af7c2c2886ee569e64db6c7f94f0f6df2f1f285c25132edf7434fcbab"
+  }
+}
