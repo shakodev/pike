@@ -1,7 +1,7 @@
 # R32 / issue #32 — effective shortcuts and command reference
 
-Status: complete feature and local verification, published in PR #82 for
-exclusive R1 review; review fixes remain in this same task. GitHub Actions remains disabled.
+Status: complete feature and local verification in PR #82; exclusive R1
+independent advisory re-review is green on corrected source 20cc70c. GitHub Actions remains disabled.
 
 ## Source and ownership
 
@@ -184,3 +184,21 @@ Escape, original session and terminal focus. Final corrected source/executable
 identity is retained under `native-help-focus-fixed`; all source hashes are in
 `source-manifest.sha256`. Explicit vendor binding/window tests remain valid
 because the review correction changes only App capture/menu receipt handling.
+
+## Final independent advisory re-review
+
+R1 independently rechecked exact corrected source
+`20cc70cb14033b353b5de07f0f9c78f170952f55` and reported no actionable source issue.
+Its unchanged original held-help blur and blur/refocus probes, additional raw
+native-before-App probe, fresh Home/Arrow/Enter/End/Escape recovery, live reload
+while help is open, typed menu consumers and full corrected remap fixture passed,
+as did 19 command tests, scoped Clippy and formatting. Original negative evidence
+also includes `native-help-before-app-f1273b0`; all reviewer reds and prepared
+review bodies remain untouched in its artifact family.
+
+The final publication child changes this report only; its implementation is
+identical to the reviewed source and source manifest. The coordinator publishes
+R1's prepared independent body centrally under standing owner authorization.
+This same-account advisory review is not formal separate-account approval.
+Actions stays disabled, and author publication does not merge the PR or waive
+physical13/14 holds or the existing owner14 dependency waiver.
