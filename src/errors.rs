@@ -176,6 +176,10 @@ impl Store {
             .copied()
     }
 
+    pub fn notices(&self) -> impl DoubleEndedIterator<Item = Notice> + '_ {
+        self.notices.iter().copied()
+    }
+
     pub fn dismiss(&mut self, id: ErrorId) -> Option<Notice> {
         let position = self.notices.iter().position(|n| n.id == id)?;
         self.notices.remove(position)

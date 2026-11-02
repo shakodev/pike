@@ -286,9 +286,13 @@ impl App {
                 return self.error_action(id, action);
             }
             Message::Control(Control::CopyDiagnostics) => {
-                return self.copy_diagnostics();
+                let task = self.copy_diagnostics();
+                return Task::batch([task, self.focus_active()]);
             }
-            Message::Control(Control::ClearDiagnostics) => self.diagnostics.clear(),
+            Message::Control(Control::ClearDiagnostics) => {
+                self.diagnostics.clear();
+                return self.focus_active();
+            }
             Message::ClipboardWritten(owner, result) => self.clipboard_written(owner, result),
             Message::ErrorRetry(request) => return self.retry_error_request(request),
             Message::NativeCleanup(token, decision) => {

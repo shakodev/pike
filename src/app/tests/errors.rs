@@ -75,14 +75,10 @@ fn injected_nonfatal_categories_coalesce_on_origin_without_focus_or_survivor_cha
                 .lifecycle(),
             Lifecycle::Running
         );
-        assert_eq!(
-            app.update(Message::Control(Control::ErrorAction(
-                notice.id,
-                Action::Dismiss
-            )))
-            .units(),
-            0
-        );
+        drop(app.update(Message::Control(Control::ErrorAction(
+            notice.id,
+            Action::Dismiss,
+        ))));
         assert_eq!(app.active_session(), Some(healthy.session));
     }
     let receipt = app.clipboard_writes.begin(Some(origin)).unwrap();
@@ -145,10 +141,15 @@ fn launch_retry_uses_fresh_ids_and_stale_notice_or_clipboard_receipts_cannot_tar
         )))
     });
     let mut tasks = iced_runtime::task::into_stream(task).unwrap();
-    let Some(iced_runtime::Action::Output(message)) = executor.block_on(tasks.next()) else {
+    executor.block_on(async {
+        while let Some(action) = tasks.next().await {
+            if let iced_runtime::Action::Output(message) = action {
+                drop(app.update(message));
+                return;
+            }
+        }
         panic!("launch receipt")
-    };
-    drop(app.update(message));
+    });
     assert_eq!(app.active_session(), Some(healthy.session));
     assert!(app.model.sessions().get(failed.session).is_none());
     assert_eq!(app.model.sessions().len(), 2);
@@ -703,3 +704,5 @@ fn config_retry_and_command_refusal_keep_current_owner_and_private_values_out_of
     assert!(!capture.contains("SECRET_CONFIG_ENV34"));
     shutdown(&mut app, &executor);
 }
+
+mod presentation;

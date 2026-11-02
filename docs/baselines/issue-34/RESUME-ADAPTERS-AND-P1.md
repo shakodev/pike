@@ -63,6 +63,7 @@ mutation, physical input test or Windows native execution occurred.
 | `cargo test --locked -p iced_term --lib resize` / resume-resize-receipts-final.log | 8 passed, including real PTY acknowledgment, deduplication, stale/current serials and one latest bridge slot. |
 | `cargo test --locked -p alacritty_terminal --lib tty::unix::resize_errors` / resume-unix-resize-limits.log | 2 passed. Earlier fallible worker receipt and neighboring socket regression also passed, with sandbox red retained. |
 | `cargo clippy --locked -p alacritty_terminal -p iced_term --lib --tests -- -D warnings` / resume-vendor-clippy.log | Passed before final bridge stale-result strengthening; final relevant rerun remains due. |
+| `cargo clippy --locked -p iced_term --lib --tests -- -D warnings` / resume-receipts-clippy-final.log | Passed after the final stale-result bridge strengthening. |
 | Windows host tests cross-check / resume-r32-windows-host.log | Passed for lib/bin/tests; cross-compilation only. |
 | Windows Alacritty test cross-check / resume-alacritty-windows-fixtures-green.log | Passed, including signed conversion/HRESULT test compilation; no Windows execution claim. |
 
@@ -72,3 +73,24 @@ Additional preserved reds: duplicate-module path in the independent model target
 the agreed actual33 insertion. Full root Clippy/test/format acceptance, visible
 banner geometry/focus evidence, final integrated native fixtures and full R1
 verdict remain outstanding; no complete PR or approval is claimed here.
+
+## Explicit-click follow-up (after cd5a82e)
+
+Pinned TerminalView intentionally unfocuses on outside left-clicks. Explicit
+recovery/diagnostic controls therefore restore only today's active widget using
+the existing guarded focus_active task. Reporting and asynchronous error/result
+arrival remain passive; no focus/capture/gesture module changed. An independent
+offscreen composition reserves a clipped fixed 96px banner, verifies disjoint
+terminal/banner bounds, clicks Dismiss, executes the real guarded operation and
+admits exactly one next synthetic keybyte to the same real PTY. The sandbox had
+no graphics adapter (`resume-passive-widget.log`); the exact unsandboxed local
+wgpu rerun passed (`resume-passive-widget-native.log`). Relevant host errors:
+8 passed / 1 explicit graphics test skipped by the ordinary selector
+(`resume-explicit-control-focus.log`). These are macOS offscreen tests, not
+physical input or native Windows tests.
+
+This proves only the independent composition. Pinned PaneGrid unconditionally
+emits its on_click Focus even after a child captures a banner press. Final
+background-pane passive insertion requires the coordinator-approved narrow
+presentation seam and an actual-grid healthy-sibling click/typing regression;
+that gate is explicitly still pending and no shared closure has been edited.

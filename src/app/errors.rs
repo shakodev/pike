@@ -106,7 +106,7 @@ impl App {
                 entry.notice = None;
             }
             self.refresh_resize_layout();
-            return Task::none();
+            return self.focus_active();
         }
         if self.interaction_blocked() {
             return Task::none();
@@ -117,27 +117,28 @@ impl App {
         match (notice.owner, notice.error.recovery()) {
             (Owner::Session(session), Recovery::Resize) if action == Action::Retry => {
                 self.errors.begin_retry(id);
-                self.update(Message::Terminal((
+                let task = self.update(Message::Terminal((
                     session,
                     iced_term::Event::BackendCall(
                         session.get(),
                         iced_term::BackendCommand::RetryResize,
                     ),
-                )))
+                )));
+                Task::batch([task, self.focus_active()])
             }
             (Owner::Session(session), Recovery::Restart) if self.restart_ready(session) => {
                 if action == Action::UseDefault && !matches!(notice.error, Error::Launch(_)) {
                     return Task::none();
                 }
                 // Preserve a newer healthy launch's intent when restarting a
-                // background failure; admission/dismissal never touches focus.
+                // background failure; reporting never selects a pane.
                 let restore =
                     (self.active_session() != Some(session)).then(|| self.focus_on_attach.clone());
                 let task = self.retry(session, action == Action::UseDefault);
                 if let Some(restore) = restore {
                     self.focus_on_attach = restore;
                 }
-                task
+                Task::batch([task, self.focus_active()])
             }
             (Owner::Session(_), Recovery::PasteAgain)
                 if action == Action::Retry && input_authorized =>
@@ -155,21 +156,21 @@ impl App {
                 if task.units() > 0 {
                     self.errors.begin_retry(id);
                 }
-                task
+                Task::batch([task, self.focus_active()])
             }
             (Owner::Application, Recovery::ReloadSettings) if action == Action::Retry => {
                 let task = self.reload_settings();
                 if task.units() > 0 {
                     self.errors.begin_retry(id);
                 }
-                task
+                Task::batch([task, self.focus_active()])
             }
             (Owner::Application, Recovery::CopyAgain) if action == Action::Retry => {
                 let task = self.copy_diagnostics();
                 if task.units() > 0 {
                     self.errors.begin_retry(id);
                 }
-                task
+                Task::batch([task, self.focus_active()])
             }
             _ => Task::none(),
         }
