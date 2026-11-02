@@ -50,6 +50,7 @@ pub(super) struct Policy {
     renderer_failed: bool,
     native_prompt: Option<(u64, std::sync::Arc<crate::native_cleanup::Prompt>)>,
     native_reported: Option<u64>,
+    native_slot: crate::executor::BlockingSlot,
 }
 
 impl Policy {
@@ -154,7 +155,11 @@ impl App {
     pub(super) fn renderer_shutdown(&mut self) -> Task<Message> {
         self.close_policy.renderer_failed = true;
         if self.exiting {
-            return Task::none();
+            return self
+                .close_policy
+                .timer
+                .map(|token| self.native_cleanup_prompt(token))
+                .unwrap_or_else(Task::none);
         }
         self.close_policy.confirmation = None;
         self.tab_dialog.clear();
@@ -284,6 +289,7 @@ impl App {
         }
         self.sessions.entries.clear();
         self.errors.clear();
+        self.clipboard_writes.clear();
         self.diagnostics.clear();
         self.profiles.clear();
         self.focus_on_attach.clear();

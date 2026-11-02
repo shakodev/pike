@@ -12,9 +12,13 @@ use iced_term::settings::{BackendSettings, FontSettings, ThemeSettings};
 use iced_term::{PreparedTerminal, Terminal};
 use tokio::sync::{Semaphore, oneshot, watch};
 
+/// Shared executor budget: ordinary launch work cannot occupy recovery capacity.
+pub const PREPARATION_WORKERS: usize = 2;
+
 #[derive(Clone, Copy, Debug)]
 pub struct LaunchLimits {
-    /// Total running, queued and delivered-but-unattached launches.
+    /// Total running, queued and delivered-but-unattached launches, capped at
+    /// PREPARATION_WORKERS to preserve settings and emergency recovery capacity.
     pub jobs: NonZeroU16,
     /// Includes starting sessions and sessions awaiting backend disposal.
     pub sessions: NonZeroU16,
@@ -214,7 +218,9 @@ impl Default for LaunchPool {
 impl LaunchPool {
     pub fn new(limits: LaunchLimits) -> Self {
         Self {
-            jobs: Arc::new(Semaphore::new(usize::from(limits.jobs.get()))),
+            jobs: Arc::new(Semaphore::new(
+                usize::from(limits.jobs.get()).min(PREPARATION_WORKERS),
+            )),
             sessions: Arc::new(Semaphore::new(usize::from(limits.sessions.get()))),
             session_limit: u32::from(limits.sessions.get()),
             shutdown: watch::channel(false).0,

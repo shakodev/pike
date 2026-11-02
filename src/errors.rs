@@ -3,6 +3,10 @@ use std::collections::VecDeque;
 use std::io::ErrorKind;
 
 use crate::{identity::SessionId, launch::LaunchError, settings};
+#[path = "errors/writes.rs"]
+mod writes;
+pub use writes::WriteReceipt;
+pub(crate) use writes::Writes;
 
 pub const NOTICE_LIMIT: usize = 64;
 
@@ -27,6 +31,8 @@ pub enum Error {
     Worker,
     Resize(iced_term::ResizeError),
     LinkOpen,
+    Operation(crate::app::commands::Error),
+    CleanupPrompt(Option<i32>),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -54,6 +60,8 @@ impl Error {
             Self::Cleanup => Recovery::Wait,
             Self::Resize(_) => Recovery::Resize,
             Self::LinkOpen => Recovery::Reenter,
+            Self::Operation(_) => Recovery::Reenter,
+            Self::CleanupPrompt(_) => Recovery::Wait,
         }
     }
 
@@ -71,6 +79,8 @@ impl Error {
             Self::Cleanup => "Terminal cleanup is still pending. Wait for owned resources to close; healthy terminals remain usable.".into(),
             Self::Resize(_) => "The terminal could not apply its new size. Typing remains available; retry the current size or dismiss this message.".into(),
             Self::LinkOpen => "Could not open the link. Check the default application, then open the link again.".into(),
+            Self::Operation(error) => error.message().into(),
+            Self::CleanupPrompt(_) => "Pike could not display its cleanup choice. Cleanup remains pending; no automatic force close was attempted.".into(),
         }
     }
 }
@@ -97,6 +107,7 @@ pub struct Notice {
     pub error: Error,
     pub count: u32,
     pub resolved: bool,
+    pub retrying: bool,
 }
 
 /// Bounded UI state, independent of optional diagnostics. A dismissed error can
@@ -115,8 +126,13 @@ impl Store {
             .position(|n| n.owner == owner && n.error == error)
         {
             let mut notice = self.notices.remove(position).expect("known notice");
+            if notice.retrying {
+                self.next = self.next.checked_add(1)?;
+                notice.id = ErrorId(self.next);
+            }
             notice.count = notice.count.saturating_add(1);
             notice.resolved = false;
+            notice.retrying = false;
             let id = notice.id;
             self.notices.push_back(notice);
             return Some(id);
@@ -132,12 +148,24 @@ impl Store {
             error,
             count: 1,
             resolved: false,
+            retrying: false,
         });
         Some(id)
     }
 
     pub fn get(&self, id: ErrorId) -> Option<Notice> {
         self.notices.iter().find(|notice| notice.id == id).copied()
+    }
+
+    pub fn begin_retry(&mut self, id: ErrorId) -> bool {
+        let Some(notice) = self.notices.iter_mut().find(|n| n.id == id) else {
+            return false;
+        };
+        if notice.retrying || notice.resolved {
+            return false;
+        }
+        notice.retrying = true;
+        true
     }
 
     pub fn latest(&self, owner: Owner) -> Option<Notice> {
@@ -170,6 +198,7 @@ impl Store {
         for notice in &mut self.notices {
             if notice.owner == owner && matches!(notice.error, Error::Resize(_)) {
                 notice.resolved = true;
+                notice.retrying = false;
             }
         }
     }
@@ -235,6 +264,13 @@ mod tests {
             Error::Renderer(iced_runtime::system::RendererFailure::Initialization),
             Error::Cleanup,
             Error::Worker,
+            Error::Resize(iced_term::ResizeError {
+                kind: ErrorKind::PermissionDenied,
+                code: Some(i32::MIN),
+            }),
+            Error::LinkOpen,
+            Error::Operation(crate::app::commands::Error::NoActivePane),
+            Error::CleanupPrompt(Some(i32::MAX)),
         ];
         for error in errors {
             assert!(error.message().len() < 1024);

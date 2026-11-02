@@ -104,10 +104,17 @@ cleanup repairs and release resource measurements. The [pinned native runtime](d
 avoids the Server 2022 inbox ConPTY leak tracked in #55.
 
 Pike disables iced_term's compatibility defaults. Both the app and harness
-use one shared Tokio executor with one async worker, at most two blocking
-workers, and timers. No Tokio I/O driver or per-pane runtime is needed.
+use one shared Tokio executor with one async worker, at most four lazy blocking
+workers, and timers. Admission reserves two slots for launch preparation, one
+for an explicit settings read and one for emergency cleanup controls. No Tokio
+I/O driver or per-pane runtime is needed.
 Blocking task admission and session teardown must be bounded by their callers;
 the executor's worker limit does not bound queued tasks.
+
+Errors appear in passive banners with dismiss and relevant retry controls;
+healthy terminals keep their sessions and input owner. See
+[error recovery and private diagnostics](docs/errors.md) for the recovery paths,
+explicit `--diagnostics` opt-in and bounded memory-only retention.
 
 The default build uses wgpu only for comparison with issue #3. Build the
 software renderer separately (the final renderer choice belongs to issue #38):

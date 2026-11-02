@@ -58,9 +58,20 @@ impl App {
     }
 
     pub(in crate::app) fn command_refused(&mut self, error: Error) -> Task<Message> {
-        self.command_state.error = Some(error);
+        self.record_command_refusal(error);
         self.notice = Some(error.message());
         self.focus_active()
+    }
+
+    fn record_command_refusal(&mut self, error: Error) {
+        self.command_state.error = Some(error);
+        self.report_error(
+            self.active_session().map_or(
+                crate::errors::Owner::Application,
+                crate::errors::Owner::Session,
+            ),
+            crate::errors::Error::Operation(error),
+        );
     }
 
     pub(in crate::app) fn run_command(&mut self, command: Command) -> Task<Message> {
@@ -74,7 +85,7 @@ impl App {
                 let count = self.model.workspace().order().len();
                 let task = self.new_tab();
                 if self.model.workspace().order().len() == count && self.notice.is_some() {
-                    self.command_state.error = Some(Error::NewTabRefused);
+                    self.record_command_refusal(Error::NewTabRefused);
                 }
                 task
             }
@@ -168,10 +179,7 @@ impl App {
                         }
                     }
                     Command::Copy => {
-                        let copy = self
-                            .terminal(id)
-                            .and_then(|terminal| terminal.copy_selection(iced::clipboard::write))
-                            .unwrap_or_else(Task::none);
+                        let copy = self.copy_owned(id);
                         Task::batch([copy, self.focus_active()])
                     }
                     Command::Paste => {
@@ -200,7 +208,7 @@ impl App {
                         let count = self.model.sessions().len();
                         let task = self.split(target, direction);
                         if self.model.sessions().len() == count && self.notice.is_some() {
-                            self.command_state.error = Some(Error::SplitRefused);
+                            self.record_command_refusal(Error::SplitRefused);
                         }
                         task
                     }
@@ -293,12 +301,25 @@ impl App {
         {
             return Task::none();
         }
-        if let Some(entry) = self.sessions.entries.get_mut(&id)
-            && let Some(terminal) = entry.terminal_mut()
-            && let iced_term::actions::Action::PasteRejected(error) = terminal.paste(text)
+        if let Some(terminal) = self
+            .sessions
+            .entries
+            .get_mut(&id)
+            .and_then(|entry| entry.terminal_mut())
         {
-            entry.notice = Some(error.to_string());
+            match terminal.paste(text) {
+                iced_term::actions::Action::PasteRejected(error) => self.report_error(
+                    crate::errors::Owner::Session(id),
+                    crate::errors::Error::Clipboard(error),
+                ),
+                _ => self
+                    .errors
+                    .resolve(crate::errors::Owner::Session(id), |error| {
+                        matches!(error, crate::errors::Error::Clipboard(_))
+                    }),
+            }
         }
+        self.refresh_resize_layout();
         self.focus_active()
     }
 }

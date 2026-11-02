@@ -1,0 +1,65 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c)
+warning: constant `ERROR_HEIGHT` is never used
+  --> src/app/errors/view.rs:10:26
+   |
+10 | pub(in crate::app) const ERROR_HEIGHT: f32 = 96.0;
+   |                          ^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: enum `Event` is never used
+  --> src/app/errors/view.rs:13:6
+   |
+13 | enum Event { Control(Control), Retry(super::RecoveryRequest) }
+   |      ^^^^^
+
+warning: methods `error_height`, `passive_error_view`, `error_view`, and `application_error_view` are never used
+  --> src/app/errors/view.rs:16:27
+   |
+15 | impl App {
+   | -------- methods in this implementation
+16 |     pub(in crate::app) fn error_height(&self, id: SessionId) -> f32 {
+   |                           ^^^^^^^^^^^^
+...
+23 |     pub(in crate::app) fn passive_error_view(&self) -> Option<Element<'_, Message>> {
+   |                           ^^^^^^^^^^^^^^^^^^
+...
+26 |     pub(in crate::app) fn error_view(&self, owner: Owner) -> Option<Element<'_, Message>> {
+   |                           ^^^^^^^^^^
+...
+85 |     pub(in crate::app) fn application_error_view(&self) -> Option<Element<'_, Message>> {
+   |                           ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `pike` (lib test) generated 3 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.68s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-7aa914fb23ec4515)
+
+running 8 tests
+test app::commands::host::tests::missing_tab_is_typed_atomic_and_recovers_through_existing_activation ... ok
+test app::commands::host::tests::delayed_key_cannot_close_a_newer_owner_or_bypass_help_priority ... ok
+test app::commands::host::tests::unavailable_terminal_and_empty_workspace_remain_usable_for_help ... ok
+test app::commands::host::tests::new_tab_capacity_refusal_uses_the_existing_guard_and_retains_current_owner ... ok
+test app::commands::host::tests::held_help_actions_cannot_survive_native_or_app_blur_even_after_refocus ... ok
+test app::commands::host::tests::reload_while_help_open_rejects_old_rows_and_refreshes_the_live_menu ... ok
+test app::commands::host::tests::current_reference_has_all_controls_effective_alternatives_and_disabled_context ... ok
+test app::commands::host::tests::ambiguous_reload_keeps_the_entire_last_valid_settings_and_current_reference ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 200 filtered out; finished in 0.01s
+

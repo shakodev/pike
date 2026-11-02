@@ -1,0 +1,22 @@
+    Blocking waiting for file lock on build directory
+    Checking alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/alacritty_terminal)
+error[E0277]: `COORD` doesn't implement `std::fmt::Debug`
+  --> vendor/alacritty_terminal/src/tty/windows/conpty/tests.rs:45:65
+   |
+45 |             resize_coord(WindowSize { num_cols: cols, ..SIZE }).unwrap_err().kind(),
+   |                                                                 ^^^^^^^^^^ the trait `std::fmt::Debug` is not implemented for `COORD`
+   |
+note: required by a bound in `Result::<T, E>::unwrap_err`
+  --> /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\core\src\result.rs:1324:4
+
+error[E0277]: `COORD` doesn't implement `std::fmt::Debug`
+  --> vendor/alacritty_terminal/src/tty/windows/conpty/tests.rs:51:67
+   |
+51 |             resize_coord(WindowSize { num_lines: lines, ..SIZE }).unwrap_err().kind(),
+   |                                                                   ^^^^^^^^^^ the trait `std::fmt::Debug` is not implemented for `COORD`
+   |
+note: required by a bound in `Result::<T, E>::unwrap_err`
+  --> /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library\core\src\result.rs:1324:4
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `alacritty_terminal` (lib test) due to 2 previous errors

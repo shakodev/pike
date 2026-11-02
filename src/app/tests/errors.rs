@@ -85,8 +85,9 @@ fn injected_nonfatal_categories_coalesce_on_origin_without_focus_or_survivor_cha
         );
         assert_eq!(app.active_session(), Some(healthy.session));
     }
+    let receipt = app.clipboard_writes.begin(Some(origin)).unwrap();
     drop(app.update(Message::ClipboardWritten(
-        Some(origin),
+        receipt,
         Err(iced_runtime::clipboard::WriteError::WriteFailed),
     )));
     assert_eq!(
@@ -163,8 +164,9 @@ fn launch_retry_uses_fresh_ids_and_stale_notice_or_clipboard_receipts_cannot_tar
         .units(),
         0
     );
+    let receipt = app.clipboard_writes.begin(Some(failed)).unwrap();
     drop(app.update(Message::ClipboardWritten(
-        Some(failed),
+        receipt,
         Err(iced_runtime::clipboard::WriteError::Unavailable),
     )));
     assert!(app.latest_error(Owner::Session(failed.session)).is_none());
@@ -527,5 +529,177 @@ fn current_resize_failure_and_retry_preserve_owner_focus_and_healthy_input() {
         Action::Dismiss,
     ))));
     assert!(app.latest_error(Owner::Session(origin.session)).is_none());
+    shutdown(&mut app, &executor);
+}
+
+#[test]
+fn clipboard_retry_controls_are_one_use_focus_bound_and_native_acks_are_ordered() {
+    let executor = SharedExecutor::new().unwrap();
+    let (mut app, owner, other) = pair(&executor);
+    app.report_error(
+        Owner::Session(owner.session),
+        Error::Clipboard(iced_term::PasteError::ClipboardUnavailable),
+    );
+    let notice = app.latest_error(Owner::Session(owner.session)).unwrap();
+    let held = app.recovery_request(notice.id).unwrap();
+    drop(app.select(app.model.target(other.session).unwrap()));
+    drop(app.select(app.model.target(owner.session).unwrap()));
+    assert_eq!(app.update(Message::ErrorRetry(held)).units(), 0);
+    let blurred = app.recovery_request(notice.id).unwrap();
+    drop(app.update(Message::WindowFocused(false)));
+    drop(app.update(Message::WindowFocused(true)));
+    assert_eq!(app.update(Message::ErrorRetry(blurred)).units(), 0);
+    let request = app.recovery_request(notice.id).unwrap();
+    let replay = request.clone();
+    let task = app.update(Message::ErrorRetry(request));
+    assert!(
+        app.latest_error(Owner::Session(owner.session))
+            .unwrap()
+            .retrying
+    );
+    assert_eq!(app.update(Message::ErrorRetry(replay)).units(), 0);
+    assert_eq!(
+        app.update(Message::Control(Control::ErrorAction(
+            notice.id,
+            Action::Retry
+        )))
+        .units(),
+        0
+    );
+    let mut actions = iced_runtime::task::into_stream(task).unwrap();
+    executor.block_on(async {
+        tokio::time::timeout(DEADLINE, async {
+            let mut reads = 0;
+            while let Some(action) = actions.next().await {
+                match action {
+                    iced_runtime::Action::Clipboard(iced_runtime::clipboard::Action::Read {
+                        channel,
+                        ..
+                    }) => {
+                        reads += 1;
+                        channel.send(None).unwrap();
+                    }
+                    iced_runtime::Action::Output(message @ Message::CommandPaste(..)) => {
+                        drop(app.update(message));
+                        break;
+                    }
+                    _ => {}
+                }
+            }
+            assert_eq!(reads, 1);
+        })
+        .await
+        .unwrap();
+    });
+    let failed_again = app.latest_error(Owner::Session(owner.session)).unwrap();
+    assert_ne!(failed_again.id, notice.id);
+    assert!(!failed_again.retrying);
+    assert_eq!(
+        app.update(Message::Control(Control::ErrorAction(
+            notice.id,
+            Action::Dismiss
+        )))
+        .units(),
+        0
+    );
+    assert!(app.latest_error(Owner::Session(owner.session)).is_some());
+    let old = app.clipboard_writes.begin(Some(owner)).unwrap();
+    let current = app.clipboard_writes.begin(Some(owner)).unwrap();
+    drop(app.update(Message::ClipboardWritten(current, Ok(()))));
+    drop(app.update(Message::ClipboardWritten(
+        old,
+        Err(iced_runtime::clipboard::WriteError::WriteFailed),
+    )));
+    drop(app.update(Message::ClipboardWritten(
+        current,
+        Err(iced_runtime::clipboard::WriteError::Unavailable),
+    )));
+    assert_eq!(
+        app.latest_error(Owner::Session(owner.session)).unwrap().id,
+        failed_again.id
+    );
+    assert_eq!(app.active_session(), Some(owner.session));
+    assert_eq!(
+        app.model.sessions().get(other.session).unwrap().lifecycle(),
+        Lifecycle::Running
+    );
+    shutdown(&mut app, &executor);
+}
+
+#[test]
+fn config_retry_and_command_refusal_keep_current_owner_and_private_values_out_of_capture() {
+    let executor = SharedExecutor::new().unwrap();
+    let (mut app, healthy, other) = pair(&executor);
+    app.set_diagnostics_enabled(true);
+    let before = app.terminal(healthy.session).unwrap().input_status();
+    let settings_before = app.active_settings().clone();
+    app.settings.pending = true;
+    assert_eq!(
+        app.update(Message::SettingsLoaded(Err(
+            crate::settings::Error::Invalid(crate::settings::Field::Environment)
+        )))
+        .units(),
+        0
+    );
+    assert_eq!(app.active_settings(), &settings_before);
+    let notice = app.latest_error(Owner::Application).unwrap();
+    assert!(matches!(notice.error, Error::Config(_)));
+    let path = std::env::temp_dir().join(format!(
+        "pike34-config-retry-{}.toml",
+        healthy.session.get()
+    ));
+    std::fs::write(&path, "version=1\n[profiles.default]\nshell='pike34-unexecuted-shell'\nargs=['SECRET_CONFIG_ARGS34']\nenv={ PIKE34='SECRET_CONFIG_ENV34' }\n").unwrap();
+    app.settings.path = Some(path.clone());
+    let task = app.update(Message::Control(Control::ErrorAction(
+        notice.id,
+        Action::Retry,
+    )));
+    assert!(app.settings_pending());
+    assert_eq!(
+        app.update(Message::Control(Control::ErrorAction(
+            notice.id,
+            Action::Retry
+        )))
+        .units(),
+        0
+    );
+    let mut actions = iced_runtime::task::into_stream(task).unwrap();
+    executor.block_on(async {
+        tokio::time::timeout(DEADLINE, async {
+            while let Some(action) = actions.next().await {
+                if let iced_runtime::Action::Output(message @ Message::SettingsLoaded(..)) = action
+                {
+                    assert_eq!(app.update(message).units(), 0);
+                    return;
+                }
+            }
+            panic!("configuration completion")
+        })
+        .await
+        .unwrap();
+    });
+    std::fs::remove_file(path).unwrap();
+    assert!(app.latest_error(Owner::Application).is_none());
+    drop(app.update(Message::Control(Control::Command(
+        commands::Command::SelectTab(commands::TabSelection::Index(7)),
+    ))));
+    assert_eq!(
+        app.latest_error(Owner::Session(healthy.session))
+            .unwrap()
+            .error,
+        Error::Operation(commands::Error::MissingTab)
+    );
+    assert_eq!(app.active_session(), Some(healthy.session));
+    assert_eq!(
+        app.terminal(healthy.session).unwrap().input_status(),
+        before
+    );
+    assert_eq!(
+        app.model.sessions().get(other.session).unwrap().lifecycle(),
+        Lifecycle::Running
+    );
+    let capture = app.diagnostic_capture();
+    assert!(!capture.contains("SECRET_CONFIG_ARGS34"));
+    assert!(!capture.contains("SECRET_CONFIG_ENV34"));
     shutdown(&mut app, &executor);
 }

@@ -1,0 +1,34 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/alacritty_terminal)
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_term)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.05s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/iced_term-d729f6cc834703be)
+
+running 8 tests
+test backend::resize::tests::stale_size_serial_and_exhaustion_do_not_replace_current_operation ... ok
+test view::glyphs::tests::leading_wide_wrap_placeholder_is_not_a_glyph_and_resize_preserves_copy ... ok
+test event_bridge::tests::resize_results_use_one_latest_slot_without_consuming_control_capacity ... ok
+test backend::protocol_tests::pixel_queries_round_fractional_grid_area_once_without_native_resize_work ... ok
+test backend::resize::tests::controlled_native_session_deduplicates_failed_size_and_explicitly_retries_once ... ok
+test backend::selection_tests::no_op_and_height_resize_preserve_selection_but_column_reflow_invalidates_it ... ok
+test terminal::work_tests::metadata_input_and_noops_do_no_font_resize_snapshot_or_cache_work ... ok
+test terminal::work_tests::output_flood_never_measures_fonts_or_resizes_and_hidden_output_never_snapshots ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 118 filtered out; finished in 0.70s
+

@@ -198,7 +198,14 @@ impl Sender {
             Event::CursorBlinkingChange => state.cursor_dirty = true,
             Event::Bell => state.bell = true,
             Event::ResetTitle => state.title = Some(Event::ResetTitle),
-            Event::ResizeCompleted(result) => state.resize = Some(result),
+            Event::ResizeCompleted(result) => {
+                if state
+                    .resize
+                    .is_none_or(|current| current.serial < result.serial)
+                {
+                    state.resize = Some(result);
+                }
+            },
             Event::Title(title) => {
                 state.title = Some(Event::Title(
                     alacritty_terminal::event::sanitize_title(&title),

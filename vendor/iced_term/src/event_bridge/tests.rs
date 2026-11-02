@@ -379,6 +379,16 @@ fn resize_results_use_one_latest_slot_without_consuming_control_capacity() {
             },
         ));
     }
+    sender.send(Event::ResizeCompleted(
+        alacritty_terminal::event::ResizeResult {
+            serial: 1,
+            size,
+            result: Err(alacritty_terminal::event::ResizeError {
+                kind: std::io::ErrorKind::Other,
+                code: None,
+            }),
+        },
+    ));
     let mut state = receiver.0.lock();
     assert!(state.controls.is_empty());
     assert!(

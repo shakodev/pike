@@ -10,9 +10,19 @@ pub enum Decision {
     Unavailable(Option<i32>),
 }
 
+#[cfg(any(windows, test))]
+fn command_decision(id: u16) -> Option<Decision> {
+    match id {
+        1 | 2 => Some(Decision::Wait),
+        3 => Some(Decision::Force),
+        _ => None,
+    }
+}
+
 #[derive(Default)]
 struct State {
     cancelled: bool,
+    #[cfg(any(windows, test))]
     window: usize,
 }
 
@@ -54,9 +64,6 @@ impl Prompt {
         }
         #[cfg(not(windows))]
         {
-            eprintln!(
-                "Pike is waiting for terminal cleanup after a renderer failure. Cleanup remains pending; no automatic force close was attempted."
-            );
             Decision::Unavailable(None)
         }
     }
@@ -155,18 +162,15 @@ mod windows {
         }
         let prompt = unsafe { &*pointer };
         match message {
-            WM_COMMAND if w & 0xffff == IDOK as usize || w & 0xffff == IDCANCEL as usize => {
-                unsafe {
-                    EndDialog(window, 1);
+            WM_COMMAND => match command_decision((w & 0xffff) as u16) {
+                Some(decision) => {
+                    unsafe {
+                        EndDialog(window, if decision == Decision::Force { 3 } else { 1 });
+                    }
+                    1
                 }
-                1
-            }
-            WM_COMMAND if w & 0xffff == 3 => {
-                unsafe {
-                    EndDialog(window, 3);
-                }
-                1
-            }
+                None => 0,
+            },
             WM_CLOSE => {
                 unsafe {
                     EndDialog(window, 1);
@@ -198,6 +202,11 @@ mod windows {
                 prompt as *const Prompt as isize,
             )
         };
+        let failure = if result <= 0 {
+            std::io::Error::last_os_error().raw_os_error()
+        } else {
+            None
+        };
         let mut state = prompt.state();
         state.window = 0;
         if state.cancelled {
@@ -206,7 +215,7 @@ mod windows {
             match result {
                 1 => Decision::Wait,
                 3 => Decision::Force,
-                _ => Decision::Unavailable(std::io::Error::last_os_error().raw_os_error()),
+                _ => Decision::Unavailable(failure),
             }
         }
     }
@@ -231,6 +240,14 @@ mod windows {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn only_explicit_force_control_can_choose_force() {
+        assert_eq!(command_decision(1), Some(Decision::Wait));
+        assert_eq!(command_decision(2), Some(Decision::Wait));
+        assert_eq!(command_decision(3), Some(Decision::Force));
+        assert_eq!(command_decision(0), None);
+        assert_eq!(command_decision(u16::MAX), None);
+    }
     #[test]
     fn queued_prompt_cancellation_prevents_native_open_and_is_idempotent() {
         let prompt = Prompt::default();

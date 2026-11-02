@@ -8,6 +8,17 @@ use iced::Task;
 
 mod view;
 
+/// View-captured authority for an input-affecting recovery, using the existing
+/// focus leases. Clones share one consumption flag; no clipboard data is kept.
+#[derive(Clone)]
+pub struct RecoveryRequest {
+    id: ErrorId,
+    session: SessionId,
+    lease: super::focus::InputLease,
+    window: iced_term::WindowInputLease,
+    consumed: std::sync::Arc<std::sync::atomic::AtomicBool>,
+}
+
 impl App {
     pub fn set_diagnostics_enabled(&mut self, enabled: bool) {
         self.diagnostics.set_enabled(enabled);
@@ -33,6 +44,51 @@ impl App {
     }
 
     pub(super) fn error_action(&mut self, id: ErrorId, action: Action) -> Task<Message> {
+        self.apply_error_action(id, action, false)
+    }
+
+    pub(super) fn recovery_request(&self, id: ErrorId) -> Option<RecoveryRequest> {
+        let notice = self.errors.get(id)?;
+        let Owner::Session(session) = notice.owner else {
+            return None;
+        };
+        if notice.resolved || notice.retrying || !self.error_input_owner(session) {
+            return None;
+        }
+        Some(RecoveryRequest {
+            id,
+            session,
+            lease: self.focus_authority.input_lease(session)?,
+            window: self.window_focus.input_lease()?,
+            consumed: Default::default(),
+        })
+    }
+
+    pub(super) fn retry_error_request(&mut self, request: RecoveryRequest) -> Task<Message> {
+        if request
+            .consumed
+            .swap(true, std::sync::atomic::Ordering::Relaxed)
+            || !self
+                .focus_authority
+                .accepts_input(&request.lease, request.session)
+            || !self.window_focus.accepts_input(&request.window)
+            || !self.error_input_owner(request.session)
+            || self
+                .errors
+                .get(request.id)
+                .is_none_or(|n| n.owner != Owner::Session(request.session))
+        {
+            return Task::none();
+        }
+        self.apply_error_action(request.id, Action::Retry, true)
+    }
+
+    fn apply_error_action(
+        &mut self,
+        id: ErrorId,
+        action: Action,
+        input_authorized: bool,
+    ) -> Task<Message> {
         let Some(notice) = self.errors.get(id) else {
             return Task::none();
         };
@@ -55,11 +111,12 @@ impl App {
         if self.interaction_blocked() {
             return Task::none();
         }
-        if notice.resolved {
+        if notice.resolved || notice.retrying {
             return Task::none();
         }
         match (notice.owner, notice.error.recovery()) {
             (Owner::Session(session), Recovery::Resize) if action == Action::Retry => {
+                self.errors.begin_retry(id);
                 self.update(Message::Terminal((
                     session,
                     iced_term::Event::BackendCall(
@@ -82,15 +139,37 @@ impl App {
                 }
                 task
             }
-            // Fresh clipboard retry joins A32's existing captured owner lease
-            // after its relevant main integration; never create another route.
-            (Owner::Session(session), Recovery::CopyAgain)
-                if action == Action::Retry && self.error_input_owner(session) =>
+            (Owner::Session(_), Recovery::PasteAgain)
+                if action == Action::Retry && input_authorized =>
             {
-                self.copy_owned(session)
+                let task = self.run_command(super::commands::Command::Paste);
+                if task.units() > 0 {
+                    self.errors.begin_retry(id);
+                }
+                task
+            }
+            (Owner::Session(session), Recovery::CopyAgain)
+                if action == Action::Retry && input_authorized =>
+            {
+                let task = self.copy_owned(session);
+                if task.units() > 0 {
+                    self.errors.begin_retry(id);
+                }
+                task
             }
             (Owner::Application, Recovery::ReloadSettings) if action == Action::Retry => {
-                self.reload_settings()
+                let task = self.reload_settings();
+                if task.units() > 0 {
+                    self.errors.begin_retry(id);
+                }
+                task
+            }
+            (Owner::Application, Recovery::CopyAgain) if action == Action::Retry => {
+                let task = self.copy_diagnostics();
+                if task.units() > 0 {
+                    self.errors.begin_retry(id);
+                }
+                task
             }
             _ => Task::none(),
         }
@@ -114,7 +193,7 @@ impl App {
 
     /// Use the existing native backend's actual write result. Only a stable
     /// reservation and metadata result return; no readback or retained payload.
-    pub(super) fn copy_owned(&self, id: SessionId) -> Task<Message> {
+    pub(super) fn copy_owned(&mut self, id: SessionId) -> Task<Message> {
         let Some(terminal) = self.terminal(id) else {
             return Task::none();
         };
@@ -126,28 +205,36 @@ impl App {
         else {
             return Task::none();
         };
-        terminal
-            .copy_selection(|contents| {
-                iced_runtime::clipboard::write_with_result(contents)
-                    .map(move |result| Message::ClipboardWritten(Some(reservation), result))
-            })
-            .unwrap_or_else(Task::none)
+        let Some(contents) = terminal.copy_selection(|contents| contents) else {
+            return Task::none();
+        };
+        let Some(receipt) = self.clipboard_writes.begin(Some(reservation)) else {
+            return Task::none();
+        };
+        iced_runtime::clipboard::write_with_result(contents)
+            .map(move |result| Message::ClipboardWritten(receipt, result))
     }
 
     pub(super) fn copy_diagnostics(&mut self) -> Task<Message> {
         if !self.diagnostics.enabled() {
             return Task::none();
         }
+        let Some(receipt) = self.clipboard_writes.begin(None) else {
+            return Task::none();
+        };
         iced_runtime::clipboard::write_with_result(self.diagnostic_capture())
-            .map(|result| Message::ClipboardWritten(None, result))
+            .map(move |result| Message::ClipboardWritten(receipt, result))
     }
 
     pub(super) fn clipboard_written(
         &mut self,
-        reservation: Option<crate::identity::Reservation>,
+        receipt: crate::errors::WriteReceipt,
         result: Result<(), iced_runtime::clipboard::WriteError>,
     ) {
-        let owner = match reservation {
+        if !self.clipboard_writes.finish(receipt) {
+            return;
+        }
+        let owner = match receipt.reservation {
             Some(reservation)
                 if self
                     .model

@@ -368,21 +368,30 @@ impl OnResize for Conpty {
     }
 
     fn try_on_resize(&mut self, window_size: WindowSize) -> Result<()> {
-        if window_size.num_cols == 0
-            || window_size.num_lines == 0
-            || window_size.num_cols > i16::MAX as u16
-            || window_size.num_lines > i16::MAX as u16
-        {
-            return Err(ErrorKind::InvalidInput.into());
-        }
-        let result = unsafe { (self.api.resize)(self.handle, window_size.into()) };
-        // For resize metadata, preserve the signed HRESULT verbatim. Callers
-        // retain only kind/code and never format this as user-facing context.
-        if result >= 0 {
-            Ok(())
-        } else {
-            Err(Error::from_raw_os_error(result))
-        }
+        let size = resize_coord(window_size)?;
+        // SAFETY: this backend owns HPCON and its loaded API, and size fits COORD.
+        resize_result(unsafe { (self.api.resize)(self.handle, size) })
+    }
+}
+
+fn resize_coord(window_size: WindowSize) -> Result<COORD> {
+    if window_size.num_cols == 0
+        || window_size.num_lines == 0
+        || window_size.num_cols > i16::MAX as u16
+        || window_size.num_lines > i16::MAX as u16
+    {
+        return Err(ErrorKind::InvalidInput.into());
+    }
+    Ok(window_size.into())
+}
+
+fn resize_result(result: HRESULT) -> Result<()> {
+    // For resize metadata, preserve the signed HRESULT verbatim. Callers
+    // retain only kind/code and never format this as user-facing context.
+    if result >= 0 {
+        Ok(())
+    } else {
+        Err(Error::from_raw_os_error(result))
     }
 }
 

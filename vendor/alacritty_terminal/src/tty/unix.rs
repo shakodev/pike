@@ -443,6 +443,21 @@ mod resize_errors {
         let metadata = crate::event::ResizeError::from(error);
         assert_eq!(metadata.code, Some(libc::EBADF));
     }
+
+    #[test]
+    fn native_pixel_conversion_saturates_without_wrapping_grid_dimensions() {
+        let win = WindowSize {
+            num_cols: u16::MAX,
+            num_lines: u16::MAX,
+            cell_width: u16::MAX,
+            cell_height: u16::MAX,
+        }
+        .to_winsize();
+        assert_eq!(win.ws_col, u16::MAX);
+        assert_eq!(win.ws_row, u16::MAX);
+        assert_eq!(win.ws_xpixel, u16::MAX);
+        assert_eq!(win.ws_ypixel, u16::MAX);
+    }
 }
 
 /// Types that can produce a `Winsize`.
@@ -456,8 +471,8 @@ impl ToWinsize for WindowSize {
         let ws_row = self.num_lines as libc::c_ushort;
         let ws_col = self.num_cols as libc::c_ushort;
 
-        let ws_xpixel = ws_col * self.cell_width as libc::c_ushort;
-        let ws_ypixel = ws_row * self.cell_height as libc::c_ushort;
+        let ws_xpixel = ws_col.saturating_mul(self.cell_width as libc::c_ushort);
+        let ws_ypixel = ws_row.saturating_mul(self.cell_height as libc::c_ushort);
         Winsize { ws_row, ws_col, ws_xpixel, ws_ypixel }
     }
 }

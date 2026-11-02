@@ -15,6 +15,7 @@ mod boot;
 mod close;
 mod errors;
 pub use close::CloseAction;
+pub use errors::RecoveryRequest;
 pub mod commands;
 mod focus;
 mod panes;
@@ -47,10 +48,11 @@ pub enum Message {
     RendererFailed(iced_runtime::system::RendererFailure),
     RendererEvent(iced_runtime::system::RendererEvent),
     ClipboardWritten(
-        Option<Reservation>,
+        crate::errors::WriteReceipt,
         Result<(), iced_runtime::clipboard::WriteError>,
     ),
     NativeCleanup(u64, crate::native_cleanup::Decision),
+    ErrorRetry(RecoveryRequest),
     CommandPaste(commands::PasteRequest, Option<String>),
 }
 
@@ -108,6 +110,7 @@ pub struct App {
     settings: settings::State,
     errors: crate::errors::Store,
     diagnostics: crate::diagnostics::Diagnostics,
+    clipboard_writes: crate::errors::Writes,
     boot: Option<boot::Source>,
 }
 
@@ -166,6 +169,10 @@ impl App {
     }
 
     fn synchronize(&mut self) {
+        self.clipboard_writes.retain(|owner| match owner {
+            crate::errors::Owner::Application => true,
+            crate::errors::Owner::Session(id) => self.model.sessions().get(id).is_some(),
+        });
         self.errors.retain(|owner| match owner {
             crate::errors::Owner::Application => true,
             crate::errors::Owner::Session(id) => self.model.sessions().get(id).is_some(),
@@ -283,6 +290,7 @@ impl App {
             }
             Message::Control(Control::ClearDiagnostics) => self.diagnostics.clear(),
             Message::ClipboardWritten(owner, result) => self.clipboard_written(owner, result),
+            Message::ErrorRetry(request) => return self.retry_error_request(request),
             Message::NativeCleanup(token, decision) => {
                 return self.native_cleanup_decision(token, decision);
             }

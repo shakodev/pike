@@ -23,6 +23,7 @@ pub(super) struct State {
     pub(super) generation: u64,
     pub(super) system: Mode,
     pub(super) names: BTreeMap<SessionId, ProfileId>,
+    load_slot: crate::executor::BlockingSlot,
 }
 
 #[cfg(test)]
@@ -40,6 +41,7 @@ impl Default for State {
             generation: 0,
             system: Mode::Dark,
             names: BTreeMap::new(),
+            load_slot: Default::default(),
         }
     }
 }
@@ -82,18 +84,29 @@ impl App {
         }
         let Some(path) = self.settings.path.clone() else {
             self.settings.error = Some(Error::Location);
-            return self.focus_active();
+            self.report_error(
+                crate::errors::Owner::Application,
+                crate::errors::Error::Config(Error::Location),
+            );
+            return Task::none();
         };
         self.settings.pending = true;
+        let Some(permit) = self.settings.load_slot.try_acquire() else {
+            self.settings.pending = false;
+            return Task::none();
+        };
         Task::perform(
             async move {
-                tokio::task::spawn_blocking(move || settings::load(&path))
-                    .await
-                    .unwrap_or(Err(Error::Io {
-                        operation: settings::Operation::Read,
-                        kind: std::io::ErrorKind::Other,
-                        code: None,
-                    }))
+                tokio::task::spawn_blocking(move || {
+                    let _permit = permit;
+                    settings::load(&path)
+                })
+                .await
+                .unwrap_or(Err(Error::Io {
+                    operation: settings::Operation::Read,
+                    kind: std::io::ErrorKind::Other,
+                    code: None,
+                }))
             },
             Message::SettingsLoaded,
         )
@@ -116,6 +129,10 @@ impl App {
                     self.settings.active = candidate;
                     self.refresh_help_reference();
                     self.settings.error = None;
+                    self.errors
+                        .resolve(crate::errors::Owner::Application, |error| {
+                            matches!(error, crate::errors::Error::Config(_))
+                        });
                     self.apply_appearance();
                 } else {
                     self.notice = Some(
@@ -123,12 +140,18 @@ impl App {
                     );
                 }
             }
-            Err(error) => self.settings.error = Some(error),
+            Err(error) => {
+                self.settings.error = Some(error);
+                self.report_error(
+                    crate::errors::Owner::Application,
+                    crate::errors::Error::Config(error),
+                );
+            }
         }
         if std::mem::take(&mut self.settings.booting) {
             self.open()
         } else {
-            self.focus_active()
+            Task::none()
         }
     }
 
@@ -193,6 +216,10 @@ impl App {
                 Ok(launch) => launch,
                 Err(error) => {
                     self.settings.error = Some(error);
+                    self.report_error(
+                        crate::errors::Owner::Application,
+                        crate::errors::Error::Config(error),
+                    );
                     return None;
                 }
             }
@@ -246,6 +273,10 @@ impl App {
             Ok(profile) => profile,
             Err(error) => {
                 self.settings.error = Some(error);
+                self.report_error(
+                    crate::errors::Owner::Application,
+                    crate::errors::Error::Config(error),
+                );
                 return self.focus_active();
             }
         };

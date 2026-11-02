@@ -407,7 +407,7 @@ fn slow_queued_split_is_cancelable_while_the_original_remains_usable() {
     let gate = Arc::new((Mutex::new(false), Condvar::new()));
     let (started, observed) = mpsc::channel();
     let mut blockers = vec![];
-    for _ in 0..2 {
+    for _ in 0..crate::executor::BLOCKING_WORKERS {
         let gate = gate.clone();
         let started = started.clone();
         blockers.push(executor.enter(|| {
@@ -420,7 +420,7 @@ fn slow_queued_split_is_cancelable_while_the_original_remains_usable() {
             })
         }));
     }
-    for _ in 0..2 {
+    for _ in 0..crate::executor::BLOCKING_WORKERS {
         observed.recv_timeout(DEADLINE).unwrap();
     }
     let request = executor

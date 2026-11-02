@@ -9,6 +9,12 @@ use iced::{
 
 pub(in crate::app) const ERROR_HEIGHT: f32 = 96.0;
 
+#[derive(Clone)]
+enum Event {
+    Control(Control),
+    Retry(super::RecoveryRequest),
+}
+
 impl App {
     pub(in crate::app) fn error_height(&self, id: SessionId) -> f32 {
         if self.errors.latest(Owner::Session(id)).is_some() {
@@ -27,10 +33,14 @@ impl App {
         } else {
             notice.error.message()
         };
-        let mut actions =
-            row![button("Dismiss").on_press(Control::ErrorAction(notice.id, Action::Dismiss))]
-                .spacing(8);
-        let retry = if notice.resolved {
+        let mut actions = row![
+            button("Dismiss").on_press(Event::Control(Control::ErrorAction(
+                notice.id,
+                Action::Dismiss
+            )))
+        ]
+        .spacing(8);
+        let retry = if notice.resolved || notice.retrying {
             None
         } else {
             match (owner, notice.error.recovery()) {
@@ -48,6 +58,9 @@ impl App {
                 (Owner::Session(id), Recovery::CopyAgain) if self.error_input_owner(id) => {
                     Some("Try copy again")
                 }
+                (Owner::Application, Recovery::CopyAgain) if self.diagnostics.enabled() => {
+                    Some("Try copy again")
+                }
                 (Owner::Application, Recovery::ReloadSettings) if !self.settings.pending => {
                     Some("Retry settings")
                 }
@@ -55,21 +68,36 @@ impl App {
             }
         };
         if let Some(label) = retry {
-            actions = actions
-                .push(button(label).on_press(Control::ErrorAction(notice.id, Action::Retry)));
+            let event = if matches!(
+                notice.error.recovery(),
+                Recovery::PasteAgain | Recovery::CopyAgain
+            ) && matches!(owner, Owner::Session(_))
+            {
+                self.recovery_request(notice.id).map(Event::Retry)
+            } else {
+                Some(Event::Control(Control::ErrorAction(
+                    notice.id,
+                    Action::Retry,
+                )))
+            };
+            if let Some(event) = event {
+                actions = actions.push(button(label).on_press(event));
+            }
         }
         if matches!(notice.error, Error::Launch(_)) {
-            actions = actions.push(
-                button("Use default shell")
-                    .on_press(Control::ErrorAction(notice.id, Action::UseDefault)),
-            );
+            actions = actions.push(button("Use default shell").on_press(Event::Control(
+                Control::ErrorAction(notice.id, Action::UseDefault),
+            )));
         }
         let mut content = column![scrollable(text(message)).height(40), actions].spacing(4);
         if notice.count > 1 {
             content = content.push(text(format!("Repeated {} times", notice.count)).size(12));
         }
-        let content: Element<'_, Control> = content.into();
-        Some(content.map(Message::Control))
+        let content: Element<'_, Event> = content.into();
+        Some(content.map(|event| match event {
+            Event::Control(control) => Message::Control(control),
+            Event::Retry(request) => Message::ErrorRetry(request),
+        }))
     }
 
     pub(in crate::app) fn application_error_view(&self) -> Option<Element<'_, Message>> {
