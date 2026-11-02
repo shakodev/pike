@@ -1,0 +1,5 @@
+pid=21964
+cwd=/private/tmp/pike-r31-native-development-2/a
+profile=a
+revision=before
+argument=old-args

@@ -1,0 +1,48 @@
+{
+  "status": "incomplete-owner-stop",
+  "base": "9bafb5f4f2686d61c45478667737b433bee634ce",
+  "preserved_issue26": "b8cba879bcc0fdefa75845309135cd8a84750726",
+  "initial_compiled_published_source": "4a61552afbfd432e478b1ffab5a0b76a56a08d2a",
+  "native_complete_source": "20ee3360c08145e17d7ed4415682e02ba821cc24",
+  "review_fix_product_source": "f561096f7140c83c27328e6e0533e14c46c4d905",
+  "native_binary_sha256": "f872ea3904f7580a8449f2491b398e3cd2d657dc9f693e5273b355eafa54cf36",
+  "last_unvalidated_source_change": "unvalidated-fixture-family.patch",
+  "actual_r27_reported_not_integrated": "1e90fb3754d69ec8e60632f6010432bf1273f370",
+  "runtime": "macOS 26.7.1 arm64; Rust 1.97.1; default wgpu",
+  "environment": {
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_TARGET_DIR": "target",
+    "CODEX_HOME": "$HOME/.codex-personal"
+  },
+  "checks": {
+    "settings_host_tests": {
+      "source": "f561096",
+      "passed": 18
+    },
+    "native_fixture": {
+      "source": "20ee336",
+      "passed": true
+    },
+    "windows_msvc_cross_clippy": {
+      "source": "20ee336",
+      "passed": true
+    },
+    "review_fix_clippy": {
+      "source": "f561096",
+      "passed": true
+    }
+  },
+  "not_run": [
+    "actual R27 integration",
+    "final cargo fmt --all -- --check",
+    "final cargo clippy --all-targets -- -D warnings",
+    "full root cargo test",
+    "preserved fixture font-family extension compilation/run",
+    "native Windows/ConPTY",
+    "physical keyboard/monitor",
+    "release RAM/CPU/latency"
+  ],
+  "remote_ci": "disabled; no enable/dispatch/rerun/replacement",
+  "pull_request": null,
+  "in_flight_at_stop": "All started verification completed with exit 0; native3 App empty and owned cleanup acknowledged."
+}

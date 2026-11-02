@@ -1,0 +1,1 @@
+Unix canonical input, echo disabled

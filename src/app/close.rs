@@ -64,6 +64,7 @@ impl App {
     /// lifecycle delivery continue. Capture wrappers must defer to this state.
     pub fn interaction_blocked(&self) -> bool {
         self.exiting
+            || self.settings.booting
             || self.close_policy.confirming()
             || self.command_state.help.is_some()
             || self.tab_dialog.active()
@@ -104,7 +105,9 @@ impl App {
             })
             .count();
         let window = matches!(scope, Scope::Window);
-        if running == 0 {
+        if running == 0
+            || self.settings.active.close_policy() == crate::settings::ClosePolicy::Never
+        {
             return self.commit_close(sessions, window);
         }
         let Some(token) = self.close_policy.token() else {

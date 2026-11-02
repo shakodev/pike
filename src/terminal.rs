@@ -45,6 +45,13 @@ impl Entry {
             _ => None,
         }
     }
+
+    pub fn terminal_mut(&mut self) -> Option<&mut Terminal> {
+        match &mut self.owner {
+            Owner::Attached(terminal) => Some(terminal),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Default)]

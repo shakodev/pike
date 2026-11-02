@@ -69,6 +69,7 @@ pub enum Command {
     Help,
     RenameTab,
     ListTabs,
+    ReloadSettings,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -116,6 +117,7 @@ pub fn resolve(event: &keyboard::Event) -> Option<Resolution> {
             }
             Key::Named(Named::Tab) => Command::PreviousTab,
             Key::Named(Named::Enter) => Command::ToggleZoom,
+            Key::Named(Named::F5) => Command::ReloadSettings,
             _ => return None,
         }
     } else if *modifiers == Modifiers::CTRL && *key == Key::Named(Named::Tab) {
@@ -152,6 +154,7 @@ impl Command {
                 | Self::Help
                 | Self::RenameTab
                 | Self::ListTabs
+                | Self::ReloadSettings
         )
     }
 }
@@ -160,6 +163,28 @@ impl Command {
 mod tests {
     use super::*;
     use iced::keyboard::{Location, key};
+
+    #[test]
+    fn reload_is_exact_and_nonrepeating_while_bare_f5_and_terminal_chords_pass_through() {
+        let key = Key::Named(Named::F5);
+        let modifiers = Modifiers::CTRL | Modifiers::SHIFT;
+        assert_eq!(
+            resolve(&press(key.clone(), modifiers, false)),
+            Some(Resolution::Dispatch(Command::ReloadSettings))
+        );
+        assert_eq!(
+            resolve(&press(key.clone(), modifiers, true)),
+            Some(Resolution::Consume)
+        );
+        assert_eq!(
+            resolve(&press(key.clone(), Modifiers::empty(), false)),
+            None
+        );
+        assert_eq!(
+            resolve(&press(key, Modifiers::CTRL | Modifiers::ALT, false)),
+            None
+        );
+    }
 
     fn press(key: Key, modifiers: Modifiers, repeat: bool) -> keyboard::Event {
         keyboard::Event::KeyPressed {

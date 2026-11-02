@@ -16,16 +16,14 @@ impl App {
         }
         // Freeze the source before create_tab changes the active pane. Source
         // profiles are retained for starting, exited and failed panes as well.
-        let profile = match self.active_session() {
-            Some(id) => match self.profiles.get(&id).cloned() {
-                Some(profile) => profile,
-                None => {
-                    self.notice = Some("Wait for the source terminal to start, then try again.");
-                    return None;
-                }
-            },
-            None => self.profile.clone(),
-        };
+        let (profile, name) = self.launch_profile(self.active_session())?;
+        let reservation = self.create_tab_reservation()?;
+        let request = self.submit_named_profile(reservation, profile, name);
+        self.synchronize();
+        request
+    }
+
+    pub(super) fn create_tab_reservation(&mut self) -> Option<crate::identity::Reservation> {
         let reservation = match self.model.create_tab() {
             Ok((_, Effect::Spawn(reservation))) => reservation,
             Ok(_) => unreachable!("new tab produces a spawn effect"),
@@ -43,9 +41,7 @@ impl App {
             }
         };
         self.focus_on_attach.clear();
-        let request = self.submit_profile(reservation, profile);
-        self.synchronize();
-        request
+        Some(reservation)
     }
 
     pub(super) fn new_tab(&mut self) -> Task<Message> {

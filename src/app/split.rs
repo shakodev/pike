@@ -42,10 +42,7 @@ impl App {
             return None;
         };
         let id = state.session;
-        let Some(profile) = self.profiles.get(&id).cloned() else {
-            self.notice = Some("Wait for the source terminal to start, then try again.");
-            return None;
-        };
+        let (profile, name) = self.launch_profile(Some(id))?;
         let Some(content) = self.terminal(id).and_then(|t| t.renderable_content()) else {
             self.notice = Some("Wait for the source terminal to start, then try again.");
             return None;
@@ -108,7 +105,7 @@ impl App {
         // attached, still-owned reservation selects the new pane.
         let _ = self.model.focus(source);
         self.focus_after_attach(reservation.session);
-        self.submit_profile(reservation, profile)
+        self.submit_named_profile(reservation, profile, name)
     }
 
     pub(super) fn split(&mut self, source: PaneTarget, direction: Direction) -> Task<Message> {

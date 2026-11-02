@@ -1,0 +1,33 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13)
+error[E0599]: the method `map` exists for struct `Row<'_, app::Control, _, _>`, but its trait bounds were not satisfied
+   --> src/app/view.rs:215:45
+    |
+215 |             content = content.push(settings.map(Message::Control));
+    |                                             ^^^ method cannot be called on `Row<'_, app::Control, _, _>` due to unsatisfied trait bounds
+    |
+   ::: /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iced_widget-0.14.2/src/row.rs:35:1
+    |
+ 35 | pub struct Row<'a, Message, Theme = crate::Theme, Renderer = crate::Renderer> {
+    | ----------------------------------------------------------------------------- doesn't satisfy `Row<'_, app::Control, _, _>: Iterator`
+    |
+    = note: the following trait bounds were not satisfied:
+            `Row<'_, app::Control, _, _>: Iterator`
+            which is required by `&mut Row<'_, app::Control, _, _>: Iterator`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `pike` (lib) due to 1 previous error

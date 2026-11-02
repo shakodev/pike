@@ -184,6 +184,11 @@ impl Host {
                 self.clipboard.write(target, contents);
             }
             Action::Exit => {}
+            // The finite headless host supplies a deterministic native mode;
+            // the production runtime obtains it from its existing OS provider.
+            Action::System(iced_runtime::system::Action::GetTheme(sender)) => {
+                let _ = sender.send(iced::theme::Mode::Dark);
+            }
             _ => {
                 return Err(io::Error::other(
                     "unexpected runtime action in finite fixture",
