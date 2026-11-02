@@ -1,0 +1,150 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13)
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/close/view.rs:21:19
+   |
+21 |     pub(in crate::app) fn close_view(&self) -> Option<Element<'_, Message>> {
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+21 |     pub(in crate::probe_pike::app) fn close_view(&self) -> Option<Element<'_, Message>> {
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:35:15
+   |
+35 | pub(in crate::app) fn on_key(event: &keyboard::Event, shortcuts: &[crate::settings::Shortcut], active: Option<&iced_term::Terminal>)...
+   |               ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+35 | pub(in crate::probe_pike::app) fn on_key(event: &keyboard::Event, shortcuts: &[crate::settings::Shortcut], active: Option<&iced_term::Terminal>) -> Option<KeyAction> {
+   |               ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:50:19
+   |
+50 |     pub(in crate::app) fn command_refused(&mut self, error: Error) -> Task<Message> {
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+50 |     pub(in crate::probe_pike::app) fn command_refused(&mut self, error: Error) -> Task<Message> {
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:56:19
+   |
+56 |     pub(in crate::app) fn run_command(&mut self, command: Command) -> Task<Message> {
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+56 |     pub(in crate::probe_pike::app) fn run_command(&mut self, command: Command) -> Task<Message> {
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+   --> examples/../src/app/commands/host.rs:183:19
+    |
+183 |     pub(in crate::app) fn dismiss_help(&mut self) -> Task<Message> {
+    |                   ^^^ unresolved import
+    |
+help: a similar path exists
+    |
+183 |     pub(in crate::probe_pike::app) fn dismiss_help(&mut self) -> Task<Message> {
+    |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+   --> examples/../src/app/commands/host.rs:197:19
+    |
+197 |     pub(in crate::app) fn begin_command_paste(&self) -> Option<PasteRequest> {
+    |                   ^^^ unresolved import
+    |
+help: a similar path exists
+    |
+197 |     pub(in crate::probe_pike::app) fn begin_command_paste(&self) -> Option<PasteRequest> {
+    |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+   --> examples/../src/app/commands/host.rs:209:19
+    |
+209 |     pub(in crate::app) fn command_paste(&mut self, request: PasteRequest, text: Option<String>) -> Task<Message> {
+    |                   ^^^ unresolved import
+    |
+help: a similar path exists
+    |
+209 |     pub(in crate::probe_pike::app) fn command_paste(&mut self, request: PasteRequest, text: Option<String>) -> Task<Message> {
+    |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/reference.rs:81:19
+   |
+81 |     pub(in crate::app) fn open_help(&mut self) -> Task<Message> {
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+81 |     pub(in crate::probe_pike::app) fn open_help(&mut self) -> Task<Message> {
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/reference.rs:94:19
+   |
+94 |     pub(in crate::app) fn run_help_action(&mut self, token: u64, action: HelpAction) -> Task<Message> {
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+94 |     pub(in crate::probe_pike::app) fn run_help_action(&mut self, token: u64, action: HelpAction) -> Task<Message> {
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+   --> examples/../src/app/commands/reference.rs:119:19
+    |
+119 |     pub(in crate::app) fn help_view(&self) -> Option<Element<'_, Message>> {
+    |                   ^^^ unresolved import
+    |
+help: a similar path exists
+    |
+119 |     pub(in crate::probe_pike::app) fn help_view(&self) -> Option<Element<'_, Message>> {
+    |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/panes/view.rs:15:19
+   |
+15 |     pub(in crate::app) fn footer_height(&self, id: SessionId) -> f32 {
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+15 |     pub(in crate::probe_pike::app) fn footer_height(&self, id: SessionId) -> f32 {
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/panes/view.rs:32:19
+   |
+32 |     pub(in crate::app) fn pane_grid(&self, tab_id: TabId) -> Element<'_, Message> {
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+32 |     pub(in crate::probe_pike::app) fn pane_grid(&self, tab_id: TabId) -> Element<'_, Message> {
+   |                   ++++++++++++
+
+For more information about this error, try `rustc --explain E0433`.
+error: could not compile `pike` (example "startup_lifecycle") due to 12 previous errors

@@ -13,7 +13,30 @@ use std::sync::{Arc, Mutex};
 #[derive(Clone, Default)]
 pub(super) struct Authority(Arc<Mutex<Option<Arc<SessionId>>>>);
 
+/// Immutable receipt for the existing ownership epoch; no separate authority.
+#[derive(Clone)]
+pub(super) struct InputLease(Arc<SessionId>);
+
 impl Authority {
+    pub(super) fn input_lease(&self, owner: SessionId) -> Option<InputLease> {
+        self.0
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .as_ref()
+            .filter(|lease| ***lease == owner)
+            .cloned()
+            .map(InputLease)
+    }
+    pub(super) fn accepts_input(&self, lease: &InputLease, owner: SessionId) -> bool {
+        *lease.0 == owner
+            && self
+                .0
+                .lock()
+                .unwrap_or_else(|error| error.into_inner())
+                .as_ref()
+                .is_some_and(|current| Arc::ptr_eq(current, &lease.0))
+    }
+
     pub(super) fn synchronize(&self, owner: Option<SessionId>) {
         let mut current = self.0.lock().unwrap_or_else(|error| error.into_inner());
         if current.as_deref().copied() != owner {
@@ -286,5 +309,27 @@ mod tests {
         effect.focusable(Some(&target), Rectangle::default(), &mut current);
         assert!(!previous.is_focused());
         assert!(current.is_focused());
+    }
+}
+
+#[cfg(test)]
+mod input_lease_tests {
+    use super::*;
+    #[test]
+    fn same_session_after_modal_or_tab_roundtrip_never_revives_old_input() {
+        let authority = Authority::default();
+        let owner = crate::identity::Reservation::allocate().unwrap().session;
+        let other = crate::identity::Reservation::allocate().unwrap().session;
+        assert!(authority.input_lease(owner).is_none());
+        authority.synchronize(Some(owner));
+        let lease = authority.input_lease(owner).unwrap();
+        authority.synchronize(Some(owner));
+        assert!(authority.accepts_input(&lease, owner));
+        for next in [None, Some(other)] {
+            let lease = authority.input_lease(owner).unwrap();
+            authority.synchronize(next);
+            authority.synchronize(Some(owner));
+            assert!(!authority.accepts_input(&lease, owner));
+        }
     }
 }

@@ -133,7 +133,19 @@ pub fn composition_priority(
     }
     messages
         .iter()
-        .filter(|m| matches!(m, Message::Control(pike::app::Control::ResizeKey(_, _))))
+        .filter(|m| {
+            matches!(
+                m,
+                Message::Control(
+                    pike::app::Control::ResizeKey(_, _)
+                        | pike::app::Control::MappedCommand(
+                            _,
+                            _,
+                            pike::app::commands::Command::Resize(_)
+                        )
+                )
+            )
+        })
         .count()
         == 1
         && !messages.iter().any(|m| {
