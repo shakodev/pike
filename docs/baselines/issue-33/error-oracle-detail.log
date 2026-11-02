@@ -1,0 +1,4 @@
+
+thread 'main' (484898) panicked at examples/native_chrome/frame.rs:274:5:
+failed controls not reachable in error-dark-100: [Rectangle { x: 9.0, y: 69.0, width: 176.61621, height: 23.4 }, Rectangle { x: 9.0, y: 125.3, width: 48.691406, height: 26.0 }, Rectangle { x: 61.691406, y: 125.3, width: 109.86377, height: 26.0 }]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

@@ -275,8 +275,9 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
         failures
             .headers
             .iter()
-            .all(|r| r.width > 0.0 && r.height >= 20.0 && viewport.intersection(r) == Some(*r)),
-        "failed controls not reachable in {name}"
+            .all(|r| r.width > 0.0 && r.height >= 20.0 && r.is_within(&viewport)),
+        "failed controls not reachable in {name}: {:?}",
+        failures.headers
     );
     if let Some(strip) = metrics.tab_strip
         && strip.height != 34.0
@@ -384,11 +385,12 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
     fs::write(
         output.join(format!("{name}.txt")),
         format!(
-            "logical={size:?} scale={scale} physical={dimensions:?}\nstrip={:?}\nchrome={:?}\nnotices={:?}\ncontrol_targets={:?}\nheaders={:?}\nvisible_terminals={:?}\ngreen_prompt_pixels={green}\n",
+            "logical={size:?} scale={scale} physical={dimensions:?}\nstrip={:?}\nchrome={:?}\nnotices={:?}\ncontrol_targets={:?}\nfailed_targets={:?}\nheaders={:?}\nvisible_terminals={:?}\ngreen_prompt_pixels={green}\n",
             metrics.tab_strip,
             metrics.chrome,
             metrics.notices,
             metrics.controls,
+            failures.headers,
             headers.headers,
             metrics.visible
         ),
