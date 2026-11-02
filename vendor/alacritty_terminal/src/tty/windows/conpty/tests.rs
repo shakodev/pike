@@ -38,6 +38,30 @@ fn injected<T>(point: Option<Failure>, f: impl FnOnce() -> T) -> T {
 
 const SIZE: WindowSize = WindowSize { num_lines: 24, num_cols: 80, cell_width: 8, cell_height: 16 };
 
+#[test]
+fn resize_codes_and_signed_coord_limits_are_metadata_only() {
+    for cols in [0, i16::MAX as u16 + 1, u16::MAX] {
+        assert_eq!(
+            resize_coord(WindowSize { num_cols: cols, ..SIZE }).err().unwrap().kind(),
+            ErrorKind::InvalidInput
+        );
+    }
+    for lines in [0, i16::MAX as u16 + 1, u16::MAX] {
+        assert_eq!(
+            resize_coord(WindowSize { num_lines: lines, ..SIZE }).err().unwrap().kind(),
+            ErrorKind::InvalidInput
+        );
+    }
+    let max =
+        resize_coord(WindowSize { num_cols: i16::MAX as u16, num_lines: i16::MAX as u16, ..SIZE })
+            .unwrap();
+    assert_eq!((max.X, max.Y), (i16::MAX, i16::MAX));
+    let code = 0x80070005u32 as i32;
+    let metadata = crate::event::ResizeError::from(resize_result(code).unwrap_err());
+    assert_eq!(metadata.code, Some(code));
+    assert!(resize_result(0).is_ok());
+}
+
 fn options() -> Options {
     Options {
         shell: Some(Shell::new("cmd.exe".into(), vec!["/d".into(), "/c".into(), "exit 0".into()])),

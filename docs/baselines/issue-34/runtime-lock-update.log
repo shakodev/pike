@@ -1,0 +1,4 @@
+     Locking 1 package to latest Rust 1.85.0 compatible version
+      Adding iced_runtime v0.14.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_runtime)
+    Removing iced_runtime v0.14.0
+note: pass `--verbose` to see 5 unchanged dependencies behind latest

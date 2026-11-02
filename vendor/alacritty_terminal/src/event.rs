@@ -76,6 +76,9 @@ pub enum Event {
 
     /// Child process exited with an error code.
     ChildExit(i32),
+
+    /// Latest native resize result; contains only a serial, dimensions and code.
+    ResizeCompleted(ResizeResult),
 }
 
 impl Debug for Event {
@@ -94,6 +97,7 @@ impl Debug for Event {
             Event::Bell => write!(f, "Bell"),
             Event::Exit => write!(f, "Exit"),
             Event::ChildExit(code) => write!(f, "ChildExit({code})"),
+            Event::ResizeCompleted(result) => write!(f, "ResizeCompleted({result:?})"),
         }
     }
 }
@@ -106,7 +110,7 @@ pub trait Notify {
     fn notify<B: Into<Cow<'static, [u8]>>>(&self, _: B);
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct WindowSize {
     pub num_lines: u16,
     pub num_cols: u16,
@@ -125,6 +129,31 @@ pub struct TextAreaSize {
 /// Types that are interested in when the display is resized.
 pub trait OnResize {
     fn on_resize(&mut self, window_size: WindowSize);
+
+    /// Additive fallible adapter; existing third-party implementations remain valid.
+    fn try_on_resize(&mut self, window_size: WindowSize) -> std::io::Result<()> {
+        self.on_resize(window_size);
+        Ok(())
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ResizeError {
+    pub kind: std::io::ErrorKind,
+    pub code: Option<i32>,
+}
+
+impl From<std::io::Error> for ResizeError {
+    fn from(error: std::io::Error) -> Self {
+        Self { kind: error.kind(), code: error.raw_os_error() }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ResizeResult {
+    pub serial: u64,
+    pub size: WindowSize,
+    pub result: Result<(), ResizeError>,
 }
 
 /// Event Loop for notifying the renderer about terminal events.

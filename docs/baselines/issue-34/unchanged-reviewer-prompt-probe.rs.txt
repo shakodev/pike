@@ -1,0 +1,74 @@
+//! Independent finite probe: original two launch preparations occupy the
+//! original blocking executor while a renderer-timeout prompt is queued.
+//! No PTY or child is created, and both gated workers are released before RED.
+#![allow(dead_code)]
+#[path = "../../source-df6087f/src/identity.rs"]
+pub mod identity;
+#[path = "../../source-df6087f/src/launch.rs"]
+mod launch;
+#[path = "../../source-df6087f/src/native_cleanup.rs"]
+mod native_cleanup;
+
+use iced::Executor;
+use pike::executor::SharedExecutor;
+use std::sync::{Arc, mpsc};
+use std::time::Duration;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let executor = SharedExecutor::new()?;
+    let mut pool = launch::LaunchPool::default();
+    let (started, observed) = mpsc::channel();
+    let mut gates = Vec::new();
+    let mut requests = Vec::new();
+    for _ in 0..2 {
+        let (release, gate) = mpsc::channel();
+        gates.push(release);
+        let started = started.clone();
+        requests.push(executor.enter(|| pool.start_with(move |_| {
+            started.send(()).unwrap();
+            // Test-owned finite bound prevents accidental fixture hangs.
+            gate.recv_timeout(Duration::from_secs(10)).unwrap();
+            Err(std::io::ErrorKind::Other.into())
+        }))?);
+    }
+    observed.recv_timeout(Duration::from_secs(2))?;
+    observed.recv_timeout(Duration::from_secs(2))?;
+    let prompt = Arc::new(native_cleanup::Prompt::default());
+    let queued_prompt = prompt.clone();
+    let (entered, shown) = mpsc::channel();
+    let response = executor.enter(|| tokio::spawn(async move {
+        tokio::task::spawn_blocking(move || {
+            entered.send(()).unwrap();
+            queued_prompt.show()
+        }).await.unwrap()
+    }));
+    let began_before_release = shown.recv_timeout(Duration::from_millis(300)).is_ok();
+    // Match completed cleanup/cancellation before the queued callback can run;
+    // even on Windows the probe must never leave a modal dialog open.
+    prompt.cancel();
+    for release in gates { release.send(())?; }
+    executor.block_on(async {
+        tokio::time::timeout(Duration::from_secs(3), pool.shutdown()).await.unwrap();
+    });
+    let decision = executor.block_on(response)?;
+    for request in requests {
+        assert!(executor.block_on(request.receive()).is_err());
+    }
+    println!("two_real_launch_preparations_started=true prompt_entered_before_release={began_before_release} prompt_decision={decision:?} pool_cleanup={}", pool.shutdown_complete());
+    // On non-Windows a correctly scheduled prompt may already have returned
+    // its truthful Unavailable result before cancellation. Scheduling capacity
+    // is the invariant here; precancel behavior is verified separately.
+    if began_before_release && cfg!(not(windows)) {
+        assert!(matches!(decision,
+            native_cleanup::Decision::Cancelled |
+            native_cleanup::Decision::Unavailable(None)
+        ));
+    } else {
+        assert_eq!(decision, native_cleanup::Decision::Cancelled);
+    }
+    assert!(pool.shutdown_complete());
+    if !began_before_release {
+        return Err("renderer-timeout prompt cannot begin while both admitted launch preparations occupy the existing blocking slots".into());
+    }
+    Ok(())
+}

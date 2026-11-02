@@ -1,0 +1,52 @@
+    Checking iced_runtime v0.14.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_runtime)
+    Checking iced_program v0.14.0
+    Checking iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:566:55
+    |
+566 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:282:64
+    |
+282 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: type `Recovery` is more private than the item `window::Window::render_recovery`
+   --> vendor/iced_winit/src/window.rs:173:5
+    |
+173 |     pub render_recovery: crate::renderer_errors::Recovery,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ field `window::Window::render_recovery` is reachable at visibility `pub`
+    |
+note: but type `Recovery` is only usable at visibility `pub(crate)`
+   --> vendor/iced_winit/src/renderer_errors.rs:9:1
+    |
+  9 | pub(crate) struct Recovery {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = note: `#[warn(private_interfaces)]` on by default
+
+warning: `iced_winit` (lib) generated 3 warnings
+    Checking iced v0.14.0
+    Checking iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_term)
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c)
+warning: methods `error_view` and `passive_error_view` are never used
+   --> src/app/errors.rs:130:19
+    |
+ 10 | impl App {
+    | -------- methods in this implementation
+...
+130 |     pub(super) fn error_view(&self, owner: Owner) -> Option<Element<'_, Message>> {
+    |                   ^^^^^^^^^^
+...
+169 |     pub(super) fn passive_error_view(&self) -> Option<Element<'_, Message>> {
+    |                   ^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `pike` (lib) generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.18s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

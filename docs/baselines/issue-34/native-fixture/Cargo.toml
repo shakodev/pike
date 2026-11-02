@@ -1,0 +1,24 @@
+[package]
+name = "pike-recoverable-native-fixture"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+pike = { path = "../../../.." }
+iced = { version = "=0.14.0", default-features = false, features = ["tokio", "crisp", "wgpu"] }
+iced_runtime = "=0.14.0"
+iced_term = { version = "=0.8.0", default-features = false }
+iced_winit = { version = "=0.14.1", default-features = false, features = ["recoverable-error-fixtures"] }
+tokio = { version = "=1.54.1", default-features = false, features = ["time"] }
+
+[patch.crates-io]
+iced_runtime = { path = "../../../../vendor/iced_runtime" }
+iced_winit = { path = "../../../../vendor/iced_winit" }
+iced_term = { path = "../../../../vendor/iced_term" }
+alacritty_terminal = { path = "../../../../vendor/alacritty_terminal" }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "=0.59.0", features = ["Win32_Foundation", "Win32_System_Threading"] }

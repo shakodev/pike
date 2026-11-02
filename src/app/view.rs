@@ -45,6 +45,19 @@ impl App {
             container(text("Closing terminals…").size(tokens::BODY))
                 .center(Fill)
                 .into()
+        } else if self.boot.is_some()
+            || (self.settings.booting && self.model.workspace().order().is_empty())
+        {
+            container(
+                text(if self.settings.pending {
+                    "Loading settings…"
+                } else {
+                    "Preparing Pike…"
+                })
+                .size(tokens::BODY),
+            )
+            .center(Fill)
+            .into()
         } else if let Some(tab_id) = self.model.workspace().active() {
             self.pane_grid(tab_id, &references)
         } else {
@@ -88,21 +101,11 @@ impl App {
             .unwrap_or(false);
         let mut content = column![chrome.map(Message::Control)].spacing(0);
         // Passive host rows stay outside the terminal's clipped/pannable area.
-        // R34 can insert its typed error presentation at this same seam.
         let mut passive = column![].spacing(tokens::SPACE);
         let mut has_passive = false;
-        if !self.exiting && self.settings.enabled {
-            if self.settings.pending {
-                passive = passive.push(text("Reloading settings…").size(tokens::SMALL));
-                has_passive = true;
-            }
-            if let Some(error) = self.settings.error {
-                passive = passive.push(text(ui::plain_title(
-                    &format!("{error} Correct settings.toml, then reload from Commands; the last valid configuration remains active."),
-                    512,
-                )).size(tokens::SMALL));
-                has_passive = true;
-            }
+        if !self.exiting && self.settings.enabled && self.settings.pending {
+            passive = passive.push(text("Reloading settings…").size(tokens::SMALL));
+            has_passive = true;
         }
         if constrained {
             passive = passive.push(
@@ -123,6 +126,16 @@ impl App {
                     .style(style::surface)
                     .id("workspace-notices"),
             );
+        } else {
+            content = content.push(iced::widget::Space::new().width(Fill));
+        }
+        // Ordinary Column diffs by position. Keep both passive slots even
+        // when empty so appearance/removal cannot rebuild the healthy grid.
+        // Shrink height lays out to zero; Fixed(0) would be omitted by push.
+        if let Some(recovery) = self.passive_error_view() {
+            content = content.push(recovery);
+        } else {
+            content = content.push(iced::widget::Space::new().width(Fill));
         }
         let content = content.push(pane);
         super::resize::capture(

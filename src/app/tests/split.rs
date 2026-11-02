@@ -180,7 +180,7 @@ fn host_geometry_uses_measured_cells_and_accounts_for_status_chrome() {
         target.tab,
         Size::new(2.0 * width + super::super::split::GUTTER, height),
     ));
-    app.sessions.entries.get_mut(&id).unwrap().notice = Some("synthetic input notice".into());
+    app.sessions.entries.get_mut(&id).unwrap().ended = true;
     assert!(
         executor
             .enter(|| app.begin_split(target, Direction::Right))
@@ -188,7 +188,7 @@ fn host_geometry_uses_measured_cells_and_accounts_for_status_chrome() {
     );
     assert_eq!(app.model.sessions().len(), 1);
     assert!(app.notice.unwrap().contains("20×5"));
-    app.sessions.entries.get_mut(&id).unwrap().notice = None;
+    app.sessions.entries.get_mut(&id).unwrap().ended = false;
     let request = executor
         .enter(|| app.begin_split(target, Direction::Right))
         .unwrap();
@@ -407,7 +407,7 @@ fn slow_queued_split_is_cancelable_while_the_original_remains_usable() {
     let gate = Arc::new((Mutex::new(false), Condvar::new()));
     let (started, observed) = mpsc::channel();
     let mut blockers = vec![];
-    for _ in 0..2 {
+    for _ in 0..crate::executor::BLOCKING_WORKERS {
         let gate = gate.clone();
         let started = started.clone();
         blockers.push(executor.enter(|| {
@@ -420,7 +420,7 @@ fn slow_queued_split_is_cancelable_while_the_original_remains_usable() {
             })
         }));
     }
-    for _ in 0..2 {
+    for _ in 0..crate::executor::BLOCKING_WORKERS {
         observed.recv_timeout(DEADLINE).unwrap();
     }
     let request = executor

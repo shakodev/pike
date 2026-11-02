@@ -15,7 +15,16 @@ fn missing_tab_is_typed_atomic_and_recovers_through_existing_activation() {
     assert_eq!(app.active_session(), owner);
     assert_eq!(app.active_target(), target);
     assert_eq!(app.model.sessions().len(), 1);
-    assert!(app.notice.unwrap().contains("Commands menu"));
+    assert!(
+        app.latest_error(owner.map_or(
+            crate::errors::Owner::Application,
+            crate::errors::Owner::Session
+        ))
+        .unwrap()
+        .error
+        .message()
+        .contains("Commands menu")
+    );
     command(&mut app, Command::SelectTab(TabSelection::Index(0)));
     assert_eq!(app.command_error(), None);
     assert_eq!(app.active_session(), owner);
@@ -101,7 +110,12 @@ fn new_tab_capacity_refusal_uses_the_existing_guard_and_retains_current_owner() 
         app.sessions.entries.is_empty(),
         "refusal launched a native owner"
     );
-    assert!(app.notice.unwrap().contains("32-session limit"));
+    assert_eq!(
+        app.latest_error(crate::errors::Owner::Session(owner))
+            .unwrap()
+            .error,
+        crate::errors::Error::Operation(Error::NewTabRefused)
+    );
     command(&mut app, Command::SelectTab(TabSelection::Last));
     assert_eq!(app.command_error(), None);
     assert_eq!(app.active_session(), Some(owner));

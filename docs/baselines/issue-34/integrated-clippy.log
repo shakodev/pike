@@ -1,0 +1,89 @@
+    Blocking waiting for file lock on build directory
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/alacritty_terminal)
+    Checking iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_term)
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c)
+error: this `if` statement can be collapsed
+   --> src/app/view.rs:106:9
+    |
+106 | /         if !self.exiting && self.settings.enabled {
+107 | |             if self.settings.pending {
+108 | |                 passive = passive.push(text("Reloading settings…").size(tokens::SMALL));
+109 | |                 has_passive = true;
+110 | |             }
+111 | |         }
+    | |_________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+106 ~         if !self.exiting && self.settings.enabled
+107 ~             && self.settings.pending {
+108 |                 passive = passive.push(text("Reloading settings…").size(tokens::SMALL));
+109 |                 has_passive = true;
+110 ~             }
+    |
+
+error: this `if` statement can be collapsed
+   --> src/app.rs:392:17
+    |
+392 | /                 if !self.interaction_blocked() || close::background_event(&event) {
+393 | |                     if let Some(result) =
+394 | |                         self.sessions
+395 | |                             .route(&mut self.model, &self.window_focus, id, event)
+...   |
+404 | |                 }
+    | |_________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#collapsible_if
+help: collapse nested if block
+    |
+392 ~                 if (!self.interaction_blocked() || close::background_event(&event)) {
+393 ~                     && let Some(result) =
+394 |                         self.sessions
+...
+402 |                         }
+403 ~                     }
+    |
+
+error: this `let...else` may be rewritten with the `?` operator
+   --> src/terminal.rs:194:9
+    |
+194 | /         let Some(entry) = self.entries.get_mut(&origin) else {
+195 | |             return None;
+196 | |         };
+    | |__________^ help: replace it with: `let entry = self.entries.get_mut(&origin)?;`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#question_mark
+    = note: `-D clippy::question-mark` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::question_mark)]`
+
+error: this `let...else` may be rewritten with the `?` operator
+   --> src/terminal.rs:197:9
+    |
+197 | /         let Some(session) = model.sessions().get(origin) else {
+198 | |             return None;
+199 | |         };
+    | |__________^ help: replace it with: `let session = model.sessions().get(origin)?;`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#question_mark
+
+error: could not compile `pike` (lib) due to 4 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `pike` (lib test) due to 4 previous errors

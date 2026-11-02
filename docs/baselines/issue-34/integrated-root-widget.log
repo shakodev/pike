@@ -1,0 +1,38 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c)
+error[E0499]: cannot borrow `host.app` as mutable more than once at a time
+   --> src/app/tests/errors/root.rs:143:15
+    |
+143 |     host.task(host.app.select(target));
+    |     ---- ---- ^^^^^^^^ second mutable borrow occurs here
+    |     |    |
+    |     |    first borrow later used by call
+    |     first mutable borrow occurs here
+    |
+help: try adding a local storing this argument...
+   --> src/app/tests/errors/root.rs:143:15
+    |
+143 |     host.task(host.app.select(target));
+    |               ^^^^^^^^^^^^^^^^^^^^^^^
+help: ...and then using that local as the argument to this call
+   --> src/app/tests/errors/root.rs:143:5
+    |
+143 |     host.task(host.app.select(target));
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0499`.
+error: could not compile `pike` (lib test) due to 1 previous error

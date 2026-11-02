@@ -410,14 +410,53 @@ impl OnResize for Pty {
     /// Tells the kernel that the window size changed with the new pixel
     /// dimensions and line/column counts.
     fn on_resize(&mut self, window_size: WindowSize) {
-        let win = window_size.to_winsize();
+        let _ = self.try_on_resize(window_size);
+    }
 
-        let res =
-            unsafe { libc::ioctl(self.file().as_raw_fd(), libc::TIOCSWINSZ, &win as *const _) };
+    fn try_on_resize(&mut self, window_size: WindowSize) -> std::io::Result<()> {
+        resize_fd(self.file().as_raw_fd(), window_size)
+    }
+}
 
-        if res < 0 {
-            die!("ioctl TIOCSWINSZ failed: {}", Error::last_os_error());
+fn resize_fd(fd: std::os::fd::RawFd, window_size: WindowSize) -> std::io::Result<()> {
+    let win = window_size.to_winsize();
+
+    let res = unsafe { libc::ioctl(fd, libc::TIOCSWINSZ, &win as *const _) };
+
+    if res < 0 {
+        return Err(Error::last_os_error());
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod resize_errors {
+    use super::*;
+    #[test]
+    fn invalid_native_fd_returns_bounded_error_and_preserves_process() {
+        let error = resize_fd(
+            -1,
+            WindowSize { num_lines: 24, num_cols: 80, cell_width: 8, cell_height: 16 },
+        )
+        .unwrap_err();
+        assert_eq!(error.raw_os_error(), Some(libc::EBADF));
+        let metadata = crate::event::ResizeError::from(error);
+        assert_eq!(metadata.code, Some(libc::EBADF));
+    }
+
+    #[test]
+    fn native_pixel_conversion_saturates_without_wrapping_grid_dimensions() {
+        let win = WindowSize {
+            num_cols: u16::MAX,
+            num_lines: u16::MAX,
+            cell_width: u16::MAX,
+            cell_height: u16::MAX,
         }
+        .to_winsize();
+        assert_eq!(win.ws_col, u16::MAX);
+        assert_eq!(win.ws_row, u16::MAX);
+        assert_eq!(win.ws_xpixel, u16::MAX);
+        assert_eq!(win.ws_ypixel, u16::MAX);
     }
 }
 
@@ -432,8 +471,8 @@ impl ToWinsize for WindowSize {
         let ws_row = self.num_lines as libc::c_ushort;
         let ws_col = self.num_cols as libc::c_ushort;
 
-        let ws_xpixel = ws_col * self.cell_width as libc::c_ushort;
-        let ws_ypixel = ws_row * self.cell_height as libc::c_ushort;
+        let ws_xpixel = ws_col.saturating_mul(self.cell_width as libc::c_ushort);
+        let ws_ypixel = ws_row.saturating_mul(self.cell_height as libc::c_ushort);
         Winsize { ws_row, ws_col, ws_xpixel, ws_ypixel }
     }
 }

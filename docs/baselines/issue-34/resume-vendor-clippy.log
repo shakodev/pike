@@ -1,0 +1,45 @@
+    Checking futures-util v0.3.34
+    Checking wgpu-types v27.0.1
+    Checking softbuffer v0.4.8
+    Checking winit v0.30.13
+    Checking window_clipboard v0.5.1
+    Checking alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/alacritty_terminal)
+    Checking wgpu-hal v27.0.4
+    Checking serde_json v1.0.154
+    Checking tokio v1.54.1
+    Checking futures-executor v0.3.34
+    Checking futures v0.3.34
+    Checking wgpu-core-deps-apple v27.0.0
+    Checking iced_futures v0.14.0
+    Checking wgpu-core v27.0.3
+    Checking iced_graphics v0.14.0
+    Checking iced_debug v0.14.0
+    Checking iced_tiny_skia v0.14.1
+    Checking iced_runtime v0.14.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_runtime)
+    Checking iced_program v0.14.0
+    Checking iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking wgpu v27.0.1
+    Checking cryoglyph v0.1.0
+    Checking iced_wgpu v0.14.0
+    Checking iced_renderer v0.14.0
+    Checking iced_widget v0.14.2
+    Checking iced v0.14.0
+    Checking iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_term)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 7.46s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

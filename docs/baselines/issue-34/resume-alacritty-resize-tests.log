@@ -1,0 +1,25 @@
+    Blocking waiting for file lock on build directory
+   Compiling alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/alacritty_terminal)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.63s
+     Running unittests src/lib.rs (target/debug/deps/alacritty_terminal-da7c3e294e0471c9)
+
+running 3 tests
+test tty::unix::resize_errors::invalid_native_fd_returns_bounded_error_and_preserves_process ... ok
+test event_loop::read_tests::continuation_services_input_and_resize_between_bounded_read_turns ... FAILED
+test event_loop::lifecycle_tests::fallible_resize_receipt_keeps_worker_and_input_alive_without_private_context ... ok
+
+failures:
+
+---- event_loop::read_tests::continuation_services_input_and_resize_between_bounded_read_turns stdout ----
+
+thread 'event_loop::read_tests::continuation_services_input_and_resize_between_bounded_read_turns' (424366) panicked at vendor/alacritty_terminal/src/event_loop/read_tests.rs:183:64:
+called `Result::unwrap()` on an `Err` value: Os { code: 1, kind: PermissionDenied, message: "Operation not permitted" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    event_loop::read_tests::continuation_services_input_and_resize_between_bounded_read_turns
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 159 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p alacritty_terminal --lib`

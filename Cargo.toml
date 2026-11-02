@@ -8,7 +8,7 @@ description = "A lightweight, Windows-first terminal multiplexer"
 [workspace]
 members = ["vendor/iced_term", "vendor/alacritty_terminal"]
 default-members = ["."]
-exclude = ["vendor/iced_winit"]
+exclude = ["vendor/iced_winit", "vendor/iced_runtime"]
 resolver = "3"
 
 [features]
@@ -19,6 +19,8 @@ renderer-tiny-skia = ["iced/tiny-skia"]
 [dependencies]
 iced = { version = "=0.14.0", default-features = false, features = ["tokio", "crisp"] }
 iced_term = { version = "=0.8.0", default-features = false }
+# The pinned runtime exposes metadata-only acknowledged clipboard writes.
+iced_runtime = "=0.14.0"
 serde = { version = "=1.0.229", features = ["derive"] }
 toml = { version = "=1.1.8", default-features = false, features = ["std", "serde", "parse", "display"] }
 tokio = { version = "=1.54.1", default-features = false, features = ["rt-multi-thread", "sync", "time"] }
@@ -27,12 +29,12 @@ tokio = { version = "=1.54.1", default-features = false, features = ["rt-multi-t
 iced_term = { path = "vendor/iced_term" }
 alacritty_terminal = { path = "vendor/alacritty_terminal" }
 iced_winit = { path = "vendor/iced_winit" }
-
-[dev-dependencies]
-# Drive the pinned runtime's actual tasks, subscriptions and widget operations
-# in the command-routing fixture without adding a production runtime.
-iced_runtime = "=0.14.0"
+iced_runtime = { path = "vendor/iced_runtime" }
 
 [target.'cfg(windows)'.dev-dependencies]
 # Windows-only controlled console/clipboard fixtures; no production clipboard backend.
 windows-sys = { version = "=0.59.0", features = ["Win32_Foundation", "Win32_System_Console", "Win32_System_DataExchange", "Win32_System_Memory", "Win32_System_Threading", "Win32_UI_WindowsAndMessaging"] }
+
+[target.'cfg(windows)'.dependencies]
+# Fixed native failure report when no renderer/window can display a banner.
+windows-sys = { version = "=0.59.0", features = ["Win32_UI_WindowsAndMessaging"] }

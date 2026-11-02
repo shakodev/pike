@@ -11,7 +11,6 @@ use std::sync::Arc;
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 
-use log::error;
 use polling::{Event as PollingEvent, Events, PollMode};
 
 use crate::event::{self, Event, EventListener, WindowSize};
@@ -38,6 +37,8 @@ pub enum Msg {
 
     /// Instruction to resize the PTY.
     Resize(WindowSize),
+    /// Acknowledged resize on the same PTY worker and channel.
+    ResizeTracked { serial: u64, size: WindowSize },
 }
 
 /// Why the I/O loop stopped. Payloads contain no terminal text.
@@ -147,7 +148,18 @@ where
             match msg {
                 Msg::Input(_) => unreachable!("input is admitted through the bounded queue"),
                 Msg::Resize(_) if read_eof => (),
-                Msg::Resize(window_size) => self.pty.on_resize(window_size),
+                Msg::Resize(window_size) => {
+                    let _ = self.pty.try_on_resize(window_size);
+                },
+                Msg::ResizeTracked { .. } if read_eof => (),
+                Msg::ResizeTracked { serial, size } => {
+                    let result = self.pty.try_on_resize(size).map_err(Into::into);
+                    self.event_proxy.send_event(Event::ResizeCompleted(event::ResizeResult {
+                        serial,
+                        size,
+                        result,
+                    }));
+                },
                 Msg::Shutdown => return false,
             }
         }
@@ -429,7 +441,6 @@ where
                                 Ok(ReadStatus::More) => read_pending = true,
                                 Ok(ReadStatus::Pending) => (),
                                 Err(err) => {
-                                    error!("Error reading from PTY in event loop: {err}");
                                     completion.reason = ExitReason::IoError(err.kind());
                                     break 'event_loop;
                                 },
@@ -440,7 +451,6 @@ where
                 }
             }
             if let Err(err) = self.finish_io_turn(&mut state, &mut interest, read_eof) {
-                error!("Error servicing PTY input in event loop: {err}");
                 completion.reason = ExitReason::IoError(err.kind());
                 break;
             }
@@ -582,10 +592,10 @@ impl EventLoopSender {
                     .upgrade()
                     .map_or(Ok(()), |poller| poller.notify().map_err(EventLoopSendError::Io));
             },
-            Msg::Resize(_) if self.input.is_closed() => {
+            Msg::Resize(_) | Msg::ResizeTracked { .. } if self.input.is_closed() => {
                 return Err(EventLoopSendError::Input(InputError::Closed));
             },
-            Msg::Resize(_) => {},
+            Msg::Resize(_) | Msg::ResizeTracked { .. } => {},
         }
         self.sender.send(msg).map_err(EventLoopSendError::Send)?;
         self.poller

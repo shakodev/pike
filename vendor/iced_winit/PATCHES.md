@@ -37,3 +37,43 @@
 - Remove once the pinned upstream runtime refreshes the native candidate area
   when native scale changes without interrupting active composition. See
   [R19 verification](../../docs/verification/issue-19.md) for evidence and limits.
+
+## R34 / issue #34 — private actionable clipboard results
+
+- Add `Clipboard::try_write` around the existing window_clipboard implementation,
+  returning only pinned iced_runtime's WriteError codes. The legacy void writer
+  delegates to it; raw platform errors are dropped instead of repeatedly logged.
+- Route the additive WriteWithResult action through the same concrete writer and
+  send the real result through its existing task channel. No clipboard readback,
+  second backend, iced_core trait change, worker or periodic task.
+- Extract only the existing clipboard action dispatch for deterministic tests.
+  Explicit tests cover the concrete unconnected host's acknowledged failure and
+  injected native failure mapping, including secret-bearing error strings.
+- Remove with upstream equivalent safe acknowledged clipboard writes; see the
+  [runtime patch](../iced_runtime/PATCHES.md) for exact source provenance.
+
+## R34 / issue #34 — finite existing compositor recovery and safe cleanup
+
+- Replace OOM panic and unbounded per-frame retry/logging with three transient
+  retries per window. Successful presentation or an externally changed surface
+  generation resets the counter. Lost/Outdated still use the original surface
+  recreation/reconfiguration path; no renderer fallback is added.
+- On exhaustion, pause presentation and send one typed failure through the
+  registered runtime sink. Continue ordinary lifecycle delivery until the App's
+  original pool shutdown completes; then its existing Exit returns a fixed
+  graphics error. With no sink, return the safe existing Result immediately;
+  Pike's production boot gate ensures no backend exists before registration.
+- Map event-loop creation/run errors into that safe Result instead of expecting
+  or discarding them. Clipboard and renderer metadata never include raw driver,
+  platform, clipboard, terminal, argument, environment or title strings.
+- Add off-by-default `recoverable-error-fixtures` with a maximum-four finite
+  SurfaceError queue at the actual compositor result. Only the isolated local
+  native fixture manifest enables it; normal Pike builds do not compile a fault
+  injection API. No environment trigger, alternate compositor, PTY or timer.
+- Explicit tests cover the budget, surface/success reset, OOM, ordered readiness
+  plus one failure, clipboard conversion, and adjacent candidate-area behavior.
+  Actual native-window controlled-child evidence is retained in issue-34.
+- Partial checkpoint: the proposed stalled-renderer native timeout dialog and
+  broader native resize error propagation were NOT implemented at owner stop.
+- Remove when the pinned upstream host offers equivalent bounded recovery,
+  metadata delivery and cleanup ordering.
