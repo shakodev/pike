@@ -1,0 +1,4 @@
+session=3 pid=14768 Completion { reason: Requested, exit_code: None, output_drained: false }
+session=5 pid=14774 Completion { reason: Requested, exit_code: None, output_drained: false }
+session=7 pid=14777 Completion { reason: Requested, exit_code: None, output_drained: false }
+session=8 pid=14780 Completion { reason: Requested, exit_code: None, output_drained: false }

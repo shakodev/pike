@@ -1,149 +1,159 @@
-# R31 — settings checkpoint; stopped at owner request
+# R31 — versioned settings and explicit live reload
 
-**Incomplete task; no PR opened and no merge performed.** The owner requested
-all workers to finish at safe checkpoints and stop before final integration and
-verification. Product source is published at
-`f561096f7140c83c27328e6e0533e14c46c4d905` on `issue-31-settings`. The final
-preservation commit also retains reports, synthetic evidence and one fixture-only
-extension selecting an explicit font family on reload. That last fixture change
-was formatted but **not compiled or run** after the stop; its exact patch is
-[retained](../baselines/issue-31/unvalidated-fixture-family.patch).
+Author implementation and local verification are complete. The original owner
+stop report remains unchanged in [issue-31-owner-stop.md](issue-31-owner-stop.md),
+with failed runs, prior evidence, checkpoints and build caches preserved. The
+owner resumed this same task; no unmerged source was imported. Independent
+Reviewer 2 owns the final review; the author does not merge this PR.
 
-The exact initial base was fetched and verified as actual merged R30 main
-`9bafb5f4f2686d61c45478667737b433bee634ce`. Clean issue26 original
-`b8cba879bcc0fdefa75845309135cd8a84750726` and its original branch remain,
-with additional `checkpoint/a-issue26-before-r31-b8cba87`. No prior refs,
-reports, builds or cache were deleted; no unmerged implementation was imported.
-The coordinator later reported actual R27 merge
-`1e90fb3754d69ec8e60632f6010432bf1273f370` together with the stop instruction.
-It was **not integrated**, as expressly directed. Local `origin/main` was last
-fetched at `9bafb5f`; this report does not claim that tracking ref is current.
+## Source and integration identity
 
-## Implemented behavior
+- Original exact base: actual merged R30/PR80
+  `9bafb5f4f2686d61c45478667737b433bee634ce`.
+- Preserved clean pushed stop checkpoint:
+  `e393033daa9411d67ab4bcbff21b225bf11f2202`, containing original product
+  `f561096f7140c83c27328e6e0533e14c46c4d905`.
+- Fetched/verified actual merged R27/PR79:
+  `1e90fb3754d69ec8e60632f6010432bf1273f370`, integrated once in
+  `adbcf0fbea283a05da912eadcc98485c069b1440`. Only `app/view.rs` imports
+  conflicted; R27 pane-grid extraction, gesture synchronization and focus
+  ownership were preserved. Pane/workspace-moving/vendor files are unchanged
+  relative to actual main.
+- Complete compiled source including the focused combined fixture:
+  `d4b410801c2afc60fe1a3a7ddc60b0f145a401c5`, tree
+  `1d96770cc741757863943a3dfee308c79a0f842e`. Product source is identical to
+  `adbcf0f`; subsequent report/artifact commits do not change compiled code.
+- Native combined fixture executable SHA-256:
+  `0f178665c8cc388448c8e795d7690bbabb3a07a21f344a5fbb9ae2cdaa37f3b8`.
 
-- Bounded version-one TOML in `%LOCALAPPDATA%\Pike\settings.toml`, with documented
-  defaults and no startup creation, watcher, periodic work or automatic save.
-  Whole-file validation and recoverable redacted errors retain the last valid
-  configuration. Direct serde 1.0.229 and TOML 1.1.8 dependencies are lock-pinned;
-  no second format crate, PTY or global environment mutation was introduced.
-- Explicit **Ctrl+Shift+F5 / Reload settings** uses the existing common typed
-  resolver/capture with Help/modal/IME priority. Bare F5 remains terminal-owned.
-  Live font/palette/history use existing adapter commands without vendor changes.
-  Font zoom resets to configured size; reducing history discards oldest lines.
-- Up to sixteen named profiles with cwd/env/args; a visible Iced picker explicitly
-  creates a tab with a chosen profile. Stable per-session profile identity stays
-  separate from frozen launch settings. New/split/restart resolves current launch
-  data; current explicit cwd wins, otherwise source launch cwd is inherited.
-  Deleted profiles refuse inheritance/restart recoverably without fallback.
-- Configurable conservative close confirmation or `never`, through the same
-  captured session-set and native cleanup path. Typed bounded shortcut data is
-  validated/retained; applying remaps remains R32's feature.
-- An explicit `Store::save` API validates the target, writes a same-directory
-  exclusive temporary, flushes and closes it, then uses Windows-compatible
-  `std::fs::rename` replacement without deleting the target first. Broken files
-  and prior targets survive failed writes; only the caller's temporary is cleaned.
+Dependencies R9 (`081ec9c`), R12 (`0a1bf7f`), R20 (`e227317`) and R30
+(`9bafb5f`) are ancestors of verified actual main. Original issue26 branch
+and `checkpoint/a-issue26-before-r31-b8cba87` remain at
+`b8cba879bcc0fdefa75845309135cd8a84750726`. No refs, reports or caches were
+deleted. Personal `CODEX_HOME="$HOME/.codex-personal"` login was verified;
+no global/account settings or additional workers were introduced.
 
-Full schema, bounds, Windows replacement references and existing/new-session
-semantics are in [settings documentation](../settings.md). The implementation
-inspected pinned Iced 0.14, patched iced_term 0.8 and Windows launch sources.
-The agreed R27 pane/Focus-adjacent ownership seam, focus Authority and Capture
-source were not edited. Exactly the existing native worker roles were used;
-no child workers were created. Personal `CODEX_HOME="$HOME/.codex-personal"`
-login was verified; no global/account settings were changed.
+## Behavior and acceptance
 
-## Verification actually completed locally
+- [x] Version 1 UTF-8 TOML at `%LOCALAPPDATA%\Pike\settings.toml`; missing files
+  select documented defaults without creating anything. Reads are bounded to
+  64 KiB. Whole-file validation rejects unknown versions/fields, bad types,
+  invalid executable/cwd/args/environment, font/ranges/theme/history/close
+  policy and shortcut schema. Errors identify a field or source location without
+  echoing values; failed reloads preserve the entire last valid configuration.
+- [x] **Reload settings / Ctrl+Shift+F5** uses the one existing typed resolver
+  and captured owner, with Help, tab-dialog, close-modal and IME priority.
+  Bare F5 stays terminal-owned. No watcher, periodic read, background settings
+  service, automatic save or settings editor was introduced.
+- [x] Font family/size, terminal palette/application theme and history apply to
+  visible, hidden and exited terminal owners without restarting processes.
+  Reload resets per-pane font zoom; reducing history discards oldest lines,
+  raising it permits future growth. Pending attachments use current appearance.
+- [x] Up to sixteen named launch profiles support literal args/cwd/env, with a
+  visible profile picker. Stable profile identity is separate from frozen launch
+  settings: new/split/restart resolves current settings, with current explicit
+  cwd winning and frozen source cwd as fallback. Removed profiles fail
+  recoverably without a replacement reservation or silent fallback.
+- [x] Conservative close confirmation or `never` uses the existing captured
+  session set and cleanup owner. Shortcut data is typed, bounded, normalized
+  and validated; **R32 owns applying remaps** through the existing resolver.
+- [x] Explicit `Store::save` validates, creates an exclusive same-directory
+  temporary, writes/flushes/closes it, then replaces via `std::fs::rename`.
+  Broken targets and prior bytes survive failed writes/flush/replace; only the
+  caller's temporary is cleaned. No process-global environment mutation,
+  terminal transcript or credentials logging was added.
 
-macOS 26.7.1 / 25G241, arm64, Rust 1.97.1, default wgpu, locked/offline
-dependencies, `CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target` in this worktree.
-Native graphics/PTY checks ran outside the sandbox; normal model/I/O tests ran
-locally. All checks already in flight at stop returned exit 0; the complete
-native fixture finished with App model empty and native cleanup acknowledgements.
+[Settings documentation](../settings.md) records defaults, bounds, profile
+examples and exact existing/new-session semantics. Exact pinned Iced 0.14,
+iced_term 0.8 settings/font/terminal/backend, Alacritty launch and TOML/serde
+sources were inspected. Existing `ChangeFont`, `ChangeTheme` and
+`SetHistoryLimit` suffice; no vendor extension was needed. The
+[Rust rename contract](https://doc.rust-lang.org/std/fs/fn.rename.html) and
+[Windows replacement/ACL contract](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-movefileexw)
+were checked: replacement never deletes the target first or falls back to
+copy/delete. The Windows sharing-violation regression compiles in the MSVC
+check; it was not executed on Windows. Atomic publication does not promise
+arbitrary power-loss recovery or synchronization with a concurrently writing editor.
 
-| Command / exact scope | Actual result |
+## Local verification on the integrated source
+
+macOS **26.7.2 / 25G332**, arm64; rustc **1.97.1**; default wgpu. Cargo checks
+used `CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target` in this worktree, offline and
+locked. Native graphics/PTY checks ran outside the sandbox. Logs, exact commands,
+results and hashes are retained in
+[resume/provenance.json](../baselines/issue-31/resume/provenance.json) and
+[resume/artifacts.json](../baselines/issue-31/resume/artifacts.json).
+
+| Command | Actual result |
 | --- | --- |
-| `cargo check --offline -p pike --lib` | Initial settings model passed and produced the pinned lockfile. |
-| `cargo test --offline --locked -p pike --lib settings::` | Initial 12 focused model/I/O cases passed. |
-| `cargo test --offline --locked -p pike --lib settings` | 16 host/model/I/O cases passed at the initial host checkpoint; final focused run at `f561096` passed **18**, 0 failed. |
-| Exact `settings::tests::function_key_numeric_aliases_cannot_bypass_canonical_chord_uniqueness` filter with `-- --exact` | Preserved red on `f05` acceptance, then green after canonical normalization. |
-| Exact `settings::io::tests::non_ascii_override_names_are_rejected_before_commit_while_unicode_values_remain_literal` filter with `-- --exact` | Preserved red on accepted É/é names; included in final 18-test green with last-valid retention and Unicode value checks. |
-| `cargo build --offline --locked -p pike --bin pike --example settings_reload` | Passed for early compiled source `4a61552afbfd432e478b1ffab5a0b76a56a08d2a`, published for independent review. |
-| `cargo build --offline --locked -p pike --example settings_reload` | Corrected native fixture passed compilation before publication as `20ee3360c08145e17d7ed4415682e02ba821cc24`. |
-| `target/debug/examples/settings_reload /private/tmp/pike-r31-native-development-3` | Complete actual-App/runtime/native-PTY **PASS** at `20ee336`; source and binary hash retained. |
-| `cargo clippy --offline --locked -p pike --lib --bin pike --tests --example settings_reload --example command_routing -- -D warnings` | Passed at `20ee336` after the two retained cfg/test-initializer lints were fixed. |
-| `cargo clippy --offline --locked -p pike --lib --bin pike --tests --example settings_reload --target x86_64-pc-windows-msvc -- -D warnings` | Passed at `20ee336`, including Windows sharing-violation test compilation. Cross-compilation only. |
-| `cargo clippy --offline --locked -p pike --lib --tests -- -D warnings` | Passed after the two review fixes and atomic temporary-handle cleanup hardening at `f561096`. |
-| `cargo fmt --package pike`; `git diff --check` | Formatting and whitespace checks performed during development. These do not claim the requested final `cargo fmt --all -- --check` ran. |
+| `cargo build --offline --locked -p pike --bin pike --example settings_reload --example pane_moving --example command_routing` | PASS at integrated `adbcf0f`; production binary and affected native drivers compiled. |
+| `cargo build --offline --locked -p pike --example settings_reload` | PASS at `d4b4108`, including the final combined fixture. |
+| `cargo test --offline --locked -p pike --lib settings` | **18 passed**, 0 failed: schema/ranges, malformed/oversized/future version, last-valid state, actual permission failures, interrupted atomic save, broken-byte retention, profiles, close policy and shortcut aliases. |
+| `cargo test --offline --locked -p pike --lib app::` | **86 passed**, 0 failed, 9 ignored: affected App/command/pane/launch/tab/dialog/close neighbors. |
+| `cargo test --offline --locked -p pike --lib app::tests::tab_management::tab_dialogs_cancel_held_terminal_ime_clones_before_and_after_dismissal -- --exact --ignored` | **1 passed** with native graphics/PTY, explicitly exercising the affected ignored modal IME case. |
+| `cargo fmt --all -- --check` | PASS. |
+| `git diff --check` | PASS. |
+| `cargo clippy --offline --locked -p pike --lib --bin pike --tests --example settings_reload --example pane_moving --example command_routing -- -D warnings` | PASS. |
+| Same scoped Clippy command with `--target x86_64-pc-windows-msvc` before `-- -D warnings` | PASS; cross-compilation only. |
+| `target/debug/examples/settings_reload /private/tmp/pike-r31-resume-family-adbcf0f` | Complete actual-App/Iced/native-PTY PASS, including the saved explicit font-family extension. |
+| `target/debug/examples/settings_reload /private/tmp/pike-r31-resume-joint-1` | Complete acceptance plus focused actual-main pane/dialog/stale-owner PASS at `d4b4108`. |
 
-Warnings from unchanged iced_winit deprecated channel methods and the existing
-`block` future-compatibility notice were retained; root Clippy scopes above passed.
-No full-workspace or both-renderer test round ran, and no patched-dependency tests
-were required because vendor source remained unchanged. All verification was local;
-GitHub Actions stayed disabled, with no dispatch, rerun or replacement CI.
+The current AGENTS.md proportional verification rule supersedes the issue's
+older blanket all-target/root-suite wording: checks cover the affected root
+library, binary, tests and three relevant native drivers. No full-workspace,
+both-renderer, unrelated examples or patched-dependency suite ran; vendor is
+unchanged. Eight explicitly ignored App cases remain unexecuted in this round
+(including the subprocess helper used by its ordinary parent); ignored status is
+not a pass. The complete settings fixture separately exercises close controls
+and established terminal IME priority. Unchanged iced_winit deprecation warnings
+and the `block` future-compatibility notice remain in logs; Pike's scoped Clippy
+passes with warnings denied.
 
-## Native observations and retained failures
+## Native observations
 
-[Native run3 events](../baselines/issue-31/native-development-3/events.txt) show
-five distinct controlled child PIDs. Initial profile A/B had distinct cwd/env;
-both retained SessionId, reservation, widget identity, PID and modes during
-reload. Cell metrics changed from **8.428711×18.199999** at 14 DIP to
-**12.041016×26.0** at 20 DIP, with exactly two total font measurements. Exact
-OSC10/11 replies confirmed light foreground/background; history changed from
-80 saturated lines to 7 and stayed at 7 after additional synthetic output.
-Original child cwd/env/args stayed unchanged; new B tab/split and restarted A
-received the updated cwd/env/args. Help and actual established IME preedit blocked
-reload; a toolbar invalid reload retained both last-valid settings and broken
-bytes. Default targeted close Cancel preserved owners; `never` used the same
-shutdown owner without another question. A removed profile refused a new launch.
+[Combined events](../baselines/issue-31/resume/native-joint-1/events.txt) record
+five distinct controlled child PIDs: **14765, 14768, 14774, 14777, 14780**.
+Initial A/B profiles used distinct cwd/env; existing children retained PID,
+SessionId, reservation, pane target, widget identity and terminal modes across
+reload. Font metrics changed from **8.428711 × 18.199999** at 14 DIP to
+**12.041016 × 26.0** at 20 DIP, with exactly two measurements per existing
+terminal at that checkpoint. Exact OSC10/11 replies confirmed light palette;
+saturated history shrank from **80** to **7** and remained capped after new
+synthetic output. Original cwd/env/args stayed unchanged; new B tab/split and
+restarted A received current profile cwd/env/args.
 
-[Cleanup](../baselines/issue-31/native-development-3/cleanup.txt) records four
-intentional-close receipts with `Requested`, `output_drained=false`; those prove
-disposal, not natural-exit output draining. The original A child exited before
-restart and its completion was awaited. All three development runs have cleanup
-receipts; they leave no known fixture work in flight.
+The focused extension rejects a stale view-generated reload receipt after newer
+owner selection, verifies rename taking priority over reload/cancelling an armed
+drag and stale dialog edit/dismissal receipts being rejected, then checks fresh
+move/max/restore. Reload at 18 DIP/history **0** while maximized updated the hidden
+sibling, retained its zero cached viewport, and restored both owners/geometry.
+These actions sent no terminal input. Complete acceptance also checks
+Help/established IME blocking reload, visible-toolbar invalid reload retaining
+broken bytes/last-valid settings, conservative close Cancel, `never` cleanup and
+recoverable refusal of a removed profile.
 
-The failed native run1 and run2 are retained intact. Run1 sent preedit immediately
-after Help restoration, without driving the pinned adapter's two-paint native
-IME ownership transition; its correction added both paints and an explicit
-`is_composing` precondition. Run2 sampled the split source while preparation
-deliberately retained source focus; its correction waits for the new attached
-active identity. No production focus/capture code, deadline or native correctness
-oracle was weakened. The initial host compilation/type failures and Clippy
-failures are retained too.
+[Cleanup receipts](../baselines/issue-31/resume/native-joint-1/cleanup.txt) cover
+the four remaining live children through the App intentional-close path;
+`Requested, output_drained=false` proves disposal, not natural-exit output
+draining. Original A's natural exit completion was awaited before restart.
+The App model was empty after native cleanup acknowledgements. Both resumed
+runs passed on their first execution and leave no known fixture work in flight.
+The earlier failed development runs and red/green F-key/environment regressions
+remain preserved and explained in the unchanged owner-stop report.
 
-Independent R2 reproduced two P2 findings at `4a61552`: noncanonical numeric F-key
-aliases bypassed chord uniqueness, and Unicode override-name casing disagreed
-with Windows ordinal launch validation. Original-author fix `f561096` canonicalizes
-F-key numeric spellings and documents/enforces an ASCII override-name schema;
-Unicode values and inherited backend environment remain supported. Red/green
-regressions and interruption tests are retained. R2 reported independently passing
-the complete `20ee336` native fixture and a six-child supplement, then continued
-the narrow fix review; this report does not represent an independent final verdict.
-The coordinator owns publication of independent review bodies.
+## Limits and files
 
-## Remaining gates at the owner stop
+All verification ran locally. GitHub Actions remained **OFF** with no dispatch,
+rerun or replacement CI. No native Windows/ConPTY, physical keyboard/monitor,
+Windows IME candidate UI, Linux runtime, release RAM/CPU or latency measurement
+was performed; no such pass or performance claim is made. Existing R13/R14
+physical holds and the R14 owner dependency waiver are unchanged.
 
-- Integrate actual merged R27 while preserving its exclusive pane seam, then
-  compile and validate the combined host. No integration was begun after stop.
-- Compile/run the preserved final fixture family-selection extension; it is
-  additional coverage, not evidence already obtained.
-- Requested final `cargo fmt --all -- --check`, `cargo clippy --all-targets -- -D warnings`
-  and full root-package `cargo test` were **not run**. Final affected-native and
-  Windows cross-checks on the integrated source are also incomplete. The owner
-  stopped work before these gates; there is no tooling-unavailability claim.
-- Publish the focused PR with `Closes #31` and complete final independent review.
-  No R31 PR exists at this checkpoint and no completion/merge is claimed.
-
-No native Windows/ConPTY, physical keyboard/monitor, Windows IME candidate UI,
-Linux, release RAM/CPU or latency measurements were performed or claimed. Windows
-Clippy is compilation evidence only. Existing #13/#14 physical holds and the #14
-owner waiver remain. No resource or responsiveness claim is made.
-
-Changed files comprise `settings.rs` and focused appearance/error/I/O/schema/test
-modules, `app/settings.rs` and host tests, the agreed small App/startup/tab/split/
-command/close/view/theme wiring, `terminal::Entry::terminal_mut`, Cargo manifest/
-lock, the finite settings fixture and deterministic shared fixture theme response,
-README/settings documentation, and these reports/synthetic artifacts. All prior
-branches/checkpoints/reports/caches and the worktree are retained.
-
-See [provenance](../baselines/issue-31/provenance.json) and the
-[artifact hashes](../baselines/issue-31/development-artifacts.json).
+Changed files are the settings model/appearance/error/I/O/schema/tests;
+`app/settings.rs` and its tests; focused App/startup/tab/split/command/close/view
+and theme wiring; `terminal::Entry::terminal_mut`; direct lock-pinned serde and
+one TOML format dependency; finite settings fixture and shared fixture theme
+response; README/settings docs; and retained synthetic reports/artifacts.
+R27 pane/gesture modules, common focus/capture ownership and all vendor code
+are unchanged relative to actual main. Independent final review and any merge
+decision remain coordinator-owned.

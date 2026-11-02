@@ -1,0 +1,5 @@
+pid=13161
+cwd=/private/tmp/pike-r31-resume-family-adbcf0f/a-next
+profile=a
+revision=after
+argument=new-args

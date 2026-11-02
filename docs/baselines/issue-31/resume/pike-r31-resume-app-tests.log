@@ -1,0 +1,119 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.34s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-508a18dbd30ba2bd)
+
+running 95 tests
+test app::close::tests::force_scope_fixture ... ignored, subprocess fixture; invoked only by force_exit_is_scoped_to_its_application
+test app::close::tests::confirm_resolves_the_original_sessions_after_moves_and_replays_do_nothing ... ok
+test app::close::tests::modal_drops_queued_user_commands_but_accepts_protocol_and_cleanup ... ok
+test app::close::tests::exited_and_failed_close_without_prompt_last_tab_stays_empty_and_can_open_again ... ok
+test app::close::tests::background_exit_during_confirmation_never_changes_focus_or_target_set ... ok
+test app::close::tests::last_pane_confirm_retains_closing_budget_and_no_respawn ... ok
+test app::close::tests::timeout_wait_force_and_stale_tokens_are_scoped_and_event_driven ... ok
+test app::close::tests::tab_confirmation_counts_starting_running_once_and_cancel_changes_nothing ... ok
+test app::commands::host::tests::delayed_key_cannot_close_a_newer_owner_or_bypass_help_priority ... ok
+test app::close::tests::keyboard_selection_is_explicit_escape_cancels_and_repeats_cannot_confirm ... ok
+test app::commands::host::tests::missing_tab_is_typed_atomic_and_recovers_through_existing_activation ... ok
+test app::commands::host::tests::unavailable_terminal_and_empty_workspace_remain_usable_for_help ... ok
+test app::commands::tests::directions_repeat_but_leave_resize_chords_to_existing_mapper ... ok
+test app::commands::tests::reload_is_exact_and_nonrepeating_while_bare_f5_and_terminal_chords_pass_through ... ok
+test app::close::tests::real_keyboard_subscription_carries_the_decision_token_and_renews_identity ... ok
+test app::commands::tests::exact_modifiers_leave_altgr_interrupt_and_terminal_defaults_to_child ... ok
+test app::commands::tests::structural_defaults_dispatch_once_and_capture_repeats ... ok
+test app::commands::tests::font_and_help_defaults_and_release_preserve_input_transitions ... ok
+test app::panes::tests::blur_modal_zoom_and_restart_each_require_a_fresh_press ... ok
+test app::focus::tests::obsolete_focus_effect_does_not_unfocus_a_replacement ... ok
+test app::focus::tests::delayed_visible_owner_cannot_override_a_newer_selection ... ok
+test app::focus::tests::existing_target_still_gets_exclusive_focus ... ok
+test app::panes::tests::header_focus_is_allowed_once_but_owner_round_trip_retires_the_receipt ... ok
+test app::focus::tests::authorization_is_rechecked_between_presence_and_focus_passes ... ok
+test app::commands::tests::ordered_tab_selection_and_navigation_are_typed ... ok
+test app::panes::tests::stale_app_release_and_replayed_drop_cannot_change_the_tree ... ok
+test app::settings::tests::modal_and_repeat_gates_keep_reload_on_the_existing_command_path_and_reject_stale_profile_choices ... ok
+test app::commands::host::tests::new_tab_capacity_refusal_uses_the_existing_guard_and_retains_current_owner ... ok
+test app::settings::tests::configured_close_policy_changes_confirmation_without_changing_the_cleanup_owner ... ok
+test app::settings::tests::commit_is_whole_configuration_and_errors_or_unsolicited_receipts_cannot_change_it ... ok
+test app::tests::closing::actual_modal_buttons_cancel_restore_focus_and_confirm_only_the_owned_session ... ignored, requires a local graphics device; run explicitly for close controls
+test app::panes::tests::failed_panes_keep_host_move_zoom_controls_and_stale_controls_are_harmless ... ok
+test app::tests::closing::ime::modal_and_teardown_cancel_all_held_ime_clones_after_focus_is_restored ... ignored, requires native graphics; explicit modal/teardown deferred-IME regression
+test app::panes::tests::actual_tab_dialog_round_trips_reject_pre_modal_pane_drop_receipts ... ok
+test app::settings::tests::launch_lookup_reuses_profile_identity_with_current_settings_and_frozen_directory_fallback ... ok
+test app::close::tests::force_exit_is_scoped_to_its_application ... ok
+test app::tests::cancellation::window_close_during_native_preparation_accounts_for_late_cleanup ... ok
+test app::tests::already_exited_child_is_attached_read_only_without_late_focus_reports ... ok
+test app::tests::disposal_receipt_cannot_acknowledge_a_different_attached_owner ... ok
+test app::tests::aggregate_shutdown_acknowledges_disposal_even_when_bridge_receipts_are_queued ... ok
+test app::tests::canceled_prepared_success_is_disposed_without_attaching_or_replacing_retry ... ok
+test app::tests::ime::ime_rejected_origin_cancels_held_clones_and_valid_commit_is_once_only ... ignored, requires a local graphics device; run explicitly for host IME integration
+test app::tests::ime::ime_visible_sibling_requires_model_authority_and_cancels_every_held_clone ... ignored, requires a local graphics device; run explicitly for split IME ownership
+test app::tests::cancellation::cancellation_during_native_preparation_retains_closing_until_disposal ... ok
+test app::tests::closing::modal_accepts_launch_and_natural_completion_without_closing_or_focusing_a_target ... ok
+test app::tests::closing::close_during_output_is_nonblocking_idempotent_and_waits_for_native_receipt ... ok
+test app::tests::first_reservation_attaches_with_its_id_on_the_update_thread_and_requests_focus ... ok
+test app::panes::tests::moved_starting_owner_attaches_hidden_without_reviving_old_focus_intent ... ok
+test app::tests::ime::ime_errors_are_visible_only_on_their_origin_without_writing_input ... ok
+test app::tests::paste::real_widget_paste_tokens_require_owned_visible_live_focused_origins ... ignored, requires a local graphics device; run explicitly for host paste integration
+test app::tests::input_failure_metadata_is_visible_only_on_its_origin_and_keeps_the_model ... ok
+test app::tests::queued_preparation_is_nonblocking_and_canceled_before_native_creation ... ok
+test app::tests::interaction::queued_keyboard_requires_current_pane_and_window_focus ... ok
+test app::tests::interaction::native::hovered_mouse_and_alternate_wheel_are_owned_visible_and_do_not_focus ... ok
+test app::tests::malformed_prepared_identity_fails_without_committing_a_running_entry ... ok
+test app::tests::closing::success_error_exit_keeps_final_sentinel_and_bounded_read_only_model ... ok
+test app::tests::invalid_launch_is_redacted_and_retry_reserves_a_fresh_session ... ok
+test app::tests::split::real_widget_sibling_paste_cancels_held_clones_and_releases_pending_capacity ... ignored, requires a local graphics device; run explicitly for visible sibling paste routing
+test app::tests::paste::paste_errors_remain_visible_on_their_exact_origin_without_sending_input ... ok
+test app::tests::rapid_exit_retains_final_output_without_a_live_subscription_or_admitted_input ... ok
+test app::tests::interaction::native::hidden_history_is_ignored_and_exited_history_selection_copy_stay_local ... ok
+test app::tests::split::host_session_limit_refusal_keeps_original_and_explains_recovery ... ok
+test app::tests::split::slow_queued_split_is_cancelable_while_the_original_remains_usable ... ok
+test app::tests::tab_management::all_tab_selection_consumers_follow_reordered_current_positions_and_stale_targets_are_harmless ... ok
+test app::tests::tab_management::app_blur_without_widget_events_retires_editor_receipts_and_preserves_the_draft ... ok
+test app::tests::tab_management::rename_cancel_and_stale_dialog_actions_preserve_active_owner_and_pending_intent ... ok
+test app::tests::tab_management::tab_dialogs_cancel_held_terminal_ime_clones_before_and_after_dismissal ... ignored, requires local graphics and PTY; run explicitly for new tab modal ownership
+test app::tests::resize::resize_minimize_restore_font_and_repeated_dimensions_keep_native_session ... ok
+test app::tests::resize::modal_and_frozen_layout_jointly_gate_resize_but_keep_background_delivery ... ok
+test app::tests::split::removing_a_prepared_split_disposes_only_its_owner_and_keeps_original_input ... ok
+test app::tests::split::host_geometry_uses_measured_cells_and_accounts_for_status_chrome ... ok
+test app::tests::tabs::empty_window_close_still_awaits_removed_prepared_owner_cleanup ... ok
+test app::tests::split::failed_split_can_retry_in_place_and_limit_or_geometry_refusal_is_actionable ... ok
+test app::tests::split::split_reserves_before_launch_keeps_source_selected_and_focuses_on_attachment ... ok
+test app::tests::split::visible_sibling_hovered_mouse_and_alternate_wheel_do_not_require_or_steal_focus ... ok
+test app::tests::split::visible_sibling_stale_focus_and_keyboard_cannot_change_input_authority ... ok
+test app::tests::tabs::cancelled_close_preserves_pending_attachment_intent ... ok
+test app::tests::tabs::delayed_split_in_hidden_tab_cannot_steal_focus ... ok
+test app::tests::tabs::reviewer2_empty_window_shutdown_still_completes ... ok
+test app::tests::all_live_entries_subscribe_and_background_exit_keeps_the_active_session ... ok
+test app::tests::tabs::hidden_close_prunes_cached_session_ids_before_reactivation ... ok
+test app::tests::tabs::new_tab_inherits_frozen_source_profile_and_late_attachment_stays_hidden ... ok
+test app::tests::tabs::tab_switch_invalidates_deferred_ime_without_restoring_old_tokens ... ignored, requires native graphics; run explicitly for tab IME ownership
+test app::tests::tabs::hidden_restart_updates_cached_owner_and_late_result_respects_newer_selection ... ok
+test app::tests::tabs::modal_close_owns_new_tab_and_switch_and_last_tab_leaves_reopenable_empty_window ... ok
+test app::tests::tabs::hidden_retry_replaces_cached_owner_without_geometry ... ok
+test app::tests::tabs::switching_frozen_tabs_restores_bounded_presentation_and_prunes_closed_owners ... ok
+test app::tests::tabs::retry_round_trip_respects_newer_explicit_focus ... ok
+test app::tests::tabs::reviewer2_committed_close_supersedes_pending_launch_intent ... ok
+test app::tests::tabs::tab_switch_refreshes_once_and_rejects_hidden_geometry_input_and_stale_activity ... ok
+test app::tests::tabs::tab_admission_errors_are_retained_redacted_and_restartable_and_limit_is_atomic ... ok
+test app::tests::tabs::late_split_round_trip_respects_newer_explicit_pane_choice ... ok
+test app::tests::tabs::stale_controls_cannot_cancel_a_current_attachment_focus_intent ... ok
+test app::tests::closing::in_place_restart_rejects_old_close_launch_and_terminal_events_and_keeps_sibling ... ok
+test app::tests::closing::stalled_reader_window_timeout_wait_remains_responsive_until_actual_cleanup ... ok
+
+test result: ok. 86 passed; 0 failed; 9 ignored; 0 measured; 82 filtered out; finished in 3.17s
+
