@@ -214,7 +214,7 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
                 "hit target in {name}"
             );
             assert!(
-                viewport.contains_rectangle(*control),
+                viewport.intersection(control) == Some(*control),
                 "unreachable control in {name}"
             );
         }
