@@ -55,7 +55,7 @@ creation; this is independent of later `cd` commands inside the shell.
 | `theme` | `dark` (default), `light`, `system`. System changes use the existing Iced OS theme event; no polling. Both terminal palette and application chrome follow the selection. |
 | `history` | 0–10000 normal-screen lines per session, default 2000. Zero disables history. This is a line limit, not a strict byte cap for arbitrary cell extras. |
 | `close_policy` | `confirm-running` (default) asks once for the exact targeted set containing starting/running sessions, with Cancel default; `never` commits that same cleanup path without the question. No foreground-job detection is implied. |
-| `shortcuts` | Typed bounded future-remapping schema below. **R31 validates/retains it; R32 owns applying remappings.** Current shortcuts remain active. |
+| `shortcuts` | Bounded effective command mappings below. Successful startup/reload applies the entire map atomically; invalid mappings retain the last valid settings. |
 
 ## What reload changes
 
@@ -107,31 +107,82 @@ cwd = 'C:\tools'
 env = { PIKE_PROFILE = "tools" }
 ```
 
-## Shortcut schema seam
+## Effective shortcuts and command menu
+
+Open **Commands and shortcuts** from the toolbar or its effective Help binding
+(default F1). This keyboard and mouse menu lists every MVP action, all its current
+bindings and context availability. Arrow keys/Tab choose a row; Home/End and
+PageUp/PageDown reveal rows using their measured bounds. Enter runs an available
+command. Escape or the effective Help binding dismisses it and restores terminal
+focus. Disabled rows remain visible with an explanation. An unbound command still
+works through this menu, including keyboard navigation.
 
 ```toml
+# Replace ALL default chords for a command.
 [[shortcuts]]
-command = "reload-settings"
-key = "F5"
+command = "new-tab"
+key = "k"
+modifiers = ["ctrl", "shift"]
+
+# Release the old new-tab chord to another application command.
+[[shortcuts]]
+command = "font-larger"
+key = "t"
+modifiers = ["ctrl", "shift"]
+
+# Remove every direct binding; the command remains in the menu.
+[[shortcuts]]
+command = "close-pane"
+unbind = true
+
+# Repeating a command with different chords adds alternative bindings.
+[[shortcuts]]
+command = "paste"
+key = "F2"
+modifiers = ["ctrl", "shift"]
+[[shortcuts]]
+command = "paste"
+key = "F3"
 modifiers = ["ctrl", "shift"]
 ```
 
-At most 64 entries; commands and canonical chords must be unique. Modifier
-names are `ctrl`, `shift`, `alt`, with no duplicates. Key names are ASCII letters,
-digits, `+`/`=` (one canonical key), `-`, `F1`–`F12`, `tab`, `enter`, `left`,
-`right`, `up`, `down`, case-insensitive. Unsupported names and unknown schema
-fields are rejected. Numeric function-key aliases (such as `f05` or `f+5`)
-normalize to `f5` before duplicate checks and serialization. The schema reserves application-safe chord families:
-Ctrl+Shift keys except terminal copy/paste C/V; Alt or Alt+Shift arrows; Ctrl+Tab;
-bare F1. Ctrl+C, AltGr text and unmodified typing cannot be remapped through it.
-This schema is data for the common resolver's future R32 configuration, with no
-additional key dispatcher in R31.
+At most 64 entries. Any configured entry replaces that command's **entire**
+default set, including paste's Shift+Insert and macOS clipboard aliases. An unbind
+entry must have no key/modifiers and be the command's only entry. Distinct chords
+may target the same command; duplicate effective chords are rejected, including
+conflicts with defaults for commands you have not changed. To take a default
+chord, replace or unbind its existing command explicitly. Settings errors identify
+the shortcut entry and the conflict/unsupported form; the previous complete map,
+appearance and launch configuration remain active until a valid reload.
 
-Typed command names are `new-tab`, `close-pane`, `close-tab`, `next-tab`,
-`previous-tab`, `tab1`–`tab8`, `last-tab`, `split-right`, `split-down`,
-`focus-left`/`right`/`up`/`down`, `resize-left`/`right`/`up`/`down`, `toggle-zoom`,
-`font-larger`, `font-smaller`, `font-reset`, `help`, `rename-tab`, `list-tabs`,
-`reload-settings`.
+Modifier names are `ctrl`, `shift`, `alt`, without duplicates. Supported families
+are Ctrl+Shift keys; Alt/Alt+Shift arrows; Ctrl+Tab; Shift+Insert/history keys;
+and bare F1. Ctrl+C, unmodified typing, Ctrl+Alt/AltGr and OS Logo combinations
+cannot be assigned. Existing default macOS Cmd+C/V aliases appear in the effective
+reference and are released when their commands are replaced/unbound.
+
+Keys are single printable logical characters (including non-US letters and
+shifted symbols), F1–F12, `tab`, `enter`, `left`, `right`, `up`, `down`, `insert`,
+`pageup`, `pagedown`, `home`, `end`. Letter case and function-key numeric aliases
+(such as `f05`) normalize; `+` and `=` are one canonical key. Actual shifted
+symbols take precedence over a base-key match, then established logical
+letter/digit shortcuts apply. Physical positions are never used. Active modal
+editors/native IME composition take priority; Ctrl+Alt/AltGr text stays on the
+terminal path. Recognized structural/clipboard repeats are consumed once; focus,
+resize, tab navigation, history and font adjustments may repeat. Local history
+commands are unavailable in alternate screen, where native modified keys retain
+their encoder behavior.
+
+Command names include `new-tab`, `close-pane`, `close-tab`, `close-window`,
+`next-tab`, `previous-tab`, `tab1`–`tab8`, `last-tab`, `split-right`, `split-down`,
+`focus-left`/`right`/`up`/`down`, `resize-left`/`right`/`up`/`down`,
+`move-pane-left`/`right`/`up`/`down`, `toggle-zoom`, `font-larger`, `font-smaller`,
+`font-reset`, `help`, `rename-tab`, `reset-tab-name`, `move-tab-left`,
+`move-tab-right`, `list-tabs`, `reload-settings`, `retry`, `use-default`, `copy`,
+`paste`, `history-page-up`, `history-page-down`, `history-top`, `history-bottom`,
+and `profile1`–`profile16` (configured profile order). Pane movement swaps with an
+adjacent pane inside its tab using the existing model operation; session IDs and
+processes are preserved. Cross-tab pane moves remain outside the MVP.
 
 ## Explicit saving API
 

@@ -34,6 +34,7 @@ impl App {
                 controls = controls.push(button("New terminal").on_press(Control::New));
             }
         }
+        controls = controls.push(self.command_menu());
         let pane: Element<'_, Message> = if self.exiting {
             text("Closing terminals…").into()
         } else if let Some(tab_id) = self.model.workspace().active() {
@@ -66,7 +67,7 @@ impl App {
             text(if constrained {
                 "Size constrained · 20×5 minimum · drag scrollbars to pan"
             } else {
-                "Resize: Alt+Shift+Arrow · 20×5 minimum"
+                "20×5 minimum · Commands menu lists effective resize bindings"
             })
             .size(12),
         );
@@ -76,7 +77,7 @@ impl App {
             let mut reload = button(if self.settings.pending {
                 "Reloading settings…"
             } else {
-                "Reload settings (Ctrl+Shift+F5)"
+                "Reload settings"
             });
             if !self.settings.pending {
                 reload =
@@ -126,12 +127,18 @@ impl App {
             container(content).padding(8).width(Fill).height(Fill),
             self.interaction_blocked(),
             self.active_session().and_then(|id| self.terminal(id)),
-            super::commands::on_key,
+            move |event| {
+                super::commands::on_key(
+                    event,
+                    self.settings.active.shortcuts(),
+                    self.active_session().and_then(|id| self.terminal(id)),
+                )
+            },
         )
         .map(move |message| match message {
-            Message::Control(Control::Command(command)) => {
-                Message::Control(Control::KeyCommand(self.active_session(), command))
-            }
+            Message::Control(Control::Command(command)) => Message::Control(
+                Control::MappedCommand(self.active_session(), self.settings.generation, command),
+            ),
             message => message,
         })
     }

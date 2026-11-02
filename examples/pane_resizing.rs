@@ -520,7 +520,19 @@ impl Probe {
                 );
                 if messages
                     .iter()
-                    .filter(|m| matches!(m, Message::Control(Control::ResizeKey(_, _))))
+                    .filter(|m| {
+                        matches!(
+                            m,
+                            Message::Control(
+                                Control::ResizeKey(_, _)
+                                    | Control::MappedCommand(
+                                        _,
+                                        _,
+                                        pike::app::commands::Command::Resize(_)
+                                    )
+                            )
+                        )
+                    })
                     .count()
                     != 1
                     || messages.iter().any(|m| {

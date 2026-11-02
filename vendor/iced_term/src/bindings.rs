@@ -85,6 +85,8 @@ macro_rules! generate_bindings {
 #[derive(Clone, Debug)]
 pub(crate) struct BindingsLayout {
     layout: Vec<(Binding<InputKind>, BindingAction)>,
+    custom: Vec<(Binding<InputKind>, BindingAction)>,
+    host_shortcuts: bool,
 }
 
 impl Default for BindingsLayout {
@@ -95,17 +97,72 @@ impl Default for BindingsLayout {
 
 impl BindingsLayout {
     pub(crate) fn new() -> Self {
+        Self::with_host_shortcuts(false)
+    }
+
+    fn with_host_shortcuts(host_shortcuts: bool) -> Self {
+        let mut native = default_keyboard_bindings();
+        if host_shortcuts {
+            // The existing alternate-screen native bindings are also the
+            // normal-screen fallback when the host releases history chords.
+            // Reuse their actions instead of maintaining another byte table.
+            let fallback = native.clone();
+            for (binding, action) in &mut native {
+                if matches!(action, BindingAction::ScrollHistory(_)) {
+                    if let Some((_, encoded)) =
+                        fallback.iter().find(|(candidate, encoded)| {
+                            candidate.target == binding.target
+                                && candidate.modifiers == binding.modifiers
+                                && matches!(encoded, BindingAction::Esc(_))
+                        })
+                    {
+                        *action = encoded.clone();
+                    }
+                }
+            }
+        }
         let mut layout = Self {
-            layout: default_keyboard_bindings(),
+            layout: native,
+            custom: Vec::new(),
+            host_shortcuts,
         };
-        layout.add_bindings(platform_keyboard_bindings());
-        layout.add_bindings(generate_bindings!(
-            KeyboardBinding;
-            "v", Modifiers::CTRL | Modifiers::SHIFT; BindingAction::Paste;
-            Insert, Modifiers::SHIFT; BindingAction::Paste;
-        ));
-        layout.add_bindings(mouse_default_bindings());
+        let defaults = platform_keyboard_bindings()
+            .into_iter()
+            .chain(generate_bindings!(
+                KeyboardBinding;
+                "v", Modifiers::CTRL | Modifiers::SHIFT; BindingAction::Paste;
+                Insert, Modifiers::SHIFT; BindingAction::Paste;
+            ))
+            .chain(mouse_default_bindings());
+        for (binding, action) in defaults {
+            if host_shortcuts
+                && matches!(action, BindingAction::Copy | BindingAction::Paste)
+            {
+                continue;
+            }
+            Self::insert(&mut layout.layout, binding, action);
+        }
         layout
+    }
+
+    pub(crate) fn set_host_shortcuts(&mut self, enabled: bool) {
+        if self.host_shortcuts == enabled {
+            return;
+        }
+        let custom = std::mem::take(&mut self.custom);
+        *self = Self::with_host_shortcuts(enabled);
+        self.add_bindings(custom);
+    }
+
+    fn insert(
+        layout: &mut Vec<(Binding<InputKind>, BindingAction)>,
+        binding: Binding<InputKind>,
+        action: BindingAction,
+    ) {
+        match layout.iter().position(|(existing, _)| existing == &binding) {
+            Some(position) => layout[position] = (binding, action),
+            None => layout.push((binding, action)),
+        }
     }
 
     pub(crate) fn add_bindings(
@@ -113,14 +170,8 @@ impl BindingsLayout {
         bindings: Vec<(Binding<InputKind>, BindingAction)>,
     ) {
         for (binding, action) in bindings {
-            match self
-                .layout
-                .iter()
-                .position(|(layout_binding, _)| layout_binding == &binding)
-            {
-                Some(position) => self.layout[position] = (binding, action),
-                None => self.layout.push((binding, action)),
-            }
+            Self::insert(&mut self.layout, binding.clone(), action.clone());
+            Self::insert(&mut self.custom, binding, action);
         }
     }
 
@@ -538,6 +589,107 @@ mod history_tests {
                     TermMode::ALT_SCREEN
                 ),
                 BindingAction::Esc(alt.into())
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod host_shortcut_tests {
+    use super::*;
+    #[test]
+    fn host_delegation_retains_native_fallback_and_default_restoration() {
+        let mut layout = BindingsLayout::default();
+        let cs = Modifiers::CTRL | Modifiers::SHIFT;
+        assert_eq!(
+            layout.get_action(
+                InputKind::Char("c".into()),
+                cs,
+                TermMode::empty()
+            ),
+            BindingAction::Copy
+        );
+        assert_eq!(
+            layout.get_action(
+                InputKind::Char("v".into()),
+                cs,
+                TermMode::empty()
+            ),
+            BindingAction::Paste
+        );
+        layout.set_host_shortcuts(true);
+        for (key, action) in [
+            ("c", BindingAction::Char('\x03')),
+            ("v", BindingAction::Char('\x16')),
+        ] {
+            assert_eq!(
+                layout.get_action(
+                    InputKind::Char(key.into()),
+                    cs,
+                    TermMode::empty()
+                ),
+                action
+            );
+        }
+        for (key, bytes) in [
+            (Named::PageUp, "\x1b[5;2~"),
+            (Named::PageDown, "\x1b[6;2~"),
+            (Named::Home, "\x1b[1;2H"),
+            (Named::End, "\x1b[1;2F"),
+        ] {
+            for mode in [TermMode::empty(), TermMode::ALT_SCREEN] {
+                assert_eq!(
+                    layout.get_action(
+                        InputKind::KeyCode(key),
+                        Modifiers::SHIFT,
+                        mode
+                    ),
+                    BindingAction::Esc(bytes.into())
+                );
+            }
+        }
+        assert_ne!(
+            layout.get_action(
+                InputKind::KeyCode(Named::Insert),
+                Modifiers::SHIFT,
+                TermMode::empty()
+            ),
+            BindingAction::Paste
+        );
+        layout.set_host_shortcuts(false);
+        assert_eq!(
+            layout.get_action(
+                InputKind::Char("v".into()),
+                cs,
+                TermMode::empty()
+            ),
+            BindingAction::Paste
+        );
+        assert_eq!(
+            layout.get_action(
+                InputKind::KeyCode(Named::PageUp),
+                Modifiers::SHIFT,
+                TermMode::empty()
+            ),
+            BindingAction::ScrollHistory(crate::HistoryScroll::PageUp)
+        );
+    }
+    #[test]
+    fn explicit_custom_bindings_survive_both_host_mode_transitions() {
+        let mut layout = BindingsLayout::default();
+        let custom = generate_bindings!(KeyboardBinding;
+            "v", Modifiers::CTRL | Modifiers::SHIFT; BindingAction::Esc("CUSTOM_FIXTURE".into());
+        );
+        layout.add_bindings(custom);
+        for enabled in [true, true, false, false, true] {
+            layout.set_host_shortcuts(enabled);
+            assert_eq!(
+                layout.get_action(
+                    InputKind::Char("v".into()),
+                    Modifiers::CTRL | Modifiers::SHIFT,
+                    TermMode::empty()
+                ),
+                BindingAction::Esc("CUSTOM_FIXTURE".into())
             );
         }
     }

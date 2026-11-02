@@ -35,7 +35,7 @@ pub use snapshot::{RenderableContent, SnapshotStats, ViewportSnapshot};
 pub use terminal::{Command, Event, PreparedTerminal, Terminal, WorkStats};
 pub use theme::{ColorPalette, Theme};
 pub use view::TerminalView;
-pub use window_focus::WindowFocus;
+pub use window_focus::{WindowFocus, WindowInputLease};
 
 #[cfg(test)]
 mod lifecycle_tests;

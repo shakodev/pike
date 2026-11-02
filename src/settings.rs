@@ -97,7 +97,7 @@ impl Default for Document {
 }
 
 /// Construction is validated as a whole, so a failed reload cannot partially
-/// change appearance, launch data, close policy or the future shortcut schema.
+/// change appearance, launch data, close policy or the effective shortcut schema.
 #[derive(Clone, Default, PartialEq)]
 pub struct Settings(Document);
 

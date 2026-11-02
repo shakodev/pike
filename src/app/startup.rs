@@ -97,6 +97,7 @@ impl App {
                 // Font/cache attachment occurs here, on Iced's update thread.
                 match ready.attach_hidden(self.settings.active.font().terminal(), self.palette()) {
                     Ok(mut terminal) => {
+                        terminal.set_host_shortcuts(true);
                         if self.settings.enabled {
                             terminal.handle(iced_term::Command::ProxyToBackend(
                                 iced_term::BackendCommand::SetHistoryLimit(

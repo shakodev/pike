@@ -477,3 +477,31 @@ and API/overload policy details.
   mouse/history behavior. R19 also patches the same-version iced_winit candidate
   cache for DPI changes; see [its separate ledger](../iced_winit/PATCHES.md).
   Remove when upstream supplies equivalent owner-safe, bounded lifecycle support.
+
+## R32 / issue #32 — opt-in host shortcut ownership and native focus receipts
+
+- `Terminal::set_host_shortcuts(bool)` defaults to false. Pike opts in once on
+  attachment. Host mode delegates built-in Copy/Paste/local-history bindings to
+  the application's single effective resolver and command menu, so replacing or
+  unbinding cannot leave a stale terminal-widget shortcut behind.
+- Existing native control-key and mode-aware history escape actions remain the
+  fallback. Normal-screen released history keys reuse the existing alternate-
+  screen actions; there is no second native byte table or Ignore suppression.
+  Custom `AddBindings` overrides survive both transitions and keep precedence.
+- `WindowFocus::{input_lease,accepts_input}` expose an opaque immutable
+  `WindowInputLease` for asynchronous clipboard admission. It is replaced only
+  on actual native focus transitions under a small local mutex; redundant focus
+  notifications preserve it. Returning to the same focused window after blur
+  cannot revive an old receipt, even before queued application blur delivery.
+  Existing AtomicBool/IME focus consumers retain their behavior. No sampling,
+  additional focus owner, counter wrap, clipboard payload or terminal text is
+  retained by these receipts.
+- Focused regression commands: `cargo test --locked -p iced_term --lib bindings`
+  and `cargo test --locked -p iced_term --lib window_focus`; the actual App/Iced/
+  real-PTY `remappable_shortcuts` fixture exercises effective maps and native
+  bytes. See [R32 verification](../../docs/verification/issue-32.md) for platform,
+  command results, red evidence and limitations.
+- Remove this patch when upstream supplies equivalent opt-in removal of hosted
+  default actions without disturbing native encoding/custom overrides and an
+  immutable native focus-transition receipt. Dependency versions, PTY/process
+  ownership, terminal encoding and composition rules are unchanged.

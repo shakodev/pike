@@ -1,0 +1,6 @@
+default create: one Control, repeat captured, both raw child streams empty
+actual root menu/arrow/Enter paste and copy return terminal focus; no duplicate bytes
+reload overrides/unbind remove stale copy/paste/close/resize/history chords; raw native fallback bytes exact
+ambiguous surviving-default conflict rejected atomically; previous custom paste remains live
+23 effective help bindings, measured End/PageUp/Home navigation, disabled command, Escape focus, shifted symbol/non-US/AltGr/IME priority
+delayed clipboard modal/tab/native-blur roundtrips discarded; custom structural mapping still dispatches once with zero child bytes

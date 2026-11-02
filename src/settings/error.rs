@@ -38,6 +38,10 @@ pub enum Error {
         column: usize,
     },
     Invalid(Field),
+    Shortcut {
+        entry: u8,
+        problem: super::shortcuts::Problem,
+    },
     MissingProfile,
     BrokenTarget,
     Serialize,
@@ -78,6 +82,17 @@ impl fmt::Display for Error {
             Self::Utf8 => f.write_str("Settings must be UTF-8 text."),
             Self::Version => f.write_str("Unsupported settings version; Pike accepts version = 1."),
             Self::Parse { line, column } => write!(f, "Invalid TOML, unknown field or wrong field type at line {line}, byte column {column}; check the version-one schema."),
+            Self::Shortcut { entry, problem } => {
+                use super::shortcuts::Problem;
+                let reason = match problem {
+                    Problem::Limit => "at most 64 shortcut entries are supported",
+                    Problem::Unsupported => "use a single printable logical key or a documented named key; key is required unless unbind = true",
+                    Problem::Modifiers => "use unique modifiers and a supported application chord (Ctrl+Shift, Alt arrows, Ctrl+Tab, Shift history/Insert, or bare F1); Ctrl+C and AltGr remain terminal-owned",
+                    Problem::Duplicate => "this chord conflicts with another effective binding; change it or explicitly unbind/replace the other command first",
+                    Problem::Unbind => "unbind = true must be the command's only entry and have no key or modifiers",
+                };
+                write!(f, "Shortcut entry {entry}: {reason}. Correct settings and reload; the last valid configuration remains active.")
+            }
             Self::Invalid(field) => f.write_str(match field {
                 Field::ProfileId => "Profile identifiers must use 1–32 ASCII letters, digits, underscores or hyphens.",
                 Field::Profiles => "profiles must contain 1–16 launch profiles.",

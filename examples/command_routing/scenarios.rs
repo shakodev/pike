@@ -246,7 +246,10 @@ impl Bytes {
                 mouse::Cursor::Unavailable,
             );
             zero_admission(host, &before, "history shortcut")?;
-            check(host.controls == actions, "history key became an app action")?;
+            check(
+                host.controls == actions + 1,
+                "history key did not dispatch exactly once through the common resolver",
+            )?;
             let offset = host
                 .app
                 .terminal(id)
@@ -278,8 +281,8 @@ impl Bytes {
         );
         host.until(|host| host.clipboard.0.as_ref() == Some(&copied))?;
         check(
-            host.controls == actions,
-            "copy dispatched an unrelated app action",
+            host.controls == actions + 1,
+            "copy did not dispatch exactly once through the common resolver",
         )?;
         zero_admission(host, &before, "copy selection")?;
         for (key, modifiers) in [
@@ -299,8 +302,8 @@ impl Bytes {
                 .extend_from_slice(b"PIKE26_PASTE");
             host.until(|host| admitted(host).get(&id) == Some(&(before[&id] + 12)))?;
             check(
-                host.controls == actions,
-                "paste dispatched an unrelated app action",
+                host.controls == actions + 1,
+                "paste did not dispatch exactly once through the common resolver",
             )?;
             for (other, count) in before {
                 if other != id {
