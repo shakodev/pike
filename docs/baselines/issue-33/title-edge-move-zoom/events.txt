@@ -1,0 +1,10 @@
+center-drop source=1 before=Rectangle { x: 1.0, y: 61.0, width: 596.0, height: 738.0 } after=Rectangle { x: 603.0, y: 61.0, width: 596.0, height: 738.0 }
+geometry session=1 bounds=Rectangle { x: 1.0, y: 61.0, width: 596.0, height: 738.0 } cols=70 rows=40
+geometry session=3 bounds=Rectangle { x: 904.0, y: 61.0, width: 295.0, height: 738.0 } cols=34 rows=40
+geometry session=4 bounds=Rectangle { x: 603.0, y: 61.0, width: 295.0, height: 738.0 } cols=34 rows=40
+zoom-click session=1 point=Point { x: 559.0, y: 47.0 } actions=2 before=Split { id: Split(9), axis: Vertical, ratio: 0.5, a: Pane(Pane(0)), b: Split { id: Split(3), axis: Vertical, ratio: 0.5, a: Pane(Pane(4)), b: Pane(Pane(2)) } } after=Split { id: Split(9), axis: Vertical, ratio: 0.5, a: Pane(Pane(0)), b: Split { id: Split(3), axis: Vertical, ratio: 0.5, a: Pane(Pane(4)), b: Pane(Pane(2)) } } visible=true
+geometry session=1 bounds=Rectangle { x: 1.0, y: 61.0, width: 1198.0, height: 738.0 } cols=142 rows=40
+zoom-click session=1 point=Point { x: 1161.0, y: 47.0 } actions=2 before=Split { id: Split(9), axis: Vertical, ratio: 0.5, a: Pane(Pane(0)), b: Split { id: Split(3), axis: Vertical, ratio: 0.5, a: Pane(Pane(4)), b: Pane(Pane(2)) } } after=Split { id: Split(9), axis: Vertical, ratio: 0.5, a: Pane(Pane(0)), b: Split { id: Split(3), axis: Vertical, ratio: 0.5, a: Pane(Pane(4)), b: Pane(Pane(2)) } } visible=true
+geometry session=1 bounds=Rectangle { x: 1.0, y: 61.0, width: 596.0, height: 738.0 } cols=70 rows=40
+geometry session=3 bounds=Rectangle { x: 904.0, y: 61.0, width: 295.0, height: 738.0 } cols=34 rows=40
+geometry session=4 bounds=Rectangle { x: 603.0, y: 61.0, width: 295.0, height: 738.0 } cols=34 rows=40
