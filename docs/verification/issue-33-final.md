@@ -68,8 +68,9 @@ Evidence root: `docs/baselines/issue-33/`.
 | `cargo test --locked --lib` | 178 passed, 10 existing ignored; `accepted-lib-tests.log`. |
 | `cargo build --locked --example native_chrome --example pane_moving` | Passed; `final-title-error-oracles-build.log`. |
 | `target/debug/examples/native_chrome …/accepted-scenes` | Exit 0; **128 rasters**, `completed.txt`, cleanup acknowledged. |
-| `target/debug/examples/pane_moving …/corrected-title-edge-gestures` | Exit 0; first visible title letter pick, full move/zoom, stable owners, selection/copy, mouse/IME/modal cancellation, clipping, hidden output/query/exit and native cleanup. |
+| `target/debug/examples/pane_moving …/corrected-title-edge-gestures` | Exit 0; first visible title letter pick, full move/zoom, stable owners, selection/copy, mouse/modal cancellation, clipping, hidden output/query/exit and native cleanup. |
 | `git diff --check` | Passed. |
+| Native process audit | 0 task-owned fixture processes remain; `accepted-process-audit.txt`. |
 
 `accepted-scenes-provenance.json` records exact source, binary SHA-256 and source
 file hashes. Binary: `bb9fcaf8e3c321532085673032a5b4c06ae12d2a529b0cc040ebc89f4544900e`.
