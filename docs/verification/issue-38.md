@@ -132,6 +132,16 @@ CPU observations. A finite one-second post-End hold allows a forced end counter
 sample before owned-child teardown. Windows stderr completion and GPU observer
 termination are explicit outcomes; these native branches remain unexecuted.
 
+R2's two later controlled-comparison P2 findings are corrected: cohorts include
+the immutable build/config/source/artifact identity, with invocation path options
+normalized and executable/output paths excluded. Distinct binaries or profiles
+cannot pool just because renderer/variant labels match. Canonical per-slot
+terminal columns/rows/visibility must match within a controlled scenario across
+profiles, alongside window DIP/scale. R2's unchanged matching control plus both
+mutation cases pass through a retained-seed/output-path adapter; source hashes,
+portable runner and synthetic data are under `comparison-axes/`. Full native
+resource counter sequences also reject material gaps in one-second sampling.
+
 The exact Windows procedure is in `docs/verification/issue-38-windows-run.md`.
 Actual R34 has no merged main ref: its unmerged boot API has not been imported.
 Current-main release workflow checks therefore retain the legacy constructor

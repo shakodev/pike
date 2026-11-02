@@ -1,0 +1,10 @@
+unchanged_comparison_case_source_sha256 d353659eef238410945f0191e15b128661b1bf32a0733642814929a37e01542b
+adapter_scope=portable retained valid seed path and output directory only; control and mutation bodies unchanged
+test_control_matching_build_and_terminal_geometry_can_pool (independent_comparison_axes.ComparisonAxes.test_control_matching_build_and_terminal_geometry_can_pool) ... ok
+test_different_binary_profile_and_size_cannot_be_silently_pooled (independent_comparison_axes.ComparisonAxes.test_different_binary_profile_and_size_cannot_be_silently_pooled) ... ok
+test_equal_window_dip_does_not_hide_different_terminal_cell_geometry (independent_comparison_axes.ComparisonAxes.test_equal_window_dip_does_not_hide_different_terminal_cell_geometry) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.147s
+
+OK

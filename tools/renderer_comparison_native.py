@@ -63,6 +63,10 @@ def _validate(directory):
     if ready_ms > begin_seconds*1000:
         raise ValueError("external readiness lies after measurement begin")
     fixture["external_scene_snapshot_ready_ms"] = ready_ms
+    fixture["terminal_geometry"] = [
+        {"slot": slot, "visible": row["visible"] == "true", "columns": int(row["columns"]), "rows": int(row["rows"])}
+        for slot, row in enumerate(sorted(read_csv(directory / "fixture/counters-before.csv", 32), key=lambda row: int(row["session"])))
+    ]
     external_seconds = number(collector["ExternalDurationMs"], "external duration", positive=True) / 1000
     ready = {int(r["a"]): r["session"] for r in read_csv(directory / "fixture/events.csv") if r["event"] == "ready"}
     tree = read_csv(directory / "owned-tree.csv", 64)
@@ -124,6 +128,8 @@ def _validate(directory):
             minimum = max(minimum, 60)
         if not values or (not startup and (len(values) < 2 or values[-1]["Seconds"]-values[0]["Seconds"] < minimum)):
             raise ValueError("insufficient measurement-window process coverage")
+        if not meta.get("dry_run") and not startup and any(b["Seconds"]-a["Seconds"] > 1.5 for a, b in zip(values, values[1:])):
+            raise ValueError("one-second native sampling has a material gap")
         if values[-1]["Seconds"] > begin_seconds + fixture["interval_ms"]/1000 + .25:
             raise ValueError("cost sample lies after the measured interval")
     measurements = {}

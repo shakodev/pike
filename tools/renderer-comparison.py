@@ -6,6 +6,7 @@ Python 3.11+, standard library only. Run from the repository root.
 import argparse
 import csv
 import json
+import hashlib
 import os
 from pathlib import Path
 import platform
@@ -26,6 +27,17 @@ VARIANTS = {
     "size-s": ("s", "thin", 1, "symbols"),
     "size-z": ("z", "thin", 1, "symbols"),
 }
+
+
+def build_identity(build):
+    immutable = {key: value for key, value in build.items() if key not in ("directory", "executable", "invocation")}
+    invocation = []
+    relocate = False
+    for argument in build.get("invocation", []):
+        invocation.append("<relocated-path>" if relocate else argument)
+        relocate = argument in ("--target-dir", "--manifest-path")
+    immutable["invocation"] = invocation
+    return hashlib.sha256(json.dumps(immutable, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
 
 
 def command(args, **kw):
@@ -145,6 +157,7 @@ def compare(args):
     expected_runs = set()
     observed_runs = set()
     failed_runs = []
+    scenario_geometry = {}
     for root in args.roots:
         machine_path = root / "machine.json"
         machine = json.loads(machine_path.read_text(encoding="utf-8-sig")) if machine_path.exists() else {}
@@ -194,7 +207,12 @@ def compare(args):
                 blockers.add("integrated actual34 product boot/readiness evidence pending")
             if meta["workload"] == "flood" and meta["probes"] >= 200 and not fixture["input_30s_200_sample_gate"]:
                 blockers.add("200 validated input observations did not fit the 30-second window")
-            key = (build["renderer"], build["variant"], meta["visible"], meta["hidden"], meta["history"], meta["workload"], bool(meta.get("startup_repetition")), bool(meta.get("latency_repetition")))
+            key = (build["renderer"], build["variant"], meta["visible"], meta["hidden"], meta["history"], meta["workload"], bool(meta.get("startup_repetition")), bool(meta.get("latency_repetition")), build_identity(build))
+            shape = json.dumps(fixture["terminal_geometry"], sort_keys=True)
+            scenario = key[2:8]
+            if scenario in scenario_geometry and scenario_geometry[scenario] != shape:
+                raise ValueError("terminal cell geometry differs within the controlled scenario")
+            scenario_geometry[scenario] = shape
             group = groups.setdefault(key, {"runs": [], "geometry": set(), "machine": set(), "build": build})
             group["geometry"].add(json.dumps(fixture["native_geometry"], sort_keys=True))
             group["machine"].add(digest(machine_path) if machine_path.exists() else "missing")
@@ -205,10 +223,10 @@ def compare(args):
         blockers.add("failed or unvalidated runs remain in supplied evidence")
     if expected_runs-observed_runs:
         blockers.add("planned scenarios or repetitions are missing")
-    builds_seen = {(key[0], key[1]) for key in groups}
+    builds_seen = {(key[0], key[1], key[8]) for key in groups}
     resource_cases = {(visible, hidden, history, workload) for visible in (1, 4, 8) for hidden in (0, 8) for history in ("empty", "saturated") for workload in ("idle", "flood")}
     for build_id in builds_seen:
-        relevant = [(key, group) for key, group in groups.items() if key[:2] == build_id]
+        relevant = [(key, group) for key, group in groups.items() if (key[0], key[1], key[8]) == build_id]
         covered = {key[2:6] for key, _ in relevant if not key[6] and not key[7]}
         if covered != resource_cases:
             blockers.add("complete 1/4/8 visible and hidden resource matrix missing")
@@ -223,7 +241,7 @@ def compare(args):
             blockers.add("machine or geometry changed within a scenario")
         def observed(getter):
             return distribution(value for run in runs if (value := getter(run)) is not None)
-        row = dict(zip(("renderer", "variant", "visible", "hidden", "history", "workload", "startup", "latency"), key))
+        row = dict(zip(("renderer", "variant", "visible", "hidden", "history", "workload", "startup", "latency", "build_identity"), key))
         row.update(run_count=len(runs), app_bytes=group["build"]["app_bytes"], executable_archive_bytes=group["build"]["executable_archive_bytes"],
                    portable_archive_bytes=group["build"].get("portable_archive_bytes"),
                    startup_ready_ms=observed(lambda r: r["fixture"]["external_scene_snapshot_ready_ms"]),
@@ -251,7 +269,7 @@ def compare(args):
                              "method": "nearest-rank distributions of run medians/p95s/maxima; raw observations retained separately", "groups": rows})
     csv_path = args.output.with_suffix(".csv")
     with csv_path.open("w", newline="", encoding="utf-8") as stream:
-        fields = ["renderer", "variant", "visible", "hidden", "history", "workload", "startup", "latency", "run_count", "app_bytes", "executable_archive_bytes", "portable_archive_bytes", "app_cpu_run_median", "app_private_run_median", "snapshot_run_p95_median", "readback_run_p95_median", "validated_input_samples", "parser_observed_bytes_per_second_per_session"]
+        fields = ["renderer", "variant", "build_identity", "visible", "hidden", "history", "workload", "startup", "latency", "run_count", "app_bytes", "executable_archive_bytes", "portable_archive_bytes", "app_cpu_run_median", "app_private_run_median", "snapshot_run_p95_median", "readback_run_p95_median", "validated_input_samples", "parser_observed_bytes_per_second_per_session"]
         writer = csv.DictWriter(stream, fieldnames=fields)
         writer.writeheader()
         for row in rows:

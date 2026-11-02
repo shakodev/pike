@@ -1,0 +1,259 @@
+{
+  "fixture": {
+    "startup_first_child_ms": 0.0,
+    "scenario_ready_ms": 2.0,
+    "interval_ms": 6000.0,
+    "snapshot_latency_ms": {
+      "count": 0,
+      "median": null,
+      "p95": null,
+      "maximum": null
+    },
+    "readback_latency_ms": {
+      "count": 0,
+      "median": null,
+      "p95": null,
+      "maximum": null
+    },
+    "latency_observation_window_ms": null,
+    "input_30s_200_sample_gate": false,
+    "frame_redraw_intervals_ms": {
+      "count": 11,
+      "median_bucket": {
+        "lower_ms": 16,
+        "upper_ms_exclusive": 17
+      },
+      "p95_bucket": {
+        "lower_ms": 2001,
+        "upper_ms_exclusive": null
+      }
+    },
+    "native_geometry": {
+      "width_dip": "1600",
+      "height_dip": "1000",
+      "scale": "1"
+    },
+    "throughput": [],
+    "work_delta": [
+      {
+        "session": 1,
+        "visible": true,
+        "snapshots": 0,
+        "cells_copied": 0,
+        "font_measurements": 0,
+        "pty_resizes": 0,
+        "grid_resizes": 0,
+        "cache_invalidations": 0,
+        "input_written": 0
+      },
+      {
+        "session": 2,
+        "visible": false,
+        "snapshots": 0,
+        "cells_copied": 0,
+        "font_measurements": 0,
+        "pty_resizes": 0,
+        "grid_resizes": 0,
+        "cache_invalidations": 0,
+        "input_written": 0
+      }
+    ],
+    "external_scene_snapshot_ready_ms": 0.0,
+    "terminal_geometry": [
+      {
+        "slot": 0,
+        "visible": true,
+        "columns": 120,
+        "rows": 24
+      },
+      {
+        "slot": 1,
+        "visible": false,
+        "columns": 120,
+        "rows": 24
+      }
+    ]
+  },
+  "processes": {
+    "app": {
+      "identities": 1,
+      "one_core_cpu_percent_sum": 1.0,
+      "cpu_sample_window_seconds": {
+        "count": 1,
+        "median": 6.0,
+        "p95": 6.0,
+        "maximum": 6.0
+      },
+      "per_process_private_bytes": {
+        "count": 2,
+        "median": 1000.0,
+        "p95": 1000.0,
+        "maximum": 1000.0
+      },
+      "per_process_working_set_bytes": {
+        "count": 2,
+        "median": 2000.0,
+        "p95": 2000.0,
+        "maximum": 2000.0
+      },
+      "threads": {
+        "count": 2,
+        "median": 3.0,
+        "p95": 3.0,
+        "maximum": 3.0
+      },
+      "handles": {
+        "count": 2,
+        "median": 10.0,
+        "p95": 10.0,
+        "maximum": 10.0
+      },
+      "sum_private_bytes_by_sample": {
+        "count": 2,
+        "median": 1000.0,
+        "p95": 1000.0,
+        "maximum": 1000.0
+      }
+    },
+    "fixture-child": {
+      "identities": 2,
+      "one_core_cpu_percent_sum": 5.0,
+      "cpu_sample_window_seconds": {
+        "count": 2,
+        "median": 6.0,
+        "p95": 6.0,
+        "maximum": 6.0
+      },
+      "per_process_private_bytes": {
+        "count": 4,
+        "median": 3000.0,
+        "p95": 3000.0,
+        "maximum": 3000.0
+      },
+      "per_process_working_set_bytes": {
+        "count": 4,
+        "median": 4000.0,
+        "p95": 4000.0,
+        "maximum": 4000.0
+      },
+      "threads": {
+        "count": 4,
+        "median": 1.0,
+        "p95": 1.0,
+        "maximum": 1.0
+      },
+      "handles": {
+        "count": 4,
+        "median": 5.0,
+        "p95": 5.0,
+        "maximum": 5.0
+      },
+      "sum_private_bytes_by_sample": {
+        "count": 2,
+        "median": 6000.0,
+        "p95": 6000.0,
+        "maximum": 6000.0
+      }
+    },
+    "conpty-host": {
+      "identities": 0,
+      "one_core_cpu_percent_sum": null,
+      "cpu_sample_window_seconds": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "per_process_private_bytes": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "per_process_working_set_bytes": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "threads": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "handles": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "sum_private_bytes_by_sample": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      }
+    },
+    "owned-other": {
+      "identities": 0,
+      "one_core_cpu_percent_sum": null,
+      "cpu_sample_window_seconds": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "per_process_private_bytes": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "per_process_working_set_bytes": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "threads": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "handles": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "sum_private_bytes_by_sample": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      }
+    }
+  },
+  "raw_sha256": {
+    "run.json": "b648ecffa76a31e552aa0b3b83600de707a8d9c330fda636a6e3e4186c76648d",
+    "collector.json": "a3da608e029151aded74ffd7f87399dda919a0ea8bd26a855924237b1ec238f4",
+    "owned-tree.csv": "efd8470544e49892db70cb564089088db62cc4f35c005c748f530ba61f338e32",
+    "process.csv": "bb7972db932c4293cafca30102cf15976d23239e30f5b68723e8f4bebc4a24f2",
+    "fixture/events.csv": "2bac0ea502d8585dca6699574830b3aaac8e44543d7f1f3922a06b8e7b7e38f1",
+    "fixture/counters-before.csv": "b69b7f58635b0ec1efde383cbdd7cb7c223c6bca2ccb5a1b051dde2887c7ba54",
+    "fixture/counters-after.csv": "b69b7f58635b0ec1efde383cbdd7cb7c223c6bca2ccb5a1b051dde2887c7ba54",
+    "fixture/latency.csv": "ea7ad58d090aed19005e9915e3e8735c43d7a1587cca3a6d28e97b02570c6820",
+    "fixture/geometry.csv": "f42713a1058b0325ee1b065371dd4029424451f5f6e81e6a9b2831def2ba3678",
+    "fixture/geometry-after.csv": "f42713a1058b0325ee1b065371dd4029424451f5f6e81e6a9b2831def2ba3678",
+    "fixture/frame-intervals.csv": "4f91141fceb9544eff80d5d2b6c7b17c6a3c320c4b60d68e876febccefeff475",
+    "manifest.json": "3e6e0c20e01d42f3ef0ce7d9b1cd3a080fc2f61baef0b169f8e98a55788766a6"
+  },
+  "limitations": [
+    "synthetic commands, snapshot and screenshot callback latency; physical input/display latency unmeasured",
+    "native redraw-request intervals are not GPU execution or presentation timestamps",
+    "separate GPU counters/metadata and correctness review are required before selection"
+  ],
+  "selection": "PENDING"
+}
