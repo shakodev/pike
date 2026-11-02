@@ -13,6 +13,8 @@ mod host_viewport;
 use iced::{Executor, advanced::renderer::Headless};
 use pike::{app::App, executor::SharedExecutor};
 use std::{fs, io, io::Read, io::Write, path::Path};
+#[path = "remappable_shortcuts/focus.rs"]
+mod focus;
 #[path = "remappable_shortcuts/scenarios.rs"]
 mod scenarios;
 #[allow(dead_code)]

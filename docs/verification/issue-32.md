@@ -1,12 +1,14 @@
 # R32 / issue #32 — effective shortcuts and command reference
 
-Status: complete feature checkpoint for exclusive R1 review; final publication
-and review fixes remain in this same task. GitHub Actions remains disabled.
+Status: complete feature and local verification, published in PR #82 for
+exclusive R1 review; review fixes remain in this same task. GitHub Actions remains disabled.
 
 ## Source and ownership
 
 - Created `issue-32-remappable-shortcuts` from fetched actual merged main
   `a5fe9fc4d8f0df53db240155ecebe0088d9898f4` (PR #81 / R31).
+- Deliberate final integration fetch again found actual main at that same
+  SHA and reported Already up to date before final verification.
 - Preserved the previous `issue-31-settings` branch, reports, refs and reused
   worktree-local `target`. Scoped personal Codex login passed.
 - No dependency/version/lock changes, second PTY, background settings watcher,
@@ -57,11 +59,19 @@ the existing default wgpu renderer. No remote CI was enabled, dispatched or run.
 | Local command / fixture | Result |
 | --- | --- |
 | `cargo check --locked -p pike --lib` | Passed. |
-| `cargo test --locked -p pike --lib app::commands` | 18 passed, including queued-map generation and reload-during-help regression. |
+| `cargo fmt --all -- --check` | Passed after the final affected fixture adaptations. |
+| `cargo test --locked -p pike --lib` | Pre-review checkpoint: 176 passed, 10 existing ignored; shared command/focus/settings integration justified the package library run. |
+| `cargo test --locked -p pike --lib app::` | Final R1 fix: 96 passed, 9 existing ignored; command/menu/focus/capture and App-state integration affected by the correction. |
+| `cargo test --locked -p pike --lib app::commands` | Final R1 fix: 19 passed, including native/App focus lease revocation, queued-map generation and reload-during-help regression. |
 | `cargo test --locked -p iced_term --lib bindings` | 9 passed, including opt-in/default restoration/native fallback/custom override regressions. |
 | `cargo test --locked -p iced_term --lib window_focus` | 1 passed, including redundant focus, native blur/focus and foreign-window receipt rejection. |
-| `cargo clippy --locked -p pike --lib --bin pike --example remappable_shortcuts -- -D warnings` | Passed after the final generation receipt addition. |
-| `target/debug/examples/remappable_shortcuts docs/baselines/issue-32/native-development-2` | Passed; actual App, full Iced tree/tasks/subscriptions, local graphics and real PTY child; cleanup acknowledged. |
+| `cargo clippy --locked -p pike --lib --bin pike --example remappable_shortcuts --example command_routing --example settings_reload --example pane_resizing -- -D warnings` | Passed for the affected library/bin and four fixture targets. |
+| `cargo clippy --locked -p iced_term --lib -- -D warnings` | Passed explicitly for the patched dependency. |
+| `cargo build --locked -p pike --example command_routing --example settings_reload --example pane_resizing` | Passed for the existing fixtures affected by additive command receipts. |
+| `target/debug/examples/remappable_shortcuts docs/baselines/issue-32/native-development-3` | Passed before R1 help-focus correction; actual App/full Iced tree/tasks/subscriptions/local graphics/real PTY; cleanup acknowledged. |
+| `target/debug/examples/remappable_shortcuts docs/baselines/issue-32/native-help-focus-fixed` | Final corrected source passed the complete suite plus four held-real-Enter native/App blur/refocus cases; fresh Execute/navigation/Escape/focus and exact bytes retained. |
+| `target/debug/examples/command_routing docs/baselines/issue-32/native-command-defaults` | Passed with exact-one Controls for newly hosted clipboard/history and unchanged byte/viewport/selection/IME/owner oracles. |
+| `target/debug/examples/settings_reload docs/baselines/issue-32/native-settings-compatible-2` | Passed with current receipt and toolbar-label expectations; all settings/session/resize/dialog/owner oracles retained. |
 
 The finite byte fixture uses only synthetic fixture output, clipboard strings,
 configuration and child byte files. It proves one default structural dispatch
@@ -70,7 +80,11 @@ exact native close/copy/paste/resize/history fallback bytes; rejection of an
 ambiguous surviving default and last-valid custom paste; 23 effective help
 alternatives; measured End/PageUp/Home navigation, disabled command and Escape;
 shifted symbol/non-US/AltGr/native IME priority; delayed paste modal/tab/native
-blur round trips; and custom structural mapping after successful/failed reloads.
+blur round trips; custom structural mapping after successful/failed reloads; and actual asynchronous
+reload while help is open, rejecting a held old row, refreshing 24 live bindings
+and preserving Escape/focus. Final corrected acceptance also holds a real Enter
+ClosePane receipt across native-only and App-delivered blur/refocus, proving
+rejection before/after queued App focus delivery and fresh-menu usability.
 
 ## Preserved red evidence and limits
 
@@ -89,9 +103,20 @@ blur round trips; and custom structural mapping after successful/failed reloads.
   `startup_lifecycle` example's nested whole-library source inclusion: crate-root
   imports and restricted `pub(in crate::app)` ancestors cannot resolve there.
   Alias-only and isolated source-module experiments were minimized and then
-  restored; no unrelated source/lifecycle changes remain. Red logs are retained.
+  restored; no unrelated source/lifecycle changes remain. An exact `git archive`
+  of merged main a5fe9fc independently reproduced the same class of failure with
+  `cargo check --locked -p pike --example startup_lifecycle`: exit 101, 49 errors.
+  The exact command/base identity and original output are retained in
+  `exact-main-reproduction.txt` and `pike-r32-exact-main-startup.log`.
   Current AGENTS authorizes proportional checks on the changed package/targets;
   final lint/build verification targets the app and changed native fixture.
+- The adapted settings fixture first looked for the deliberately removed
+  hardcoded label `Reload settings (Ctrl+Shift+F5)`. That run and cleanup are
+  retained under `native-settings-compatible`; changing only its expected fixed
+  label to `Reload settings` allowed the next native run to pass. Neighboring
+  fixtures accept the additive MappedCommand receipt alongside legacy types and
+  require exactly one common-resolver action for copy/paste/history; their byte,
+  mode, geometry, owner, and focus assertions were kept.
 - Two pre-existing `iced_winit` deprecated `try_next` dependency warnings and the
   pre-existing `block` future-compatibility notice are reported by Cargo. New
   app lint findings (operator precedence, collapsible if, closure type alias)
@@ -104,3 +129,58 @@ blur round trips; and custom structural mapping after successful/failed reloads.
 - No resource/latency improvement claim is made, so no synthetic performance
   estimate is substituted for a measurement. Physical13/14 holds and the
   preserved owner14 dependency waiver remain in effect.
+
+## Source and acceptance identity
+
+The complete compiled review checkpoint is `f1273b08e8f6801795fd177b3ad37ff6255e3c84`
+on PR #82. The current native target delta from it (effective-reference traversal
+and the async-open-help regression) is retained as
+`native-development-3/source.patch`, with the tested executable SHA-256 beside it.
+`source-manifest.sha256` identifies the final affected Rust files and pinned
+manifest/lock independently of report-only commits. Later neighbor fixture
+adaptations and comment updates do not change the tested remap target behavior.
+
+- [x] All 64 catalog actions accept an explicit binding through the same typed
+  resolver, including prior stable host controls; all appear in the current
+  keyboard/mouse reference, with context availability.
+- [x] Defaults, replacement/alternatives, unbind/reuse, surviving-default conflicts,
+  unsupported forms, atomic last-valid retention and remapping after reload.
+- [x] Exact synthetic child bytes, one action/no duplicate writes, current help,
+  disabled commands, measured long-list navigation, Escape and terminal focus.
+- [x] Logical shifted/non-US symbols, AltGr/native IME priority, delayed clipboard
+  modal/tab/native-blur receipts and live-help reload generation refresh.
+- [x] Local affected-target formatting/lint/tests, explicit patched tests and
+  durable red/green source-bound evidence; no GitHub Actions.
+- [ ] Physical Windows/ConPTY/keyboard/IME/monitor validation: remains unperformed
+  under the preserved physical13/14 holds and owner14 dependency waiver.
+
+## R1 review cycle 1 correction
+
+R1 independently found a P2 at the first compiled checkpoint: a queued real
+HelpAction emitted by Enter could execute ClosePane after blur, and refocusing
+the same window revived that old action. The original reviewer sources,
+`native-held-help-f1273b0` and `native-help-roundtrip-f1273b0` failures/bytes/cleanup,
+and prepared review bodies remain unchanged in its `target-reviewer/issue-32-review`
+artifact family. The coordinator publishes independent review bodies centrally;
+this author has posted no independent review or approval.
+
+The correction stores the existing immutable WindowInputLease in help state and
+checks it with the help token/settings generation before consuming any HelpAction.
+The existing Capture widget has an additive `capture_with_window` constructor;
+ordinary capture callers keep the same signature/default behavior. Help's native
+Focused/Unfocused events synchronize the same WindowFocus immediately, including
+when its full-screen modal has no Terminal child. App focus delivery refreshes
+the live help token/lease only when necessary; redundant focused notifications
+retain current actions. Dismissal/window close clears the receipt. No second
+focus owner, mapper, PTY, input replay or unrelated gesture/lifecycle logic was
+added.
+
+The native regression withholds the actual Enter-emitted ClosePane action, then
+covers native-only blur, native-only blur/refocus before App subscription delivery,
+and the corresponding explicitly App-delivered transitions. All four reject the
+held action without confirmation/close/bytes; each then executes a fresh current
+menu action, cancels its conservative confirmation, and verifies navigation,
+Escape, original session and terminal focus. Final corrected source/executable
+identity is retained under `native-help-focus-fixed`; all source hashes are in
+`source-manifest.sha256`. Explicit vendor binding/window tests remain valid
+because the review correction changes only App capture/menu receipt handling.

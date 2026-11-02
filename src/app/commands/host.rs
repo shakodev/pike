@@ -27,6 +27,7 @@ pub(in crate::app) struct State {
     pub(in crate::app) help_history: bool,
     pub(in crate::app) help_token: u64,
     pub(in crate::app) help_generation: u64,
+    pub(in crate::app) help_window: Option<iced_term::WindowInputLease>,
     pub(in crate::app) help_selected: usize,
     pub(in crate::app) help_scroll: Option<iced::widget::Id>,
     pub(in crate::app) help_rows: Vec<iced::widget::Id>,
@@ -241,6 +242,7 @@ impl App {
         let Some(restore) = self.command_state.help.take() else {
             return Task::none();
         };
+        self.command_state.help_window = None;
         self.synchronize();
         if let Some(target) = restore.and_then(|id| self.model.target(id)) {
             self.select(target)

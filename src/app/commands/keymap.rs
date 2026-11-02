@@ -22,8 +22,9 @@ pub(super) fn resolve(event: &keyboard::Event, mappings: &[Shortcut]) -> Option<
     else {
         return None;
     };
-    // Ctrl+Alt (including shifted AltGr) and Logo never enter this application
-    // map. Native text/IME processing retains its established precedence.
+    // Ctrl+Alt (including shifted AltGr) bypasses this application map. Logo
+    // matches only platform defaults; settings cannot assign OS combinations.
+    // Native text/IME processing retains its established precedence.
     if modifiers.control() && modifiers.alt() {
         return None;
     }

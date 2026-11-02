@@ -1,0 +1,120 @@
+diff --git a/examples/remappable_shortcuts/scenarios.rs b/examples/remappable_shortcuts/scenarios.rs
+index bdf4ea0..7745c0e 100644
+--- a/examples/remappable_shortcuts/scenarios.rs
++++ b/examples/remappable_shortcuts/scenarios.rs
+@@ -379,6 +379,59 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<()> {
+     expected.extend_from_slice("合".as_bytes());
+     bytes(host, &second_file, &expected)?;
+     host.evidence.push("23 effective help bindings, measured End/PageUp/Home navigation, disabled command, Escape focus, shifted symbol/non-US/AltGr/IME priority".into());
++    // An asynchronous reload may finish while help owns focus. Held old rows
++    // must be rejected and the newly rendered menu must remain navigable.
++    let refreshed =
++        format!("{many}\n[[shortcuts]]\ncommand='help'\nkey='ß'\nmodifiers=['ctrl','shift']\n");
++    fs::write(
++        output.join("settings.toml"),
++        format!("{}\n{refreshed}", configuration(output)?),
++    )?;
++    let pending_reload = host
++        .app
++        .update(Message::Control(Control::Command(Command::ReloadSettings)));
++    check(
++        host.app.settings_pending(),
++        "reload did not retain its asynchronous pending state",
++    )?;
++    click_label(host, "Commands and shortcuts (")?;
++    let held = widget::click(&host.app, &host.renderer, |message| {
++        matches!(
++            message,
++            Message::Control(Control::HelpAction(
++                _,
++                pike::app::commands::HelpAction::Execute(Command::NewTab)
++            ))
++        )
++    })
++    .ok_or_else(|| io::Error::other("held old help row not hit-testable"))?;
++    host.finish(pending_reload)?;
++    check(
++        !host.app.settings_pending() && host.app.interaction_blocked(),
++        "reload trapped or dismissed open help",
++    )?;
++    let count = host.app.model().sessions().len();
++    host.update(held);
++    check(
++        host.app.model().sessions().len() == count && host.app.interaction_blocked(),
++        "held old help row survived reload",
++    )?;
++    check(
++        host.app
++            .command_reference()
++            .into_iter()
++            .find(|r| r.command == Command::Help)
++            .unwrap()
++            .bindings
++            .len()
++            == 24,
++        "open menu reference did not refresh after reload",
++    )?;
++    named(host, Named::Home, Modifiers::empty())?;
++    named(host, Named::Escape, Modifiers::empty())?;
++    host.until(|host| host.focused(second))?;
++    host.evidence.push("actual asynchronous reload while help is open rejects held old row, refreshes 24 live help bindings and preserves Escape/focus".into());
++
+     // Deferred clipboard work is invalidated even after returning to the same owner.
+     host.clipboard.0 = Some("MUST_NOT_ARRIVE".into());
+     let delayed = host
+diff --git a/src/app/commands/reference.rs b/src/app/commands/reference.rs
+index cc6afb7..1fa5e1d 100644
+--- a/src/app/commands/reference.rs
++++ b/src/app/commands/reference.rs
+@@ -36,6 +36,7 @@ impl App {
+     /// Reads today's atomically committed settings. Disabled and unbound commands
+     /// remain discoverable, including actions without a default direct chord.
+     pub fn command_reference(&self) -> Vec<CommandReference> {
++        let effective: Vec<_> = shortcuts::effective(self.settings.active.shortcuts()).collect();
+         Id::ALL
+             .iter()
+             .copied()
+@@ -50,7 +51,8 @@ impl App {
+                 CommandReference {
+                     command,
+                     label,
+-                    bindings: shortcuts::effective(self.settings.active.shortcuts())
++                    bindings: effective
++                        .iter()
+                         .filter(|binding| binding.command == id)
+                         .map(|binding| binding.to_string())
+                         .collect(),
+@@ -140,24 +142,15 @@ impl App {
+     }
+ 
+     pub fn command_menu(&self) -> Element<'_, Control> {
+-        let label = self
+-            .command_reference()
+-            .into_iter()
+-            .find(|r| r.command == Command::Help)
+-            .map(|r| {
+-                if r.bindings.is_empty() {
+-                    "Commands and shortcuts".into()
+-                } else if r.bindings.len() == 1 {
+-                    format!("Commands and shortcuts ({})", r.bindings[0])
+-                } else {
+-                    format!(
+-                        "Commands and shortcuts ({}; {} more)",
+-                        r.bindings[0],
+-                        r.bindings.len() - 1
+-                    )
+-                }
+-            })
+-            .expect("help is in catalog");
++        let bindings: Vec<_> = shortcuts::effective(self.settings.active.shortcuts())
++            .filter(|binding| binding.command == Id::Help)
++            .map(|binding| binding.to_string())
++            .collect();
++        let label = match bindings.as_slice() {
++            [] => "Commands and shortcuts".into(),
++            [only] => format!("Commands and shortcuts ({only})"),
++            [first, rest @ ..] => format!("Commands and shortcuts ({first}; {} more)", rest.len()),
++        };
+         button(text(label))
+             .on_press_maybe(
+                 (!self.interaction_blocked()).then_some(Control::Command(Command::Help)),

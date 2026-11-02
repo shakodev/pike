@@ -36,6 +36,7 @@ impl App {
     /// Reads today's atomically committed settings. Disabled and unbound commands
     /// remain discoverable, including actions without a default direct chord.
     pub fn command_reference(&self) -> Vec<CommandReference> {
+        let effective: Vec<_> = shortcuts::effective(self.settings.active.shortcuts()).collect();
         Id::ALL
             .iter()
             .copied()
@@ -50,7 +51,8 @@ impl App {
                 CommandReference {
                     command,
                     label,
-                    bindings: shortcuts::effective(self.settings.active.shortcuts())
+                    bindings: effective
+                        .iter()
                         .filter(|binding| binding.command == id)
                         .map(|binding| binding.to_string())
                         .collect(),
@@ -140,24 +142,15 @@ impl App {
     }
 
     pub fn command_menu(&self) -> Element<'_, Control> {
-        let label = self
-            .command_reference()
-            .into_iter()
-            .find(|r| r.command == Command::Help)
-            .map(|r| {
-                if r.bindings.is_empty() {
-                    "Commands and shortcuts".into()
-                } else if r.bindings.len() == 1 {
-                    format!("Commands and shortcuts ({})", r.bindings[0])
-                } else {
-                    format!(
-                        "Commands and shortcuts ({}; {} more)",
-                        r.bindings[0],
-                        r.bindings.len() - 1
-                    )
-                }
-            })
-            .expect("help is in catalog");
+        let bindings: Vec<_> = shortcuts::effective(self.settings.active.shortcuts())
+            .filter(|binding| binding.command == Id::Help)
+            .map(|binding| binding.to_string())
+            .collect();
+        let label = match bindings.as_slice() {
+            [] => "Commands and shortcuts".into(),
+            [only] => format!("Commands and shortcuts ({only})"),
+            [first, rest @ ..] => format!("Commands and shortcuts ({first}; {} more)", rest.len()),
+        };
         button(text(label))
             .on_press_maybe(
                 (!self.interaction_blocked()).then_some(Control::Command(Command::Help)),
@@ -171,6 +164,7 @@ impl App {
         };
         self.command_state.help_token = token;
         self.command_state.help_generation = self.settings.generation;
+        self.command_state.help_window = self.window_focus.input_lease();
         self.command_state.help_history = self
             .active_session()
             .and_then(|id| self.terminal(id))
@@ -193,6 +187,7 @@ impl App {
         if let Some(token) = self.command_state.help_token.checked_add(1) {
             self.command_state.help_token = token;
             self.command_state.help_generation = self.settings.generation;
+            self.command_state.help_window = self.window_focus.input_lease();
             self.command_state.help_selected = self
                 .command_state
                 .help_selected
@@ -200,6 +195,23 @@ impl App {
         } else {
             drop(self.dismiss_help());
         }
+    }
+
+    /// Native focus can transition before its App message. Old modal actions
+    /// retain the old immutable window epoch; current views get a fresh token.
+    pub(in crate::app) fn refresh_help_focus(&mut self) {
+        if self.command_state.help.is_none() {
+            return;
+        }
+        match (
+            self.window_focus.is_focused(),
+            &self.command_state.help_window,
+        ) {
+            (true, Some(lease)) if self.window_focus.accepts_input(lease) => return,
+            (false, None) => return,
+            _ => {}
+        }
+        self.refresh_help_reference();
     }
 
     pub(in crate::app) fn run_help_action(
@@ -210,6 +222,11 @@ impl App {
         if self.command_state.help.is_none()
             || token != self.command_state.help_token
             || self.command_state.help_generation != self.settings.generation
+            || self
+                .command_state
+                .help_window
+                .as_ref()
+                .is_none_or(|lease| !self.window_focus.accepts_input(lease))
             || self.exiting
         {
             return Task::none();
@@ -297,10 +314,11 @@ impl App {
             rows,
             button("Return to terminal (Escape)").on_press(Control::DismissHelp),
         ].spacing(12)).padding(24).width(Fill).height(Fill).into();
-        Some(resize::capture(
+        Some(resize::capture::capture_with_window(
             content.map(Message::Control),
             false,
             None,
+            self.window_focus.clone(),
             move |event| help_key(event, token, selected, self.settings.active.shortcuts()),
         ))
     }

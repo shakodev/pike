@@ -365,6 +365,7 @@ impl App {
                     self.blur_tab_dialog();
                 }
                 self.window_focus.set_focused(focused);
+                self.refresh_help_focus();
                 self.synchronize();
                 if focused {
                     return self
@@ -381,6 +382,7 @@ impl App {
             Message::CloseWindow => {
                 self.tab_dialog.clear();
                 self.command_state.help = None;
+                self.command_state.help_window = None;
                 return self.request_close(close::Scope::Window);
             }
             Message::ShutdownComplete => return self.shutdown_complete(),

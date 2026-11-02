@@ -110,6 +110,7 @@ fn new_tab_capacity_refusal_uses_the_existing_guard_and_retains_current_owner() 
 #[test]
 fn current_reference_has_all_controls_effective_alternatives_and_disabled_context() {
     let mut app = App::default();
+    app.window_focus.set_focused(true);
     app.model.create_tab().unwrap();
     let owner = app.active_session();
     let mut source = "version=1\n[[shortcuts]]\ncommand='new-tab'\nunbind=true\n".to_owned();
@@ -264,4 +265,52 @@ fn reload_while_help_open_rejects_old_rows_and_refreshes_the_live_menu() {
     assert!(app.command_state.help.is_some());
     drop(app.dismiss_help());
     assert_eq!(app.active_session(), owner);
+}
+
+#[test]
+fn held_help_actions_cannot_survive_native_or_app_blur_even_after_refocus() {
+    for native_only in [false, true] {
+        for roundtrip in [false, true] {
+            let mut app = App::default();
+            app.window_focus.set_focused(true);
+            app.model.create_tab().unwrap();
+            app.synchronize();
+            let owner = app.active_session();
+            command(&mut app, Command::Help);
+            let held = app.command_state.help_token;
+            if native_only {
+                app.window_focus.set_focused(false);
+            } else {
+                drop(app.update(Message::WindowFocused(false)));
+            }
+            if roundtrip {
+                if native_only {
+                    app.window_focus.set_focused(true);
+                } else {
+                    drop(app.update(Message::WindowFocused(true)));
+                }
+            }
+            drop(app.run_help_action(
+                held,
+                super::super::HelpAction::Execute(Command::CloseWindow),
+            ));
+            assert!(app.command_state.help.is_some());
+            assert!(!app.exiting, "held help action survived focus loss");
+            assert!(app.close_confirmation().is_none());
+            drop(app.update(Message::WindowFocused(true)));
+            let fresh = app.command_state.help_token;
+            drop(app.update(Message::WindowFocused(true)));
+            assert_eq!(
+                app.command_state.help_token, fresh,
+                "redundant focus retired a current menu"
+            );
+            drop(app.run_help_action(fresh, super::super::HelpAction::Last));
+            assert_eq!(
+                app.command_state.help_selected,
+                crate::settings::shortcuts::Command::ALL.len() - 1
+            );
+            drop(app.dismiss_help());
+            assert_eq!(app.active_session(), owner);
+        }
+    }
 }

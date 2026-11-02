@@ -1,4 +1,4 @@
-//! Pure application shortcut resolution. Terminal editing bindings stay in the
+//! Pure application shortcut resolution. Native terminal encoding stays in the
 //! terminal widget, and the host's single capture wrapper owns IME/modal priority.
 use iced::keyboard;
 #[cfg(test)]

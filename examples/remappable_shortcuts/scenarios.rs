@@ -13,7 +13,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-fn check(condition: bool, message: &str) -> io::Result<()> {
+pub(super) fn check(condition: bool, message: &str) -> io::Result<()> {
     if condition {
         Ok(())
     } else {
@@ -61,7 +61,7 @@ fn key(
     );
     host.drain()
 }
-fn named(host: &mut Host, keycode: Named, modifiers: Modifiers) -> io::Result<()> {
+pub(super) fn named(host: &mut Host, keycode: Named, modifiers: Modifiers) -> io::Result<()> {
     key(
         host,
         Key::Named(keycode),
@@ -86,7 +86,7 @@ fn character(
         false,
     )
 }
-fn click_label(host: &mut Host, starts: &str) -> io::Result<()> {
+pub(super) fn click_label(host: &mut Host, starts: &str) -> io::Result<()> {
     let mut targets = widget::Targets::default();
     host.operate(&mut targets);
     let point = targets
@@ -143,7 +143,7 @@ fn file(host: &mut Host, output: &Path) -> io::Result<(SessionId, PathBuf)> {
         .ok_or_else(|| io::Error::other("child PID marker missing"))?;
     Ok((id, output.join(format!("{pid}.bin"))))
 }
-fn bytes(host: &mut Host, file: &Path, expected: &[u8]) -> io::Result<()> {
+pub(super) fn bytes(host: &mut Host, file: &Path, expected: &[u8]) -> io::Result<()> {
     host.until(|_| fs::read(file).is_ok_and(|actual| actual == expected))
         .map_err(|_| {
             io::Error::other(format!(
@@ -379,6 +379,61 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<()> {
     expected.extend_from_slice("合".as_bytes());
     bytes(host, &second_file, &expected)?;
     host.evidence.push("23 effective help bindings, measured End/PageUp/Home navigation, disabled command, Escape focus, shifted symbol/non-US/AltGr/IME priority".into());
+    // An asynchronous reload may finish while help owns focus. Held old rows
+    // must be rejected and the newly rendered menu must remain navigable.
+    let refreshed =
+        format!("{many}\n[[shortcuts]]\ncommand='help'\nkey='ß'\nmodifiers=['ctrl','shift']\n");
+    fs::write(
+        output.join("settings.toml"),
+        format!("{}\n{refreshed}", configuration(output)?),
+    )?;
+    let pending_reload = host
+        .app
+        .update(Message::Control(Control::Command(Command::ReloadSettings)));
+    check(
+        host.app.settings_pending(),
+        "reload did not retain its asynchronous pending state",
+    )?;
+    click_label(host, "Commands and shortcuts (")?;
+    let held = widget::click(&host.app, &host.renderer, |message| {
+        matches!(
+            message,
+            Message::Control(Control::HelpAction(
+                _,
+                pike::app::commands::HelpAction::Execute(Command::NewTab)
+            ))
+        )
+    })
+    .ok_or_else(|| io::Error::other("held old help row not hit-testable"))?;
+    host.finish(pending_reload)?;
+    check(
+        !host.app.settings_pending() && host.app.interaction_blocked(),
+        "reload trapped or dismissed open help",
+    )?;
+    let count = host.app.model().sessions().len();
+    host.update(held);
+    check(
+        host.app.model().sessions().len() == count && host.app.interaction_blocked(),
+        "held old help row survived reload",
+    )?;
+    check(
+        host.app
+            .command_reference()
+            .into_iter()
+            .find(|r| r.command == Command::Help)
+            .unwrap()
+            .bindings
+            .len()
+            == 24,
+        "open menu reference did not refresh after reload",
+    )?;
+    named(host, Named::Home, Modifiers::empty())?;
+    named(host, Named::Escape, Modifiers::empty())?;
+    host.until(|host| host.focused(second))?;
+    host.evidence.push("actual asynchronous reload while help is open rejects held old row, refreshes 24 live help bindings and preserves Escape/focus".into());
+
+    super::focus::verify(host, second, &second_file, &expected)?;
+
     // Deferred clipboard work is invalidated even after returning to the same owner.
     host.clipboard.0 = Some("MUST_NOT_ARRIVE".into());
     let delayed = host

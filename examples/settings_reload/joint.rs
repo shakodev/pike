@@ -78,7 +78,10 @@ pub(super) fn verify(
     let stale_reload = widget::click(&host.app, &host.renderer, |message| {
         matches!(
             message,
-            Message::Control(Control::KeyCommand(_, Command::ReloadSettings))
+            Message::Control(
+                Control::KeyCommand(_, Command::ReloadSettings)
+                    | Control::MappedCommand(_, _, Command::ReloadSettings)
+            )
         )
     })
     .ok_or_else(|| io::Error::other("joint reload control not discoverable"))?;

@@ -21,6 +21,29 @@ pub(crate) fn capture<'a>(
         content: content.into(),
         suspended,
         active,
+        window: None,
+        on_key: Box::new(on_key),
+        divider: None,
+        pointer_blocked: None,
+        editor: None,
+    })
+}
+
+/// Same boundary for a modal without a Terminal child: propagate native focus
+/// to the existing WindowFocus before queued App events/actions are consumed.
+/// Ordinary capture callers retain their previous behavior and signature.
+pub(crate) fn capture_with_window<'a>(
+    content: impl Into<Element<'a, Message>>,
+    suspended: bool,
+    active: Option<&'a iced_term::Terminal>,
+    window: iced_term::WindowFocus,
+    on_key: impl Fn(&KeyEvent) -> Option<KeyAction> + 'a,
+) -> Element<'a, Message> {
+    Element::new(Capture {
+        content: content.into(),
+        suspended,
+        active,
+        window: Some(window),
         on_key: Box::new(on_key),
         divider: None,
         pointer_blocked: None,
@@ -41,6 +64,7 @@ pub(crate) fn capture_text<'a>(
         content: content.into(),
         suspended: false,
         active: None,
+        window: None,
         on_key: Box::new(on_key),
         divider: None,
         pointer_blocked: None,
@@ -72,6 +96,7 @@ impl Divider {
             content: content.into(),
             suspended: true,
             active: None,
+            window: None,
             on_key: Box::new(resize_key),
             divider: None,
             pointer_blocked: Some(self.0.clone()),
@@ -99,6 +124,7 @@ fn divider_focus<'a>(
         content: content.into(),
         suspended: true,
         active,
+        window: None,
         on_key: Box::new(resize_key),
         divider: Some(node),
         pointer_blocked: Some(pointer_blocked),
@@ -113,6 +139,7 @@ struct Capture<'a> {
     suspended: bool,
     active: Option<&'a iced_term::Terminal>,
     on_key: KeyHandler<'a>,
+    window: Option<iced_term::WindowFocus>,
     divider: Option<&'a iced::widget::pane_grid::Node>,
     pointer_blocked: Option<Rc<Cell<bool>>>,
     editor: Option<Editor>,
@@ -128,7 +155,7 @@ struct State {
     composing: bool,
 }
 
-/// Single shared interception boundary for future R26 command mapping. None
+/// Single shared pre-child command interception boundary. None
 /// delegates untouched; Consume swallows releases without repeating an action.
 pub(crate) enum KeyAction {
     Consume,
@@ -249,10 +276,18 @@ impl Widget<Message, iced::Theme, iced::Renderer> for Capture<'_> {
         let state = tree.state.downcast_mut::<State>();
         match event {
             Event::Window(iced::window::Event::Unfocused) => {
+                if let Some(window) = &self.window {
+                    window.set_focused(false);
+                }
                 state.blurred = true;
                 state.cancel_resize |= state.pressed_owner.is_some();
             }
-            Event::Window(iced::window::Event::Focused) => state.blurred = false,
+            Event::Window(iced::window::Event::Focused) => {
+                if let Some(window) = &self.window {
+                    window.set_focused(true);
+                }
+                state.blurred = false;
+            }
             _ => {}
         }
         if let Some(editor) = &self.editor {

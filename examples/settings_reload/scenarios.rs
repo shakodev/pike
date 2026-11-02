@@ -386,7 +386,7 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
     // all live settings. No save task runs on either success or failure.
     let broken = "version = 1\nhistory = 10001 # synthetic-invalid";
     fs::write(output.join("settings.toml"), broken)?;
-    click(host, "Reload settings (Ctrl+Shift+F5)")?;
+    click(host, "Reload settings")?;
     host.until(|host| !host.app.settings_pending())?;
     check(
         host.app.settings_error().is_some()
