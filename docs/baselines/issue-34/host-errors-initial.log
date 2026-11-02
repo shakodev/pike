@@ -1,0 +1,50 @@
+   Compiling iced_runtime v0.14.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_runtime)
+   Compiling iced_program v0.14.0
+   Compiling iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:566:55
+    |
+566 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:282:64
+    |
+282 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+   Compiling iced v0.14.0
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_term)
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c)
+warning: methods `error_view` and `passive_error_view` are never used
+   --> src/app/errors.rs:130:19
+    |
+ 10 | impl App {
+    | -------- methods in this implementation
+...
+130 |     pub(super) fn error_view(&self, owner: Owner) -> Option<Element<'_, Message>> {
+    |                   ^^^^^^^^^^
+...
+169 |     pub(super) fn passive_error_view(&self) -> Option<Element<'_, Message>> {
+    |                   ^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `pike` (lib test) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.28s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-7aa914fb23ec4515)
+
+running 5 tests
+test app::tests::errors::real_terminal_input_output_environment_arguments_clipboard_and_titles_stay_out_of_capture ... ok
+test app::tests::errors::overload_and_io_completion_keep_source_and_healthy_session_and_gate_retry_on_real_cleanup ... ok
+test app::tests::errors::cleanup_timeout_records_original_ids_and_renderer_failure_uses_actual_pool_shutdown ... ok
+test app::tests::errors::launch_retry_uses_fresh_ids_and_stale_notice_or_clipboard_receipts_cannot_target_survivor ... ok
+test app::tests::errors::injected_nonfatal_categories_coalesce_on_origin_without_focus_or_survivor_changes ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 181 filtered out; finished in 0.33s
+

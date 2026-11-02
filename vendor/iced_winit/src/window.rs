@@ -82,6 +82,7 @@ where
                 redraw_at: None,
                 preedit: None,
                 ime_state: ime::State::default(),
+                render_recovery: crate::renderer_errors::Recovery::default(),
             },
         );
 
@@ -169,6 +170,7 @@ where
     pub mouse_interaction: mouse::Interaction,
     pub surface: C::Surface,
     pub surface_version: u64,
+    pub(crate) render_recovery: crate::renderer_errors::Recovery,
     pub renderer: P::Renderer,
     pub redraw_at: Option<Instant>,
     preedit: Option<Preedit<P::Renderer>>,
@@ -201,11 +203,11 @@ where
             RedrawRequest::NextFrame => {
                 self.raw.request_redraw();
                 self.redraw_at = None;
-            }
+            },
             RedrawRequest::At(at) => {
                 self.redraw_at = Some(at);
-            }
-            RedrawRequest::Wait => {}
+            },
+            RedrawRequest::Wait => {},
         }
     }
 
@@ -213,7 +215,7 @@ where
         match input_method {
             InputMethod::Disabled => {
                 self.disable_ime();
-            }
+            },
             InputMethod::Enabled {
                 cursor,
                 purpose,
@@ -240,7 +242,7 @@ where
                 } else {
                     self.preedit = None;
                 }
-            }
+            },
         }
     }
 
@@ -366,7 +368,7 @@ where
                     .color(background),
                     text::Span::new(&preedit.content[selection.end..]),
                 ]
-            }
+            },
             _ => vec![text::Span::new(&preedit.content)],
         };
 

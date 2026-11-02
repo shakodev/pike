@@ -145,6 +145,19 @@ impl App {
         self.synchronize();
     }
 
+    /// Rendering cannot show confirmation. Reuse the one existing shutdown
+    /// owner and await every native disposal before allowing the runtime to exit.
+    pub(super) fn renderer_shutdown(&mut self) -> Task<Message> {
+        if self.exiting {
+            return Task::none();
+        }
+        self.close_policy.confirmation = None;
+        self.tab_dialog.clear();
+        self.command_state.help = None;
+        let sessions = self.model.sessions().iter().map(|(id, _)| id).collect();
+        self.commit_close(sessions, true)
+    }
+
     fn commit_close(&mut self, sessions: Vec<SessionId>, window: bool) -> Task<Message> {
         // A stale pane/tab scope has no authority over a newer launch choice.
         // Window close still owns pool cleanup even after every pane is gone.
@@ -186,6 +199,13 @@ impl App {
         if self.exiting && self.close_policy.timer == Some(token) {
             self.close_policy.timed_out = true;
             self.close_policy.force_selected = false;
+            let pending: Vec<_> = self.model.sessions().iter().map(|(id, _)| id).collect();
+            for id in pending {
+                self.report_error(
+                    crate::errors::Owner::Session(id),
+                    crate::errors::Error::Cleanup,
+                );
+            }
         }
     }
 
@@ -253,6 +273,8 @@ impl App {
             self.model.closed(id);
         }
         self.sessions.entries.clear();
+        self.errors.clear();
+        self.diagnostics.clear();
         self.profiles.clear();
         self.focus_on_attach.clear();
         iced::exit()

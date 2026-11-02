@@ -11,6 +11,7 @@ const DEADLINE: Duration = Duration::from_secs(10);
 #[cfg(unix)]
 mod cancellation;
 mod closing;
+mod errors;
 mod ime;
 mod interaction;
 mod paste;

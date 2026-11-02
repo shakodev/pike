@@ -11,7 +11,9 @@ use crate::session::{Effect, Lifecycle};
 use crate::terminal::{Owner, Sessions};
 use crate::workspace::Model;
 
+mod boot;
 mod close;
+mod errors;
 pub use close::CloseAction;
 pub mod commands;
 mod focus;
@@ -42,6 +44,12 @@ pub enum Message {
     TabName(u64, String),
     SettingsLoaded(Result<crate::settings::Settings, crate::settings::Error>),
     SystemTheme(iced::theme::Mode),
+    RendererFailed(iced_runtime::system::RendererFailure),
+    RendererEvent(iced_runtime::system::RendererEvent),
+    ClipboardWritten(
+        Option<Reservation>,
+        Result<(), iced_runtime::clipboard::WriteError>,
+    ),
 }
 
 #[derive(Clone, Copy)]
@@ -69,6 +77,9 @@ pub enum Control {
     TabAction(crate::tab_strip::TabAction),
     TabDialog(u64, DialogAction),
     NewProfile(u64, u8),
+    ErrorAction(crate::errors::ErrorId, crate::errors::Action),
+    CopyDiagnostics,
+    ClearDiagnostics,
 }
 
 #[derive(Default)]
@@ -91,6 +102,9 @@ pub struct App {
     command_state: commands::State,
     tab_dialog: tab_dialog::State,
     settings: settings::State,
+    errors: crate::errors::Store,
+    diagnostics: crate::diagnostics::Diagnostics,
+    boot: Option<boot::Source>,
 }
 
 impl App {
@@ -101,6 +115,10 @@ impl App {
                 let mut app = Self::default();
                 app.settings.enabled = true;
                 app.settings.error = Some(error);
+                app.report_error(
+                    crate::errors::Owner::Application,
+                    crate::errors::Error::Config(error),
+                );
                 let task = app.open();
                 (
                     app,
@@ -144,6 +162,10 @@ impl App {
     }
 
     fn synchronize(&mut self) {
+        self.errors.retain(|owner| match owner {
+            crate::errors::Owner::Application => true,
+            crate::errors::Owner::Session(id) => self.model.sessions().get(id).is_some(),
+        });
         self.synchronize_pane_gestures();
         self.synchronize_resize_tab();
         self.profiles
@@ -212,6 +234,8 @@ impl App {
             return None;
         };
         self.sessions.entries.remove(&id);
+        self.errors
+            .retain(|owner| owner != crate::errors::Owner::Session(id));
         self.profiles.remove(&id);
         self.focus_after_attach(reservation.session);
         let launch = self.submit_named_profile(reservation, profile, name);
@@ -220,6 +244,9 @@ impl App {
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
+        if self.diagnostics.enabled() {
+            self.diagnostics.expire(std::time::Instant::now());
+        }
         // Queued workspace actions cannot mutate a set awaiting a decision.
         // Native lifecycle/protocol delivery remains active throughout teardown.
         if self.interaction_blocked()
@@ -233,6 +260,25 @@ impl App {
             return Task::none();
         }
         match message {
+            Message::RendererEvent(iced_runtime::system::RendererEvent::Ready) => {
+                return self.renderer_ready();
+            }
+            Message::RendererEvent(iced_runtime::system::RendererEvent::Failed(error))
+            | Message::RendererFailed(error) => {
+                self.report_error(
+                    crate::errors::Owner::Application,
+                    crate::errors::Error::Renderer(error),
+                );
+                return self.renderer_shutdown();
+            }
+            Message::Control(Control::ErrorAction(id, action)) => {
+                return self.error_action(id, action);
+            }
+            Message::Control(Control::CopyDiagnostics) => {
+                return self.copy_diagnostics();
+            }
+            Message::Control(Control::ClearDiagnostics) => self.diagnostics.clear(),
+            Message::ClipboardWritten(owner, result) => self.clipboard_written(owner, result),
             Message::SettingsLoaded(result) => return self.settings_loaded(result),
             Message::SystemTheme(mode) => self.system_theme(mode),
             Message::Control(Control::NewProfile(generation, index)) => {
@@ -299,13 +345,9 @@ impl App {
                 }
             }
             Message::Control(Control::Copy(id)) => {
-                if !self.exiting
-                    && self.active_session() == Some(id)
-                    && let Some(terminal) = self.terminal(id)
+                if !self.exiting && self.active_session() == Some(id) && self.terminal(id).is_some()
                 {
-                    return terminal
-                        .copy_selection(iced::clipboard::write)
-                        .unwrap_or_else(Task::none);
+                    return self.copy_owned(id);
                 }
             }
             Message::Launched(reservation, result) => return self.launched(reservation, result),
@@ -320,8 +362,12 @@ impl App {
                 }
                 let footer = self.footer_height(id);
                 if !self.interaction_blocked() || close::background_event(&event) {
-                    self.sessions
-                        .route(&mut self.model, &self.window_focus, id, event);
+                    if let Some(error) =
+                        self.sessions
+                            .route(&mut self.model, &self.window_focus, id, event)
+                    {
+                        self.report_error(crate::errors::Owner::Session(id), error);
+                    }
                 }
                 if footer != self.footer_height(id) {
                     self.refresh_resize_layout();

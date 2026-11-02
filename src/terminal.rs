@@ -140,7 +140,8 @@ impl Sessions {
         window: &WindowFocus,
         origin: SessionId,
         event: Event,
-    ) {
+    ) -> Option<crate::errors::Error> {
+        use crate::errors::Error;
         let Event::BackendCall(raw, mut command) = event;
         let active = model
             .workspace()
@@ -179,31 +180,31 @@ impl Sessions {
                     BackendCommand::ImeCommit(commit) => commit.cancel(),
                     _ => unreachable!(),
                 }
-                return;
+                return None;
             }
         }
         if raw != origin.get() {
-            return;
+            return None;
         }
         // Widget focus receipts can be queued across pane selection. Only the
         // common app selection path transfers input authority to a sibling.
         if !active && matches!(command, BackendCommand::FocusChanged(true)) {
-            return;
+            return None;
         }
         let Some(entry) = self.entries.get_mut(&origin) else {
-            return;
+            return None;
         };
         let Some(session) = model.sessions().get(origin) else {
-            return;
+            return None;
         };
         if session.reservation() != entry.reservation {
-            return;
+            return None;
         }
         let Owner::Attached(terminal) = &mut entry.owner else {
-            return;
+            return None;
         };
         if terminal.id != raw {
-            return;
+            return None;
         }
         entry.ended |= terminal.input_status().closed;
         let visible =
@@ -217,10 +218,10 @@ impl Sessions {
                 && window.is_focused()
                 && terminal.renderable_content().is_some_and(|c| c.focused))
         {
-            return;
+            return None;
         }
         if !writable && matches!(command, BackendCommand::MouseReport(..)) {
-            return;
+            return None;
         }
         if !visible
             && matches!(
@@ -234,10 +235,10 @@ impl Sessions {
                     | BackendCommand::FocusChanged(true)
             )
         {
-            return;
+            return None;
         }
         if entry.ended && matches!(command, BackendCommand::FocusChanged(_)) {
-            return;
+            return None;
         }
         // Scroll can generate alternate-screen arrow input. Retained final
         // output permits only the adapter's explicitly local history path.
@@ -258,11 +259,17 @@ impl Sessions {
         }
         // Protocol replies and lifecycle receipts remain origin-bound and do
         // not require visibility or keyboard focus.
+        let mut failure = None;
         match terminal.handle(iced_term::Command::ProxyToBackend(command)) {
             Action::ChangeTitle(title) => entry.title = Title::new(&title),
             Action::ResetTitle => entry.title = None,
             Action::ChildExit(_) | Action::Shutdown { .. } => entry.ended = true,
             Action::BackendCompleted(completion) => {
+                failure = match completion.reason {
+                    iced_term::ExitReason::IoError(kind) => Some(Error::Io(kind)),
+                    iced_term::ExitReason::Panicked => Some(Error::Worker),
+                    _ => None,
+                };
                 entry.ended = true;
                 entry.completion = Some(completion);
                 terminal.final_content();
@@ -285,15 +292,29 @@ impl Sessions {
                 }
             }
             Action::InputRejected(error) if !entry.ended => {
-                entry.notice = Some(format!("Input was not sent: {error}"))
+                entry.notice = Some(format!("Input was not sent: {error}"));
+                failure = Some(Error::Input(error));
             }
-            Action::PasteRejected(error) => entry.notice = Some(error.to_string()),
-            Action::ImeRejected(error) => entry.notice = Some(error.to_string()),
-            Action::EventBridgeError(_) => {
+            Action::PasteRejected(error) => {
+                entry.notice = Some(error.to_string());
+                failure = Some(Error::Clipboard(error));
+            }
+            Action::ImeRejected(error) => {
+                entry.notice = Some(error.to_string());
+                failure = Some(Error::Ime(error));
+            }
+            Action::EventBridgeError(error) => {
+                failure = Some(match error {
+                    iced_term::EventBridgeError::BackendStopped => {
+                        Error::Io(std::io::ErrorKind::UnexpectedEof)
+                    }
+                    _ => Error::Overload(error),
+                });
                 entry.notice =
-                    Some("Terminal output stopped. Close this terminal to recover.".into())
+                    Some("Terminal output stopped. Restart after cleanup completes.".into());
             }
             _ => {}
         }
+        failure
     }
 }

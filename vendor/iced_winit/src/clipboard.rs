@@ -63,23 +63,29 @@ impl Clipboard {
 
     /// Writes the given text contents to the [`Clipboard`].
     pub fn write(&mut self, kind: Kind, contents: String) {
+        let _ = self.try_write(kind, contents);
+    }
+
+    /// Use the existing native backend and return metadata only. Raw platform
+    /// errors may contain user values, so they are neither retained nor logged.
+    pub fn try_write(
+        &mut self,
+        kind: Kind,
+        contents: String,
+    ) -> Result<(), crate::runtime::clipboard::WriteError> {
+        use crate::runtime::clipboard::WriteError;
         match &mut self.state {
             State::Connected { clipboard, .. } => {
                 let result = match kind {
                     Kind::Standard => clipboard.write(contents),
                     Kind::Primary => {
                         clipboard.write_primary(contents).unwrap_or(Ok(()))
-                    }
+                    },
                 };
 
-                match result {
-                    Ok(()) => {}
-                    Err(error) => {
-                        log::warn!("error writing to clipboard: {error}");
-                    }
-                }
-            }
-            State::Unavailable => {}
+                write_result(result)
+            },
+            State::Unavailable => Err(WriteError::Unavailable),
         }
     }
 
@@ -89,6 +95,68 @@ impl Clipboard {
             State::Connected { window, .. } => Some(window.id()),
             State::Unavailable => None,
         }
+    }
+}
+
+fn write_result<E>(
+    result: Result<(), E>,
+) -> Result<(), crate::runtime::clipboard::WriteError> {
+    result.map_err(|_| crate::runtime::clipboard::WriteError::WriteFailed)
+}
+
+pub(crate) fn handle(
+    action: crate::runtime::clipboard::Action,
+    clipboard: &mut Clipboard,
+) {
+    use crate::runtime::clipboard::Action;
+    match action {
+        Action::Read { target, channel } => {
+            let _ = channel.send(clipboard.read(target));
+        },
+        Action::Write { target, contents } => clipboard.write(target, contents),
+        Action::WriteWithResult {
+            target,
+            contents,
+            channel,
+        } => {
+            let _ = channel.send(clipboard.try_write(target, contents));
+        },
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        futures::futures::channel::oneshot,
+        runtime::clipboard::{Action, WriteError},
+    };
+
+    #[test]
+    fn unavailable_native_writer_is_acknowledged_without_readback_or_raw_values()
+     {
+        let mut clipboard = Clipboard::unconnected();
+        let (channel, mut receiver) = oneshot::channel();
+        let action = Action::WriteWithResult {
+            target: Kind::Standard,
+            contents: "SECRET_CLIPBOARD34".into(),
+            channel,
+        };
+        assert!(!format!("{action:?}").contains("SECRET_CLIPBOARD34"));
+        handle(action, &mut clipboard);
+        assert_eq!(
+            receiver.try_recv().unwrap(),
+            Some(Err(WriteError::Unavailable))
+        );
+    }
+
+    #[test]
+    fn native_failure_mapping_discards_platform_context() {
+        let result =
+            write_result(Err(std::io::Error::other("SECRET_NATIVE34")));
+        assert_eq!(result, Err(WriteError::WriteFailed));
+        assert!(!format!("{result:?}").contains("SECRET_NATIVE34"));
+        assert_eq!(write_result::<std::io::Error>(Ok(())), Ok(()));
     }
 }
 
