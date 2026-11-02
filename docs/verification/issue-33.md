@@ -1,8 +1,9 @@
 # R33 native chrome — implementation checkpoint
 
-Status: subtree checkpoint for R2; the full task remains in progress. Normal
-workspace composition and shortcut-aware tooltip integration are intentionally
-waiting for actual merged R32, as agreed with the coordinator. No PR is ready.
+Status: owner stopped this run; full #33 remains incomplete. See
+`issue-33-owner-stop.md` for the final checkpoint, verification and remaining
+gates. Normal root composition and shortcut-aware tooltip integration did not
+begin before the agreed actual-R32 gate; no issue-closing PR was opened.
 Compiled subtree source: `7e1ffb67f7bc776822ecbc31dd8cef28682724d1`.
 
 ## Source and ownership
