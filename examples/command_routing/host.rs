@@ -119,7 +119,13 @@ impl Host {
         self.subscribe();
     }
 
-    pub fn event(&mut self, event: iced::Event, cursor: mouse::Cursor) -> event::Status {
+    /// Dispatch a real UI event while retaining its emitted App messages for
+    /// deterministic stale-receipt tests. Native subscriptions still observe it.
+    pub fn held_event(
+        &mut self,
+        event: iced::Event,
+        cursor: mouse::Cursor,
+    ) -> (event::Status, Vec<Message>) {
         let mut ui = UserInterface::build(
             self.app.view(),
             host_viewport::SIZE,
@@ -143,6 +149,11 @@ impl Host {
                 event,
                 status,
             });
+        (status, messages)
+    }
+
+    pub fn event(&mut self, event: iced::Event, cursor: mouse::Cursor) -> event::Status {
+        let (status, messages) = self.held_event(event, cursor);
         for message in messages {
             self.update(message);
         }

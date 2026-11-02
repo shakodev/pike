@@ -1,0 +1,5 @@
+pid=52463
+cwd=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/docs/baselines/issue-32/native-settings-compatible-2/b
+profile=b
+revision=before
+argument=old-args

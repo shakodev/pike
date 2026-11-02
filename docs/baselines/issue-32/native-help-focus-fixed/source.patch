@@ -1,0 +1,735 @@
+diff --git a/examples/command_routing/host.rs b/examples/command_routing/host.rs
+index 69c6b03..96c583e 100644
+--- a/examples/command_routing/host.rs
++++ b/examples/command_routing/host.rs
+@@ -119,7 +119,13 @@ impl Host {
+         self.subscribe();
+     }
+ 
+-    pub fn event(&mut self, event: iced::Event, cursor: mouse::Cursor) -> event::Status {
++    /// Dispatch a real UI event while retaining its emitted App messages for
++    /// deterministic stale-receipt tests. Native subscriptions still observe it.
++    pub fn held_event(
++        &mut self,
++        event: iced::Event,
++        cursor: mouse::Cursor,
++    ) -> (event::Status, Vec<Message>) {
+         let mut ui = UserInterface::build(
+             self.app.view(),
+             host_viewport::SIZE,
+@@ -143,6 +149,11 @@ impl Host {
+                 event,
+                 status,
+             });
++        (status, messages)
++    }
++
++    pub fn event(&mut self, event: iced::Event, cursor: mouse::Cursor) -> event::Status {
++        let (status, messages) = self.held_event(event, cursor);
+         for message in messages {
+             self.update(message);
+         }
+diff --git a/examples/command_routing/scenarios.rs b/examples/command_routing/scenarios.rs
+index 06b4c71..ac5d0b6 100644
+--- a/examples/command_routing/scenarios.rs
++++ b/examples/command_routing/scenarios.rs
+@@ -246,7 +246,10 @@ impl Bytes {
+                 mouse::Cursor::Unavailable,
+             );
+             zero_admission(host, &before, "history shortcut")?;
+-            check(host.controls == actions, "history key became an app action")?;
++            check(
++                host.controls == actions + 1,
++                "history key did not dispatch exactly once through the common resolver",
++            )?;
+             let offset = host
+                 .app
+                 .terminal(id)
+@@ -278,8 +281,8 @@ impl Bytes {
+         );
+         host.until(|host| host.clipboard.0.as_ref() == Some(&copied))?;
+         check(
+-            host.controls == actions,
+-            "copy dispatched an unrelated app action",
++            host.controls == actions + 1,
++            "copy did not dispatch exactly once through the common resolver",
+         )?;
+         zero_admission(host, &before, "copy selection")?;
+         for (key, modifiers) in [
+@@ -299,8 +302,8 @@ impl Bytes {
+                 .extend_from_slice(b"PIKE26_PASTE");
+             host.until(|host| admitted(host).get(&id) == Some(&(before[&id] + 12)))?;
+             check(
+-                host.controls == actions,
+-                "paste dispatched an unrelated app action",
++                host.controls == actions + 1,
++                "paste did not dispatch exactly once through the common resolver",
+             )?;
+             for (other, count) in before {
+                 if other != id {
+diff --git a/examples/pane_resizing.rs b/examples/pane_resizing.rs
+index c2170f1..398bfc2 100644
+--- a/examples/pane_resizing.rs
++++ b/examples/pane_resizing.rs
+@@ -520,7 +520,19 @@ impl Probe {
+                 );
+                 if messages
+                     .iter()
+-                    .filter(|m| matches!(m, Message::Control(Control::ResizeKey(_, _))))
++                    .filter(|m| {
++                        matches!(
++                            m,
++                            Message::Control(
++                                Control::ResizeKey(_, _)
++                                    | Control::MappedCommand(
++                                        _,
++                                        _,
++                                        pike::app::commands::Command::Resize(_)
++                                    )
++                            )
++                        )
++                    })
+                     .count()
+                     != 1
+                     || messages.iter().any(|m| {
+diff --git a/examples/pane_resizing/widget.rs b/examples/pane_resizing/widget.rs
+index d510a4e..8d3a929 100644
+--- a/examples/pane_resizing/widget.rs
++++ b/examples/pane_resizing/widget.rs
+@@ -133,7 +133,19 @@ pub fn composition_priority(
+     }
+     messages
+         .iter()
+-        .filter(|m| matches!(m, Message::Control(pike::app::Control::ResizeKey(_, _))))
++        .filter(|m| {
++            matches!(
++                m,
++                Message::Control(
++                    pike::app::Control::ResizeKey(_, _)
++                        | pike::app::Control::MappedCommand(
++                            _,
++                            _,
++                            pike::app::commands::Command::Resize(_)
++                        )
++                )
++            )
++        })
+         .count()
+         == 1
+         && !messages.iter().any(|m| {
+diff --git a/examples/remappable_shortcuts.rs b/examples/remappable_shortcuts.rs
+index 1a7c9d8..5f3195a 100644
+--- a/examples/remappable_shortcuts.rs
++++ b/examples/remappable_shortcuts.rs
+@@ -13,6 +13,8 @@ mod host_viewport;
+ use iced::{Executor, advanced::renderer::Headless};
+ use pike::{app::App, executor::SharedExecutor};
+ use std::{fs, io, io::Read, io::Write, path::Path};
++#[path = "remappable_shortcuts/focus.rs"]
++mod focus;
+ #[path = "remappable_shortcuts/scenarios.rs"]
+ mod scenarios;
+ #[allow(dead_code)]
+diff --git a/examples/remappable_shortcuts/scenarios.rs b/examples/remappable_shortcuts/scenarios.rs
+index bdf4ea0..7984c25 100644
+--- a/examples/remappable_shortcuts/scenarios.rs
++++ b/examples/remappable_shortcuts/scenarios.rs
+@@ -13,7 +13,7 @@ use std::{
+     path::{Path, PathBuf},
+ };
+ 
+-fn check(condition: bool, message: &str) -> io::Result<()> {
++pub(super) fn check(condition: bool, message: &str) -> io::Result<()> {
+     if condition {
+         Ok(())
+     } else {
+@@ -61,7 +61,7 @@ fn key(
+     );
+     host.drain()
+ }
+-fn named(host: &mut Host, keycode: Named, modifiers: Modifiers) -> io::Result<()> {
++pub(super) fn named(host: &mut Host, keycode: Named, modifiers: Modifiers) -> io::Result<()> {
+     key(
+         host,
+         Key::Named(keycode),
+@@ -86,7 +86,7 @@ fn character(
+         false,
+     )
+ }
+-fn click_label(host: &mut Host, starts: &str) -> io::Result<()> {
++pub(super) fn click_label(host: &mut Host, starts: &str) -> io::Result<()> {
+     let mut targets = widget::Targets::default();
+     host.operate(&mut targets);
+     let point = targets
+@@ -143,7 +143,7 @@ fn file(host: &mut Host, output: &Path) -> io::Result<(SessionId, PathBuf)> {
+         .ok_or_else(|| io::Error::other("child PID marker missing"))?;
+     Ok((id, output.join(format!("{pid}.bin"))))
+ }
+-fn bytes(host: &mut Host, file: &Path, expected: &[u8]) -> io::Result<()> {
++pub(super) fn bytes(host: &mut Host, file: &Path, expected: &[u8]) -> io::Result<()> {
+     host.until(|_| fs::read(file).is_ok_and(|actual| actual == expected))
+         .map_err(|_| {
+             io::Error::other(format!(
+@@ -379,6 +379,61 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<()> {
+     expected.extend_from_slice("合".as_bytes());
+     bytes(host, &second_file, &expected)?;
+     host.evidence.push("23 effective help bindings, measured End/PageUp/Home navigation, disabled command, Escape focus, shifted symbol/non-US/AltGr/IME priority".into());
++    // An asynchronous reload may finish while help owns focus. Held old rows
++    // must be rejected and the newly rendered menu must remain navigable.
++    let refreshed =
++        format!("{many}\n[[shortcuts]]\ncommand='help'\nkey='ß'\nmodifiers=['ctrl','shift']\n");
++    fs::write(
++        output.join("settings.toml"),
++        format!("{}\n{refreshed}", configuration(output)?),
++    )?;
++    let pending_reload = host
++        .app
++        .update(Message::Control(Control::Command(Command::ReloadSettings)));
++    check(
++        host.app.settings_pending(),
++        "reload did not retain its asynchronous pending state",
++    )?;
++    click_label(host, "Commands and shortcuts (")?;
++    let held = widget::click(&host.app, &host.renderer, |message| {
++        matches!(
++            message,
++            Message::Control(Control::HelpAction(
++                _,
++                pike::app::commands::HelpAction::Execute(Command::NewTab)
++            ))
++        )
++    })
++    .ok_or_else(|| io::Error::other("held old help row not hit-testable"))?;
++    host.finish(pending_reload)?;
++    check(
++        !host.app.settings_pending() && host.app.interaction_blocked(),
++        "reload trapped or dismissed open help",
++    )?;
++    let count = host.app.model().sessions().len();
++    host.update(held);
++    check(
++        host.app.model().sessions().len() == count && host.app.interaction_blocked(),
++        "held old help row survived reload",
++    )?;
++    check(
++        host.app
++            .command_reference()
++            .into_iter()
++            .find(|r| r.command == Command::Help)
++            .unwrap()
++            .bindings
++            .len()
++            == 24,
++        "open menu reference did not refresh after reload",
++    )?;
++    named(host, Named::Home, Modifiers::empty())?;
++    named(host, Named::Escape, Modifiers::empty())?;
++    host.until(|host| host.focused(second))?;
++    host.evidence.push("actual asynchronous reload while help is open rejects held old row, refreshes 24 live help bindings and preserves Escape/focus".into());
++
++    super::focus::verify(host, second, &second_file, &expected)?;
++
+     // Deferred clipboard work is invalidated even after returning to the same owner.
+     host.clipboard.0 = Some("MUST_NOT_ARRIVE".into());
+     let delayed = host
+diff --git a/examples/settings_reload/joint.rs b/examples/settings_reload/joint.rs
+index 0718505..c07562d 100644
+--- a/examples/settings_reload/joint.rs
++++ b/examples/settings_reload/joint.rs
+@@ -78,7 +78,10 @@ pub(super) fn verify(
+     let stale_reload = widget::click(&host.app, &host.renderer, |message| {
+         matches!(
+             message,
+-            Message::Control(Control::KeyCommand(_, Command::ReloadSettings))
++            Message::Control(
++                Control::KeyCommand(_, Command::ReloadSettings)
++                    | Control::MappedCommand(_, _, Command::ReloadSettings)
++            )
+         )
+     })
+     .ok_or_else(|| io::Error::other("joint reload control not discoverable"))?;
+diff --git a/examples/settings_reload/scenarios.rs b/examples/settings_reload/scenarios.rs
+index 0d58d16..b0beeb8 100644
+--- a/examples/settings_reload/scenarios.rs
++++ b/examples/settings_reload/scenarios.rs
+@@ -386,7 +386,7 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
+     // all live settings. No save task runs on either success or failure.
+     let broken = "version = 1\nhistory = 10001 # synthetic-invalid";
+     fs::write(output.join("settings.toml"), broken)?;
+-    click(host, "Reload settings (Ctrl+Shift+F5)")?;
++    click(host, "Reload settings")?;
+     host.until(|host| !host.app.settings_pending())?;
+     check(
+         host.app.settings_error().is_some()
+diff --git a/src/app.rs b/src/app.rs
+index 70e44dd..dbe5b4d 100644
+--- a/src/app.rs
++++ b/src/app.rs
+@@ -365,6 +365,7 @@ impl App {
+                     self.blur_tab_dialog();
+                 }
+                 self.window_focus.set_focused(focused);
++                self.refresh_help_focus();
+                 self.synchronize();
+                 if focused {
+                     return self
+@@ -381,6 +382,7 @@ impl App {
+             Message::CloseWindow => {
+                 self.tab_dialog.clear();
+                 self.command_state.help = None;
++                self.command_state.help_window = None;
+                 return self.request_close(close::Scope::Window);
+             }
+             Message::ShutdownComplete => return self.shutdown_complete(),
+diff --git a/src/app/commands.rs b/src/app/commands.rs
+index 1f6971e..f8058c7 100644
+--- a/src/app/commands.rs
++++ b/src/app/commands.rs
+@@ -1,4 +1,4 @@
+-//! Pure application shortcut resolution. Terminal editing bindings stay in the
++//! Pure application shortcut resolution. Native terminal encoding stays in the
+ //! terminal widget, and the host's single capture wrapper owns IME/modal priority.
+ use iced::keyboard;
+ #[cfg(test)]
+diff --git a/src/app/commands/host.rs b/src/app/commands/host.rs
+index f664753..5370244 100644
+--- a/src/app/commands/host.rs
++++ b/src/app/commands/host.rs
+@@ -27,6 +27,7 @@ pub(in crate::app) struct State {
+     pub(in crate::app) help_history: bool,
+     pub(in crate::app) help_token: u64,
+     pub(in crate::app) help_generation: u64,
++    pub(in crate::app) help_window: Option<iced_term::WindowInputLease>,
+     pub(in crate::app) help_selected: usize,
+     pub(in crate::app) help_scroll: Option<iced::widget::Id>,
+     pub(in crate::app) help_rows: Vec<iced::widget::Id>,
+@@ -241,6 +242,7 @@ impl App {
+         let Some(restore) = self.command_state.help.take() else {
+             return Task::none();
+         };
++        self.command_state.help_window = None;
+         self.synchronize();
+         if let Some(target) = restore.and_then(|id| self.model.target(id)) {
+             self.select(target)
+diff --git a/src/app/commands/host/tests.rs b/src/app/commands/host/tests.rs
+index f0a5efa..c94f3d5 100644
+--- a/src/app/commands/host/tests.rs
++++ b/src/app/commands/host/tests.rs
+@@ -110,6 +110,7 @@ fn new_tab_capacity_refusal_uses_the_existing_guard_and_retains_current_owner()
+ #[test]
+ fn current_reference_has_all_controls_effective_alternatives_and_disabled_context() {
+     let mut app = App::default();
++    app.window_focus.set_focused(true);
+     app.model.create_tab().unwrap();
+     let owner = app.active_session();
+     let mut source = "version=1\n[[shortcuts]]\ncommand='new-tab'\nunbind=true\n".to_owned();
+@@ -265,3 +266,51 @@ fn reload_while_help_open_rejects_old_rows_and_refreshes_the_live_menu() {
+     drop(app.dismiss_help());
+     assert_eq!(app.active_session(), owner);
+ }
++
++#[test]
++fn held_help_actions_cannot_survive_native_or_app_blur_even_after_refocus() {
++    for native_only in [false, true] {
++        for roundtrip in [false, true] {
++            let mut app = App::default();
++            app.window_focus.set_focused(true);
++            app.model.create_tab().unwrap();
++            app.synchronize();
++            let owner = app.active_session();
++            command(&mut app, Command::Help);
++            let held = app.command_state.help_token;
++            if native_only {
++                app.window_focus.set_focused(false);
++            } else {
++                drop(app.update(Message::WindowFocused(false)));
++            }
++            if roundtrip {
++                if native_only {
++                    app.window_focus.set_focused(true);
++                } else {
++                    drop(app.update(Message::WindowFocused(true)));
++                }
++            }
++            drop(app.run_help_action(
++                held,
++                super::super::HelpAction::Execute(Command::CloseWindow),
++            ));
++            assert!(app.command_state.help.is_some());
++            assert!(!app.exiting, "held help action survived focus loss");
++            assert!(app.close_confirmation().is_none());
++            drop(app.update(Message::WindowFocused(true)));
++            let fresh = app.command_state.help_token;
++            drop(app.update(Message::WindowFocused(true)));
++            assert_eq!(
++                app.command_state.help_token, fresh,
++                "redundant focus retired a current menu"
++            );
++            drop(app.run_help_action(fresh, super::super::HelpAction::Last));
++            assert_eq!(
++                app.command_state.help_selected,
++                crate::settings::shortcuts::Command::ALL.len() - 1
++            );
++            drop(app.dismiss_help());
++            assert_eq!(app.active_session(), owner);
++        }
++    }
++}
+diff --git a/src/app/commands/keymap.rs b/src/app/commands/keymap.rs
+index 4efc4b0..075e8fc 100644
+--- a/src/app/commands/keymap.rs
++++ b/src/app/commands/keymap.rs
+@@ -22,8 +22,9 @@ pub(super) fn resolve(event: &keyboard::Event, mappings: &[Shortcut]) -> Option<
+     else {
+         return None;
+     };
+-    // Ctrl+Alt (including shifted AltGr) and Logo never enter this application
+-    // map. Native text/IME processing retains its established precedence.
++    // Ctrl+Alt (including shifted AltGr) bypasses this application map. Logo
++    // matches only platform defaults; settings cannot assign OS combinations.
++    // Native text/IME processing retains its established precedence.
+     if modifiers.control() && modifiers.alt() {
+         return None;
+     }
+diff --git a/src/app/commands/reference.rs b/src/app/commands/reference.rs
+index cc6afb7..e983eef 100644
+--- a/src/app/commands/reference.rs
++++ b/src/app/commands/reference.rs
+@@ -36,6 +36,7 @@ impl App {
+     /// Reads today's atomically committed settings. Disabled and unbound commands
+     /// remain discoverable, including actions without a default direct chord.
+     pub fn command_reference(&self) -> Vec<CommandReference> {
++        let effective: Vec<_> = shortcuts::effective(self.settings.active.shortcuts()).collect();
+         Id::ALL
+             .iter()
+             .copied()
+@@ -50,7 +51,8 @@ impl App {
+                 CommandReference {
+                     command,
+                     label,
+-                    bindings: shortcuts::effective(self.settings.active.shortcuts())
++                    bindings: effective
++                        .iter()
+                         .filter(|binding| binding.command == id)
+                         .map(|binding| binding.to_string())
+                         .collect(),
+@@ -140,24 +142,15 @@ impl App {
+     }
+ 
+     pub fn command_menu(&self) -> Element<'_, Control> {
+-        let label = self
+-            .command_reference()
+-            .into_iter()
+-            .find(|r| r.command == Command::Help)
+-            .map(|r| {
+-                if r.bindings.is_empty() {
+-                    "Commands and shortcuts".into()
+-                } else if r.bindings.len() == 1 {
+-                    format!("Commands and shortcuts ({})", r.bindings[0])
+-                } else {
+-                    format!(
+-                        "Commands and shortcuts ({}; {} more)",
+-                        r.bindings[0],
+-                        r.bindings.len() - 1
+-                    )
+-                }
+-            })
+-            .expect("help is in catalog");
++        let bindings: Vec<_> = shortcuts::effective(self.settings.active.shortcuts())
++            .filter(|binding| binding.command == Id::Help)
++            .map(|binding| binding.to_string())
++            .collect();
++        let label = match bindings.as_slice() {
++            [] => "Commands and shortcuts".into(),
++            [only] => format!("Commands and shortcuts ({only})"),
++            [first, rest @ ..] => format!("Commands and shortcuts ({first}; {} more)", rest.len()),
++        };
+         button(text(label))
+             .on_press_maybe(
+                 (!self.interaction_blocked()).then_some(Control::Command(Command::Help)),
+@@ -171,6 +164,7 @@ impl App {
+         };
+         self.command_state.help_token = token;
+         self.command_state.help_generation = self.settings.generation;
++        self.command_state.help_window = self.window_focus.input_lease();
+         self.command_state.help_history = self
+             .active_session()
+             .and_then(|id| self.terminal(id))
+@@ -193,6 +187,7 @@ impl App {
+         if let Some(token) = self.command_state.help_token.checked_add(1) {
+             self.command_state.help_token = token;
+             self.command_state.help_generation = self.settings.generation;
++            self.command_state.help_window = self.window_focus.input_lease();
+             self.command_state.help_selected = self
+                 .command_state
+                 .help_selected
+@@ -202,6 +197,23 @@ impl App {
+         }
+     }
+ 
++    /// Native focus can transition before its App message. Old modal actions
++    /// retain the old immutable window epoch; current views get a fresh token.
++    pub(in crate::app) fn refresh_help_focus(&mut self) {
++        if self.command_state.help.is_none() {
++            return;
++        }
++        match (
++            self.window_focus.is_focused(),
++            &self.command_state.help_window,
++        ) {
++            (true, Some(lease)) if self.window_focus.accepts_input(lease) => return,
++            (false, None) => return,
++            _ => {}
++        }
++        self.refresh_help_reference();
++    }
++
+     pub(in crate::app) fn run_help_action(
+         &mut self,
+         token: u64,
+@@ -210,6 +222,11 @@ impl App {
+         if self.command_state.help.is_none()
+             || token != self.command_state.help_token
+             || self.command_state.help_generation != self.settings.generation
++            || self
++                .command_state
++                .help_window
++                .as_ref()
++                .is_none_or(|lease| !self.window_focus.accepts_input(lease))
+             || self.exiting
+         {
+             return Task::none();
+@@ -297,10 +314,11 @@ impl App {
+             rows,
+             button("Return to terminal (Escape)").on_press(Control::DismissHelp),
+         ].spacing(12)).padding(24).width(Fill).height(Fill).into();
+-        Some(resize::capture(
++        Some(resize::capture::capture_with_window(
+             content.map(Message::Control),
+             false,
+             None,
++            self.window_focus.clone(),
+             move |event| help_key(event, token, selected, self.settings.active.shortcuts()),
+         ))
+     }
+diff --git a/src/app/resize/capture.rs b/src/app/resize/capture.rs
+index bbbff8c..cb0fe9b 100644
+--- a/src/app/resize/capture.rs
++++ b/src/app/resize/capture.rs
+@@ -21,6 +21,29 @@ pub(crate) fn capture<'a>(
+         content: content.into(),
+         suspended,
+         active,
++        window: None,
++        on_key: Box::new(on_key),
++        divider: None,
++        pointer_blocked: None,
++        editor: None,
++    })
++}
++
++/// Same boundary for a modal without a Terminal child: propagate native focus
++/// to the existing WindowFocus before queued App events/actions are consumed.
++/// Ordinary capture callers retain their previous behavior and signature.
++pub(crate) fn capture_with_window<'a>(
++    content: impl Into<Element<'a, Message>>,
++    suspended: bool,
++    active: Option<&'a iced_term::Terminal>,
++    window: iced_term::WindowFocus,
++    on_key: impl Fn(&KeyEvent) -> Option<KeyAction> + 'a,
++) -> Element<'a, Message> {
++    Element::new(Capture {
++        content: content.into(),
++        suspended,
++        active,
++        window: Some(window),
+         on_key: Box::new(on_key),
+         divider: None,
+         pointer_blocked: None,
+@@ -41,6 +64,7 @@ pub(crate) fn capture_text<'a>(
+         content: content.into(),
+         suspended: false,
+         active: None,
++        window: None,
+         on_key: Box::new(on_key),
+         divider: None,
+         pointer_blocked: None,
+@@ -72,6 +96,7 @@ impl Divider {
+             content: content.into(),
+             suspended: true,
+             active: None,
++            window: None,
+             on_key: Box::new(resize_key),
+             divider: None,
+             pointer_blocked: Some(self.0.clone()),
+@@ -99,6 +124,7 @@ fn divider_focus<'a>(
+         content: content.into(),
+         suspended: true,
+         active,
++        window: None,
+         on_key: Box::new(resize_key),
+         divider: Some(node),
+         pointer_blocked: Some(pointer_blocked),
+@@ -113,6 +139,7 @@ struct Capture<'a> {
+     suspended: bool,
+     active: Option<&'a iced_term::Terminal>,
+     on_key: KeyHandler<'a>,
++    window: Option<iced_term::WindowFocus>,
+     divider: Option<&'a iced::widget::pane_grid::Node>,
+     pointer_blocked: Option<Rc<Cell<bool>>>,
+     editor: Option<Editor>,
+@@ -128,7 +155,7 @@ struct State {
+     composing: bool,
+ }
+ 
+-/// Single shared interception boundary for future R26 command mapping. None
++/// Single shared pre-child command interception boundary. None
+ /// delegates untouched; Consume swallows releases without repeating an action.
+ pub(crate) enum KeyAction {
+     Consume,
+@@ -249,10 +276,18 @@ impl Widget<Message, iced::Theme, iced::Renderer> for Capture<'_> {
+         let state = tree.state.downcast_mut::<State>();
+         match event {
+             Event::Window(iced::window::Event::Unfocused) => {
++                if let Some(window) = &self.window {
++                    window.set_focused(false);
++                }
+                 state.blurred = true;
+                 state.cancel_resize |= state.pressed_owner.is_some();
+             }
+-            Event::Window(iced::window::Event::Focused) => state.blurred = false,
++            Event::Window(iced::window::Event::Focused) => {
++                if let Some(window) = &self.window {
++                    window.set_focused(true);
++                }
++                state.blurred = false;
++            }
+             _ => {}
+         }
+         if let Some(editor) = &self.editor {
+diff --git a/src/settings.rs b/src/settings.rs
+index 4fd71c8..12aea64 100644
+--- a/src/settings.rs
++++ b/src/settings.rs
+@@ -97,7 +97,7 @@ impl Default for Document {
+ }
+ 
+ /// Construction is validated as a whole, so a failed reload cannot partially
+-/// change appearance, launch data, close policy or the future shortcut schema.
++/// change appearance, launch data, close policy or the effective shortcut schema.
+ #[derive(Clone, Default, PartialEq)]
+ pub struct Settings(Document);
+ 
+diff --git a/examples/remappable_shortcuts/focus.rs b/examples/remappable_shortcuts/focus.rs
+new file mode 100644
+index 0000000..09d68e5
+--- /dev/null
++++ b/examples/remappable_shortcuts/focus.rs
+@@ -0,0 +1,107 @@
++//! R1 review regression: hold real Enter, then change native/App window focus.
++use super::{
++    host::Host,
++    scenarios::{bytes, check, click_label, named},
++    widget,
++};
++use iced::{
++    Event,
++    keyboard::{Key, Modifiers, key::Named},
++    mouse,
++};
++use pike::{
++    app::{
++        CloseAction, Control, Message,
++        commands::{Command, HelpAction},
++    },
++    identity::SessionId,
++};
++use std::{io, path::Path};
++
++pub fn verify(host: &mut Host, owner: SessionId, file: &Path, expected: &[u8]) -> io::Result<()> {
++    for native_only in [true, false] {
++        for roundtrip in [false, true] {
++            click_label(host, "Commands and shortcuts (")?;
++            named(host, Named::Home, Modifiers::empty())?;
++            named(host, Named::ArrowDown, Modifiers::empty())?; // Close pane.
++            let (_, held) = host.held_event(
++                widget::key(Key::Named(Named::Enter), Modifiers::empty(), None),
++                mouse::Cursor::Unavailable,
++            );
++            check(
++                held.iter()
++                    .filter(|m| {
++                        matches!(
++                            m,
++                            Message::Control(Control::HelpAction(
++                                _,
++                                HelpAction::Execute(Command::ClosePane)
++                            ))
++                        )
++                    })
++                    .count()
++                    == 1,
++                "real help Enter did not emit exactly one held ClosePane",
++            )?;
++            let count = host.app.model().sessions().len();
++            host.event(
++                Event::Window(iced::window::Event::Unfocused),
++                mouse::Cursor::Unavailable,
++            );
++            if !native_only {
++                host.update(Message::WindowFocused(false));
++            }
++            if roundtrip {
++                host.event(
++                    Event::Window(iced::window::Event::Focused),
++                    mouse::Cursor::Unavailable,
++                );
++                if !native_only {
++                    host.update(Message::WindowFocused(true));
++                }
++            }
++            // Intentionally do not drain subscribed focus messages here. This
++            // covers the native-only gap before App blur/refocus delivery.
++            for message in held {
++                host.update(message);
++            }
++            check(
++                host.app.close_confirmation().is_none()
++                    && host.app.interaction_blocked()
++                    && host.app.model().sessions().len() == count,
++                "held help Enter survived native/App blur or blur/refocus",
++            )?;
++            host.event(
++                Event::Window(iced::window::Event::Focused),
++                mouse::Cursor::Unavailable,
++            );
++            host.drain()?;
++            host.update(Message::WindowFocused(true));
++            // A fresh menu command must work after input returns; cancel its
++            // conservative confirmation so the controlled child stays alive.
++            named(host, Named::Home, Modifiers::empty())?;
++            named(host, Named::ArrowDown, Modifiers::empty())?;
++            named(host, Named::Enter, Modifiers::empty())?;
++            let (token, _) = host
++                .app
++                .close_confirmation()
++                .ok_or_else(|| io::Error::other("fresh help action was trapped after refocus"))?;
++            host.update(Message::Control(Control::CloseAction(CloseAction::Cancel(
++                token,
++            ))));
++            host.until(|host| host.focused(owner))?;
++            click_label(host, "Commands and shortcuts (")?;
++            named(host, Named::End, Modifiers::empty())?;
++            named(host, Named::Escape, Modifiers::empty())?;
++            host.until(|host| host.focused(owner))?;
++            check(
++                host.app.active_session() == Some(owner)
++                    && host.app.model().sessions().len() == count,
++                "help refocus/dismiss changed the original session",
++            )?;
++            bytes(host, file, expected)?;
++            host.evidence.push(format!("held real Help Enter revoked: native_only={native_only} roundtrip={roundtrip}; fresh Execute/navigation/Escape/focus and child bytes intact"));
++        }
++    }
++    Ok(())
++}

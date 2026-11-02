@@ -320,7 +320,7 @@ impl App {
                     input.clone(),
                     token,
                     self.window_focus.clone(),
-                    rename_key,
+                    move |event| rename_key(event, self.settings.active.shortcuts()),
                 )
             }
             Kind::Overflow { selected, scroll } => {
@@ -364,7 +364,10 @@ impl App {
     }
 }
 
-fn rename_key(event: &keyboard::Event) -> Option<KeyAction> {
+fn rename_key(
+    event: &keyboard::Event,
+    shortcuts: &[crate::settings::Shortcut],
+) -> Option<KeyAction> {
     match event {
         keyboard::Event::KeyPressed {
             key: Key::Named(Named::Escape),
@@ -382,7 +385,7 @@ fn rename_key(event: &keyboard::Event) -> Option<KeyAction> {
             0,
             DialogAction::Save,
         ))),
-        _ if super::commands::resolve(event).is_some() => Some(KeyAction::Consume),
+        _ if super::commands::resolve_with(event, shortcuts).is_some() => Some(KeyAction::Consume),
         _ => None,
     }
 }

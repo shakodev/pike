@@ -1,0 +1,43 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_term)
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.92s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-508a18dbd30ba2bd)
+
+running 17 tests
+test app::commands::tests::directions_and_resize_share_the_typed_resolver_and_repeat ... ok
+test app::commands::tests::exact_modifiers_leave_altgr_interrupt_and_terminal_defaults_to_child ... ok
+test app::commands::tests::font_and_help_defaults_and_release_preserve_input_transitions ... ok
+test app::commands::tests::ordered_tab_selection_and_navigation_are_typed ... ok
+test app::commands::tests::reload_is_exact_and_nonrepeating_while_bare_f5_and_terminal_chords_pass_through ... ok
+test app::commands::tests::structural_defaults_dispatch_once_and_capture_repeats ... ok
+test app::commands::keymap::tests::shifted_symbols_and_non_us_logical_letters_precede_base_keys_and_altgr_is_untouched ... ok
+test app::commands::keymap::tests::replacements_remove_old_chords_unbind_and_reuse_explicitly_released_chords ... ok
+test app::commands::host::tests::unavailable_terminal_and_empty_workspace_remain_usable_for_help ... ok
+test app::commands::host::tests::new_tab_capacity_refusal_uses_the_existing_guard_and_retains_current_owner ... ok
+test app::commands::host::tests::missing_tab_is_typed_atomic_and_recovers_through_existing_activation ... ok
+test app::commands::host::tests::delayed_key_cannot_close_a_newer_owner_or_bypass_help_priority ... ok
+test app::commands::keymap::tests::duplicate_effective_defaults_aliases_and_unsafe_forms_have_indexed_errors ... ok
+test app::commands::keymap::tests::alternatives_replace_the_entire_default_set_and_roundtrip ... ok
+test app::commands::host::tests::ambiguous_reload_keeps_the_entire_last_valid_settings_and_current_reference ... ok
+test app::commands::host::tests::current_reference_has_all_controls_effective_alternatives_and_disabled_context ... ok
+test app::commands::keymap::tests::every_catalog_action_accepts_an_explicit_chord_through_the_same_resolver ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 168 filtered out; finished in 0.09s
+

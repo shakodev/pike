@@ -121,6 +121,13 @@ impl Terminal {
             .attach(settings.font, settings.theme))
     }
 
+    /// Delegate copy, paste and local history shortcuts to a host command
+    /// resolver. Defaults remain enabled for other clients. Existing custom
+    /// AddBindings overrides survive toggles; native encoding/IME is unchanged.
+    pub fn set_host_shortcuts(&mut self, enabled: bool) {
+        self.bindings.set_host_shortcuts(enabled);
+    }
+
     pub fn widget_id(&self) -> &iced::widget::Id {
         &self.widget_id
     }
