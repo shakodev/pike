@@ -6,6 +6,8 @@ mod child;
 mod fixture_input;
 #[path = "renderer_comparison/options.rs"]
 mod options;
+#[path = "renderer_comparison/pixels.rs"]
+mod pixels;
 #[path = "renderer_comparison/probe.rs"]
 mod probe;
 

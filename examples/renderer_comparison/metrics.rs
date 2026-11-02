@@ -1,7 +1,7 @@
 use pike::{app::App, identity::SessionId};
 use std::{
     fs::File,
-    io::{self, Write},
+    io::{self, BufWriter, Write},
     path::Path,
     sync::{
         Mutex,
@@ -98,10 +98,15 @@ pub fn marker(app: &App, id: SessionId, marker: &str) -> bool {
 }
 
 pub fn screenshot(path: &Path, shot: &iced::window::Screenshot) -> io::Result<()> {
-    let mut file = File::create(path)?;
+    let mut file = BufWriter::new(File::create(path)?);
     write!(file, "P6\n{} {}\n255\n", shot.size.width, shot.size.height)?;
-    for pixel in shot.rgba.chunks_exact(4) {
-        file.write_all(&pixel[..3])?;
+    let mut row = Vec::with_capacity(shot.size.width as usize * 3);
+    for pixels in shot.rgba.chunks_exact(shot.size.width as usize * 4) {
+        row.clear();
+        for pixel in pixels.chunks_exact(4) {
+            row.extend_from_slice(&pixel[..3]);
+        }
+        file.write_all(&row)?;
     }
-    Ok(())
+    file.flush()
 }

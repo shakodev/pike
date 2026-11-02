@@ -1,5 +1,9 @@
+#[path = "interval.rs"]
+mod interval;
 #[path = "metrics.rs"]
 mod metrics;
+#[path = "samples.rs"]
+mod samples;
 use crate::options::Options;
 use iced::{Element, Subscription, Task};
 use iced_term::{AlacrittyEvent, BackendCommand, Event};
@@ -54,7 +58,9 @@ enum Msg {
     Deadline,
     Probe,
     Advance,
-    Captured(iced::window::Screenshot),
+    Captured(usize, iced::window::Screenshot),
+    Frame,
+    Geometry(iced::Size, f32),
 }
 #[derive(PartialEq)]
 enum Stage {
@@ -80,8 +86,13 @@ struct Probe {
     final_seen: BTreeSet<SessionId>,
     completed: BTreeSet<SessionId>,
     began: Option<Instant>,
-    probe: Option<(SessionId, usize, Instant, Option<Instant>)>,
-    probes: usize,
+    epochs: Option<(u128, u128)>,
+    actual_ms: Option<f64>,
+    producer_windows: BTreeMap<SessionId, (u128, u128)>,
+    samples: samples::Samples,
+    invalid_evidence: bool,
+    closing_requested: bool,
+    artifacts: Vec<(String, iced::window::Screenshot)>,
     latency: File,
     failed: bool,
     focus_requested: bool,
@@ -97,14 +108,14 @@ impl Probe {
             File::create(options.output.join("latency.csv")).expect("fresh latency trace");
         writeln!(
             latency,
-            "nonce,session,snapshot_ms,readback_ms,width,height,scale"
+            "nonce,session,snapshot_ms,readback_ms,width,height,scale,elapsed_ms,validation_ms,child_pid"
         )
         .expect("latency header");
         let deadline = options.seconds + options.settle + 100;
         (
             Self {
                 app,
-                options,
+                options: options.clone(),
                 start: Instant::now(),
                 stage: Stage::Build,
                 events,
@@ -116,8 +127,13 @@ impl Probe {
                 final_seen: BTreeSet::new(),
                 completed: BTreeSet::new(),
                 began: None,
-                probe: None,
-                probes: 0,
+                epochs: None,
+                actual_ms: None,
+                producer_windows: BTreeMap::new(),
+                samples: samples::Samples::new(options.probes),
+                invalid_evidence: false,
+                closing_requested: false,
+                artifacts: Vec::with_capacity(5),
                 latency,
                 failed: false,
                 focus_requested: false,
@@ -197,50 +213,104 @@ impl Probe {
             }
             Msg::Settle => {
                 self.stage = Stage::Measure;
+                self.samples.open();
                 metrics::counters(&self.app, &self.options.output, "before")
                     .expect("before counters");
                 metrics::reset_frames();
                 self.began = Some(Instant::now());
+                self.epochs = Some((epoch_ms(), 0));
                 self.note(
                     "measure_begin",
                     0,
                     self.options.visible,
                     self.options.hidden,
                 );
-                let mut tasks = vec![delay(self.options.seconds, Msg::End)];
+                let mut tasks = vec![
+                    delay(self.options.seconds, Msg::End),
+                    iced::window::latest().then(|id| {
+                        id.map_or_else(Task::none, |id| {
+                            iced::window::size(id).then(move |size| {
+                                iced::window::scale_factor(id)
+                                    .map(move |scale| Msg::Geometry(size, scale))
+                            })
+                        })
+                    }),
+                ];
                 if self.options.probes > 0 {
                     tasks.push(Task::done(Msg::Probe));
                 }
                 Task::batch(tasks)
             }
-            Msg::Probe if self.stage == Stage::Measure && self.probes < self.options.probes => {
-                let id = self.ids()[0];
-                self.probes += 1;
-                self.probe = Some((id, self.probes, Instant::now(), None));
-                self.send(id, format!("echo {}", self.probes))
+            Msg::Probe if self.stage == Stage::Measure => {
+                if let Some(nonce) = self.samples.begin(Instant::now()) {
+                    self.send(self.ids()[0], format!("echo {nonce}"))
+                } else {
+                    Task::none()
+                }
             }
             Msg::Probe => Task::none(),
-            Msg::Captured(shot) => {
-                if let Some((id, nonce, sent, Some(snapshot))) = self.probe.take() {
-                    writeln!(
-                        self.latency,
-                        "{nonce},{},{:.3},{:.3},{},{},{}",
-                        id.get(),
-                        snapshot.duration_since(sent).as_secs_f64() * 1000.0,
-                        sent.elapsed().as_secs_f64() * 1000.0,
-                        shot.size.width,
-                        shot.size.height,
-                        shot.scale_factor
-                    )
-                    .expect("latency sample");
-                    self.latency.flush().expect("latency flush");
-                    if nonce == 1 || nonce == self.options.probes {
-                        metrics::screenshot(
-                            &self.options.output.join(format!("synthetic-{nonce}.ppm")),
-                            &shot,
-                        )
-                        .expect("synthetic capture");
-                    }
+            Msg::Geometry(size, scale) => {
+                fs::write(
+                    self.options.output.join("geometry.csv"),
+                    format!(
+                        "width_dip,height_dip,scale\n{},{},{scale}\n",
+                        size.width, size.height
+                    ),
+                )
+                .expect("actual native geometry");
+                Task::none()
+            }
+            Msg::Frame => {
+                if let Some(nonce) = self.samples.frame() {
+                    return iced::window::latest().then(move |id| {
+                        id.map_or_else(Task::none, |id| {
+                            iced::window::screenshot(id).map(move |shot| Msg::Captured(nonce, shot))
+                        })
+                    });
+                }
+                Task::none()
+            }
+            Msg::Captured(nonce, shot) => {
+                let received = Instant::now();
+                if self.stage != Stage::Measure {
+                    return Task::none();
+                }
+                let id = self.ids()[0];
+                let Some(region) = crate::pixels::locate(&shot, nonce, self.ready[&id]) else {
+                    self.samples.reject_pixels(nonce);
+                    self.note("stale_pixels", id.get(), nonce, 0);
+                    return Task::none();
+                };
+                let Some(sample) = self.samples.capture(nonce, received) else {
+                    return Task::none();
+                };
+                let id = self.ids()[0];
+                writeln!(
+                    self.latency,
+                    "{nonce},{},{:.3},{:.3},{},{},{},{:.3},{:.3},{}",
+                    id.get(),
+                    sample.snapshot.duration_since(sample.sent).as_secs_f64() * 1000.0,
+                    sample.captured.duration_since(sample.sent).as_secs_f64() * 1000.0,
+                    shot.size.width,
+                    shot.size.height,
+                    shot.scale_factor,
+                    self.began
+                        .expect("measurement began")
+                        .elapsed()
+                        .as_secs_f64()
+                        * 1000.0,
+                    received.elapsed().as_secs_f64() * 1000.0,
+                    self.ready[&id]
+                )
+                .expect("latency sample");
+                self.latency.flush().expect("latency flush");
+                if sample.nonce == 1 || sample.nonce == self.options.probes {
+                    // Retain only a tiny proof strip, bounded independently of
+                    // the full native readback. Encode after the measured window.
+                    self.artifacts.push((
+                        format!("synthetic-{nonce}.ppm"),
+                        shot.crop(region).expect("validated nonce region"),
+                    ));
                 }
                 Task::perform(
                     async { tokio::time::sleep(Duration::from_millis(100)).await },
@@ -248,15 +318,45 @@ impl Probe {
                 )
             }
             Msg::End => {
+                let actual_ms = self
+                    .began
+                    .expect("measurement began")
+                    .elapsed()
+                    .as_secs_f64()
+                    * 1000.0;
+                self.actual_ms = Some(actual_ms);
+                if let Some((start, _)) = self.epochs {
+                    self.epochs = Some((start, epoch_ms()));
+                }
+                if !interval::duration_valid(self.options.seconds, actual_ms) {
+                    self.invalid_evidence = true;
+                    self.note("invalid_interval", 0, actual_ms, self.options.seconds);
+                }
+                if let Some((start, end)) = self.epochs {
+                    self.note("measurement_epoch", 0, start, end);
+                }
                 self.note(
                     "measure_end",
                     0,
                     self.began.expect("measurement began").elapsed().as_millis(),
-                    self.probes,
+                    self.samples.completed(),
                 );
                 metrics::counters(&self.app, &self.options.output, "after")
                     .expect("after counters");
                 metrics::save_frames(&self.options.output).expect("frame histogram");
+                for (name, shot) in self.artifacts.drain(..) {
+                    metrics::screenshot(&self.options.output.join(name), &shot)
+                        .expect("deferred synthetic proof strip");
+                }
+                self.invalid_evidence |= !self.samples.end();
+                if self.invalid_evidence {
+                    self.note(
+                        "incomplete_latency",
+                        0,
+                        self.samples.completed(),
+                        self.options.probes,
+                    );
+                }
                 self.stage = Stage::Drain;
                 self.advance()
             }
@@ -284,13 +384,18 @@ impl Probe {
         } else if value == "final" {
             self.final_seen.insert(id);
         } else if let Some(done) = value.strip_prefix("done:") {
-            let fields: Vec<_> = done.split(':').take(3).collect();
-            if fields.len() == 2
+            let fields: Vec<_> = done.split(':').take(5).collect();
+            if fields.len() == 4
                 && let (Ok(bytes), Ok(micros)) =
                     (fields[0].parse::<u64>(), fields[1].parse::<u64>())
                 && self.done.insert(id)
             {
                 self.note("throughput", id.get(), bytes, micros);
+                if let (Ok(start), Ok(end)) = (fields[2].parse::<u128>(), fields[3].parse::<u128>())
+                {
+                    self.producer_windows.insert(id, (start, end));
+                    self.note("producer_epoch", id.get(), start, end);
+                }
             }
         }
     }
@@ -453,23 +558,42 @@ impl Probe {
             return Task::batch(tasks);
         }
         if self.stage == Stage::Measure
-            && let Some((id, nonce, _, snapshot)) = &mut self.probe
-            && snapshot.is_none()
-            && metrics::marker(&self.app, *id, &format!("PIKE38 ECHO {nonce:03}"))
+            && let Some(nonce) = self.samples.expected_snapshot()
         {
-            *snapshot = Some(Instant::now());
-            return iced::window::latest().then(|id| {
-                id.map_or_else(Task::none, |id| {
-                    iced::window::screenshot(id).map(Msg::Captured)
-                })
-            });
+            let id = self.ids()[0];
+            if metrics::marker(&self.app, id, &format!("PIKE38 ECHO {nonce:03}")) {
+                self.samples.snapshot(Instant::now());
+                return Task::none();
+            }
         }
         if self.stage == Stage::Drain && (!self.options.flood || self.done.len() == ids.len()) {
+            if self.options.flood {
+                for id in &ids {
+                    if !self
+                        .epochs
+                        .zip(self.producer_windows.get(id).copied())
+                        .is_some_and(|(parent, child)| {
+                            interval::overlap_valid(
+                                self.options.seconds,
+                                self.actual_ms.unwrap_or(f64::NAN),
+                                parent,
+                                child,
+                            )
+                        })
+                    {
+                        self.invalid_evidence = true;
+                        self.note("invalid_overlap", id.get(), 0, 0);
+                    }
+                }
+            }
             self.stage = Stage::Close;
             return Task::batch(ids.into_iter().map(|id| self.send(id, "exit".into())));
         }
         if self.stage == Stage::Close && self.completed.len() == ids.len() {
-            if self.final_seen.len() != ids.len() {
+            if self.invalid_evidence
+                || !self.samples.complete()
+                || self.final_seen.len() != ids.len()
+            {
                 self.failed = true;
             }
             if !self.failed {
@@ -483,6 +607,11 @@ impl Probe {
     }
 
     fn close(&mut self) -> Task<Msg> {
+        if self.closing_requested {
+            return Task::none();
+        }
+        self.closing_requested = true;
+        self.samples.end();
         let close = self.app.update(Message::CloseWindow);
         let confirm = self
             .app
@@ -504,6 +633,11 @@ impl Probe {
                 metrics::observe(&event);
                 None::<Msg>
             }),
+            if self.samples.waiting_frame() {
+                iced::window::frames().map(|_| Msg::Frame)
+            } else {
+                Subscription::none()
+            },
         ])
     }
     fn view(&self) -> Element<'_, Msg> {
@@ -516,4 +650,11 @@ fn delay(seconds: u64, message: Msg) -> Task<Msg> {
         async move { tokio::time::sleep(Duration::from_secs(seconds)).await },
         move |_| message,
     )
+}
+
+fn epoch_ms() -> u128 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .expect("fixture system clock")
+        .as_millis()
 }

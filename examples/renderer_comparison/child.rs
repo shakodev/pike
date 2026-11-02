@@ -31,6 +31,9 @@ pub fn run() -> io::Result<()> {
                 out,
                 "\x1b[2J\x1b[HPIKE38 READY | wide: 界 | combining: e\u{301} | \x1b[7mreverse\x1b[0m\x1b[?25h"
             )?;
+            if command.ends_with("empty") {
+                write!(out, "\x1b[3J")?;
+            }
             out.flush()?;
             drop(out);
             title("prepared")?;
@@ -62,7 +65,9 @@ pub fn run() -> io::Result<()> {
                 return Err(io::Error::other("invalid echo nonce"));
             }
             let mut out = io::stdout().lock();
-            write!(out, "\x1b7\x1b[1;1HPIKE38 ECHO {nonce:03}\x1b8")?;
+            write!(out, "\x1b7\x1b[1;1HPIKE38 ECHO {nonce:03} ")?;
+            crate::pixels::write_marker(&mut out, nonce, std::process::id())?;
+            write!(out, "\x1b8")?;
             out.flush()?;
         } else if command == "exit" {
             stop.store(true, Ordering::Relaxed);
@@ -100,6 +105,7 @@ fn produce(duration: Duration, stop: &AtomicBool) -> io::Result<()> {
         out.flush()?;
     }
     title("flooding")?;
+    let epoch_start = epoch_ms()?;
     let mut chunk = [b'F'; CHUNK];
     for line in chunk.chunks_mut(128) {
         line[126] = b'\r';
@@ -121,5 +127,16 @@ fn produce(duration: Duration, stop: &AtomicBool) -> io::Result<()> {
     }
     // This title is emitted after all stdout writes; host observes it after the
     // existing parser. Bytes include synthetic data only, excluding VT setup.
-    title(&format!("done:{bytes}:{}", start.elapsed().as_micros()))
+    title(&format!(
+        "done:{bytes}:{}:{epoch_start}:{}",
+        start.elapsed().as_micros(),
+        epoch_ms()?
+    ))
+}
+
+fn epoch_ms() -> io::Result<u128> {
+    Ok(std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_err(io::Error::other)?
+        .as_millis())
 }

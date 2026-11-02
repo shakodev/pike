@@ -1,0 +1,9 @@
+ms,event,session,a,b
+246.409,native_focus,0,false,0
+258.675,ready,1,38730,0
+258.725,synthetic_window_focus,0,true,0
+283.113,scenario_ready,0,1,0
+2296.011,measure_begin,0,1,0
+4298.425,measure_end,0,2002,0
+4344.263,completion,1,true,0
+4345.968,finished,0,1,0
