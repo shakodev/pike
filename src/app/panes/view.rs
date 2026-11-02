@@ -93,18 +93,17 @@ impl App {
                     )
                     .spacing(0),
             )
+            .id(format!("pane-header-controls-{}", pane.session.get()))
             .height(HEADER)
             .align_y(iced::Alignment::Center)
             .into();
-            let title = pane_grid::TitleBar::new(
-                container(super::gesture::title(
-                    text(format!("Terminal {}", pane.session.get())).size(tokens::SMALL),
-                ))
-                .id(format!("pane-header-{}", pane.session.get()))
-                .height(HEADER)
-                .padding([0.0, tokens::INSET])
-                .align_y(iced::Alignment::Center),
-            )
+            let title = pane_grid::TitleBar::new(super::gesture::title(
+                container(ui::label(format!("Terminal {}", pane.session.get())))
+                    .id(format!("pane-header-{}", pane.session.get()))
+                    .height(HEADER)
+                    .padding([0.0, tokens::INSET])
+                    .align_y(iced::Alignment::Center),
+            ))
             .controls(controls.map(Message::Control))
             .style(move |theme| style::header(theme, focused));
             // Focus comes from the existing pane/keyboard authority. Inactive
@@ -118,6 +117,7 @@ impl App {
                 divider.content(
                     boundary.body(
                         container(self.pane(pane.session))
+                            .id(format!("pane-body-{}", pane.session.get()))
                             .padding(BORDER)
                             .clip(true),
                     ),
@@ -153,11 +153,24 @@ impl App {
         .width(
             presentation
                 .map(|p| iced::Length::Fixed(p.size.width))
+                // Failed/starting panes have no terminal font geometry yet.
+                // Use the sensor's viewport instead of Fill inside an unbounded
+                // two-axis scroller, where Fill can collapse to zero.
+                .or_else(|| {
+                    self.grid_size
+                        .filter(|(tab, _)| *tab == tab_id)
+                        .map(|(_, size)| iced::Length::Fixed(size.width))
+                })
                 .unwrap_or(Fill),
         )
         .height(
             presentation
                 .map(|p| iced::Length::Fixed(p.size.height))
+                .or_else(|| {
+                    self.grid_size
+                        .filter(|(tab, _)| *tab == tab_id)
+                        .map(|(_, size)| iced::Length::Fixed(size.height))
+                })
                 .unwrap_or(Fill),
         );
         // Scrollbar dragging provides safe panning even while the terminal
@@ -224,17 +237,24 @@ impl App {
                 .into(),
             Owner::Failed(error) => {
                 let failed: Element<'_, Control> = column![
-                    text("Terminal could not start").size(tokens::HEADING),
+                    container(text("Terminal could not start").size(tokens::HEADING))
+                        .id(format!("pane-failed-heading-{}", id.get())),
                     text(ui::plain_title(&error.to_string(), 512)).size(tokens::BODY),
                     row![
-                        button(text("Retry").size(tokens::BODY))
-                            .height(tokens::CONTROL)
-                            .style(style::quiet)
-                            .on_press(Control::Retry(id)),
-                        button(text("Use default shell").size(tokens::BODY))
-                            .height(tokens::CONTROL)
-                            .style(style::quiet)
-                            .on_press(Control::UseDefault(id))
+                        container(
+                            button(text("Retry").size(tokens::BODY))
+                                .height(tokens::CONTROL)
+                                .style(style::quiet)
+                                .on_press(Control::Retry(id))
+                        )
+                        .id(format!("pane-retry-{}", id.get())),
+                        container(
+                            button(text("Use default shell").size(tokens::BODY))
+                                .height(tokens::CONTROL)
+                                .style(style::quiet)
+                                .on_press(Control::UseDefault(id))
+                        )
+                        .id(format!("pane-default-{}", id.get()))
                     ]
                     .spacing(tokens::SPACE)
                     .wrap()

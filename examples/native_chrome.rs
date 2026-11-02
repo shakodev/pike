@@ -68,6 +68,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .map_err(Into::into);
     }
+    if args.get(2).is_some_and(|s| s == "--error-empty") {
+        scenes::error_empty(output)?;
+        fs::write(output.join("completed.txt"), "passed\n")?;
+        return Ok(());
+    }
     let config = output.join("settings.toml");
     let readiness_only = args.get(2).is_some_and(|s| s == "--readiness");
     fs::write(

@@ -211,7 +211,7 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
             .model()
             .sessions()
             .iter()
-            .map(|(id, _)| Id::from(format!("pane-header-{}", id.get())))
+            .map(|(id, _)| Id::from(format!("pane-header-controls-{}", id.get())))
             .collect(),
         ..Default::default()
     };
@@ -224,6 +224,60 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
             )));
         }
     }
+    let mut bodies = Metrics {
+        viewport,
+        terminals: host
+            .app
+            .model()
+            .sessions()
+            .iter()
+            .map(|(id, _)| Id::from(format!("pane-body-{}", id.get())))
+            .collect(),
+        ..Default::default()
+    };
+    view.as_widget_mut()
+        .operate(&mut tree, Layout::new(&node), &host.renderer, &mut bodies);
+    assert!(
+        bodies
+            .headers
+            .iter()
+            .all(|body| body.width > 2.0 && body.height > 0.0),
+        "pane body collapsed in {name}: {:?}",
+        bodies.headers
+    );
+    let failed: Vec<_> = host
+        .app
+        .model()
+        .sessions()
+        .iter()
+        .filter(|(_, entry)| matches!(entry.lifecycle(), pike::session::Lifecycle::Failed(_)))
+        .map(|(id, _)| id)
+        .collect();
+    let mut failures = Metrics {
+        viewport,
+        terminals: failed
+            .iter()
+            .flat_map(|id| {
+                ["pane-failed-heading", "pane-retry", "pane-default"]
+                    .map(|prefix| Id::from(format!("{prefix}-{}", id.get())))
+            })
+            .collect(),
+        ..Default::default()
+    };
+    view.as_widget_mut()
+        .operate(&mut tree, Layout::new(&node), &host.renderer, &mut failures);
+    assert_eq!(
+        failures.headers.len(),
+        failed.len() * 3,
+        "failed state affordances missing in {name}"
+    );
+    assert!(
+        failures
+            .headers
+            .iter()
+            .all(|r| r.width > 0.0 && r.height >= 20.0 && viewport.intersection(r) == Some(*r)),
+        "failed controls not reachable in {name}"
+    );
     if let Some(strip) = metrics.tab_strip
         && strip.height != 34.0
     {
@@ -280,6 +334,26 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
         &output.join(format!("{name}.ppm")),
         iced::window::Screenshot::new(rgba.clone(), dimensions, scale),
     )?;
+    let p = pike::ui::style::palette(&host.app.theme()).text;
+    let ink = [p.r, p.g, p.b].map(|c| (c * 255.0).round() as u8);
+    for heading in failures.headers.iter().step_by(3) {
+        let count = rgba
+            .chunks_exact(4)
+            .enumerate()
+            .filter(|(index, pixel)| {
+                let point = Point::new(
+                    ((*index % dimensions.width as usize) as f32 + 0.5) / scale,
+                    ((*index / dimensions.width as usize) as f32 + 0.5) / scale,
+                );
+                heading.contains(point)
+                    && pixel[..3]
+                        .iter()
+                        .zip(ink)
+                        .all(|(c, expected)| c.abs_diff(expected) < 12)
+            })
+            .count();
+        assert!(count > 10, "failed heading has no rendered text in {name}");
+    }
     let mut green = 0;
     for (index, pixel) in rgba.chunks_exact(4).enumerate() {
         if pixel[1] > 90

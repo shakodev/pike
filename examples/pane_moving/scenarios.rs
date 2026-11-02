@@ -651,11 +651,7 @@ pub(super) fn verify(
         .copy_selection(|s| s)
         .ok_or_else(|| io::Error::other("restored content cannot select text"))?;
     host.update(Message::Control(Control::Copy(first)));
-    host.drain()?;
-    check(
-        host.clipboard.0.as_deref() == Some(restored_selection.as_str()),
-        "restored content selection/copy failed",
-    )?;
+    host.until(|host| host.clipboard.0.as_deref() == Some(restored_selection.as_str()))?;
     host.evidence.push("equal-column swap preserved exact selection; real column resize used pinned clearing; fresh restored selection/copy passed".into());
     check(
         format!(

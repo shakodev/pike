@@ -220,7 +220,11 @@ fn make_host(config: PathBuf) -> io::Result<Host> {
 
 pub fn error_empty(output: &Path) -> io::Result<()> {
     let config = output.join("error-settings.toml");
-    let missing = std::path::absolute(output)?.join("pike33-controlled-missing-executable");
+    // Existing regular file passes settings path validation, while its missing
+    // executable permission (Unix) / invalid image (Windows) fails real launch.
+    // A missing configured path would instead reject settings and start defaults.
+    let missing = std::path::absolute(output)?.join("pike33-controlled-invalid-executable");
+    fs::write(&missing, b"PIKE33 controlled non-executable fixture\n")?;
     fs::write(
         &config,
         configuration(&missing.to_string_lossy(), "--child"),

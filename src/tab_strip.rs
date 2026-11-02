@@ -335,7 +335,13 @@ pub fn overflow<'a, M: Clone + 'a>(
             text("All tabs").size(tokens::HEADING),
             text("↑/↓ selects · Enter opens · Escape cancels").size(tokens::SMALL),
             text("● unread · ! bell · ■ exited").size(tokens::SMALL),
-            scrollable(rows).id(scroll_id).height(Fill).width(Fill),
+            scrollable(container(rows).padding(iced::Padding {
+                right: tokens::INSET * 2.0,
+                ..Default::default()
+            }))
+            .id(scroll_id)
+            .height(Fill)
+            .width(Fill),
             button(text("Cancel").size(tokens::BODY))
                 .style(style::quiet)
                 .height(tokens::CONTROL)

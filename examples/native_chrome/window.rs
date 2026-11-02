@@ -10,6 +10,10 @@ use std::{
 };
 
 static REDRAWS: AtomicU64 = AtomicU64::new(0);
+static WINDOW_EVENTS: [AtomicU64; 3] = [const { AtomicU64::new(0) }; 3];
+fn window_events() -> [u64; 3] {
+    std::array::from_fn(|i| WINDOW_EVENTS[i].load(Ordering::Relaxed))
+}
 
 pub fn run(output: PathBuf) -> iced::Result {
     let destination = output.clone();
@@ -32,6 +36,7 @@ pub fn run(output: PathBuf) -> iced::Result {
                     counters: [0; 5],
                     cpu: String::new(),
                     redraws: 0,
+                    window_events: [0; 3],
                 },
                 Task::batch([
                     task.map(Event::App),
@@ -72,6 +77,7 @@ struct Probe {
     counters: [u64; 5],
     cpu: String,
     redraws: u64,
+    window_events: [u64; 3],
 }
 
 fn cpu() -> String {
@@ -111,6 +117,7 @@ impl Probe {
                 self.counters = counters(&self.app);
                 self.cpu = cpu();
                 self.redraws = REDRAWS.load(Ordering::Relaxed);
+                self.window_events = window_events();
                 self.start = Some(Instant::now());
                 Task::perform(
                     async { tokio::time::sleep(Duration::from_secs(24)).await },
@@ -124,13 +131,18 @@ impl Probe {
                     .elapsed()
                     .as_secs_f64();
                 let redraws = REDRAWS.load(Ordering::Relaxed) - self.redraws;
+                let events: Vec<_> = window_events()
+                    .into_iter()
+                    .zip(self.window_events)
+                    .map(|(a, b)| a - b)
+                    .collect();
                 let final_cpu = cpu();
                 let deltas: Vec<_> = counters(&self.app)
                     .into_iter()
                     .zip(self.counters)
                     .map(|(a, b)| a - b)
                     .collect();
-                fs::write(self.output.join("native-idle.txt"), format!("platform={} arch={} renderer=wgpu native_window=1200x800 controlled_ptys=1\nsettle_s=3 interval_s={elapsed:.3} observed_native_redraws={redraws}\nps_before_time_rss={}ps_after_time_rss={}counter_order=font_measurements,pty_resizes,grid_resizes,cache_invalidations,snapshots\ncounter_delta={deltas:?}\n", std::env::consts::OS, std::env::consts::ARCH, self.cpu, final_cpu)).expect("measurement report");
+                fs::write(self.output.join("native-idle.txt"), format!("platform={} arch={} renderer=wgpu native_window=1200x800 controlled_ptys=1\nsettle_s=3 interval_s={elapsed:.3} observed_native_redraws={redraws}\nwindow_event_order=focused,unfocused,resized\nwindow_event_delta={events:?}\nps_before_time_rss={}ps_after_time_rss={}counter_order=font_measurements,pty_resizes,grid_resizes,cache_invalidations,snapshots\ncounter_delta={deltas:?}\n", std::env::consts::OS, std::env::consts::ARCH, self.cpu, final_cpu)).expect("measurement report");
                 let close = self.app.update(Message::CloseWindow);
                 let confirm = self.app.close_confirmation().map(|(token, _)| token);
                 let confirm = confirm
@@ -153,6 +165,18 @@ impl Probe {
                     iced::Event::Window(iced::window::Event::RedrawRequested(_))
                 ) {
                     REDRAWS.fetch_add(1, Ordering::Relaxed);
+                }
+                match event {
+                    iced::Event::Window(iced::window::Event::Focused) => {
+                        WINDOW_EVENTS[0].fetch_add(1, Ordering::Relaxed);
+                    }
+                    iced::Event::Window(iced::window::Event::Unfocused) => {
+                        WINDOW_EVENTS[1].fetch_add(1, Ordering::Relaxed);
+                    }
+                    iced::Event::Window(iced::window::Event::Resized(_)) => {
+                        WINDOW_EVENTS[2].fetch_add(1, Ordering::Relaxed);
+                    }
+                    _ => {}
                 }
                 None::<Event>
             }),
