@@ -35,6 +35,23 @@ pub struct Item {
 }
 
 impl Item {
+    fn indicators(&self) -> Option<&'static str> {
+        match (
+            self.activity.unread,
+            self.activity.bell,
+            self.activity.exited,
+        ) {
+            (false, false, false) => None,
+            (true, false, false) => Some("●"),
+            (false, true, false) => Some("!"),
+            (false, false, true) => Some("■"),
+            (true, true, false) => Some("● !"),
+            (true, false, true) => Some("● ■"),
+            (false, true, true) => Some("! ■"),
+            (true, true, true) => Some("● ! ■"),
+        }
+    }
+
     fn label(&self, position: usize) -> String {
         let mut label = format!("{} · {}", position + 1, self.title.as_str());
         for (set, indicator) in [
@@ -48,6 +65,22 @@ impl Item {
         }
         label
     }
+}
+
+/// Activity retains its own space outside the title's measured ellipsis.
+/// The full tooltip names unread/bell/exited without abbreviations.
+fn item_label<'a, M: 'a>(item: &Item, index: usize) -> Element<'a, M> {
+    let mut label = row![ui::label(format!(
+        "{} · {}",
+        index + 1,
+        item.title.as_str()
+    ))]
+    .spacing(tokens::SPACE)
+    .align_y(iced::Alignment::Center);
+    if let Some(indicators) = item.indicators() {
+        label = label.push(text(indicators).font(tokens::FONT).size(tokens::SMALL));
+    }
+    label.width(Fill).into()
 }
 
 /// Keep the active item in the compact strip without unbounded row wrapping.
@@ -154,12 +187,18 @@ fn compact<'a, M: Clone + 'a>(
             tabs.push(
                 row![
                     tooltip(
-                        button(container(ui::label(label.clone())).width(Fill).clip(true))
-                            .on_press(activate(item.id))
-                            .height(tokens::CONTROL)
-                            .padding([0, 8])
-                            .style(move |theme, status| style::tab(theme, status, selected))
-                            .width(tab_width),
+                        button(
+                            container(item_label(item, index))
+                                .width(Fill)
+                                .height(Fill)
+                                .align_y(iced::Alignment::Center)
+                                .clip(true)
+                        )
+                        .on_press(activate(item.id))
+                        .height(tokens::CONTROL)
+                        .padding([0, 8])
+                        .style(move |theme, status| style::tab(theme, status, selected))
+                        .width(tab_width),
                         container(text(label).font(tokens::FONT).size(tokens::SMALL))
                             .padding([4, 8])
                             .style(style::tooltip),
@@ -213,20 +252,32 @@ pub fn overflow<'a, M: Clone + 'a>(
             rows.push(
                 container(
                     row![
-                        button(
-                            container(ui::label(item.label(index)))
-                                .width(Fill)
-                                .clip(true)
-                        )
-                        .on_press(activate(item.id))
-                        .height(tokens::CONTROL)
-                        .padding([0, 8])
-                        .style(move |theme, status| style::tab(
-                            theme,
-                            status,
-                            selected == Some(item.id)
-                        ))
-                        .width(Fill),
+                        tooltip(
+                            button(
+                                container(item_label(&item, index))
+                                    .width(Fill)
+                                    .height(Fill)
+                                    .align_y(iced::Alignment::Center)
+                                    .clip(true)
+                            )
+                            .on_press(activate(item.id))
+                            .height(tokens::CONTROL)
+                            .padding([0, 8])
+                            .style(move |theme, status| style::tab(
+                                theme,
+                                status,
+                                selected == Some(item.id)
+                            ))
+                            .width(Fill),
+                            container(
+                                text(item.label(index))
+                                    .font(tokens::FONT)
+                                    .size(tokens::SMALL)
+                            )
+                            .padding([4, 8])
+                            .style(style::tooltip),
+                            tooltip::Position::Bottom
+                        ),
                         ui::icon("×", "Close tab", close(item.id)),
                     ]
                     .spacing(8),
@@ -239,6 +290,7 @@ pub fn overflow<'a, M: Clone + 'a>(
         column![
             text("All tabs").size(tokens::HEADING),
             text("↑/↓ selects · Enter opens · Escape cancels").size(tokens::SMALL),
+            text("● unread · ! bell · ■ exited").size(tokens::SMALL),
             scrollable(rows).id(scroll_id).height(Fill).width(Fill),
             button(text("Cancel").size(tokens::BODY))
                 .style(style::quiet)

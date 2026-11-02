@@ -114,6 +114,21 @@ The responsive strip also passes a new 200-DIP native component case at all four
 scales. Management actions yield their visual width to the active tab and the
 overflow hit target; all existing handlers and tab ownership remain unchanged.
 
+R2's separate P1 production finding exposed long titles hiding activity suffixes.
+The strip and overflow now reserve `●` (unread), `!` (bell), and `■` (exited)
+outside title ellipsis, retaining full title/activity wording in tooltips and a
+list legend. No activity state or event behavior changed. The targeted native
+activity driver covers individual and combined flags, ASCII/CJK selected titles,
+dark/light, 200/320/1200-DIP strips, and all four scales. Its preliminary run
+produced 192 passing strip rasters, then failed an overflow assertion on a
+0.000001-DIP float equality difference. The corrected overflow-only run passed
+16 rasters and measured markers inside the actual scroll viewport; the red log
+remains. Representative actual pixels were visually inspected for narrow
+combined state, background exited state, and all overflow markers. A final
+scoped run on the committed correction will establish exact source/binary
+identity before R2 audits this production fix; unchanged broader checks stay
+deferred to actual-R32/root integration.
+
 After one deliberate actual-R32 integration: compact normal root composition,
 plus/menu/settings affordances, effective shortcut tooltips, and bounded passive
 rows outside terminal clipping. C will integrate its new error data/actions and

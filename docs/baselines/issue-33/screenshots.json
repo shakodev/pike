@@ -1,5 +1,1669 @@
 [
   {
+    "png": "activity-overflow/activity-overflow-dark-200-100.png",
+    "width": 200,
+    "height": 440,
+    "rgb_sha256": "274b1baaae8ccc5e12b64bc0579712f52bf86a43cfbf6123d56e1fb6194d5df9",
+    "png_sha256": "f173a664760a12396001541fc4df879fda0547dc28292e59cf4d8d1d8e90fbe8",
+    "source_ppm_sha256": "ef4dc50d7181c73f5be5cc75fab6695265b81b3bd78e0b40efbfa938f3bdf9d8"
+  },
+  {
+    "png": "activity-overflow/activity-overflow-dark-200-125.png",
+    "width": 250,
+    "height": 550,
+    "rgb_sha256": "47bf9eff3dcd54e173ca1d08ce12607fd23b4eb31fcdf46987bbd1c83770e9aa",
+    "png_sha256": "b49ce890e1838e3b3533e396496854b33606be43ff7910582c53bd6758c9307a",
+    "source_ppm_sha256": "5633d2672beabd4a86b5038a14c57caf722f42c8dade1f976a7186e4b72ecfe7"
+  },
+  {
+    "png": "activity-overflow/activity-overflow-dark-200-150.png",
+    "width": 300,
+    "height": 660,
+    "rgb_sha256": "d803a83513d1fbd487187310e86f40a1b6fc8f38dd5b8904bb2700a54d7c99db",
+    "png_sha256": "f01df0d530a26a5c71cd5ae9e8272fafd484f5b11755a7cd99a068fa2048bcb9",
+    "source_ppm_sha256": "368872217efffcc27bf2eabe8feed1251c0f409ca197dc4b31ce43a7206b3ee8"
+  },
+  {
+    "png": "activity-overflow/activity-overflow-dark-200-200.png",
+    "width": 400,
+    "height": 880,
+    "rgb_sha256": "26795b5a93cae527933724388c3b8beea3c8f2c16d8ec9e782e21dd2831e36a4",
+    "png_sha256": "96c7cddb7e794903ea0c400354d6e20249d074c98e40f3ea18f0a90b063c629f",
+    "source_ppm_sha256": "a840640010d84695420637f3fa7838440d209ec12652faaaacf94b8f6c97b321"
+  },
+  {
+    "png": "activity-overflow/activity-overflow-dark-320-100.png",
+    "width": 320,
+    "height": 440,
+    "rgb_sha256": "c44cabd952645ed4db2aea3c395a64d1ff6114f10b028f0f42830b0095a2529f",
+    "png_sha256": "a8295dde2d1f4e5880c2d87fa445657df208f054faf5a52c205bd2d6585ed04f",
+    "source_ppm_sha256": "b2f50f17adbf5d6a9ba493ff0a89b4653a53b608b36962785c0cd9bc441dacbb"
+  },
+  {
+    "png": "activity-overflow/activity-overflow-dark-320-125.png",
+    "width": 400,
+    "height": 550,
+    "rgb_sha256": "30dffde56ca29f5884617b1505c7e6749112cbd0d5c2e05dc161e8ceb416f8b6",
+    "png_sha256": "bc8f322b2ab641b5f1db0b11867e4b7f50001c7dc8a3162cd73b0bd6f069a6ca",
+    "source_ppm_sha256": "e85a7ba8a48db2269726d9a2624b3b269f0a12108f8af359936bd1ccb4049f2d"
+  },
+  {
+    "png": "activity-overflow/activity-overflow-dark-320-150.png",
+    "width": 480,
+    "height": 660,
+    "rgb_sha256": "e6cce3a60644227b8a3d2a791304fd2260f93c8cc4a818ac3417b14e497484ce",
+    "png_sha256": "d6e61c35d7020f7a7a743a8ab002da094e426527b25b219b8d6a2e6a29646bbf",
+    "source_ppm_sha256": "44b64be42078dd3fd04717ad5fd98bd16b0168ab33551ed3f9b7810f43817d17"
+  },
+  {
+    "png": "activity-overflow/activity-overflow-dark-320-200.png",
+    "width": 640,
+    "height": 880,
+    "rgb_sha256": "2cca4f47d696cb46151dc58cf2f713ffb56379f71855f8ab4090aa10c878dc03",
+    "png_sha256": "c1026a4f1ea57857a2f0d1317befd5714bca204c91be81dd25a841a4bb326f7f",
+    "source_ppm_sha256": "cec3c97ceea6b30600d2e279a988928759bfa013c393bb9635d70f52c1497667"
+  },
+  {
+    "png": "activity-overflow/activity-overflow-light-200-100.png",
+    "width": 200,
+    "height": 440,
+    "rgb_sha256": "4c7df23b81cf1d5bb5dd90a15e533440e1aa58849a27a7dd9135761d59237b4a",
+    "png_sha256": "49196a5c7692f33e41c184ee57b7fd4a91c60395176fe2b6de5279865841d72c",
+    "source_ppm_sha256": "ac10e77c114018e86687e947ef8d4fa9f08e5a7e5dbd3bb21452a2bee26d8443"
+  },
+  {
+    "png": "activity-overflow/activity-overflow-light-200-125.png",
+    "width": 250,
+    "height": 550,
+    "rgb_sha256": "4221e1fb8dfc64b8c46a36260ddf3bffd0cc120aa73f1cb7a8351ca7867f95ab",
+    "png_sha256": "9f369d0ac32db2dfb0e54ce06666576583760c1418e5ca8526ba617e6df93ac2",
+    "source_ppm_sha256": "6eea0075b03b7842e6a3bfabf358583769503c1eaeaf89ff51665b394bedc4c9"
+  },
+  {
+    "png": "activity-overflow/activity-overflow-light-200-150.png",
+    "width": 300,
+    "height": 660,
+    "rgb_sha256": "126f8271cd255addc2105f95d29dd5633f39b3a9ee32a3dfe7ca3ae2bb39964c",
+    "png_sha256": "319328fee51f4c7a28c8d0446abc73713da0ae9d7525747076d29484105c9124",
+    "source_ppm_sha256": "391f797129f6f837e3510cbc4f567df06f1e259c6d668e2af092e2470f3b27ed"
+  },
+  {
+    "png": "activity-overflow/activity-overflow-light-200-200.png",
+    "width": 400,
+    "height": 880,
+    "rgb_sha256": "1e6e84a2d30862046f25e9d78b19ce898030a04645a805255399f1690e0e3f89",
+    "png_sha256": "94f87a3586ec16b1a5640a7e9992399ab50007f4e627ec0e6f642fa3bbdf04fe",
+    "source_ppm_sha256": "bb3d02774533f404390c2658fdba13b8e43713b4aa5e2f5ebd5d6723e1851905"
+  },
+  {
+    "png": "activity-overflow/activity-overflow-light-320-100.png",
+    "width": 320,
+    "height": 440,
+    "rgb_sha256": "2d6732028c224e2fed46b74494a92bf21b17038c24e6e3369af83ad179bc293e",
+    "png_sha256": "da353229f84a14706b334375ab68383dee5ad23100d05a5b36ccb446cdf62765",
+    "source_ppm_sha256": "c48944110e7ceedc3ce4a2245fd6e86817c82e0f31afa9a96c968be6f57a6a48"
+  },
+  {
+    "png": "activity-overflow/activity-overflow-light-320-125.png",
+    "width": 400,
+    "height": 550,
+    "rgb_sha256": "c9087da02fae55ab02b5d836a4f63d633549183d0639bcfc7ac1d870d2316996",
+    "png_sha256": "c64ee17964cb81da7eece4305f883d538596154fcdd5592f9d967528e5d89991",
+    "source_ppm_sha256": "148457585517594d09699bc40471189e8177a68da1c61c58664b0e1ccd90e1b9"
+  },
+  {
+    "png": "activity-overflow/activity-overflow-light-320-150.png",
+    "width": 480,
+    "height": 660,
+    "rgb_sha256": "0307f97706f94e24011d18147d1128af92ebe29e9f956656180d234221e7dc13",
+    "png_sha256": "ae8074906d9241b8254b4d06fcba400826664801f56409e5826ed24d631c5593",
+    "source_ppm_sha256": "c1fca6cfecbb84ebad338104553c36f70694bb2f89d3f36dacafa936d07ab3db"
+  },
+  {
+    "png": "activity-overflow/activity-overflow-light-320-200.png",
+    "width": 640,
+    "height": 880,
+    "rgb_sha256": "5947d3249f75a6efa2a37558b7bc49c9fc028136c38cc985d4e1b9fdfee45a04",
+    "png_sha256": "ef8241e4dd66a0c494c7bb3b655d3dc27b520577e8012045df4a563177382f68",
+    "source_ppm_sha256": "43606bf0cdcc048f5cb91c880210ba61606c1fc25042e842edf98a150d08599e"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-dark-1200-100.png",
+    "width": 1200,
+    "height": 34,
+    "rgb_sha256": "325c2222add2750bab995f7f6a6101177bd5de53c0356b86b23f7eff8e5b866c",
+    "png_sha256": "267dfe25835dfe2248dc4d103060027d8df54d2ff65c904c19e6ac711fb6674f",
+    "source_ppm_sha256": "d6f605f32e294dedda42c5b6ced8dbaa0e65ede1241428611dc4c57a9f3763c8"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-dark-1200-125.png",
+    "width": 1500,
+    "height": 42,
+    "rgb_sha256": "aefe46ae7cb1cc5f3b8649b73018e7bd1ab38e8bfdf1e9f6fcfff86bf3cba6b2",
+    "png_sha256": "5a1cf8f33e6e7581f5571e23b1c1f38b89f7cb102b05d7e326c9affc2eb5797a",
+    "source_ppm_sha256": "e60452786bb8f3779bbcf8a85727cc761083f990c5045a19b47e49bdd0aabbdc"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-dark-1200-150.png",
+    "width": 1800,
+    "height": 51,
+    "rgb_sha256": "d4f21b04b4561525696d645c1c1e14d3909703cfbe529a86c50b26c664d8babb",
+    "png_sha256": "391ce086b28fa2a8e7bdfd92ce79899d28b088d79258b7dfc949f56994033637",
+    "source_ppm_sha256": "b43b06bf84a40ee84163b4f92a957addea344171d44b8c0feb8ab8744d4e1a51"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-dark-1200-200.png",
+    "width": 2400,
+    "height": 68,
+    "rgb_sha256": "1d72303dcb77b271a01c7f5b30287ed5da8034facbb891fc7fbf4631ff4a82ec",
+    "png_sha256": "b4d1a7f50e82cc6d118afcfae8f60819eee79c6993e2ab2d693c72392031ca53",
+    "source_ppm_sha256": "89bb2f8113266a81b2fd774179b40c4fd2d228387667695669ce9180366958c6"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-dark-200-100.png",
+    "width": 200,
+    "height": 34,
+    "rgb_sha256": "5382369f8784d607c1908d0d253bf97d8493638d982426af952d07bc376612bc",
+    "png_sha256": "ddd57e3124972ca4745c054d78d564f94aaaf6e421f59e9cf9bd7774e6803700",
+    "source_ppm_sha256": "47cfa6f58a14788abee3ee0d8ea8013e53466b2de1c6342c178689327338990c"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-dark-200-125.png",
+    "width": 250,
+    "height": 42,
+    "rgb_sha256": "f383aaf0877f98d01220e997deb331a804b421ebe5214ebc8a4a4f4c3c18128e",
+    "png_sha256": "d0217e5300938965f0ab39699e4a90e5b471afd2f2a689fa171ec6d26deed63b",
+    "source_ppm_sha256": "add1f2ce759a1ae89091f9b91bda4ba8067abc4a944075bd1900cf7358670bdd"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-dark-200-150.png",
+    "width": 300,
+    "height": 51,
+    "rgb_sha256": "b2bf65740a5ba9d1b4e7e50e1a3920031d849e5f1fd536af3c7d23db8258f64d",
+    "png_sha256": "f063f70e3c3651bcc7cc54a4950c3edc613c1e7d1e41a39dd3d846c3cf678974",
+    "source_ppm_sha256": "df634a83bc77f92a51a234f5a0edc2495f6898325c3389b106033c3663790799"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-dark-200-200.png",
+    "width": 400,
+    "height": 68,
+    "rgb_sha256": "685de28af48da2bfd8527d93734674b54942aedcfc56df7db4510db5a6dc8ab5",
+    "png_sha256": "0a4fafd5227bc31b628ab330f08e422b3c488a81e355386ab13817ddf19a62cc",
+    "source_ppm_sha256": "3b92fa82c59ca3c0c761beb9a0113fc9288dcaa7e6c026978e34a2d750658834"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-dark-320-100.png",
+    "width": 320,
+    "height": 34,
+    "rgb_sha256": "bf67e829e744ac754576adf6b2362bd7a2c380a1c7bfc6caf1bddca845ff7bdd",
+    "png_sha256": "a8194ce1c4f50c26717c9ac0949d30c5d19c778935d993d099eb56f18620c6cf",
+    "source_ppm_sha256": "1b627e994a6de3aff1a06f0d7c9a09c2c799e509edefc1b8f917406c131a076e"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-dark-320-125.png",
+    "width": 400,
+    "height": 42,
+    "rgb_sha256": "eab2dcfc5bb9fcd896ed60120060df3d43fee7d40197e0ea9c8a58ec70ff7f27",
+    "png_sha256": "66da29cdb6eb36940f5cba681cfde08549452f5bddd933022209d71101310318",
+    "source_ppm_sha256": "17550cae30d9e2048369b1e210b2ede73e46f2978beaba3721e2b74fe21e9d4f"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-dark-320-150.png",
+    "width": 480,
+    "height": 51,
+    "rgb_sha256": "1e9ce5cb74dcfbb6e4a1fc854890da186696c995ef6e8b6b976fc29356959787",
+    "png_sha256": "115bd2750cf64cb47209d46f38a761a1553bf10cf659182a82634f0e31e4b66e",
+    "source_ppm_sha256": "9be25107b6367c80474ebfc3ca26f1a14b7f471e1e798a77e86c06c4e85deea7"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-dark-320-200.png",
+    "width": 640,
+    "height": 68,
+    "rgb_sha256": "24b9c0bda5b670c76e2f7527648a1d56d5813f6a228ecc7dd6252a26d5cc3bae",
+    "png_sha256": "8d8cd2d405c0fec615423a297ac2e66a7e783c2f5dcd94490a189ed4db186d63",
+    "source_ppm_sha256": "d29de8ea508787977f7c0907fcee13942ee7459b7d4e513ceb6c036a34757aaf"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-light-1200-100.png",
+    "width": 1200,
+    "height": 34,
+    "rgb_sha256": "9836e212ef0978691dadd5fa718e4b0e37a5f69a63f62d4e51fa8c7311659271",
+    "png_sha256": "62a4073f27698165c10dac049b065126f0456d56445d023706232b50af702d57",
+    "source_ppm_sha256": "319318671160bd7584b7a18aaabe0cb47a05048fcd44a404561853c024bf51f9"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-light-1200-125.png",
+    "width": 1500,
+    "height": 42,
+    "rgb_sha256": "90a7144ca82ec0d754197859cce16e8ebf781f1c819a8c2ffe64964cd606d1e5",
+    "png_sha256": "b8c766f42672e71f9906feb999a9b99e5694f77b1b4c2a1b9801c54414126880",
+    "source_ppm_sha256": "292bc3474b5c6e038e64c6bc93c212ccf8dc235b89e394a9e63cff914ea65d99"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-light-1200-150.png",
+    "width": 1800,
+    "height": 51,
+    "rgb_sha256": "aef5c68e080b5dc145464e0a5fb630786110be8ffb87f2a465a8b81effb83694",
+    "png_sha256": "3d587060621b86ecf3372cd9d77e3bf8062b8d533e01c01408104e833138311b",
+    "source_ppm_sha256": "dee7c9a402ac0911c03b7f0025d257a3cb0912346d41329c53d090c108ed4a07"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-light-1200-200.png",
+    "width": 2400,
+    "height": 68,
+    "rgb_sha256": "4a1d625afddd98745a9f99d1c8b545827250524d9daafcfff90829c677e31ebd",
+    "png_sha256": "ecc52be2fb64a2300187814292749ffb4982e6087e38ea04f5de3340579ef092",
+    "source_ppm_sha256": "8e0b8745e177dacdfeb65ea0c264077a904421b86b375e6aeee49c4e562757da"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-light-200-100.png",
+    "width": 200,
+    "height": 34,
+    "rgb_sha256": "d1c698bc7f234720ce42d558d41c616fdd2a8857ecd8accc3a0afd48ebffb7af",
+    "png_sha256": "c5401ece5135a00f71002bbf159c7e5cbfb0a3c3f98e3eb41fe34421b7c1e209",
+    "source_ppm_sha256": "9d6a94c594fd3cf7c989c1373c4088cc3502fc7d14caf9ea5ddbc7ebde7f6baf"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-light-200-125.png",
+    "width": 250,
+    "height": 42,
+    "rgb_sha256": "79d35034b880e51b7939d77264401401e796aade99a7d67c0c293a9a06cbc43c",
+    "png_sha256": "9763add3e4874149733934393f70e03db8ed78d89324bdee5a74ade0c4214b3c",
+    "source_ppm_sha256": "a8e03a96dc90cffc1c057b34af092c5b26164e7f54de8360bf2c9dda75225b92"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-light-200-150.png",
+    "width": 300,
+    "height": 51,
+    "rgb_sha256": "d453ef40c28999471b1dad186ae508a94431e1f1a8b15b452a3cd258f51033e5",
+    "png_sha256": "332b28d980a1184efa135cc7f87fc7da5b179349223523138186d37ed02ec73d",
+    "source_ppm_sha256": "bb565432c2fafec646043b56e8be056ed07ce87de48c8db2a4ded95f7c634432"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-light-200-200.png",
+    "width": 400,
+    "height": 68,
+    "rgb_sha256": "c5326ad1292302cbeae009bd5fb23620f800407d5a1671508769f5fbeaf8d182",
+    "png_sha256": "cb4e743a706541906a4a100169304d64282da80ec619a6031858a872c2db8bb8",
+    "source_ppm_sha256": "8e5d408047f0fdb77b713898010f705d4287b7b54793c070f8a27eedbe4f30d0"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-light-320-100.png",
+    "width": 320,
+    "height": 34,
+    "rgb_sha256": "540bbf9a82a429c4a1bf0ed4733894f53d65e02016e30502001fd859ca7062cf",
+    "png_sha256": "c166a238d757ee59692a1488ae80c5d8b31fc2ea451117f0db7f9bd4f337f502",
+    "source_ppm_sha256": "f5ddce7e6aa6b232d2934512e82f5da7f4a4222258f8c4f934653fc9e364e906"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-light-320-125.png",
+    "width": 400,
+    "height": 42,
+    "rgb_sha256": "77149491563d85f7dfb85a1942a3dd261fa6fa8185975ebaaeae7a846414bb1f",
+    "png_sha256": "2b1b137c4cb9d548e5bb52f68879ae610746f979e85b94f903a7c96626984e39",
+    "source_ppm_sha256": "855d75a5563a70b61364d63636a35110e1f87ee8bdfa3648906fbeb897e714cf"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-light-320-150.png",
+    "width": 480,
+    "height": 51,
+    "rgb_sha256": "3a9a4fd2b62a95d7705f6fee1db867e7f5ee02f9018ce85f28fb5685b2558b53",
+    "png_sha256": "5fcfbdf4e42031b6676003574b9266bb7f1e7a0e7ab15830af9ed81871dc81af",
+    "source_ppm_sha256": "39cbb9b7ba28dafe490ce53d75afa21fa5330b707d57338158385b477561b8af"
+  },
+  {
+    "png": "activity/tabs-bell-ascii-light-320-200.png",
+    "width": 640,
+    "height": 68,
+    "rgb_sha256": "88ce1f6654e2cbaf1314c277d102e7ccf1d1fa64da51029d918d8f1a67fe1b51",
+    "png_sha256": "456900e7185fca318822b431362c0ba7673f65eacf971b8eff7808abc162d3e2",
+    "source_ppm_sha256": "76745c4649d1fd3a1b4aac1ebb777a4e309aa19487f11ec8b04ec2745d2ee2a4"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-dark-1200-100.png",
+    "width": 1200,
+    "height": 34,
+    "rgb_sha256": "673892bf7cc717cc78816b10906aefb15d7de86588d0dfc6ab118c1de6676d12",
+    "png_sha256": "f8344106b2f0aae8f8fd52688a2969f2c33e0acc0479ba98ff6d4436bbd65b91",
+    "source_ppm_sha256": "f54d40a7ea47883415b87bb1a97c7f7ca64ed99740c218f27cbc7b2117a284d7"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-dark-1200-125.png",
+    "width": 1500,
+    "height": 42,
+    "rgb_sha256": "042fd3091c96d6641eb0e70ed1a7351b5e7de4412658318051bd8922e1a42840",
+    "png_sha256": "0446f08d379cef745b2dcb5168734b3530283c708e54338efbbbf991a904bd75",
+    "source_ppm_sha256": "473e51af3f97e1212aaed9e8b325bd18c3a7d895e1d388f238365d8e155562ad"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-dark-1200-150.png",
+    "width": 1800,
+    "height": 51,
+    "rgb_sha256": "f91106ab4fb61b2cde5a27c9b46d814aa6880c49d582b9fc4e4ae02d94994374",
+    "png_sha256": "b6cad5900b5f1520e3c7d2beba214ef6b7ef53007bcc698d45083d2b02280de1",
+    "source_ppm_sha256": "88432797b433f9ad14b0c5f244190a5f65722eed42f75a5d375b445e4f69cfdb"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-dark-1200-200.png",
+    "width": 2400,
+    "height": 68,
+    "rgb_sha256": "6fd0c63e0525cc025af5e122e415f0fa71e4724e63a615c2ce0b02dcf907bc36",
+    "png_sha256": "a6491074cb22f133153577cd9451a29176877b8d55f7a7c67680ab42f2cb2cc0",
+    "source_ppm_sha256": "7925388844fc556ef6600304888879229019f14978f24da5cb39023b73980295"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-dark-200-100.png",
+    "width": 200,
+    "height": 34,
+    "rgb_sha256": "f89a8b241c87fba622a867061ffce95a0a6c54cfdb0ee763f8d28e45f5186ece",
+    "png_sha256": "d525e63f570864ddd85dfaf61f43a7f1f137c807c2da6b7d305604f5fa39143b",
+    "source_ppm_sha256": "916f2a8fb13ec73d0c841b963b30fd976e846904e30759ba8e7e807ed8ae78f1"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-dark-200-125.png",
+    "width": 250,
+    "height": 42,
+    "rgb_sha256": "7ea7447d7175551e7c7cc998e7f870e7584c3e33f6395a4943415e8f07799abc",
+    "png_sha256": "6171f5e717864178bfd2f00009c225b01776ac771d3ddbfe0440acd408071c91",
+    "source_ppm_sha256": "6e27898f07e1cd724f90fd430bbe0b31ef6f536bacbaf3f1dffda35255a740ef"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-dark-200-150.png",
+    "width": 300,
+    "height": 51,
+    "rgb_sha256": "cc83c6915807ad916c934a1344e92204e421163d40844c5b5c0829030d8b5d71",
+    "png_sha256": "b6df6f5d9865bd8893a8dc93d1b0c660febf40e89be090f208a73e2636702095",
+    "source_ppm_sha256": "414c0d2e77b60b29a71b2fef2180875708e30c1a852779ecb18d9330ce9efed6"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-dark-200-200.png",
+    "width": 400,
+    "height": 68,
+    "rgb_sha256": "a62996639cfbccd540c8201e435d00b8a0caaf523f72f6e58bff6f67e36408b8",
+    "png_sha256": "62ef5bbb9592f8c7dea41e3cf7edb01648dad50128baa2410268e39827d851d7",
+    "source_ppm_sha256": "992a83036e624963d20fc8a3de5b6601f72efb2d203db09a0d2782bcfa534a5b"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-dark-320-100.png",
+    "width": 320,
+    "height": 34,
+    "rgb_sha256": "fcbb97d3be1ab28335be44a166593ae317e6fae9c32d99ce6047e95538dbd43d",
+    "png_sha256": "5f2e6f789edc88e4b95793ef6bb89c46df4e331fe9652a85f702006a1562f9b9",
+    "source_ppm_sha256": "b0536a7d2bc1c61763a8cbcc56b0aaaf884e76525ad8c5af6299bda54f180466"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-dark-320-125.png",
+    "width": 400,
+    "height": 42,
+    "rgb_sha256": "fb2e2501ef732330911034c7acab0f23ae9f298a78a42100e2006b2ada6152a6",
+    "png_sha256": "2555dd76f9f72a39f8359d7e9aa030d3e2daae91455cee4bd713411da61f5926",
+    "source_ppm_sha256": "cd906f6241893237b2090c266b0205f87e395694cfcf6aa1fc84287d8202967c"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-dark-320-150.png",
+    "width": 480,
+    "height": 51,
+    "rgb_sha256": "8e939aef5e5da3b8b368d4f1a9a854c9b029836039687d8a01d6723682cd2679",
+    "png_sha256": "465528d1e60184334651751b4c87d49bc8c9bd17223a7831103ba948bcb206b6",
+    "source_ppm_sha256": "a4eac8f7495af30ce024773fae78b0505165031ae99cbdb94b4390ef6bec2a7d"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-dark-320-200.png",
+    "width": 640,
+    "height": 68,
+    "rgb_sha256": "cd3ff07d7ede348de2d91d7600abc383be86b370b02603ab43d8d8255f4feac8",
+    "png_sha256": "221aca6198e1962022a9b58a3e9e3b3308cb19af06ed93dd2cdd0c0d8b54775f",
+    "source_ppm_sha256": "147c5b6c6d2d39df40bdc8c1c5531fab805dc41cfd2fc9ec2ba8d8773b8e427e"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-light-1200-100.png",
+    "width": 1200,
+    "height": 34,
+    "rgb_sha256": "4d229cf6cd5ba28f2c19af27c512f4511414138b397faf10e1b49843a3de9e78",
+    "png_sha256": "03f94c1c51cd858054f12f5811c365b7dcfb42ec525b7c43b7c402de102121d7",
+    "source_ppm_sha256": "45c94834f42027f540465e686ded482846b4337424e5ae83f622d3a7ebdc679e"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-light-1200-125.png",
+    "width": 1500,
+    "height": 42,
+    "rgb_sha256": "71a6e15296eccb3f33f26b64a6304a2e2db0d4b1a1aa128571f5917a4bd902f7",
+    "png_sha256": "c779c03121a2856902353b2559f8a4d70aadd88e89ec1491d222182db4a4399d",
+    "source_ppm_sha256": "ee0fa891d0604fa0ed3847c7f82ec3b554d086f688b2079b6b57baaf788ed514"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-light-1200-150.png",
+    "width": 1800,
+    "height": 51,
+    "rgb_sha256": "f8c58dca1f0f51481d8b652d3df906ca96270381116cdd87e4704ae6eff476e9",
+    "png_sha256": "3693512f827f165f63b02728a8a538ba4e7bd5e5b4d3161f7e456eb8c7a54728",
+    "source_ppm_sha256": "33b1a38cb41ffb82a6c04854b6c6f9817dd782c289a24808e128fcc9ae86502c"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-light-1200-200.png",
+    "width": 2400,
+    "height": 68,
+    "rgb_sha256": "639a266c46d541669c19ceedf81f6b5c338eae04d37efe4ab90f786118315fd6",
+    "png_sha256": "2bb669b27cc0596a102aa2d830019b296d0638b8a8e7df807628c8a959b9e71a",
+    "source_ppm_sha256": "337fcd0032d9a8218c28f2c7d01aed9e793621187d7f131746d1d3b88f6340ad"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-light-200-100.png",
+    "width": 200,
+    "height": 34,
+    "rgb_sha256": "9b14cf05d51c6a1382c7c893a1000304997682e1c9eb5f020b64b58d1bcd3b1f",
+    "png_sha256": "8d81bc18b9b08f0f867749bc9739365e118bdc3b4c87d5660862ebde20169cce",
+    "source_ppm_sha256": "d9dcf85c44af4b8370c7164ad1f24ac5176b9fe673ee88ce971d05c4c0003409"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-light-200-125.png",
+    "width": 250,
+    "height": 42,
+    "rgb_sha256": "6f609dc68aca849d07519b36e2f03b7bfb8c1fc5bfb4dabbee07b6409929ef67",
+    "png_sha256": "a99ad6b6039c624b535dd9bc48a75e8ca43119833d25147a33a55de0cdd83e70",
+    "source_ppm_sha256": "e8f35d33edc1703338c8bb16f6017bfc1e789fa11ac53b118cc3ec93e8188e26"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-light-200-150.png",
+    "width": 300,
+    "height": 51,
+    "rgb_sha256": "f6dc79e7ac8f6d2a831fd8c81f27413c0186547b133b365589085b20aa2a9343",
+    "png_sha256": "e5047ff2a96a0cb2c57d86839cc9bbacb7ee41bb826542548a45a91139f92c27",
+    "source_ppm_sha256": "34b7c17cd6ed54dba4160e60a265259a41e2f27d76507a12c074ac4b0cf51379"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-light-200-200.png",
+    "width": 400,
+    "height": 68,
+    "rgb_sha256": "27c96acde6ebf39117458759f9e962a06316f4c28ff2f8a4d339cc5269af65ee",
+    "png_sha256": "41415ea68e7628d1bdeed788783dc093ff00de6e0e5f88c56aa6eb19041c219d",
+    "source_ppm_sha256": "0e07ad4ce3e6f4d212bf206ab262565dadf536ad40e1d6bc75149adbd06cfcc5"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-light-320-100.png",
+    "width": 320,
+    "height": 34,
+    "rgb_sha256": "add9034563d5508747c2544cddebaded4a5faa4c8a818893b3b675be05777c3d",
+    "png_sha256": "1db9d5e3c00935da83353b67521b40485324b46c21472fbb66ef1287c1ba3a79",
+    "source_ppm_sha256": "59c07101db611688d08bb508d222c1c047ac70e46b62785a8551c157fff8cb7f"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-light-320-125.png",
+    "width": 400,
+    "height": 42,
+    "rgb_sha256": "670b27d8b6e9b27f3d1b8cdb75a52c9d47a9b70b68218c979caddd8f1ea7f127",
+    "png_sha256": "c39e9b46ccbfc0e76bddb3f50313d6cffe8f45de34309bcb916900a4f379e591",
+    "source_ppm_sha256": "ce5180f72ca4343e738917504147ae29d20e35b11f40121142e4c3afa04e9573"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-light-320-150.png",
+    "width": 480,
+    "height": 51,
+    "rgb_sha256": "5f4dad6bb7001954f7c2a267a2dfdcd4cb4226d9bd659bd8ca85d6b1e51246cb",
+    "png_sha256": "9afaa0b2a031659b3047498a31ea437cad40b6f55197f61877864d68ac33cdfe",
+    "source_ppm_sha256": "59f2834c2e729dd40d8a9abefa234e6ec218842dcf0f613f8ec7894c2bf5793d"
+  },
+  {
+    "png": "activity/tabs-bell-cjk-light-320-200.png",
+    "width": 640,
+    "height": 68,
+    "rgb_sha256": "1750a982ba5e3fca976b569407128ffe4589db7a705a21fdd271126eed8ce5f8",
+    "png_sha256": "5156bdf0ef4bd14537d2b59fc827cf8903c6021a9ff9ba23d0bf352bf06385a3",
+    "source_ppm_sha256": "17ccfe82f25a215a818f8dd2fa6e904daf0a2fdaa30428bd4391612da29fbf57"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-dark-1200-100.png",
+    "width": 1200,
+    "height": 34,
+    "rgb_sha256": "87f05847a04976a5b19d621f1eafbb62d645e8e63898056f7e3b27b7db7d5b2d",
+    "png_sha256": "e9ccb77ff1750b2d0dade42d225a1996087b3293f57ead63cc35f9784fe25749",
+    "source_ppm_sha256": "a207851132233b7a8c4b8f1215272097651b4f3f1051fb85ea85d6ca55585a4d"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-dark-1200-125.png",
+    "width": 1500,
+    "height": 42,
+    "rgb_sha256": "d239d3102f4eda5c71c7f04a0abbde8ac43bc644f8cf92812b1f68606d02fb2b",
+    "png_sha256": "a3a3c29b29adb73cb62551142582f3b7bf557701c2cbbc5ad42613a8d16223f9",
+    "source_ppm_sha256": "55f2ae8d6d095262e9510f2a62513c7215127c87e012ed2eda228a83b38032bc"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-dark-1200-150.png",
+    "width": 1800,
+    "height": 51,
+    "rgb_sha256": "555d482311ab0311c3c648918745571ce9afccec1088052026c300f50f811fac",
+    "png_sha256": "663781665f243d1eb914e1c50f66cb075d0ca0eabb42d5cb45e8833824c03e42",
+    "source_ppm_sha256": "3789be045fd7388382334c468367a2a1898093f04e083b8fc9955705ee9c66ea"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-dark-1200-200.png",
+    "width": 2400,
+    "height": 68,
+    "rgb_sha256": "fbc749117ca81a841ff2f5a012d024416a0beb8b7046c325d5b70a9defc7adf7",
+    "png_sha256": "fa5b58511a2b922db9970abdc2fdd78d81e36281a50ed611ac40cb2905d6254f",
+    "source_ppm_sha256": "be47fd15c11c3a5e01a277628d6d9f882b14114af03a7b70aa7d720055d4a159"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-dark-200-100.png",
+    "width": 200,
+    "height": 34,
+    "rgb_sha256": "476e2d500e659312a143cce98014cfedbb9459670acb8b509b237e2c3bb913cf",
+    "png_sha256": "357594c2fc41edb43c31b013e045d34443eb2c67c9c578a885815860e180f333",
+    "source_ppm_sha256": "39119e2b865e66378a4a7657fe9e99ced9abe19a9cfe2c4f9b8a4f45ef383e6e"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-dark-200-125.png",
+    "width": 250,
+    "height": 42,
+    "rgb_sha256": "279d80d380aaaae12e4f2a0069bb5899fd17582a80bee33086d117f5e4b4d1bf",
+    "png_sha256": "ec26df423b945ea065c35ef98cdb1d79b9ac6e3112caea2396688c0001e01b79",
+    "source_ppm_sha256": "449bfa2ecf5ea5b346982db396ed2a687c2bead9b4a299423ef99f1992aee7b0"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-dark-200-150.png",
+    "width": 300,
+    "height": 51,
+    "rgb_sha256": "eb5d19e8db5d25740b791c4911858324d99c7c54349a1d17b319abc8f7367408",
+    "png_sha256": "d5fb01374b1df96c75504f5c6d2b64c95f4d9bcba26f6890e784e5c4757c7db9",
+    "source_ppm_sha256": "d439090faec1693c6a9c8c81b1276229a6c533c4b753aea7338f36e8190f718f"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-dark-200-200.png",
+    "width": 400,
+    "height": 68,
+    "rgb_sha256": "5720230d34662bebbddf7af500c4812c8b5747d8487dcb7126e43878decb8a0c",
+    "png_sha256": "c04f76a46767f0e3d8b0c51d34bdece068cd2568c006266e5d5ba5935dac8892",
+    "source_ppm_sha256": "94e644ea9d0a5fbe39129240d99cad6b928af5b2e8bf65104228665abb5276af"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-dark-320-100.png",
+    "width": 320,
+    "height": 34,
+    "rgb_sha256": "5425b5bf0dcd910f1f2005a9057eaf336fd6eac24755a2375a04b935374acf45",
+    "png_sha256": "c2cca27287a518a6c774549763c6d8f9a19878bd361f01da3218a9320facd087",
+    "source_ppm_sha256": "f1830abe03d2dfb716de8c7b61995d95bb62d4d75dea756eb890278bda0d0334"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-dark-320-125.png",
+    "width": 400,
+    "height": 42,
+    "rgb_sha256": "9c6ffab031d41f29485025e23411905c203cd4be0b96c2b98e0fa28c370282a6",
+    "png_sha256": "2c68a32c1df30ee79f5035669a40686d532b784060086f0351cdb0d8c83f10fe",
+    "source_ppm_sha256": "0a467452e9fdee36b6acfc8f5723c640dd84c1d736db79099ede0d2760743fa5"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-dark-320-150.png",
+    "width": 480,
+    "height": 51,
+    "rgb_sha256": "29845762a0b6c3926a417a82008a76ea4cc09643c525415bbe552c4175fc2dab",
+    "png_sha256": "30e055cf130c58f9b5f0ab1d2afff71d3de31258eeb613fe58ab65622ddbe20f",
+    "source_ppm_sha256": "6815a444a48f2b13fd39f8f47f59e4377b3eeb9d21bf8856931e118ffa6697de"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-dark-320-200.png",
+    "width": 640,
+    "height": 68,
+    "rgb_sha256": "b0c8f8564861e6d696377985a6dec6185f925874e430c51eb28639e1d59b579f",
+    "png_sha256": "1052e3977e02bd4814c7f530d57cb007acec28db5fdf10a33749e905913f2a5b",
+    "source_ppm_sha256": "5cb5184ae032602eea632c44b860ddf29966da7ebe934774da3ba33c318c0c5e"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-light-1200-100.png",
+    "width": 1200,
+    "height": 34,
+    "rgb_sha256": "0ce399746e0033ed834ac8f4c37c53f201f8148a4b9208d2a5796f10de9cc8d1",
+    "png_sha256": "6ef0d7d549192acc4051a73d0d59d154a545d94d18a6a0fe2f64e861766abaaf",
+    "source_ppm_sha256": "e985cb3f0164f316d54a0af0c76cdedc1a6a82d60f1fef37a28be398bb73748c"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-light-1200-125.png",
+    "width": 1500,
+    "height": 42,
+    "rgb_sha256": "ceb42afaebbb07ca4a2d62e98c66826109c3b5da56bbf8a3cd8fbb04d2695938",
+    "png_sha256": "74ef6b2aba8b70f5b594a7d19acfd86eaaf342e2d00da8d504e1ef0150653241",
+    "source_ppm_sha256": "513c13400688b8806abbf0a7c6c07266fb0d36e98feb3ef73f25059d3918275e"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-light-1200-150.png",
+    "width": 1800,
+    "height": 51,
+    "rgb_sha256": "4d7c0b9def4bb9e0bb48d1986d580324869a1a3262647afc8217a640dc69c26e",
+    "png_sha256": "9bbeafe0a01afdb8466609e6cdd7a8e8734731cda33e5734a8018b5495068c98",
+    "source_ppm_sha256": "b1792d54f8b6b557094cd5cc6452f45f30bed4e3fa386ca9cfea348c538941c8"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-light-1200-200.png",
+    "width": 2400,
+    "height": 68,
+    "rgb_sha256": "1e1dba55307d5fee54e4fa90000654ce74e7c810bf18cd880a50632a3bf674bc",
+    "png_sha256": "d7729d8981fa5797281f3ad814e731765a812695c476c0dde59946079f41255c",
+    "source_ppm_sha256": "94cca976dd36dc0b229f8faea4e6470e1b04c28da39e023d71e94b10ad155755"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-light-200-100.png",
+    "width": 200,
+    "height": 34,
+    "rgb_sha256": "10abc62f9cd70d89e07f5258c3b46b22b272f55582a9fd2f890332be91ae0f05",
+    "png_sha256": "c5f00999cb795c6762bf9cc0bacb2890439b68a7d4e66c91c4692fc2603d6fcc",
+    "source_ppm_sha256": "804e727f926b1920ef1c88eca8315648a927d2dce86caed9503eac2e2f8744a0"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-light-200-125.png",
+    "width": 250,
+    "height": 42,
+    "rgb_sha256": "16bd513fe9714c29443bb1f451f3f053ef6a6e753925343cd0d11eadc776271a",
+    "png_sha256": "43ea778e08aade0709609d4e8c781ed55968b357b1e5e2f2da191f0f0c7f68dc",
+    "source_ppm_sha256": "5f8fd7078ef109c776ae1286620a24bcad87e58ecae169ac3c03f7ee7e3ac6f0"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-light-200-150.png",
+    "width": 300,
+    "height": 51,
+    "rgb_sha256": "42a8e94dbbd583b5a940736c16e4aec59287d556a5871774674b5785b84a36df",
+    "png_sha256": "222670109725c17dd15d85c1ad3d0179eec0da0f40d13552610b723594fe3c76",
+    "source_ppm_sha256": "08cac263cf9a5eb65df0f232e3d3149ecd63db1c32cc25cffc91f5697b9217d7"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-light-200-200.png",
+    "width": 400,
+    "height": 68,
+    "rgb_sha256": "e41c3e135f22717cd57c70e6e47a4ebc0d7ee0cba5aaa923ff2d65ff57f9da58",
+    "png_sha256": "bd62b6e0d5aaacce4b036a4ffed63151d1cf47105109a2a188e97a6a33fa6d9e",
+    "source_ppm_sha256": "1e490deb5ec45bfe4927fe93fbbfb168a0fd015e50c01e76fb957faf5495f152"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-light-320-100.png",
+    "width": 320,
+    "height": 34,
+    "rgb_sha256": "1684b229abe959582b0037af1a0d1d308cf8720811e728dc911a6e35b2347389",
+    "png_sha256": "a2b2beed490db9a49055ac954261d2ac3a13094bf43a414ad0a0b5507eb736d8",
+    "source_ppm_sha256": "18d91d40f51bd9c50a693450c3cb8970e2ecf60df6d3cd2fed75366c396fc1e7"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-light-320-125.png",
+    "width": 400,
+    "height": 42,
+    "rgb_sha256": "d73b8691cce99a7f94e2f7dbf277a36b961a0f30d90dc536abe697555b1e9e3e",
+    "png_sha256": "ebcaa2494a5e7b4a44374484a29280b3d3df93ea6a90021a727a633d3db71b98",
+    "source_ppm_sha256": "8e43435a7ce5a8e1670dd9c7760d0f3651e77f7e858736becbe986950583770d"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-light-320-150.png",
+    "width": 480,
+    "height": 51,
+    "rgb_sha256": "c6144a0bcd2fabd10ca6bbd5dfd43b1f86fe76a3e4e28db85ebae3eac90017f9",
+    "png_sha256": "76a922f7b7cb21bca657dc38df79e7e1b5cd33946100222bed31c02efc911b06",
+    "source_ppm_sha256": "7127f6fe3f0bead9446d4cbec032932bd14c5756afdb2139ff1574fa491fb7ce"
+  },
+  {
+    "png": "activity/tabs-combined-ascii-light-320-200.png",
+    "width": 640,
+    "height": 68,
+    "rgb_sha256": "e0a5edd39ccd2ca61a408ac1542149eab00d4459765292cff6c3e485ea190598",
+    "png_sha256": "70180098ce83b5a63e364e3ef16ab7344b4dd233385a6f642db778e803231dba",
+    "source_ppm_sha256": "689fe89cc3cdb99ac364c717c49771e1654861db20cc6dd37d7cebb6f30f55fc"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-dark-1200-100.png",
+    "width": 1200,
+    "height": 34,
+    "rgb_sha256": "8f04c858655caca3026a27e62b49554ab52795c6331e3fb386e7fbd4f6d6997e",
+    "png_sha256": "4f41abf3e679947546bcf12f4e260346e84decdafb7a9944dfdfc78f243b7c92",
+    "source_ppm_sha256": "a2d2aff134b131c3202685cde513793d95c5f798d2f2acd4424c16ff63e83f11"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-dark-1200-125.png",
+    "width": 1500,
+    "height": 42,
+    "rgb_sha256": "224430195d8bd458e078e0a2a56b5994c60a92dfb2993c03a454b178f2f336b2",
+    "png_sha256": "24d54836e624aed76d13011ee09787613d43553359bc2d92ded676199dc4e539",
+    "source_ppm_sha256": "06cc5276edb0c513a71f81f79f2e03a02dac5cdcf8c962258ded810041f4807f"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-dark-1200-150.png",
+    "width": 1800,
+    "height": 51,
+    "rgb_sha256": "1d68318edcc565136d9fffc2997e94e3ab6cbbcb5e9d98ff0bf494f4787ee954",
+    "png_sha256": "add5533355628e41673ef31d76283d551ab752d57d68a68864eafbd2a063c213",
+    "source_ppm_sha256": "b752597cda28bc33bec4ebd3144a77d1170d5fac75abd5a96feae475ab289b0c"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-dark-1200-200.png",
+    "width": 2400,
+    "height": 68,
+    "rgb_sha256": "8f62e49d4e9da47d7e0b2b7a32916edf9e655c7ab318db4f26b914adda909fa5",
+    "png_sha256": "23cfd79fdd0a6c1913aca12bebf165796d929dbdcd1b1f9103842113a384d9fe",
+    "source_ppm_sha256": "67f71bfdc228210b936fe2fbe0ee47076df922a2ba73e40b92cefab07a628824"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-dark-200-100.png",
+    "width": 200,
+    "height": 34,
+    "rgb_sha256": "2287e32c0dc7f32ba75d288f84f367f07180d72cef4383831be4d2580f29d026",
+    "png_sha256": "3901e0e9a150bf1f5cfd43c672d8ed36b6a5c16c865033bdb32a50b19bc6a8d7",
+    "source_ppm_sha256": "b831e6be4203405beea438223bb66afcb170c9aed86374a1729b422146210402"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-dark-200-125.png",
+    "width": 250,
+    "height": 42,
+    "rgb_sha256": "4b4e30b3dc3744caca6c086914b69242858292b9e51b699e60d2e14197c1b092",
+    "png_sha256": "82f001ae529e84f527702e5e0a29d9c22b1471218b2bfbef6134281d71d67fd1",
+    "source_ppm_sha256": "cbda88d4af2095630977c46d9720af0eb2752ebd5526be26b5c3ea1c326045d9"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-dark-200-150.png",
+    "width": 300,
+    "height": 51,
+    "rgb_sha256": "c711f9ae6c6844a0524357731ec1f99989969ac2b85c27d3802be6c432f3d560",
+    "png_sha256": "ba010d5b5908108377f4b4b2fc906fcb51c7f0b5316a8f624dc6cb0108dd0066",
+    "source_ppm_sha256": "91cee6578d1b6ec6ab63d2a7d94ac7c5ba58805185f26d43c17bb831c472d5b7"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-dark-200-200.png",
+    "width": 400,
+    "height": 68,
+    "rgb_sha256": "677d6a9795102d20e86731c75954647f0c697aca2aa884b54c50986f53c57cb4",
+    "png_sha256": "e7847a06f5a1ae1f9f6d472bf62b2d0fe963831c16420ccd38b2e3f9baf0fd7c",
+    "source_ppm_sha256": "b1a910378cf5682c6c6a97223c76ae8268b8889da43d6922fce8b003e43fb0a5"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-dark-320-100.png",
+    "width": 320,
+    "height": 34,
+    "rgb_sha256": "655357da87929eceab08d1f273cdeb8453523f0e47ec9f612e97a8df8946c1e7",
+    "png_sha256": "aede08815469c3b646d2abe592c6c7d9f65461bcc6b22f42f177ccea52bed3cd",
+    "source_ppm_sha256": "f57e672694fdb2b5f082bd20982e58e52779bbfdb55619f33ecfc1db2aa0d03d"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-dark-320-125.png",
+    "width": 400,
+    "height": 42,
+    "rgb_sha256": "dc6db03516e63d7826e298dea1215f3244bb3a7ffd44332d16b187cd15f0d388",
+    "png_sha256": "46a428b843f4e3aa98f85133191d3d1f48e21117df994522f86de27314d270a3",
+    "source_ppm_sha256": "c9c778b7d7da3d1c347323a76843e87122fa92929f683d41f42d13d4f63ca467"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-dark-320-150.png",
+    "width": 480,
+    "height": 51,
+    "rgb_sha256": "02985102f9b928b3c0a5d09c26a7601c2be56f2615ad6d913ef2553d081d1048",
+    "png_sha256": "2d5d113a33689840f7332d32934c5af92a8878adb32c78767c10e2aa49ac6d0b",
+    "source_ppm_sha256": "6bbf50d64b9e20c3155ebb2093eb332bc96deda7e582c4987e61b7b45780baa8"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-dark-320-200.png",
+    "width": 640,
+    "height": 68,
+    "rgb_sha256": "89372e4e559f4985b1cb7bf0da8848c8f61a250fafc09afa5dff388f2a83d4cc",
+    "png_sha256": "7efd6b932019d7b7f36e3c4602fec38c1d9578026978e44e3570658255d7a6ed",
+    "source_ppm_sha256": "895d521d08fc9fa443c2a417347ae0601a52bdd72b6dbfe2a4a99c4b90d18a04"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-light-1200-100.png",
+    "width": 1200,
+    "height": 34,
+    "rgb_sha256": "8a736fa3d8936fbbab281465fbc31a11b203977aa5ca12c56a1e5d9385e00078",
+    "png_sha256": "264fe2b197e4a65f61d550a197b072b33f539f02c3a3fcf051912f9fe2c76e60",
+    "source_ppm_sha256": "87fac68c4281bbf50d213f2b9136011d7325dd58b231b1cb32ee2ac347340204"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-light-1200-125.png",
+    "width": 1500,
+    "height": 42,
+    "rgb_sha256": "6ed4d3c8ac6428cea62a2aa66de4261e3cd7532313b9f7647cbf8b02f738b388",
+    "png_sha256": "6b69d77f9125d1456bac79b121043da57c9aceeade3e84a343e950bc97ac6cd1",
+    "source_ppm_sha256": "d314dccae658d64df7e56fe0ae804ef2edbcfd3f734da9ee5a5f9723d2ef5991"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-light-1200-150.png",
+    "width": 1800,
+    "height": 51,
+    "rgb_sha256": "ac2cc5418cabc72123927f477d1bc3b6f6753dfb248325e0034307cb06ce7f54",
+    "png_sha256": "4a1029928a6c7d2c9072f623c2b5563008bdd0f8453d3ec4e7b6f904ccccca71",
+    "source_ppm_sha256": "14ddedd7f944f521704e82ab847d9150baaf086ee53441e2afc0f3c7898a7778"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-light-1200-200.png",
+    "width": 2400,
+    "height": 68,
+    "rgb_sha256": "6b60b966efd011fff796c7695c2be4037aa2fc83b5295d31d1f22407e0fcf3a9",
+    "png_sha256": "8d59ca474df53a52fbcc1fbf93ccd3e1c8a84c44868063bbbf8b7331e7e75a59",
+    "source_ppm_sha256": "844baf4350d42f509e7b7dee9c7d9915e6efd6ecb94922bb2ad872be31809f63"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-light-200-100.png",
+    "width": 200,
+    "height": 34,
+    "rgb_sha256": "c4e3c74db3fc5c955f865fd10fe1cb88f6b4d1d0794330560973b99eadccb69f",
+    "png_sha256": "ab831d8db5c119d4fbddc46b20697aa55d71614fad32229d3438edf382ba39f8",
+    "source_ppm_sha256": "00dd3897ce1c6c4bda8156d9cce0d44926033bfff2a555d5361c742384abe24c"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-light-200-125.png",
+    "width": 250,
+    "height": 42,
+    "rgb_sha256": "201e2c4cb89612fdad050bc1e29f1e6e250cea62e0c81b790e174e7204632cce",
+    "png_sha256": "9e51badabf3ff94b79960d9ffb6cf27fd1a0b88f9428980dc847db9eed550d7f",
+    "source_ppm_sha256": "35c2319f18d04ee9ff17ebb167edcfc3a3513075e81363c93ecc2c97e537a42e"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-light-200-150.png",
+    "width": 300,
+    "height": 51,
+    "rgb_sha256": "60f62d792e38309cac8d76ed0660b61a5d0644f5b7f11fbe95c0951568faa507",
+    "png_sha256": "ca27e17336740952ff513ef0a7ecf88fab50606b194118a5e7b1cfce77a83c18",
+    "source_ppm_sha256": "420cb0d07097242a1d2a873540909afda0d8f909b540bc4d32224ba65904eefb"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-light-200-200.png",
+    "width": 400,
+    "height": 68,
+    "rgb_sha256": "5fde6443cd83cae299f138a7457330dc6171cf1faeb271e901d73b0b8f1001f3",
+    "png_sha256": "6c5dcdd399911319669e91f1b6fbc6bd40388dc6b0bc1180cf390a528b576e56",
+    "source_ppm_sha256": "d55fc9643ccad66f41932a054f71f7a1a6333e0e61094616058f7d7fd8aed886"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-light-320-100.png",
+    "width": 320,
+    "height": 34,
+    "rgb_sha256": "e317c21b6f1f9aaed498d7fa0feb3e90f9898d3f91a13a0f9150c30e96dcaeb1",
+    "png_sha256": "2ab98daf659196b03391c134171db8ce5a3223e61be1418abb45fcec3851ebb0",
+    "source_ppm_sha256": "6a68e80690cd56e4f94a1b34c2236e12072f1727f704b29e1e4b57b473ab90fe"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-light-320-125.png",
+    "width": 400,
+    "height": 42,
+    "rgb_sha256": "b47e9e25896965505847094271a0213aa375a60be641f08b8a6119934090dc3f",
+    "png_sha256": "456a2854b54be5d03d15fb176427ea8cd3f16706387a3783b35b58b821f3abdf",
+    "source_ppm_sha256": "d8d7016ed95cef3d8fc5691a1abb8527a9ceafe5c43fcafb41a4e8963a8acec5"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-light-320-150.png",
+    "width": 480,
+    "height": 51,
+    "rgb_sha256": "00ed1a3d1f569534450dfdb0a88f38d505d93116b72f3b02b2941ac896154081",
+    "png_sha256": "56c08be37b8a4e08975a79bb42c272088171fa86ce454f926714a74c38c73e9b",
+    "source_ppm_sha256": "2c70a86e3dac401cf40f00225a376e2c1818dcf152d08d8ce92f3d76b2d852a4"
+  },
+  {
+    "png": "activity/tabs-combined-cjk-light-320-200.png",
+    "width": 640,
+    "height": 68,
+    "rgb_sha256": "c475ccec913aaba089ce6cc9b1e138e6d239cd75936a119e4dda38f162104930",
+    "png_sha256": "75513dc1b32076364f150a6606b1ed3db4aa3610e19a22aa2f6c6e4995136e76",
+    "source_ppm_sha256": "3acd41ef9581f79337e4eacb5996b107a74ea2072f4ce4eab716160365b880e7"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-dark-1200-100.png",
+    "width": 1200,
+    "height": 34,
+    "rgb_sha256": "9f4e8211a6497c23d640b381f867a2e409607ac9e83a2a87c903192ff8fe9564",
+    "png_sha256": "f67c7446f81729ee45f5757d4eb465c4c4ce71dcd5cdbfc1c7c7f596ee50a8e9",
+    "source_ppm_sha256": "f169d83a903283a68611dc1172a42f07934ff8196022a1068330b158aa109b45"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-dark-1200-125.png",
+    "width": 1500,
+    "height": 42,
+    "rgb_sha256": "5c72ae31e2e2b2e1896bf2be28fd8bed2f33b141cd9c265a429fb40e9e38ff1d",
+    "png_sha256": "353e0bfe1a0884ee21eeee66af370531b86fbb30e055380a79a5bc03316c0bba",
+    "source_ppm_sha256": "8f993ed57ac9bb96f490d6640ac126b62ec94c1d0261ff1ec98b40623310cd65"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-dark-1200-150.png",
+    "width": 1800,
+    "height": 51,
+    "rgb_sha256": "185e2c358b15f954fbd2f68e9480a4b1a62f6bc7b695fe0bb5a43a8fa38ade44",
+    "png_sha256": "6ed60321531ec736f7fd1f263099bb91cffe674d3157008d90e4a150ddc98058",
+    "source_ppm_sha256": "1fef0353e982f61ffd41b735038d22bb9f7d3c5dcec293d7ae8cf0e0e97ddea1"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-dark-1200-200.png",
+    "width": 2400,
+    "height": 68,
+    "rgb_sha256": "a53708b3cec8c3ea6377ba889b333a16544f7f7f624e4f38f9e7d19f3f869b47",
+    "png_sha256": "104c3e6719358e82bd6113b91380a235e46dbf6be0b30f8f4895078a0f759815",
+    "source_ppm_sha256": "b863b38feed654d2666b986d5489c5505b3f029e9278f304a95c6618901d86a6"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-dark-200-100.png",
+    "width": 200,
+    "height": 34,
+    "rgb_sha256": "79ea6b17a7884d90f096ec745f26536eb5126469a2ccdec90bf7902838c94b0d",
+    "png_sha256": "8a40f4b7a304bd318730045ab521cf59d2877b78a043345ef4e5ce188f15a4e2",
+    "source_ppm_sha256": "02715d76abe7ad58e2bcac13b5dbf4a419fea6dd6c8bb16c3a7ca207c6c3b32a"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-dark-200-125.png",
+    "width": 250,
+    "height": 42,
+    "rgb_sha256": "8873f039fbc0dd44af1d7865b66639bf37d919331745e5625b93306fdd0c09d6",
+    "png_sha256": "dbe4a5aedf7ec60d2e1d144219d7cfe2e844960245db4adb3e5cb4c78ce5e830",
+    "source_ppm_sha256": "e095af852ef3454262d5e37c8fe9b3511a1fe428c7f8b36bfd5d7245d4b268bf"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-dark-200-150.png",
+    "width": 300,
+    "height": 51,
+    "rgb_sha256": "8152d511499f014f56ef4953630aedde5965bc0779e5dea451e491c5d12a03d6",
+    "png_sha256": "ecddab73b5a7a708852fddd3617f3dc431f31d58678b3ac1de50f23220f3334c",
+    "source_ppm_sha256": "44193acc14b48112b5373e76c6445b43bf982f38394bf60711f0a0e48ac8d58e"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-dark-200-200.png",
+    "width": 400,
+    "height": 68,
+    "rgb_sha256": "d9e19a5dde1f1d2f21dd1f285e41553bd5364238f98fa8db1bfd555dc2b13e38",
+    "png_sha256": "f68571d9dc6f77d9645c0a2879bb130567add595e38abfe7031ed2eab6175eb1",
+    "source_ppm_sha256": "3b2103a17f5ed61cb3b3f2f4cb7a8060905d16e7fe48b03458c2f9e590f8f23b"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-dark-320-100.png",
+    "width": 320,
+    "height": 34,
+    "rgb_sha256": "bcbc4100e714cc2c6ebe3f4e31505247fbbb4d4ea46fcb0a6fcba691ef943835",
+    "png_sha256": "322f98d8f69e55dc4110f7ca3245b6b40205693a3bd25f341a29c5dc10c044c7",
+    "source_ppm_sha256": "fe5e4b4f965ac2422e739fd4f209d985c766d2abc3e1a969aa840fde6b844d74"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-dark-320-125.png",
+    "width": 400,
+    "height": 42,
+    "rgb_sha256": "2fe4c467e199048c0bf6286f0f78c013b6bf9b3820caca58386f324691601e8a",
+    "png_sha256": "49cd52ba1c6d2247dddaa1193459b0a59eb56be5d20078e6fef5cf34bb83ed4f",
+    "source_ppm_sha256": "3829361645d54c6f8b597d74081bedc8f48edd05efda343c7e3a2c52ad0eb7f5"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-dark-320-150.png",
+    "width": 480,
+    "height": 51,
+    "rgb_sha256": "ab457ada34e734225fd5e0d979af00d717dcd7a786774eb9459875ec3d44c5b5",
+    "png_sha256": "0c4ad019044ba38a16015ab8c3dd4adea9bd0daf2a52c56a99d8044888046efa",
+    "source_ppm_sha256": "b5636236f95cc9b8e93b40c6b7906c607f15edf65a6298fad34fb416b8cd44bf"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-dark-320-200.png",
+    "width": 640,
+    "height": 68,
+    "rgb_sha256": "7616d4bcfba03f476772cdc7dfee21ad14f45585447360d442cb3fb480548b9d",
+    "png_sha256": "3204ea7fb5bbaa601ed0c5f0399c9cb32900f895caa065934667dd49dc0d95f4",
+    "source_ppm_sha256": "ab25765c9498ff3ee1f06ba27cdc8536229a67ec6d1bad0e820a424f92272b80"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-light-1200-100.png",
+    "width": 1200,
+    "height": 34,
+    "rgb_sha256": "8935dabf5a5ef149d2df28fa8ca9b869ab9b099293316bb51ad2afaa5638a603",
+    "png_sha256": "9993ba4deb32e00eff585d8b5fcea7f1091288f6cdd77959327df99ea5621f14",
+    "source_ppm_sha256": "794b054cbbc3e956c024d9c5025c2d347ab3ec9234eaffe45bbbc53bc7d514a6"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-light-1200-125.png",
+    "width": 1500,
+    "height": 42,
+    "rgb_sha256": "c44ae744dce61b3e35469d80d579df2a23f42a637224b34e71c00960eda6c9b5",
+    "png_sha256": "5fe688deca94b5b371a15b25908916137f9943ba5024061d345e3fce62dbed78",
+    "source_ppm_sha256": "8cb18393fe4a79f08c8e643e543753fe411d86c99444871e1fd3723035401292"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-light-1200-150.png",
+    "width": 1800,
+    "height": 51,
+    "rgb_sha256": "8ab1aba1767b8f169592fc9248dd1f7b1cbe5fda31e0aeafab63dfe9218dd785",
+    "png_sha256": "dad602c9d7bbecafb2417375bfbaaa6f51b32c2550f2551b9bd39da4fb18a2e4",
+    "source_ppm_sha256": "35302143263c766da930d75ac19b4a01db5ff3ea5f746b8d06749c517d4a5985"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-light-1200-200.png",
+    "width": 2400,
+    "height": 68,
+    "rgb_sha256": "1853dc386a53f1f20b19a879947c9bd8953055f4e7ef929f0e371503a31719ad",
+    "png_sha256": "48b93f31696302b6eef2aa90012f9dae7eebab07e83a864f4fbb286f320f2999",
+    "source_ppm_sha256": "121b159f0db75366338229fbbecc8e7f618f5418ae38d20e1213836fd57707de"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-light-200-100.png",
+    "width": 200,
+    "height": 34,
+    "rgb_sha256": "f53694c2923c732381fcefa1c29e08d299718c80d2a2daf54953a4c474631607",
+    "png_sha256": "f3b966a977abb612527c6e053bc9f263e6b02ec4939d12d43ed411f7de9f3d40",
+    "source_ppm_sha256": "a549994d282a8c6c39d88a5b334e561c3086e8d2773287aea86cc10562f258b2"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-light-200-125.png",
+    "width": 250,
+    "height": 42,
+    "rgb_sha256": "bd0d7e0a811552f5f0a2585a9f7b03f7ffb87c14d8853ed5dd9b667873d06fbd",
+    "png_sha256": "a08c0c707d0ef293446209f763ac59574d5e1c1beef7fbf38155dc91b7f775ef",
+    "source_ppm_sha256": "0475b13d8a7af39739eba21832b0cefb835693d30fc06fc0e20a930683e2f32f"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-light-200-150.png",
+    "width": 300,
+    "height": 51,
+    "rgb_sha256": "6814aa1e2b144146f53036a23de4db984a687257e658ab8ba022fc50f8a02e0d",
+    "png_sha256": "1902047bd8020b810da0e95412663d296a6ac875ceb13365e17cd0bc0f27a41e",
+    "source_ppm_sha256": "820c42d7bed36ba15a4960f3eded17df09ac1cf057f602753df84bf336893e0b"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-light-200-200.png",
+    "width": 400,
+    "height": 68,
+    "rgb_sha256": "eacc61effbf1d8284aff5eedac310b580c6bdb4346ee910b78a781f600c1ef1d",
+    "png_sha256": "73718acbe02e2a888f37f6b186b29bf4c23dd4e877b7d6f3c6d9166ceaa9e2fe",
+    "source_ppm_sha256": "e48dbd203bbe36efae7f73efba5cba5755d6564f1d23f74ef1d6f73bece6f9db"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-light-320-100.png",
+    "width": 320,
+    "height": 34,
+    "rgb_sha256": "8d21aa92e1581bf7b0007d826cfc82525e3bf5e5fa05b3e71144b5988ae63e3c",
+    "png_sha256": "a50d2575939589484ffe3d172b7ed05a80025cd90c725fb51b9dfea75e5b79c9",
+    "source_ppm_sha256": "e4d697040de9ca2f1297f9289ba7d02aa517b34376fbd46f57a1b6cfe3cc0fea"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-light-320-125.png",
+    "width": 400,
+    "height": 42,
+    "rgb_sha256": "5d708e8d4795d6a453ab6bbae07477b79bfec351b5eb8866fa62701ff2323c54",
+    "png_sha256": "375e916f121d840e929f176af0d7651f0728a46ed700b91bc81351c21c7ee780",
+    "source_ppm_sha256": "64656a9ab5f7bd62e5a13c14b3076e252cb17f7a15dc6050999ea54ad2607ba7"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-light-320-150.png",
+    "width": 480,
+    "height": 51,
+    "rgb_sha256": "190b3317cc83f9f2ba57f3779d9f0bac1265fb765eccb76b3bd8ca14fb89be10",
+    "png_sha256": "61bc5cef8da46dba38a50a26c04ac22c514e70e1fee0186bbf38e0752c90e429",
+    "source_ppm_sha256": "62268b6b796d8f821076614eba74d363ad4b337ace733ab084e02eb9c410a822"
+  },
+  {
+    "png": "activity/tabs-exited-ascii-light-320-200.png",
+    "width": 640,
+    "height": 68,
+    "rgb_sha256": "63cad909725966acbf2229472d961eeaba90cd08fc3098b45e2ca9648f4272b9",
+    "png_sha256": "b32b0b0dc6d401dfd3656acf4311231443007989f90742f83ff49f247e38ef3b",
+    "source_ppm_sha256": "e7ec98016e962dd2d4a104d8123327944fa3ad88e90c4b81dee17b4dc80bfe5f"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-dark-1200-100.png",
+    "width": 1200,
+    "height": 34,
+    "rgb_sha256": "643ea0e8b3eb3f3139cafb27de92ebe4f172216a40400c4ba2a2bf77bef9a809",
+    "png_sha256": "b6f560048d17c56f1ab96312c54b0b23b6dbd241ec96f5630aaf50e2a1d93d57",
+    "source_ppm_sha256": "023e9bebb863dc5101134e0e5e5450467b50e8257b0fb07a3a26a7be91ae4a94"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-dark-1200-125.png",
+    "width": 1500,
+    "height": 42,
+    "rgb_sha256": "813230cf4a5fb3f5cce0e628c99dff50a39b3b7f9fd7f41b12d509f0af1f8cab",
+    "png_sha256": "47f892d8578a98885a6a202d0686848077688071588f742426a8e66490540532",
+    "source_ppm_sha256": "fe83af84e2f3802f880d872f5abbd0b952fd499371b97f3dedfaa4b4c47786cb"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-dark-1200-150.png",
+    "width": 1800,
+    "height": 51,
+    "rgb_sha256": "b0ffd29e4b1f88477af4bb89deb0ffbefb3ed8c10eaf46dd5a76f51aeb1f311a",
+    "png_sha256": "60ac0afe579912301f876c08ae3c252684612633b293cbc3d85eb6dfba4660b3",
+    "source_ppm_sha256": "816f9d2f6c105a3bf6ae87fc33fd8fb141f548cb9712096ebb770af5ae0dcd04"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-dark-1200-200.png",
+    "width": 2400,
+    "height": 68,
+    "rgb_sha256": "82849014a20f72dbcf30867e9e54439834602a73e174d1b3db389d0a983b7b9f",
+    "png_sha256": "a8e6494be0e18f8d9c19d2fc1a22c3301f4e866bf2a70791aae0e78884b50e71",
+    "source_ppm_sha256": "0fa0ed81befc640f419a552e1d6e5ea297662c72b551bd12f523a204a143182f"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-dark-200-100.png",
+    "width": 200,
+    "height": 34,
+    "rgb_sha256": "2dccfcdbf3c013443e66419ec0a432bec02fb6c37453a0d4330657b909c66e6e",
+    "png_sha256": "1e79ca6aadae88ed57de4caa344e68eb144db7e45bbb3109c7c45615304138d5",
+    "source_ppm_sha256": "23e44d53521981bd673a41d7c0aeb86bd7e067ecd2e9781746aab9c0654bf19c"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-dark-200-125.png",
+    "width": 250,
+    "height": 42,
+    "rgb_sha256": "01c43008633d77d39e554bd33a12c6d4e5722bdd64a3886e4dbf09f127fe6b59",
+    "png_sha256": "4b4e61f2b90f66a2d7676d01005b278acca4f3a0adbf031d0b43dc3e8148ca2b",
+    "source_ppm_sha256": "b3d83f26dd0b6a08474cd542be6ad89e817c3b4c24eb9aea9f8e02fbf3af6b05"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-dark-200-150.png",
+    "width": 300,
+    "height": 51,
+    "rgb_sha256": "bd8c17f617e12f29c48604ff18c975c541038ffbbb06274d0d70d3eb3cf86441",
+    "png_sha256": "2fe22135b41e41702f368dfa2b1c0abd2ce6b5fa87b7497124af1d7d79051084",
+    "source_ppm_sha256": "0bcde88572da841df8a1265986748f274434fcfbf6988c65d6081ee66ec3ce84"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-dark-200-200.png",
+    "width": 400,
+    "height": 68,
+    "rgb_sha256": "202bc1cf18d8a5f9be832c3653dbe5bc7c328e0c6451a63633de64a8a9ba201a",
+    "png_sha256": "d9f35193522edba9de09c63cae7c0cf5b3b5686da978e711a6753b2e33a37987",
+    "source_ppm_sha256": "0baabc866bc1a367a37a2148366be8e7890aadd70786a4a87ff48d1a8c5240c3"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-dark-320-100.png",
+    "width": 320,
+    "height": 34,
+    "rgb_sha256": "17d77ce4334e359bf998bf718e4852b83a5e93721fc4c4d42d120a604c600a98",
+    "png_sha256": "d1201318e617f0e192e626363ec11cd1969f32c26af028bc3d0a3efa9e3abc6f",
+    "source_ppm_sha256": "5fcce2f7b93f808e828434ed918f6ea8d44ef2e9b2a071ac926a73df88824f9d"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-dark-320-125.png",
+    "width": 400,
+    "height": 42,
+    "rgb_sha256": "a05222ca7c8fd35d0c8a166d3d64c12aea3844b08c936163fe7ff701b295c678",
+    "png_sha256": "0a73d5f118f0e7fad483403c59af510fa058152f0e4af807fe379cd655f564cf",
+    "source_ppm_sha256": "45da7a721bca8c4378539f22863800d68fbce79c749f434429830040144ca914"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-dark-320-150.png",
+    "width": 480,
+    "height": 51,
+    "rgb_sha256": "d8ac1b3c934108b64f8775412cfb4e15e6ad6c5bf580c325b70b181028680d42",
+    "png_sha256": "9e087805a9fd45ab62487af5fde9b83dc8afa8c6673fcd7aa117fe1cf2ff3616",
+    "source_ppm_sha256": "a1a4025e84ba55619312411c66502fc13089897c39b5f785d15385c58b23a746"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-dark-320-200.png",
+    "width": 640,
+    "height": 68,
+    "rgb_sha256": "a9dd378064f48052202cc21ab1c82432261a8f762d9162c35ae909ef13a02c95",
+    "png_sha256": "1c4e447252c57d1ab894a27c06342abd65a5f8c6ec78c16d907b16795013841c",
+    "source_ppm_sha256": "c787661945b07705ecfe4b33c40d4616700b5cbbbf896eb5b30f577d3643b1cc"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-light-1200-100.png",
+    "width": 1200,
+    "height": 34,
+    "rgb_sha256": "ed4c2c871b4ca01f3ddf5c2cc00ca670cbfc72b5e5c292213a701d529bb9b5e3",
+    "png_sha256": "db0f4f2165ba014e34e131daef58c4492e33559a3d3ce24064d2439540e797bf",
+    "source_ppm_sha256": "80954dc0196f4410f230b846ac435c23031d6f53cec02f4c58c30fd1e11f2627"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-light-1200-125.png",
+    "width": 1500,
+    "height": 42,
+    "rgb_sha256": "925583fdac284a6f72d0009bb98a96a96e49da40834f44d1f1e2a148d2194901",
+    "png_sha256": "0b410c5d526d7caac4004989d86ad432408c63b1e71bb8fb2b2ee84d80ab489c",
+    "source_ppm_sha256": "bd309831d436e9c734578d53ba275d7ffe773cdfbfdf3c63e03c96166edb7205"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-light-1200-150.png",
+    "width": 1800,
+    "height": 51,
+    "rgb_sha256": "07456c6101a92bc739b88663aeabe4e1cf1ab77f8f6c87d22fe13bc62bacc7df",
+    "png_sha256": "2aae452ae38a7d7a3cea493ece91f08af0f614b49125a31b54fc5b5dded6243d",
+    "source_ppm_sha256": "16cd5e5312f25c6f8f5a7df2f2eea1cce8eb0ab2e87902cc716d219631dd7505"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-light-1200-200.png",
+    "width": 2400,
+    "height": 68,
+    "rgb_sha256": "58f01f0e8f541dc4cd2503dbf54234d938088ce660b64a6115b58d606885b1f4",
+    "png_sha256": "13f84f6aed215af2f0920868936c632b0ebb10df536b0d219bb45c6e345cd064",
+    "source_ppm_sha256": "3636833cc1c3dde12fd432c13afef5da9ff23408eeb6864778cbd763882626e9"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-light-200-100.png",
+    "width": 200,
+    "height": 34,
+    "rgb_sha256": "35d768d26da5d8893d03a710b10f13c4ab06e8d25356d8092e505b50c2d52857",
+    "png_sha256": "ec443bd0dca18137e4ce30928b1721a7ca0b53157b53dbde0eb2b9921e2aeada",
+    "source_ppm_sha256": "37577af3a1eefc46402c3c4a2016b0ddcdbe8f5dfb6b8a7ec356a864dff38ab5"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-light-200-125.png",
+    "width": 250,
+    "height": 42,
+    "rgb_sha256": "46ec26e982275c539f6e3fb60925ab6f584b216f76cae03e45a433ba7eec1c6e",
+    "png_sha256": "318b658fe68f415bb8767e9ed851c39af7ec98ed1ed66437292330929359974a",
+    "source_ppm_sha256": "f61d2779060bbd06f3f47108f6726759d4624c91726686aeee94fd9b69263901"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-light-200-150.png",
+    "width": 300,
+    "height": 51,
+    "rgb_sha256": "b651ca14f87e18368d583b74f029a4a45f3c5f482fd094e90bd8abc3085ec5d2",
+    "png_sha256": "1e94a41c539503358139553a3ffa42d9f1a5f7a4aaabf07a9ecfb4c1ebeb5aab",
+    "source_ppm_sha256": "1ec110fb4917725017ce8aa3965e0129a973adf9b032a7b989e55d59f50ef1f9"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-light-200-200.png",
+    "width": 400,
+    "height": 68,
+    "rgb_sha256": "03c98a6c96abc46ef5b197f428689c69686fb82a8ce41eba6d5116eea67b1af6",
+    "png_sha256": "d95c5e8e93726f64ff3a9fdb52659e7c5ecb6b967ff74e14ac88516e50ab56a7",
+    "source_ppm_sha256": "db5467f85611e9f5a980c1fed115a8dafbb6ae062b8af4d77bd7f4eea4be0a15"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-light-320-100.png",
+    "width": 320,
+    "height": 34,
+    "rgb_sha256": "acb2ee941e31d6774bd1feee32a09568786bf1efc3809f3713c4deb43ef57286",
+    "png_sha256": "2e7db7187b25949fdf00af68f3cc2b9c9052884dcc3f3e60ebe17b5b2a23982e",
+    "source_ppm_sha256": "e5f536f13f180df69586af7c673d6e05471c4706b4183df1718afa563aa960b6"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-light-320-125.png",
+    "width": 400,
+    "height": 42,
+    "rgb_sha256": "d1d78609934e0216955a70be3391b06567b9c7cbb8229bfc90c637d17551eedf",
+    "png_sha256": "f2ce9a875ae14a1ec45d4228a370a4fe16a9f47e74c59cb40b0d917c9ef626fd",
+    "source_ppm_sha256": "08950f8247f4201d58858558b28f9dbc47b48137eca853a5c8e78c224337275b"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-light-320-150.png",
+    "width": 480,
+    "height": 51,
+    "rgb_sha256": "61b423e15e3a3822aed071c1e7fde03f1be3cd27d1d0520f53182e26657a3e99",
+    "png_sha256": "8dc6a25f1d9d55cc63ad44a3a07b20ef31cfe7f062f02b41ff5b216c974429f8",
+    "source_ppm_sha256": "510bcf0ef12249cf2bdaa854a077bff5bcbc95bd53be6ee58541d9e263d7cc73"
+  },
+  {
+    "png": "activity/tabs-exited-cjk-light-320-200.png",
+    "width": 640,
+    "height": 68,
+    "rgb_sha256": "514ffd58ddfad3f3d344c70bc32e1f7b4623cee466901c6901a8d9b4d30b0576",
+    "png_sha256": "3bbd923078a75b07a0c440c1a368d8174cc98957fa278f90de1d52f70b35187a",
+    "source_ppm_sha256": "c2ff8f249d6176de052bdcbbb60cbb7d1afdb83719d45d3154a3a3c04a0926c3"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-dark-1200-100.png",
+    "width": 1200,
+    "height": 34,
+    "rgb_sha256": "0f381f52d817f1cc9e4f258dcd7e99b1fccb8ad674baf9add09814c7f60b84bf",
+    "png_sha256": "755f1daf19817753d9e1dedea13bb1732d39be2a5ccf21dcb6e5191de40d4fa9",
+    "source_ppm_sha256": "fb9ca34df38f93aaf3cd055226dfb783330f5994bf62a07fbf68761857de18db"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-dark-1200-125.png",
+    "width": 1500,
+    "height": 42,
+    "rgb_sha256": "55ffcefa42009aef3014da7645dbee60b0737c09fceddda13b64c69c39b38bc8",
+    "png_sha256": "16c6f772543fb966ef5763b350525b97f571cbb031ae973ae580d30a6b371568",
+    "source_ppm_sha256": "406b84047c6c82bc7e5d85c22a2af263f57ed5e266e217f8d12dbc34e2fc77f9"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-dark-1200-150.png",
+    "width": 1800,
+    "height": 51,
+    "rgb_sha256": "2af0cb55c64124c4829c0bd08d396fb9b053625ab8f163620a2ab88f1bfcf34d",
+    "png_sha256": "7695d522ec634107f2d70b96b7deb4471f43499538f339369d4cf48a3c7117f6",
+    "source_ppm_sha256": "1625706b07374fddbe89a270a583900d7ed26948ccc317c8661adfdf153bcead"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-dark-1200-200.png",
+    "width": 2400,
+    "height": 68,
+    "rgb_sha256": "910c4504422dd2eacdd83bfc14651aee426daf30986dade28805b6f80f0197e5",
+    "png_sha256": "2f5d82c9e75a4c7121d405e27d86b0ffea121183cec1963a4661d94cb14a6d0f",
+    "source_ppm_sha256": "0fa1da52fff0ca4fd90247d50df2584a72ad98588ce60f81e3d03ac74924a588"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-dark-200-100.png",
+    "width": 200,
+    "height": 34,
+    "rgb_sha256": "0bbd045b33634216ae078e3bb2b3a0988534b7afe7164689ee9a2e1319e56976",
+    "png_sha256": "f6c80ee4526806e6890db9e2da627b590604599f1d4bf0e2f4b56c67e9cc5643",
+    "source_ppm_sha256": "6e7bca69179e393c898891b076a5dd8903b2c3c11ba61e9bf00972797f366ec5"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-dark-200-125.png",
+    "width": 250,
+    "height": 42,
+    "rgb_sha256": "d2e6cd46d8213b41200965c2b5db6744ee01a77511c3b15187592a37fdb718c5",
+    "png_sha256": "583dbe79b0b1dc8c4de71bbd43550936351e30c5f1c632a54fbcc6949797124a",
+    "source_ppm_sha256": "8ee709ec57f8cdbfdecd00ef6fc7011fe581388865071daf0eeaf43d88b8b5ca"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-dark-200-150.png",
+    "width": 300,
+    "height": 51,
+    "rgb_sha256": "cb5ed9d083385dc60544bea0bcefb782fd9c0c321724fd795cc06d10053de761",
+    "png_sha256": "14395266e0909585d4029a59069d5f4288414fd6561b93ee6ecdc6e66a369212",
+    "source_ppm_sha256": "2ae731d5b9a63f4e1ec4db759d5368f6561d215a0e3755fa2809b8471370e2e7"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-dark-200-200.png",
+    "width": 400,
+    "height": 68,
+    "rgb_sha256": "00f74948c14e780a8383e8dc7dd3751f00d4dd63cbb772423d8b721b0b01362b",
+    "png_sha256": "fdb8f7cb84e821433ef2d36fec49596d0664ac83f5c397c59945a57eb26fc463",
+    "source_ppm_sha256": "da9cb54ede9b275f53ddaad269724568fb5ee9cef68f5e57fbd4a3777fe6ef87"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-dark-320-100.png",
+    "width": 320,
+    "height": 34,
+    "rgb_sha256": "8552b6c0caf45553bbe0fc944ce3c52eef238c57b2f219de82d068ec98a8a744",
+    "png_sha256": "9fde47e9317318dcbeb9edd252a343848ec4deb3c4d47722e3259b049a9172f7",
+    "source_ppm_sha256": "8160b3a92ae7da63e4b47019eb260fdb1536c63a3133d331fa05f3e72436c277"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-dark-320-125.png",
+    "width": 400,
+    "height": 42,
+    "rgb_sha256": "776d0570e6ff710726d7a67d620bf5fb40326bb02f992f6af2652f51408ca08c",
+    "png_sha256": "713d9df51cb24df5c9646d03a21e0dfa8cacf38b9da48b1497656a670def8ac3",
+    "source_ppm_sha256": "49878efb6a355c7fd27a8c7b2781d984e94165226bdbb7e0e35b276bd32ea015"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-dark-320-150.png",
+    "width": 480,
+    "height": 51,
+    "rgb_sha256": "f0a8392e4e06f9eb3aa370bdc1d5c717443f99f9c858121ceb3790be61c6ac5e",
+    "png_sha256": "20b1782931da24811eacb80de9b7a6dce9eb008444c0f587200667a3117536d7",
+    "source_ppm_sha256": "c68f787ed235b6748c202204e0deca688128ab57b16bcf91529f606b76dbcc0d"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-dark-320-200.png",
+    "width": 640,
+    "height": 68,
+    "rgb_sha256": "fe8d7aefbc0dab385fd06776a15b717ea2105641a6d6c5f5b82d9d42f87e6c0e",
+    "png_sha256": "249e994c928b811fbfd8cff6d808237f018ad866f2b61ebb14e56ba36991ae46",
+    "source_ppm_sha256": "54ffc43c8edfd8e11e2416bee1926d6aad49aa553b5927fe4ff59af0890a6706"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-light-1200-100.png",
+    "width": 1200,
+    "height": 34,
+    "rgb_sha256": "8fdbe586959d91fce756634b1ee76bd32908c15c9bf90b48000d8137c105c2d7",
+    "png_sha256": "d3692d37ed721628723eb723874bcfde696e6005c97c47a416519c9b370c5b06",
+    "source_ppm_sha256": "28dfcc3f305077b33ee620bcaec6ac626fccb6f3347f276ad298ede546a1e7b0"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-light-1200-125.png",
+    "width": 1500,
+    "height": 42,
+    "rgb_sha256": "26d1db221b5af16573097ee34bae7be99654e16e2f7e887c6f90a2e7ac63db8d",
+    "png_sha256": "491de18ea1558d4ad6e6449473af459ef6cfb58e27c0db4d19df47234458bad8",
+    "source_ppm_sha256": "89acb9a1c5318781ddc735927beb4d431f136f4a5525aa16a6a67f79ab8e6838"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-light-1200-150.png",
+    "width": 1800,
+    "height": 51,
+    "rgb_sha256": "9c7de24aa6b3b8cc09b1218c9480e84cf3d6dd373c32f647587989fe4d32851e",
+    "png_sha256": "0caf1454bdf19519a523d16256d555d81a750be2bc3324bacc42d87ec5629f30",
+    "source_ppm_sha256": "5c3ba1704413ee2ea3151fa7ad579fe0369839384935cff31f00585d55db2bf2"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-light-1200-200.png",
+    "width": 2400,
+    "height": 68,
+    "rgb_sha256": "e8a60d5f56cec44a7713220156ac7187dd10446bb8b9fbc72f0c2f6cef9e9e83",
+    "png_sha256": "77574fde5c20918ad2671d4e16b099b143bb1b04dfc56daa1bb7187540671b2e",
+    "source_ppm_sha256": "955c6b8c1d99aa4cb23a15921d59e275a3742bc9b9b9a3c168b49d3fd866d57e"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-light-200-100.png",
+    "width": 200,
+    "height": 34,
+    "rgb_sha256": "eaae35ba16bdae2a4833dc566c50a955a336441bcb6170021e415e48e10b7bb7",
+    "png_sha256": "7bdc66eda1cca225b617387ee53465a0f7e28ef952237288be0281284bce341d",
+    "source_ppm_sha256": "a1f728b8300e6b48f5898a84c0bcaf74faf458d14296082b4caaca0a7018477a"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-light-200-125.png",
+    "width": 250,
+    "height": 42,
+    "rgb_sha256": "a24cd17c464c099646686cd0a76a4747a756470fa5668b4580345d08b17c743d",
+    "png_sha256": "84583014a7c91259158d11e9aaf64c5181da6f8aeaf038134ffb4b4253d9884f",
+    "source_ppm_sha256": "381bd6dca4fe95e990280fa870b9c5c4a1cf02378be0be61ca807c6468ecc2cb"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-light-200-150.png",
+    "width": 300,
+    "height": 51,
+    "rgb_sha256": "e506b515e4dfd5edb6e9650a25cb24659c3ff7f68ae3c3bdfdaef72e9712bf3d",
+    "png_sha256": "d789ed8ffcfb4a556ec156304f3c263cdc249f2861fe02db56131a272013db67",
+    "source_ppm_sha256": "91092090bede3961634f50236fab6cc8818479e426d0e77c9dc2b865fa6837c0"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-light-200-200.png",
+    "width": 400,
+    "height": 68,
+    "rgb_sha256": "07dcc4b51bde12ea03047e5555471132a0bd5689d5e560b3fd1446b2976f0c70",
+    "png_sha256": "3fadfd9f68a54b6d3eae877f50450277d11f6398cca516962057ea9dc6845b8e",
+    "source_ppm_sha256": "3cc99496c07068b356028b7f3c5cdde9e8c79883a70101eabe85d5955efc596c"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-light-320-100.png",
+    "width": 320,
+    "height": 34,
+    "rgb_sha256": "00659580f3e100359d0cb6ee5e3b3ead7062a1c58fc1632520a14904a0fe2821",
+    "png_sha256": "d5a863dc799096ff957d5545fb07223f75aca77761fd3fdea715e61d6e083124",
+    "source_ppm_sha256": "9f650aa65f23bd8f8a59fdd72880ecbd346319bab513c4ac638f7036609f7e7a"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-light-320-125.png",
+    "width": 400,
+    "height": 42,
+    "rgb_sha256": "dab117179af366cb1fc0b4a05e387676db4b5ca58e55641fa39bc7478ff33d57",
+    "png_sha256": "a6db1ccdcc90d1d4cb7e12acdef56ee4f735522f2dc8b88283abb2116efa3a06",
+    "source_ppm_sha256": "15fbcf1f82cf7e7f70aee09564c8ba7c90702765c641cef4c9682190c0a730c1"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-light-320-150.png",
+    "width": 480,
+    "height": 51,
+    "rgb_sha256": "66b971b1357f566a1cfa685c0c90e6ec13860b3faa228c49f36983c5a8c63776",
+    "png_sha256": "ae16972204aa5ab12b454c0b268ad7943f3154c74c21e1b7aa65f52c6f046dd8",
+    "source_ppm_sha256": "804d5f00691a65e31ad1bd30f5c59ac478d206d4ced903b23c389d3267a651c8"
+  },
+  {
+    "png": "activity/tabs-unread-ascii-light-320-200.png",
+    "width": 640,
+    "height": 68,
+    "rgb_sha256": "e521c1d57bd40ee6f9892aa2b06cd3a4f29f1c7f641b502549376d29f263f9f7",
+    "png_sha256": "5efc8108a0c59d1812d1a6f0821fa8e6117c2f833a657c630ef8f53aa502e3f0",
+    "source_ppm_sha256": "a69ce9d8a838491f631e68769a8782450897771d7a244f183bdd45ca8b0370a0"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-dark-1200-100.png",
+    "width": 1200,
+    "height": 34,
+    "rgb_sha256": "b8e418bcf3ddba8d25a1980f66397fb6e9e75fe3870a3a92a0706bdc272653af",
+    "png_sha256": "ff81036a8e96a92197d865ef98c1bb07090311bc0bf4d25ef8df73d949f64fa1",
+    "source_ppm_sha256": "9e797be0a3c0a31ac6542875d30c77747b70af784d93cf66cc3240a957f9579c"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-dark-1200-125.png",
+    "width": 1500,
+    "height": 42,
+    "rgb_sha256": "bfdf9ea8cc1d10a861a47c1b16de654b9f6ace0a4f52612f98702000b493af1a",
+    "png_sha256": "d15cf06cc707322ce5beb6d8ac502c164885bac12fc0c017ec49bd36e980a32c",
+    "source_ppm_sha256": "cdff37578594d58dffd3ef9ecb253c5483923f12946cd32e007c794612437ec0"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-dark-1200-150.png",
+    "width": 1800,
+    "height": 51,
+    "rgb_sha256": "8a8bd4dcba0b97acde80197042069d1f4dbe82fc7c6ed765cc3db8dd5704ba64",
+    "png_sha256": "f3f7a39b419917f1fe44b5ef5074d353fc59808cfb7e2c4c7843807a1a5dd8d1",
+    "source_ppm_sha256": "2ec28972bc16cae0c39c640767548757a449b4b5db72e8db382b5d4922ec5d9f"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-dark-1200-200.png",
+    "width": 2400,
+    "height": 68,
+    "rgb_sha256": "2e7a3baddd44ce022fccce6b62eaa9921cfb2b90f84a32b187914a78011cb0c1",
+    "png_sha256": "445f91f85a334c4d68d861a0164cb2fa085003242be33b85fb9715b644928589",
+    "source_ppm_sha256": "1b6be357950424447f836bddd928188e17a16eea560642a5e586299884a8f59b"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-dark-200-100.png",
+    "width": 200,
+    "height": 34,
+    "rgb_sha256": "17df5909345b5fb30ed8212acb1de6c32e1e55704d6e89970b343a894c31d089",
+    "png_sha256": "97dc6ee0ecd46143f347dcf88694e0962f4ab26232d6e68928ceb75b064e6071",
+    "source_ppm_sha256": "09a217e771d3427d61ec253002474db10f5ee7afd1f9ac592c7d02795ead5d41"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-dark-200-125.png",
+    "width": 250,
+    "height": 42,
+    "rgb_sha256": "9028c328d6b0a5e87324f7ffa155f6d505da776c8615a255953547d71f727c79",
+    "png_sha256": "2f42606cfbf2fca458902d7e24197b102ee4a34f48ea2ed17587e88dc60ccadb",
+    "source_ppm_sha256": "8f2af934852f64f31d1348d2c1ba14ccf99623ba4c7d754e48dafeb7072d07be"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-dark-200-150.png",
+    "width": 300,
+    "height": 51,
+    "rgb_sha256": "7f9e0a62737922bc5b28e45271d1f6a7fffa72777e6dd3edfde027765a29f0fe",
+    "png_sha256": "8b33d99e712cb4ee85c63eb6676048c37624a6bd94a430f681c54f245002f459",
+    "source_ppm_sha256": "ca16abede7f53f667e6cfcc30c11f93d60defdd156525f58d4574bf9241f19a6"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-dark-200-200.png",
+    "width": 400,
+    "height": 68,
+    "rgb_sha256": "0c2e53bae72d05cd59b314a95de1929ebd032487801804d20a30cc6fb8dfde5e",
+    "png_sha256": "ed7c2948fae2fe4be1321ccecf81230075a5d4de4499dbe51feddb59b7c1d237",
+    "source_ppm_sha256": "d5bd22e03a28dc361de6aee7c82bb70cedd34a2b4dc25d0c99cba3550f2c8eb4"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-dark-320-100.png",
+    "width": 320,
+    "height": 34,
+    "rgb_sha256": "599057bcad8f19be3809ccf24ae6a048d85642f15e60ea7ed9f6cf4d166ab93f",
+    "png_sha256": "b7d4696d96005e7e0b3220e23634219fec25d5c74d4f7853a77ca13abdc766b8",
+    "source_ppm_sha256": "3877b976d7759230b04f3aa31513bdc0a95833a86e2a4f5d3bd1654dd1ed1809"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-dark-320-125.png",
+    "width": 400,
+    "height": 42,
+    "rgb_sha256": "e91237d2751697264b8c1e85f2a2c14477dc253505c4357eae3528325b105759",
+    "png_sha256": "4d325f0f8d0a8aae0c593701aec6203aa82e610bca1ac86416e616f878b2ad32",
+    "source_ppm_sha256": "43bc767cb6bd4ffbad24ad7efbab435a5973c930a63cd637ff63fce76815555f"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-dark-320-150.png",
+    "width": 480,
+    "height": 51,
+    "rgb_sha256": "134aa902af0cdee0fa69917af9fd85c22fae734414de1591e4fea7c2534e1249",
+    "png_sha256": "880bc8dc6ba39612247c0d6e73e36fbf8a738403d6a0501b2d1e63d0340985d4",
+    "source_ppm_sha256": "d4bbed5cf6eac473d39f49fb60c57813025a4e521526d0ee85fd948b7dd3c0f5"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-dark-320-200.png",
+    "width": 640,
+    "height": 68,
+    "rgb_sha256": "b32ee736d3fe4f6f7ed60ea13192d9803b3f68c79054b724fb14d06ec4ada667",
+    "png_sha256": "3b7f13a15a6c6c2bbc541f596bdf091559c386cb7f083732fd364bdc9a9311d5",
+    "source_ppm_sha256": "9b219e1c1e0ab5aad014a6935b10ff15206e4e708d6a18c6695a5a180bdb850a"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-light-1200-100.png",
+    "width": 1200,
+    "height": 34,
+    "rgb_sha256": "796a6fea7b0c49c8b1967cac32950c2429d9ce8e4d2cd99bcb2eec38ad4b1bb6",
+    "png_sha256": "aed25f1dc781c78e10014cb971181b12ad45ddc32dac0f5acfca23ce2b87afae",
+    "source_ppm_sha256": "43e47433e2715b626d87a6eebf07cb616240b6ad07e7d602dadaf35b9cad6a0a"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-light-1200-125.png",
+    "width": 1500,
+    "height": 42,
+    "rgb_sha256": "6defbfb9da999492aabcecc844870a7292e181ae3c0bdafe1ef617e28dda39b6",
+    "png_sha256": "bd567a5690770e1cbfedef38933e4e600c8d9d539673e470f69fed54c0f64d4a",
+    "source_ppm_sha256": "6b9c29a62774e508ae3f5e0ddf1f67d841370c7aa09686dae0c6d5d081ff38b6"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-light-1200-150.png",
+    "width": 1800,
+    "height": 51,
+    "rgb_sha256": "9eb4362c27e5477a02db869f230e0465699a289dba0aec1f6ae41f7ef0a6a895",
+    "png_sha256": "29c0b0ab438d641eda970e2765b82e2005e9949630f0231ef4fe6649e98c3f27",
+    "source_ppm_sha256": "788c973003c529345bd0eae2864b537056fe5c012e234398ac7c89d9233da12d"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-light-1200-200.png",
+    "width": 2400,
+    "height": 68,
+    "rgb_sha256": "800e24da68296ae98336e36d5d4bdc74a43ff8dac4d15e4eb54c09ff55702560",
+    "png_sha256": "342501839c42b730fd78c85cf00bbf917d09248ab85ce049a71be2fb6f4a4260",
+    "source_ppm_sha256": "7fe8717c60d66d196bd35e4dd6cad5e9d2133bb5ed0120f7d24b97d46931959f"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-light-200-100.png",
+    "width": 200,
+    "height": 34,
+    "rgb_sha256": "56b5b0c2dc8e48ba4d12b38e783ebb93dbf882d5264de6a6ed03ed3f59fe9a88",
+    "png_sha256": "36b1f178f157634f5de079446ff94f9411596f8e29333baebedcd21e086ad0c9",
+    "source_ppm_sha256": "c35fd77fed17214c944f1663405c541bb8aebc6c5951da629a8085c1a6ed0fc8"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-light-200-125.png",
+    "width": 250,
+    "height": 42,
+    "rgb_sha256": "9949cecfb41208c46fdc9085e2d9ef0622685a6f45985d91b5bf5b197816ad48",
+    "png_sha256": "2bf9d096133c5446016454b76430dac3eea11e6e47b70898fe3f8228bd81de5c",
+    "source_ppm_sha256": "7784b5e990a8245c41db9a3fc6ac8735480cae3033896dbd097a6af44bae95b3"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-light-200-150.png",
+    "width": 300,
+    "height": 51,
+    "rgb_sha256": "15250750c36f19d4b6486ec2cec0880072713993b99b6c1ab9ec2a4eabe27219",
+    "png_sha256": "be0951097e7b64f1fc03db21c975202bf48599c5fe30e8ed33748e43321fe0a3",
+    "source_ppm_sha256": "3294a9430dc5d67554bd3cdcdea13d2418aa05b721abca4ba2df9b418c6920e9"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-light-200-200.png",
+    "width": 400,
+    "height": 68,
+    "rgb_sha256": "9be6afe060e8b4bd6246008703e300f05c82860d5c8c80398017613b079dc46e",
+    "png_sha256": "2b892adeaa8706acf1e68091b3f41f6ac1d68e21e88395c14c15dd86aa161810",
+    "source_ppm_sha256": "8ced5b878f71cfc5c90947608121650d75809c0b6c0de3e8e81082a15c4683a3"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-light-320-100.png",
+    "width": 320,
+    "height": 34,
+    "rgb_sha256": "61170e292e4458635f875be0f96f112777ff8198ab48428d5c8833b68367dd49",
+    "png_sha256": "f9a8e6760ab0cbc8e9caf4d211269d987432c26291a0c0987b23f8e61315244d",
+    "source_ppm_sha256": "22057561746b1b56493a805befc5928416f866741178768547371378009f3243"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-light-320-125.png",
+    "width": 400,
+    "height": 42,
+    "rgb_sha256": "c62b1d8fb317b87c1f11c8d6a1b24c35653fad70db859eafd63a3972b7d1fd97",
+    "png_sha256": "188a2235b94ce743ea59e39f78f87603b8bfe19d9e705fd6ef55e8f79fc23c2e",
+    "source_ppm_sha256": "c7b78a8bb329f4449c3e6195a5b6f3bb47788fc6eaafc1b4fe0a75f7560cc7d0"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-light-320-150.png",
+    "width": 480,
+    "height": 51,
+    "rgb_sha256": "8756b153d6fe50ccd3e3dc7019175e1c2b5e3fec5ad01901fc234d8f462a89af",
+    "png_sha256": "cae5715527848b12080e7512b85ae57a05e73798e5c61ec8ab92ab14f2e7130f",
+    "source_ppm_sha256": "1b82ce8c2eb7ecbeae3e5506573b2a52f143cfcbcbf74ddbe8b933b7cf3093e3"
+  },
+  {
+    "png": "activity/tabs-unread-cjk-light-320-200.png",
+    "width": 640,
+    "height": 68,
+    "rgb_sha256": "265f05c1b19e362d5f03a104413149976e2f60538ac3c9454040df5e5a45bc21",
+    "png_sha256": "169340d8719f63bea642c78bba4942d508331662c1dcd1b4f87af8be2397b6c4",
+    "source_ppm_sha256": "e79412acfb173416ddc30526cc74654aa58b163d8e763fbdf05f4b0e908eda89"
+  },
+  {
     "png": "components-final/tabs-dark-1200-100.png",
     "width": 1200,
     "height": 34,
