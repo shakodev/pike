@@ -8,9 +8,9 @@ from pathlib import Path
 MAX_FILE = 2 * 1024 * 1024
 
 
-def read_csv(path, limit=4096):
+def read_csv(path, limit=4096, max_bytes=MAX_FILE):
     path = Path(path)
-    if path.stat().st_size > MAX_FILE:
+    if path.stat().st_size > max_bytes:
         raise ValueError(f"oversized metadata: {path.name}")
     with path.open(newline="", encoding="utf-8-sig") as stream:
         rows = list(csv.DictReader(stream))
@@ -101,23 +101,27 @@ def validate_fixture(path, visible, hidden, saturated, flood, probes, seconds=No
                 overlap = min(parent_end, stop)-max(parent_start, start)
                 if abs(stop-start-expected) > tolerance or overlap < expected*.98:
                     raise ValueError("producer did not overlap the measured interval")
-    before = {r["session"]: r for r in read_csv(path / "counters-before.csv", 32)}
-    after = {r["session"]: r for r in read_csv(path / "counters-after.csv", 32)}
-    if set(before) != ids or set(after) != ids:
+    before_rows, after_rows = read_csv(path / "counters-before.csv", 32), read_csv(path / "counters-after.csv", 32)
+    before = {r["session"]: r for r in before_rows}
+    after = {r["session"]: r for r in after_rows}
+    if len(before_rows) != total or len(after_rows) != total or set(before) != ids or set(after) != ids:
         raise ValueError("counter session identities differ")
     if sum(r["visible"] == "true" for r in before.values()) != visible:
         raise ValueError("visible session count differs")
     work = []
     for session in sorted(ids, key=int):
         a, b = before[session], after[session]
+        for counter in (a, b):
+            if counter["visible"] not in ("true", "false") or any(int(value) < 0 for key, value in counter.items() if key != "visible"):
+                raise ValueError("negative or invalid terminal metadata")
         if int(a["history_limit"]) != 2000 or int(a["history"]) != (2000 if saturated else 0):
             raise ValueError("history scenario differs")
         if int(b["history"]) > 2000 or a["visible"] != b["visible"]:
             raise ValueError("history/visibility invariant failed")
         for counter in (a, b):
-            if any(int(counter.get(key, 0)) > 2097152 for key in ("input_outstanding", "input_queued")):
+            if any(int(counter[key]) > 2097152 for key in ("input_outstanding", "input_queued")):
                 raise ValueError("input admission accounting exceeded its source budget")
-        if int(b.get("input_cancelled", 0)) != int(a.get("input_cancelled", 0)):
+        if int(b["input_cancelled"]) != int(a["input_cancelled"]):
             raise ValueError("accepted input was cancelled during measurement")
         if any(a[key] != b[key] for key in ("columns", "rows")) or not 1 <= int(a["columns"]) <= 512 or int(a["rows"]) < 1:
             raise ValueError("controlled terminal geometry changed")
@@ -138,6 +142,8 @@ def validate_fixture(path, visible, hidden, saturated, flood, probes, seconds=No
         raise ValueError("missing/duplicate latency observations")
     if any(float(r["readback_ms"]) < float(r["snapshot_ms"]) for r in latency):
         raise ValueError("readback precedes snapshot")
+    if any(not math.isfinite(float(r[key])) or float(r[key]) < 0 for r in latency for key in ("snapshot_ms", "readback_ms", "elapsed_ms")):
+        raise ValueError("nonfinite latency observation")
     ready_pids = {r["session"]: r["a"] for r in ready}
     if any(r["session"] != min(ids, key=int) or r.get("child_pid") != ready_pids[r["session"]] for r in latency):
         raise ValueError("latency source/session/child identity mismatch")
@@ -145,6 +151,8 @@ def validate_fixture(path, visible, hidden, saturated, flood, probes, seconds=No
         raise ValueError("latency observation lies outside the measured interval")
     latency_window = max((float(r.get("elapsed_ms", "0")) for r in latency), default=None)
     frames = read_csv(path / "frame-intervals.csv", 2002)
+    if len({r["lower_ms"] for r in frames}) != len(frames) or any(not 0 <= int(r["lower_ms"]) <= 2001 or int(r["count"]) < 0 for r in frames):
+        raise ValueError("invalid bounded frame histogram")
     frame_count = sum(int(r["count"]) for r in frames)
     def frame_rank(fraction):
         if not frame_count:
@@ -155,8 +163,10 @@ def validate_fixture(path, visible, hidden, saturated, flood, probes, seconds=No
             if remaining <= 0:
                 return {"lower_ms": int(row["lower_ms"]), "upper_ms_exclusive": int(row["lower_ms"])+1 if int(row["lower_ms"]) < 2001 else None}
     geometry = read_csv(path / "geometry.csv", 1)
-    if len(geometry) != 1 or any(float(geometry[0][key]) <= 0 for key in ("width_dip", "height_dip", "scale")):
+    if len(geometry) != 1 or any(not math.isfinite(float(geometry[0][key])) or float(geometry[0][key]) <= 0 for key in ("width_dip", "height_dip", "scale")):
         raise ValueError("missing/invalid native geometry")
+    if read_csv(path / "geometry-after.csv", 1) != geometry:
+        raise ValueError("native window geometry/scale changed during measurement")
     return {"startup_first_child_ms": min(float(r["ms"]) for r in ready),
             "scenario_ready_ms": float(select("scenario_ready")[0]["ms"]),
             "interval_ms": interval,

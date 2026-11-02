@@ -19,9 +19,9 @@ Copy-Item -LiteralPath $Manifest -Destination (Join-Path $root 'run-manifest.jso
 # Preserve the existing feature/runtime guard unchanged and retain its trees.
 & (Join-Path $PSScriptRoot 'test-feature-profiles.ps1') -OutputDirectory (Join-Path $root 'feature-guard')
 if (-not $?) { throw 'Existing feature profile validation failed' }
-$os = Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber, OSArchitecture, TotalVisibleMemorySize
-$cpu = @(Get-CimInstance Win32_Processor | Select-Object Name, NumberOfCores, NumberOfLogicalProcessors)
-$gpu = @(Get-CimInstance Win32_VideoController | Select-Object Name, DriverVersion, AdapterRAM)
+$os = Get-CimInstance Win32_OperatingSystem -OperationTimeoutSec 5 | Select-Object Caption, Version, BuildNumber, OSArchitecture, TotalVisibleMemorySize
+$cpu = @(Get-CimInstance Win32_Processor -OperationTimeoutSec 5 | Select-Object Name, NumberOfCores, NumberOfLogicalProcessors)
+$gpu = @(Get-CimInstance Win32_VideoController -OperationTimeoutSec 5 | Select-Object Name, DriverVersion, AdapterRAM)
 $power = @(powercfg /getactivescheme)
 $fonts = @(Get-ChildItem -LiteralPath (Join-Path $env:WINDIR 'Fonts') -Filter 'consol*.ttf' | ForEach-Object {
     [ordered]@{ Name = $_.Name; Bytes = $_.Length; SHA256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $_.FullName).Hash }
@@ -35,7 +35,7 @@ $fonts = @(Get-ChildItem -LiteralPath (Join-Path $env:WINDIR 'Fonts') -Filter 'c
 
 function Read-OwnedTree([int]$AppId, [datetime]$Started) {
     # Names/IDs/timestamps only. Never query command lines, environment or argv.
-    $rows = @(Get-CimInstance Win32_Process -Property ProcessId, ParentProcessId, Name, CreationDate)
+    $rows = @(Get-CimInstance Win32_Process -OperationTimeoutSec 5 -Property ProcessId, ParentProcessId, Name, CreationDate)
     $owned = @($AppId)
     for ($depth = 0; $depth -lt 8; $depth++) {
         $next = @($rows | Where-Object { $owned -contains [int]$_.ParentProcessId -and $owned -notcontains [int]$_.ProcessId -and $_.CreationDate -ge $Started.AddSeconds(-1) } | ForEach-Object { [int]$_.ProcessId })
@@ -63,6 +63,11 @@ for ($index = $FirstRun; $index -lt [Math]::Min($plan.runs.Count, $FirstRun + $R
     $run | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $directory 'run.json') -Encoding UTF8
     $exe = (Resolve-Path -LiteralPath $run.build.executable).Path
     if ((Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $run.build.fixture_sha256) { throw 'Fixture binary identity changed' }
+    $runtime = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot 'conpty-runtime.json') | ConvertFrom-Json
+    foreach ($file in $runtime.files) {
+        $path = Join-Path (Split-Path $exe -Parent) $file.name
+        if (-not (Test-Path -LiteralPath $path) -or (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.sha256 -or $run.build.conpty_files.($file.name) -ne $file.sha256) { throw 'Pinned ConPTY runtime identity changed or is missing' }
+    }
     $fixture = Join-Path $directory 'fixture'
     if ($fixture.Contains('"')) { throw 'Unsupported output path quote' }
     $info = New-Object Diagnostics.ProcessStartInfo
@@ -82,6 +87,7 @@ for ($index = $FirstRun; $index -lt [Math]::Min($plan.runs.Count, $FirstRun + $R
     $failure = $null
     $didStart = $false
     $gpuWatcher = $null
+    $stderrFinished = $false
     try {
         if (-not $app.Start()) { throw 'Could not launch finite comparison fixture' }
         $didStart = $true
@@ -91,7 +97,9 @@ for ($index = $FirstRun; $index -lt [Math]::Min($plan.runs.Count, $FirstRun + $R
         $discovered = $false
         $events = @()
         $sample = 0
+        $endSampled = $false
         $startupMs = $null
+        $scenarioReadyMs = $null
         while (-not $app.HasExited -and $watch.Elapsed.TotalSeconds -lt ($run.seconds + $run.settle + 115)) {
             Start-Sleep -Milliseconds 20
             $app.Refresh()
@@ -101,19 +109,26 @@ for ($index = $FirstRun; $index -lt [Math]::Min($plan.runs.Count, $FirstRun + $R
                 $events = @(Import-Csv -LiteralPath $eventPath)
             }
             $begin = @($events | Where-Object event -eq 'measure_begin')
+            if ($null -eq $scenarioReadyMs -and @($events | Where-Object event -eq 'scenario_ready').Count -eq 1 -and $app.MainWindowHandle -ne [IntPtr]::Zero -and $app.MainWindowTitle.StartsWith('Pike renderer comparison')) {
+                $scenarioReadyMs = $watch.Elapsed.TotalMilliseconds
+            }
             if (-not $discovered -and @($events | Where-Object event -eq 'scenario_ready').Count -eq 1) {
                 $discovered = $true
                 $children = @($events | Where-Object event -eq 'ready' | ForEach-Object { [int]$_.a })
                 $tree = Read-OwnedTree -AppId $app.Id -Started $started
-                $tree | Select-Object ProcessId, ParentProcessId, Name, CreationDate | Export-Csv (Join-Path $directory 'owned-tree.csv') -NoTypeInformation
+                $tree | Select-Object ProcessId, ParentProcessId, Name, CreationDate | Export-Csv (Join-Path $directory 'discovered-tree.csv') -NoTypeInformation
+                $verified = @()
                 foreach ($row in $tree) {
                     $process = Open-VerifiedOwnedProcess -Row $row
                     $role = if ($process.Id -eq $app.Id) { 'app' } elseif ($children -contains $process.Id) { 'fixture-child' } elseif ($row.Name -in @('conhost.exe', 'OpenConsole.exe')) { 'conpty-host' } else { 'owned-other' }
                     $ownedProcesses[$process.Id] = @{ Process = $process; CreatedTicks = $process.StartTime.Ticks; Role = $role }
+                    $verified += [pscustomobject]@{ ProcessId = $process.Id; ParentProcessId = $row.ParentProcessId; Name = $row.Name; CreatedTicks = $process.StartTime.Ticks; Role = $role }
                 }
+                $verified | Export-Csv (Join-Path $directory 'owned-tree.csv') -NoTypeInformation
                 foreach ($childId in $children) { if (-not $ownedProcesses.ContainsKey($childId)) { throw 'Fixture child is outside verified owned tree' } }
             }
-            if ($discovered -and $begin.Count -eq 1 -and $watch.Elapsed.TotalSeconds -ge $nextSample) {
+            $ended = @($events | Where-Object event -eq 'measure_end').Count -eq 1
+            if ($discovered -and $begin.Count -eq 1 -and ($watch.Elapsed.TotalSeconds -ge $nextSample -or ($ended -and -not $endSampled))) {
                 if ($null -eq $startupMs) { $startupMs = $watch.Elapsed.TotalMilliseconds }
                 if (-not $gpuWatcher) {
                     # Separate test-owned observer, outside the app tree. Start
@@ -123,7 +138,7 @@ for ($index = $FirstRun; $index -lt [Math]::Min($plan.runs.Count, $FirstRun + $R
                     $watcherArgs = '-NoProfile -File "{0}" -OwnedTree "{1}" -OutputDirectory "{2}" -Seconds {3}' -f $watcherScript, (Join-Path $directory 'owned-tree.csv'), $directory, $run.seconds
                     $gpuWatcher = Start-Process -FilePath $shellExe -ArgumentList $watcherArgs -PassThru -WindowStyle Hidden
                 }
-                $phase = if (@($events | Where-Object event -eq 'measure_end').Count -eq 0) { 'measure' } else { 'drain' }
+                $phase = if (-not $ended) { 'measure' } elseif (-not $endSampled) { 'end' } else { 'drain' }
                 foreach ($entry in $ownedProcesses.Values) {
                     $process = $entry.Process
                     $process.Refresh()
@@ -135,6 +150,7 @@ for ($index = $FirstRun; $index -lt [Math]::Min($plan.runs.Count, $FirstRun + $R
                         Threads = $process.Threads.Count; Handles = $process.HandleCount })
                 }
                 $sample++
+                if ($phase -eq 'end') { $endSampled = $true }
                 if ($samples.Count -gt 32768) { throw 'External process sample bound reached' }
                 $nextSample = $watch.Elapsed.TotalSeconds + 1
             }
@@ -172,17 +188,18 @@ for ($index = $FirstRun; $index -lt [Math]::Min($plan.runs.Count, $FirstRun + $R
         if ($gpuWatcher) {
             if (-not $gpuWatcher.WaitForExit(5000)) {
                 $gpuWatcher.Kill()
-                $gpuWatcher.WaitForExit(5000) | Out-Null
+                if (-not $gpuWatcher.WaitForExit(5000)) { $survivors += $gpuWatcher.Id; $success = $false; $failure = 'GPU observer termination unverified' }
                 [ordered]@{ Available = $false; Failure = 'GPU watcher exceeded final deadline; any partial values are incomplete' } | ConvertTo-Json | Set-Content (Join-Path $directory 'gpu-availability.json') -Encoding UTF8
             }
             $gpuWatcher.Dispose()
         }
         try {
-            if ($stderr -and $stderr.Wait(5000)) { [IO.File]::WriteAllText((Join-Path $directory 'stderr.txt'), $stderr.GetAwaiter().GetResult()) }
-        } catch { $failure = "Bounded stderr unavailable: $($_.Exception.GetType().Name); prior=$failure" }
+            if ($stderr -and $stderr.Wait(5000)) { [IO.File]::WriteAllText((Join-Path $directory 'stderr.txt'), $stderr.GetAwaiter().GetResult()); $stderrFinished = $true }
+            if (-not $stderrFinished) { $success = $false; $failure = "Bounded stderr reader did not finish; prior=$failure" }
+        } catch { $success = $false; $failure = "Bounded stderr unavailable: $($_.Exception.GetType().Name); prior=$failure" }
         $exitCode = if ($didStart -and $app.HasExited) { $app.ExitCode } else { $null }
-        [ordered]@{ Success = $success; Failure = $failure; Survivors = $survivors; ExternalBeginObservationMs = $startupMs
-            ExternalDurationMs = $watch.Elapsed.TotalMilliseconds; AppExitCode = $exitCode; Cleanup = 'verified owned process objects only'
+        [ordered]@{ Success = $success; Failure = $failure; Survivors = $survivors; ExternalBeginObservationMs = $startupMs; ExternalSceneSnapshotReadyMs = $scenarioReadyMs
+            ExternalDurationMs = $watch.Elapsed.TotalMilliseconds; AppPid = $(if ($didStart) { $app.Id } else { $null }); AppCreatedTicks = $(if ($didStart) { $started.Ticks } else { $null }); AppExitCode = $exitCode; EndSampleObserved = $endSampled; StderrReaderFinished = $stderrFinished; Cleanup = 'verified owned process objects only'
         } | ConvertTo-Json | Set-Content (Join-Path $directory 'collector.json') -Encoding UTF8
         $app.Dispose()
     }

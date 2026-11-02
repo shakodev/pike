@@ -21,6 +21,7 @@ def check(args):
     write_json(output / "scope.json", {"platform": sys.platform, "scope": "actual App/native graphics/Unix PTY, synthetic App focus, short workflow validation only",
                                       "private_bytes": None, "working_set": None, "one_core_cpu": None, "gpu": None,
                                       "missing_counters": "native Windows collector and physical input/display checks unexecuted"})
+    outcomes = []
     for index, run in enumerate(manifest["runs"][args.first_run:args.first_run+args.run_count], args.first_run):
         if not run.get("dry_run") or run["seconds"] > 5 or run["settle"] > 2:
             raise ValueError("local dry runs require a short explicitly marked manifest")
@@ -86,5 +87,9 @@ def check(args):
             write_json(directory / "collector.json", {"success": success, "failure": error, "app_pid": process.pid, "ready_child_pids": sorted(ready_pids),
                          "child_processes_observed_after_app_exit": survivors, "stderr_reader_finished": not reader.is_alive(),
                          "exit_code": process.returncode, "external_wall_seconds": time.monotonic()-start, "scope": "local synthetic workflow check only"})
-        if not success:
+        outcomes.append({"index": index, "success": success, "failure": error})
+        write_json(output / "outcomes.json", outcomes)
+        if not success and not getattr(args, "keep_going", False):
             raise ValueError(f"dry run {index} failed: {error}; raw evidence retained")
+    if any(not row["success"] for row in outcomes):
+        raise ValueError("dry-run matrix contains invalid runs; all raw results and cleanup outcomes retained")

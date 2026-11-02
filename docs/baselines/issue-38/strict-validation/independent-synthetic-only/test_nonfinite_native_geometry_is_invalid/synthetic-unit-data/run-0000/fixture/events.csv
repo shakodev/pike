@@ -1,0 +1,10 @@
+ms,event,session,a,b
+0,ready,1,100,0
+1,ready,2,101,0
+2,scenario_ready,0,1,1
+10,measure_begin,0,1,1
+6010,measure_end,0,6000,0
+6011,completion,1,true,0
+6012,completion,2,true,0
+6013,finished,0,2,0
+6012,measurement_epoch,0,10000,16000

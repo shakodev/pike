@@ -29,13 +29,19 @@ python tools/renderer-comparison.py plan --builds target/r38-windows-builds/buil
 .\tools\measure-renderer-comparison.ps1 -Manifest target/r38-windows-full.json -OutputDirectory target/r38-windows-full
 python tools/renderer-comparison.py plan --builds target/r38-windows-builds/builds.json --output target/r38-windows-startup.json --startup
 .\tools\measure-renderer-comparison.ps1 -Manifest target/r38-windows-startup.json -OutputDirectory target/r38-windows-startup
-python tools/renderer-comparison.py compare target/r38-windows-full target/r38-windows-startup --output target/r38-windows-comparison.json
+python tools/renderer-comparison.py plan --builds target/r38-windows-builds/builds.json --output target/r38-windows-latency.json --latency --repeats 3
+.\tools\measure-renderer-comparison.ps1 -Manifest target/r38-windows-latency.json -OutputDirectory target/r38-windows-latency
+python tools/renderer-comparison.py compare target/r38-windows-full target/r38-windows-startup target/r38-windows-latency --output target/r38-windows-comparison.json
 ```
 
 The full matrix is intentionally expensive and finite: 2 renderers × 7 release
 profiles × 24 session/history/workload cases × 3 repeats = 1,008 runs, with
-60-second idle and 600-second sustained-output intervals after ten seconds
-settling. The dry run uses three-second intervals and is **not** budget evidence.
+62-second idle and 600-second sustained-output intervals after ten seconds
+settling plus a two-second arming guard. The idle interval leaves room for at
+least 60 seconds of external one-second CPU samples. Resource runs use **zero
+readbacks**. A separate 30-second four-producer/200-probe latency manifest includes
+readback/validation observer costs and is grouped separately. The dry run uses
+three-second intervals and is **not** budget evidence.
 `-FirstRun` and `-RunCount` permit explicit chunks into separate fresh output
 directories without overwriting earlier runs. Every repeat reverses build order
 to expose order/warmup effects. If a staged screening/finalist comparison is used
@@ -70,6 +76,17 @@ drained completion/cleanup results. GPU Engine counters run in a separate finite
 observer; unavailable/localized counters are explicit, never zero. Shared working
 sets are not summed. Installed GPUs are not proof of the adapter selected by the
 lean Iced build. Metadata collection is separate from synthetic terminal data.
+
+The fixture holds processes for one finite second after End so the external
+observer can force an end counter sample before teardown. The hold and artifact
+encoding occur outside the resource window. One strict validator is shared by
+summary and comparison: it binds complete planned identities, verifies successful
+cleanup and owned PID/creation/role coverage, rejects nonfinite/nonmonotonic
+counters, requires sufficient sample-window coverage, and rebuilds cost statistics
+from current raw rows. Exact creation ticks are parsed as integers without float
+rounding. Native process tables are bounded to 32,768 rows and 16 MiB; the
+supported 33-process ten-minute table can exceed 2 MiB. Stale summaries and
+missing/failed planned cases remain explicit failures or blockers.
 
 Before the first controlled run, attach operator metadata to the evidence root:
 monitor model, physical resolution, refresh rate, desktop scale, topology, HDR,

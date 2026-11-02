@@ -1,0 +1,19 @@
+test_powershell_bom_and_owned_cost_aggregation_are_preserved (test_renderer_comparison.CollectorBoundaryTests.test_powershell_bom_and_owned_cost_aggregation_are_preserved) ... ok
+test_supported_full_process_table_has_an_explicit_finite_byte_bound (test_renderer_comparison.CollectorBoundaryTests.test_supported_full_process_table_has_an_explicit_finite_byte_bound) ... ok
+test_bounded_metadata_rejects_large_file (test_renderer_comparison.EvidenceTests.test_bounded_metadata_rejects_large_file) ... ok
+test_full_sample_count_does_not_validate_a_materially_late_interval (test_renderer_comparison.EvidenceTests.test_full_sample_count_does_not_validate_a_materially_late_interval) ... ok
+test_hidden_snapshots_and_history_overflow_fail (test_renderer_comparison.EvidenceTests.test_hidden_snapshots_and_history_overflow_fail) ... ok
+test_latency_requires_the_exact_child_and_probe_identity (test_renderer_comparison.EvidenceTests.test_latency_requires_the_exact_child_and_probe_identity) ... ok
+test_missing_drained_completion_or_reused_child_identity_fails (test_renderer_comparison.EvidenceTests.test_missing_drained_completion_or_reused_child_identity_fails) ... ok
+test_missing_throughput_and_latency_cannot_be_reported_zero (test_renderer_comparison.EvidenceTests.test_missing_throughput_and_latency_cannot_be_reported_zero) ... ok
+test_percentiles_are_nearest_rank_and_missing_is_null (test_renderer_comparison.EvidenceTests.test_percentiles_are_nearest_rank_and_missing_is_null) ... ok
+test_real_invariants_accept_complete_bounded_metadata (test_renderer_comparison.EvidenceTests.test_real_invariants_accept_complete_bounded_metadata) ... ok
+test_visible_snapshot_copy_is_bounded_by_unchanged_geometry (test_renderer_comparison.EvidenceTests.test_visible_snapshot_copy_is_bounded_by_unchanged_geometry) ... ok
+test_wrong_producer_overlap_cannot_qualify_throughput (test_renderer_comparison.EvidenceTests.test_wrong_producer_overlap_cannot_qualify_throughput) ... ok
+test_repeated_versions_and_renderer_runtime_leaks_fail (test_renderer_comparison.FeatureTests.test_repeated_versions_and_renderer_runtime_leaks_fail) ... ok
+test_matrix_is_finite_and_counterbalances_build_order (test_renderer_comparison.ManifestTests.test_matrix_is_finite_and_counterbalances_build_order) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.301s
+
+OK

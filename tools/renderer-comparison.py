@@ -15,6 +15,7 @@ import zipfile
 
 from renderer_comparison_support import digest, distribution, feature_guard, read_csv, validate_fixture, write_json
 from renderer_comparison_dry_run import check as dry_run
+from renderer_comparison_native import validate_native_run, read_json
 
 VARIANTS = {
     "baseline": (3, False, 16, "none"),
@@ -95,7 +96,7 @@ def build(args):
                                     "-DestinationDirectories", str(directory)], stdout=log, stderr=subprocess.STDOUT, check=True)
                 portable_zip = Path(str(package_dir) + ".zip")
                 row.update(portable_archive_bytes=portable_zip.stat().st_size, portable_archive_sha256=digest(portable_zip),
-                           conpty_files={p.name: digest(p) for p in directory.glob("*.dll")})
+                           conpty_files={entry["name"]: digest(directory / entry["name"]) for entry in json.loads(Path("tools/conpty-runtime.json").read_text())["files"]})
             write_json(directory / "identity.json", row)
             builds.append(row)
             write_json(output / "builds.json", builds)
@@ -103,20 +104,23 @@ def build(args):
 
 def plan(args):
     builds = json.loads(args.builds.read_text())
+    latency = getattr(args, "latency", False)
+    if latency and args.startup:
+        raise ValueError("startup and instrumented latency are separate manifests")
     scenarios = []
     # Fixed sequence is counterbalanced by reversing build order every repeat.
     for repeat in range(20 if args.startup else args.repeats):
         for build in builds if repeat % 2 == 0 else reversed(builds):
-            for visible in ((1,) if args.startup else (1, 4, 8)):
-                for hidden in ((0,) if args.startup else (0, 8)):
-                    for history in (("empty",) if args.startup else ("empty", "saturated")):
-                        for workload in (("idle",) if args.startup else ("idle", "flood")):
+            for visible in ((1,) if args.startup else ((4,) if latency else (1, 4, 8))):
+                for hidden in ((0,) if args.startup or latency else (0, 8)):
+                    for history in (("empty",) if args.startup else (("saturated",) if latency else ("empty", "saturated"))):
+                        for workload in (("idle",) if args.startup else (("flood",) if latency else ("idle", "flood"))):
                             scenarios.append({"build": build, "visible": visible, "hidden": hidden,
                                               "history": history, "workload": workload, "repeat": repeat,
-                                              "seconds": 1 if args.startup else (3 if args.dry_run else (60 if workload == "idle" else 600)),
+                                              "seconds": 1 if args.startup else (3 if args.dry_run else (30 if latency else (62 if workload == "idle" else 600))),
                                               "settle": 0 if args.dry_run or args.startup else 10,
-                                              "probes": (2 if args.dry_run else 200) if workload == "flood" else 0,
-                                              "dry_run": args.dry_run, "startup_repetition": args.startup})
+                                              "probes": (2 if args.dry_run else 200) if latency else 0,
+                                              "dry_run": args.dry_run, "startup_repetition": args.startup, "latency_repetition": latency})
     write_json(args.output, {"schema": 1, "geometry_dip": [1600, 1000], "font": "monospace 14 DIP (Consolas on Windows); record installed font hash separately",
                              "history_limit": 2000, "producer_bytes_per_second_per_session": 2097152,
                              "required_host": "existing native Windows 11 24H2+ x64, interactive desktop, no debugger",
@@ -125,36 +129,11 @@ def plan(args):
 
 
 def summarize(args):
-    meta = json.loads((args.directory / "run.json").read_text(encoding="utf-8-sig"))
-    evidence = validate_fixture(args.directory / "fixture", meta["visible"], meta["hidden"], meta["history"] == "saturated", meta["workload"] == "flood", meta["probes"], meta["seconds"])
-    rows = read_csv(args.directory / "process.csv", 32768)
-    measurements = {}
-    for role in ("app", "fixture-child", "conpty-host", "owned-other"):
-        selected = [r for r in rows if r["Role"] == role and r["Phase"] == "measure"]
-        by_pid = {}
-        for row in selected:
-            by_pid.setdefault((row["Pid"], row["CreatedTicks"]), []).append(row)
-        cpu = []
-        for values in by_pid.values():
-            first, last = values[0], values[-1]
-            wall = float(last["Seconds"]) - float(first["Seconds"])
-            if wall > 0:
-                cpu.append(100*(float(last["CpuSeconds"])-float(first["CpuSeconds"]))/wall)
-        measurements[role] = {"identities": len(by_pid), "one_core_cpu_percent_sum": sum(cpu) if cpu else None,
-                              "per_process_private_bytes": distribution(r["PrivateBytes"] for r in selected),
-                              "per_process_working_set_bytes": distribution(r["WorkingSetBytes"] for r in selected),
-                              "threads": distribution(r["Threads"] for r in selected), "handles": distribution(r["Handles"] for r in selected)}
-        # Private bytes can be summed across owned processes at the same sample;
-        # working sets contain shared pages and are deliberately not summed.
-        sums = {}
-        for row in selected:
-            sums[row["Sample"]] = sums.get(row["Sample"], 0) + int(row["PrivateBytes"])
-        measurements[role]["sum_private_bytes_by_sample"] = distribution(sums.values())
-    write_json(args.directory / "summary.json", {"fixture": evidence, "processes": measurements,
+    validated = validate_native_run(args.directory)
+    write_json(args.directory / "summary.json", {"fixture": validated["fixture"], "processes": validated["processes"], "raw_sha256": validated["raw_sha256"],
         "limitations": ["synthetic commands, snapshot and screenshot callback latency; physical input/display latency unmeasured",
                         "native redraw-request intervals are not GPU execution or presentation timestamps",
-                        "separate GPU counters/metadata and correctness review are required before selection"],
-        "selection": "PENDING"})
+                        "separate GPU counters/metadata and correctness review are required before selection"], "selection": "PENDING"})
 
 
 def compare(args):
@@ -190,11 +169,16 @@ def compare(args):
             raise ValueError("comparison run bound exceeded")
         for path in summaries:
             directory = path.parent
-            observed_runs.add((manifest_id, int(directory.name.split("-")[-1])))
-            meta = json.loads((directory / "run.json").read_text(encoding="utf-8-sig"))
-            # Revalidate raw fixture evidence; a stale summary is insufficient.
-            fixture = validate_fixture(directory / "fixture", meta["visible"], meta["hidden"], meta["history"] == "saturated", meta["workload"] == "flood", meta["probes"], meta["seconds"])
-            summary = json.loads(path.read_text(encoding="utf-8-sig"))
+            observed = (manifest_id, int(directory.name.split("-")[-1]))
+            if observed in observed_runs:
+                raise ValueError("duplicate planned run is not an independent repetition")
+            observed_runs.add(observed)
+            validated = validate_native_run(directory)
+            meta, fixture = validated["meta"], validated["fixture"]
+            stored = read_json(path)
+            if stored.get("raw_sha256") != validated["raw_sha256"]:
+                raise ValueError("summary raw identities are stale")
+            summary = {"processes": validated["processes"]}
             build = meta["build"]
             sources.add(build["source_commit"])
             if meta.get("dry_run"):
@@ -210,7 +194,7 @@ def compare(args):
                 blockers.add("integrated actual34 product boot/readiness evidence pending")
             if meta["workload"] == "flood" and meta["probes"] >= 200 and not fixture["input_30s_200_sample_gate"]:
                 blockers.add("200 validated input observations did not fit the 30-second window")
-            key = (build["renderer"], build["variant"], meta["visible"], meta["hidden"], meta["history"], meta["workload"], bool(meta.get("startup_repetition")))
+            key = (build["renderer"], build["variant"], meta["visible"], meta["hidden"], meta["history"], meta["workload"], bool(meta.get("startup_repetition")), bool(meta.get("latency_repetition")))
             group = groups.setdefault(key, {"runs": [], "geometry": set(), "machine": set(), "build": build})
             group["geometry"].add(json.dumps(fixture["native_geometry"], sort_keys=True))
             group["machine"].add(digest(machine_path) if machine_path.exists() else "missing")
@@ -221,6 +205,17 @@ def compare(args):
         blockers.add("failed or unvalidated runs remain in supplied evidence")
     if expected_runs-observed_runs:
         blockers.add("planned scenarios or repetitions are missing")
+    builds_seen = {(key[0], key[1]) for key in groups}
+    resource_cases = {(visible, hidden, history, workload) for visible in (1, 4, 8) for hidden in (0, 8) for history in ("empty", "saturated") for workload in ("idle", "flood")}
+    for build_id in builds_seen:
+        relevant = [(key, group) for key, group in groups.items() if key[:2] == build_id]
+        covered = {key[2:6] for key, _ in relevant if not key[6] and not key[7]}
+        if covered != resource_cases:
+            blockers.add("complete 1/4/8 visible and hidden resource matrix missing")
+        if sum(len(group["runs"]) for key, group in relevant if key[6]) < 20:
+            blockers.add("20 warm startup repetitions per build missing")
+        if not any(key[7] and any(run["fixture"]["input_30s_200_sample_gate"] for run in group["runs"]) for key, group in relevant):
+            blockers.add("dedicated 30-second/200-probe rendered latency evidence missing")
     rows = []
     for key, group in groups.items():
         runs = group["runs"]
@@ -228,10 +223,10 @@ def compare(args):
             blockers.add("machine or geometry changed within a scenario")
         def observed(getter):
             return distribution(value for run in runs if (value := getter(run)) is not None)
-        row = dict(zip(("renderer", "variant", "visible", "hidden", "history", "workload", "startup"), key))
+        row = dict(zip(("renderer", "variant", "visible", "hidden", "history", "workload", "startup", "latency"), key))
         row.update(run_count=len(runs), app_bytes=group["build"]["app_bytes"], executable_archive_bytes=group["build"]["executable_archive_bytes"],
                    portable_archive_bytes=group["build"].get("portable_archive_bytes"),
-                   startup_ready_ms=observed(lambda r: r["fixture"]["scenario_ready_ms"]),
+                   startup_ready_ms=observed(lambda r: r["fixture"]["external_scene_snapshot_ready_ms"]),
                    snapshot_run_p95_ms=observed(lambda r: r["fixture"]["snapshot_latency_ms"]["p95"]),
                    readback_run_p95_ms=observed(lambda r: r["fixture"]["readback_latency_ms"]["p95"]),
                    raw_paths=[r["path"] for r in runs])
@@ -256,7 +251,7 @@ def compare(args):
                              "method": "nearest-rank distributions of run medians/p95s/maxima; raw observations retained separately", "groups": rows})
     csv_path = args.output.with_suffix(".csv")
     with csv_path.open("w", newline="", encoding="utf-8") as stream:
-        fields = ["renderer", "variant", "visible", "hidden", "history", "workload", "startup", "run_count", "app_bytes", "executable_archive_bytes", "portable_archive_bytes", "app_cpu_run_median", "app_private_run_median", "snapshot_run_p95_median", "readback_run_p95_median", "validated_input_samples", "parser_observed_bytes_per_second_per_session"]
+        fields = ["renderer", "variant", "visible", "hidden", "history", "workload", "startup", "latency", "run_count", "app_bytes", "executable_archive_bytes", "portable_archive_bytes", "app_cpu_run_median", "app_private_run_median", "snapshot_run_p95_median", "readback_run_p95_median", "validated_input_samples", "parser_observed_bytes_per_second_per_session"]
         writer = csv.DictWriter(stream, fieldnames=fields)
         writer.writeheader()
         for row in rows:
@@ -282,6 +277,7 @@ def main():
     p.add_argument("--repeats", type=int, choices=range(1, 6), default=3)
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--startup", action="store_true", help="20 warm single-session launches per build")
+    p.add_argument("--latency", action="store_true", help="separate 30-second four-producer pixel-readback observations")
     p.set_defaults(func=plan)
     p = commands.add_parser("summarize")
     p.add_argument("directory", type=Path)
@@ -295,6 +291,7 @@ def main():
     p.add_argument("--output", type=Path, required=True)
     p.add_argument("--first-run", type=int, choices=range(10000), default=0)
     p.add_argument("--run-count", type=int, choices=range(1, 10001), default=10000)
+    p.add_argument("--keep-going", action="store_true", help="retain every finite diagnostic case; still fail the final outcome if any case fails")
     p.set_defaults(func=dry_run)
     args = parser.parse_args()
     args.func(args)

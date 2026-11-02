@@ -99,7 +99,7 @@ automatically change defaults. Existing Windows feature and ConPTY package tools
 are reused without modification. Private bytes are summed only across owned
 processes; shared working sets remain separate.
 
-Thirteen Python evidence/feature/manifest/BOM/cost-grouping/coverage regressions
+Fourteen Python evidence/feature/manifest/BOM/cost-grouping/coverage regressions
 pass locally. The finite Unix/native watcher independently completed idle and
 flood dry-run scenarios and established app exit, both ready children absent and
 bounded stderr reader completion. Those checks explicitly contain no native
@@ -112,6 +112,25 @@ End/close are absorbing, and real CloseWindow intent retires pending work. R2's
 unchanged semantic four-regression adapter passes against the correction, with
 source hashes proving restoration after the test-only append. An additional
 actual CloseWindow intent regression covers that path directly.
+
+R2's aggregation P1/P2 findings are accepted and corrected with a shared strict
+raw validator: summary and comparison bind complete planned build/run identities,
+verified app/child/ConPTY PID/creation roles, finite monotonic counters, complete
+sample coverage and successful cleanup. Comparisons recalculate raw statistics
+and reject stale source hashes. A 16 MiB/32,768-row process-table bound accepts
+the supported full scenario; ordinary metadata stays capped at 2 MiB. Creation
+ticks preserve integer precision. Nonfinite geometry is rejected. R2's unchanged
+positive control and six rejection bodies pass with a declared adapter adding
+only required new collector/owned-tree schema fields; invented unit-test rows
+are stored separately under `strict-validation/independent-synthetic-only`.
+
+Resource plans now use zero screenshot probes, including sustained output.
+A distinct `--latency` plan runs four producers for 30 seconds with 200 validated
+probes; its readback/validation costs stay in separate groups. Idle resource
+windows are 62 seconds to capture at least 60 seconds of external one-second
+CPU observations. A finite one-second post-End hold allows a forced end counter
+sample before owned-child teardown. Windows stderr completion and GPU observer
+termination are explicit outcomes; these native branches remain unexecuted.
 
 The exact Windows procedure is in `docs/verification/issue-38-windows-run.md`.
 Actual R34 has no merged main ref: its unmerged boot API has not been imported.

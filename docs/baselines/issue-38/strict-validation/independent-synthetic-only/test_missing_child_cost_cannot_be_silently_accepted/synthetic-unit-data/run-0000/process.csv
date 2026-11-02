@@ -1,0 +1,3 @@
+Sample,Seconds,Phase,Role,Pid,CreatedTicks,CpuSeconds,PrivateBytes,WorkingSetBytes,Threads,Handles
+0,0,measure,app,99,1000,0,1000,2000,3,10
+1,6,measure,app,99,1000,0.06,1000,2000,3,10

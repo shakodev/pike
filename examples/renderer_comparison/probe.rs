@@ -60,7 +60,8 @@ enum Msg {
     Advance,
     Captured(usize, iced::window::Screenshot),
     Frame,
-    Geometry(iced::Size, f32),
+    Geometry(bool, iced::Size, f32),
+    ReleaseCleanup,
 }
 #[derive(PartialEq)]
 enum Stage {
@@ -93,6 +94,8 @@ struct Probe {
     invalid_evidence: bool,
     closing_requested: bool,
     artifacts: Vec<(String, iced::window::Screenshot)>,
+    cleanup_released: bool,
+    have_geometry_after: bool,
     latency: File,
     failed: bool,
     focus_requested: bool,
@@ -134,6 +137,8 @@ impl Probe {
                 invalid_evidence: false,
                 closing_requested: false,
                 artifacts: Vec::with_capacity(5),
+                cleanup_released: false,
+                have_geometry_after: false,
                 latency,
                 failed: false,
                 focus_requested: false,
@@ -233,17 +238,7 @@ impl Probe {
                     self.options.visible,
                     self.options.hidden,
                 );
-                let mut tasks = vec![
-                    delay(self.options.seconds, Msg::End),
-                    iced::window::latest().then(|id| {
-                        id.map_or_else(Task::none, |id| {
-                            iced::window::size(id).then(move |size| {
-                                iced::window::scale_factor(id)
-                                    .map(move |scale| Msg::Geometry(size, scale))
-                            })
-                        })
-                    }),
-                ];
+                let mut tasks = vec![delay(self.options.seconds, Msg::End), geometry_task(false)];
                 if self.options.probes > 0 {
                     tasks.push(Task::done(Msg::Probe));
                 }
@@ -257,16 +252,21 @@ impl Probe {
                 }
             }
             Msg::Probe => Task::none(),
-            Msg::Geometry(size, scale) => {
+            Msg::Geometry(after, size, scale) => {
                 fs::write(
-                    self.options.output.join("geometry.csv"),
+                    self.options.output.join(if after {
+                        "geometry-after.csv"
+                    } else {
+                        "geometry.csv"
+                    }),
                     format!(
                         "width_dip,height_dip,scale\n{},{},{scale}\n",
                         size.width, size.height
                     ),
                 )
                 .expect("actual native geometry");
-                Task::none()
+                self.have_geometry_after |= after;
+                self.advance()
             }
             Msg::Frame => {
                 if let Some(nonce) = self.samples.frame() {
@@ -369,6 +369,15 @@ impl Probe {
                     );
                 }
                 self.stage = Stage::Drain;
+                // Keep owned processes alive briefly after the End milestone
+                // so the finite external observer can bracket CPU counters.
+                Task::batch([delay(1, Msg::ReleaseCleanup), geometry_task(true)])
+            }
+            Msg::ReleaseCleanup => {
+                if self.stage != Stage::Drain || self.closing_requested {
+                    return Task::none();
+                }
+                self.cleanup_released = true;
                 self.advance()
             }
             Msg::Deadline => {
@@ -577,7 +586,11 @@ impl Probe {
                 return Task::none();
             }
         }
-        if self.stage == Stage::Drain && (!self.options.flood || self.done.len() == ids.len()) {
+        if self.stage == Stage::Drain
+            && self.cleanup_released
+            && self.have_geometry_after
+            && (!self.options.flood || self.done.len() == ids.len())
+        {
             if self.options.flood {
                 for id in &ids {
                     if !self
@@ -706,4 +719,14 @@ mod cancellation_tests {
         drop(probe);
         fs::remove_dir_all(output).unwrap();
     }
+}
+
+fn geometry_task(after: bool) -> Task<Msg> {
+    iced::window::latest().then(move |id| {
+        id.map_or_else(Task::none, |id| {
+            iced::window::size(id).then(move |size| {
+                iced::window::scale_factor(id).map(move |scale| Msg::Geometry(after, size, scale))
+            })
+        })
+    })
 }

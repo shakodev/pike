@@ -22,8 +22,8 @@ class EvidenceTests(unittest.TestCase):
             [6011, "completion", 1, "true", 0], [6012, "completion", 2, "true", 0],
             [6013, "finished", 0, 2, 0],
         ]
-        keys = "session,visible,columns,rows,history,history_limit,snapshots,cells_copied,font_measurements,pty_resizes,grid_resizes,cache_invalidations,input_written".split(",")
-        self.before = [dict(zip(keys, [i, visible, 120, 24, 2000, 2000, 4, 11520, 1, 1, 1, 1, 10])) for i, visible in [(1, "true"), (2, "false")]]
+        keys = "session,visible,columns,rows,history,history_limit,snapshots,cells_copied,font_measurements,pty_resizes,grid_resizes,cache_invalidations,input_written,input_outstanding,input_queued,input_cancelled".split(",")
+        self.before = [dict(zip(keys, [i, visible, 120, 24, 2000, 2000, 4, 11520, 1, 1, 1, 1, 10, 0, 0, 0])) for i, visible in [(1, "true"), (2, "false")]]
         self.after = [row.copy() for row in self.before]
         self.save()
 
@@ -39,6 +39,7 @@ class EvidenceTests(unittest.TestCase):
         (self.root / "completed.txt").write_text("passed\n")
         (self.root / "frame-intervals.csv").write_text("lower_ms,count\n16,10\n2001,1\n")
         (self.root / "geometry.csv").write_text("width_dip,height_dip,scale\n1600,1000,1\n")
+        (self.root / "geometry-after.csv").write_text("width_dip,height_dip,scale\n1600,1000,1\n")
 
     def verify(self, flood=False, probes=0):
         return validate_fixture(self.root, 1, 1, True, flood, probes)
@@ -137,11 +138,30 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(runs[48]["build"]["renderer"], "wgpu")
             self.assertEqual({(r["visible"], r["hidden"]) for r in runs}, {(v, h) for v in (1, 4, 8) for h in (0, 8)})
             self.assertTrue(all(r["seconds"] <= 600 and r["probes"] <= 200 for r in runs))
+            self.assertTrue(all(r["probes"] == 0 for r in runs), "resource counters must exclude readback observers")
+            args.latency = True
+            args.output = root / "latency-plan.json"
+            cli.plan(args)
+            latency = json.loads(args.output.read_text())["runs"]
+            self.assertEqual(len(latency), 4)
+            self.assertTrue(all(r["visible"] == 4 and r["hidden"] == 0 and r["seconds"] == 30 and r["probes"] == 200 for r in latency))
 
 
 class CollectorBoundaryTests(unittest.TestCase):
     setUp = EvidenceTests.setUp
     save = EvidenceTests.save
+    def test_supported_full_process_table_has_an_explicit_finite_byte_bound(self):
+        from renderer_comparison_native import PROCESS_BYTES, PROCESS_ROWS, number
+        path = self.root / "full-synthetic-process-table.csv"
+        with path.open("w", newline="") as stream:
+            writer = csv.writer(stream, quoting=csv.QUOTE_ALL)
+            writer.writerow("Sample,Seconds,Phase,Role,Pid,CreatedTicks,CpuSeconds,PrivateBytes,WorkingSetBytes,Threads,Handles".split(","))
+            for index in range(19833):
+                writer.writerow([index, 600.123456789, "measure", "fixture-child", 12345, 638000000000000001, 123.456789, 1000000000, 1000000000, 10, 1000])
+        self.assertGreater(path.stat().st_size, 2*1024*1024)
+        self.assertEqual(len(read_csv(path, PROCESS_ROWS, max_bytes=PROCESS_BYTES)), 19833)
+        with self.assertRaises(ValueError): read_csv(path, PROCESS_ROWS, max_bytes=1024)
+        self.assertNotEqual(number('638000000000000001', 'creation', integer=True), number('638000000000000002', 'creation', integer=True))
     def test_powershell_bom_and_owned_cost_aggregation_are_preserved(self):
         spec = importlib.util.spec_from_file_location("comparison_cli", Path(__file__).with_name("renderer-comparison.py"))
         cli = importlib.util.module_from_spec(spec)
@@ -157,12 +177,17 @@ class CollectorBoundaryTests(unittest.TestCase):
                 "build": {"renderer": "tiny-skia", "variant": "baseline", "source_commit": "synthetic-unit-test", "target": "synthetic-unit-test",
                           "app_bytes": 100, "executable_archive_bytes": 50}}
         (evidence / "run.json").write_text(json.dumps(meta), encoding="utf-8-sig")
+        (evidence.parent / "run-manifest.json").write_text(json.dumps({"schema": 1, "runs": [meta]}), encoding="utf-8-sig")
+        (evidence / "collector.json").write_text(json.dumps({"Success": True, "Survivors": [], "AppExitCode": 0, "StderrReaderFinished": True,
+            "AppPid": 1, "AppCreatedTicks": 100, "ExternalBeginObservationMs": 0, "ExternalDurationMs": 7000, "ExternalSceneSnapshotReadyMs": 0}), encoding="utf-8-sig")
+        (evidence / "owned-tree.csv").write_text("ProcessId,ParentProcessId,Name,CreatedTicks,Role\n1,0,fixture,100,app\n100,1,fixture,101,fixture-child\n101,1,fixture,102,fixture-child\n")
         with (evidence / "process.csv").open("w", newline="") as stream:
             writer = csv.writer(stream)
             writer.writerow("Sample,Seconds,Phase,Role,Pid,CreatedTicks,CpuSeconds,PrivateBytes,WorkingSetBytes,Threads,Handles".split(","))
             for index, second in enumerate([0, 6]):
                 writer.writerow([index, second, "measure", "app", 1, 100, second*.01, 1000, 2000, 3, 10])
-                writer.writerow([index, second, "measure", "fixture-child", 2, 101, second*.02, 3000, 4000, 1, 5])
+                writer.writerow([index, second, "measure", "fixture-child", 100, 101, second*.01, 3000, 4000, 1, 5])
+                writer.writerow([index, second, "measure", "fixture-child", 101, 102, second*.01, 3000, 4000, 1, 5])
         class Args: pass
         args = Args()
         args.directory = evidence
@@ -176,6 +201,8 @@ class CollectorBoundaryTests(unittest.TestCase):
         result = json.loads(args.output.read_text())
         self.assertEqual(result["selection"], "PENDING")
         self.assertTrue(any("dry runs" in value for value in result["blockers"]))
+        (evidence / "collector.json").write_text(json.dumps({"Success": True, "Survivors": [999], "AppExitCode": 0, "StderrReaderFinished": True}))
+        with self.assertRaises(ValueError): cli.summarize(args)
 
 
 if __name__ == "__main__": unittest.main()
