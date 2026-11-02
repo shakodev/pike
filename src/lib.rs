@@ -9,6 +9,6 @@ pub mod session;
 pub mod settings;
 pub mod tab_strip;
 pub mod tabs;
-pub mod ui;
 mod terminal;
+pub mod ui;
 pub mod workspace;
