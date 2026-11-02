@@ -30,12 +30,23 @@ impl App {
         }
     }
 
-    pub(in crate::app) fn pane_grid(&self, tab_id: TabId) -> Element<'_, Message> {
+    pub(in crate::app) fn pane_grid(
+        &self,
+        tab_id: TabId,
+        references: &[crate::app::commands::CommandReference],
+    ) -> Element<'_, Message> {
         let tab = self.model.workspace().tab(tab_id).expect("active tab");
         let presentation = self.resize_layout.as_ref().filter(|p| p.tab == tab_id);
         let source = presentation.map(|p| &p.grid).unwrap_or_else(|| tab.grid());
         let divider = super::super::resize::Divider::default();
         let boundary = super::gesture::Boundary::default();
+        use crate::app::commands::Command;
+        let split_right =
+            ui::command_hint(references, Command::Split(Direction::Right), "Split right");
+        let split_down =
+            ui::command_hint(references, Command::Split(Direction::Down), "Split down");
+        let zoom = ui::command_hint(references, Command::ToggleZoom, "Maximize / restore pane");
+        let close = ui::command_hint(references, Command::ClosePane, "Close pane");
         let grid = PaneGrid::new(source, |handle, pane, _| {
             let focused = handle == tab.focused();
             let target = PaneTarget {
@@ -47,12 +58,12 @@ impl App {
                 controls = controls
                     .push(ui::icon(
                         "⊞",
-                        "Split right",
+                        split_right.clone(),
                         Control::Split(target, Direction::Right),
                     ))
                     .push(ui::icon(
                         "⊟",
-                        "Split down",
+                        split_down.clone(),
                         Control::Split(target, Direction::Down),
                     ));
             }
@@ -65,7 +76,7 @@ impl App {
                             } else {
                                 "↗"
                             },
-                            "Maximize / restore pane",
+                            zoom.clone(),
                             Control::Zoom(target),
                         ))
                         .id(format!("pane-zoom-{}", pane.session.get())),
@@ -73,7 +84,7 @@ impl App {
                     .push(
                         container(ui::icon(
                             "×",
-                            "Close pane",
+                            close.clone(),
                             Control::CloseSession(pane.session),
                         ))
                         .id(format!("pane-close-{}", pane.session.get())),

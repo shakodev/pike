@@ -2,16 +2,7 @@ use iced::widget::{button, column, container, row, scrollable, text};
 use iced::{Element, Fill};
 
 use super::{App, CloseAction, Control, Message};
-use crate::identity::{SessionId, TabId};
-use crate::ui::{self, style, tokens};
-
-pub(crate) fn close_button(id: SessionId) -> Element<'static, Control> {
-    ui::icon("×", "Close pane", Control::CloseSession(id))
-}
-
-pub(crate) fn close_tab_button(tab: TabId) -> Element<'static, Control> {
-    ui::icon("×", "Close tab", Control::CloseTab(tab))
-}
+use crate::ui::{style, tokens};
 
 impl App {
     /// Replace the workspace while modal; terminal widgets receive no native

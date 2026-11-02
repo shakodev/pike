@@ -33,12 +33,44 @@ pub fn icon<'a, M: Clone + 'a>(
     reveal_icon(label, description, message, true)
 }
 
+/// Caption from the atomically committed effective map, including unbound
+/// actions. No fallback chord can accidentally advertise a remapped binding.
+pub fn command_hint(
+    references: &[crate::app::commands::CommandReference],
+    command: crate::app::commands::Command,
+    label: &str,
+) -> String {
+    match references.iter().find(|entry| entry.command == command) {
+        Some(entry) if !entry.bindings.is_empty() => {
+            format!("{label} ({})", entry.bindings.join(" / "))
+        }
+        _ => format!("{label} · Commands menu"),
+    }
+}
+
+pub fn icon_maybe<'a, M: Clone + 'a>(
+    label: &'a str,
+    description: impl Into<String>,
+    message: Option<M>,
+) -> Element<'a, M> {
+    icon_control(label, description, message, true)
+}
+
 /// Reserve the same hit target while an inactive close glyph is at rest.
 /// Hover reveal changes paint only and never changes terminal geometry.
 pub fn reveal_icon<'a, M: Clone + 'a>(
     label: &'a str,
     description: impl Into<String>,
     message: M,
+    visible: bool,
+) -> Element<'a, M> {
+    icon_control(label, description, Some(message), visible)
+}
+
+fn icon_control<'a, M: Clone + 'a>(
+    label: &'a str,
+    description: impl Into<String>,
+    message: Option<M>,
     visible: bool,
 ) -> Element<'a, M> {
     tooltip(
@@ -60,7 +92,7 @@ pub fn reveal_icon<'a, M: Clone + 'a>(
             }
             style
         })
-        .on_press(message),
+        .on_press_maybe(message),
         container(
             text(description.into())
                 .font(tokens::FONT)

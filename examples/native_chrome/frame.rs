@@ -15,6 +15,9 @@ struct Metrics {
     visible: Vec<Rectangle>,
     headers: Vec<Rectangle>,
     tab_strip: Option<Rectangle>,
+    chrome: Option<Rectangle>,
+    notices: Option<Rectangle>,
+    controls: Vec<Rectangle>,
     translation: Vector,
     viewport: Rectangle,
     pending: Option<(Vector, Rectangle)>,
@@ -33,6 +36,24 @@ impl Operation for Metrics {
     fn container(&mut self, id: Option<&Id>, bounds: Rectangle) {
         if id == Some(&Id::from("tab-strip")) {
             self.tab_strip = Some(bounds - self.translation);
+        }
+        for (name, destination) in [
+            ("workspace-chrome", &mut self.chrome),
+            ("workspace-notices", &mut self.notices),
+        ] {
+            if id == Some(&Id::from(name)) {
+                *destination = Some(bounds - self.translation);
+            }
+        }
+        if [
+            "new-tab-control",
+            "command-menu-control",
+            "tab-overflow-control",
+        ]
+        .iter()
+        .any(|name| id == Some(&Id::from(*name)))
+        {
+            self.controls.push(bounds - self.translation);
         }
         // Header IDs are matched against the exact current session set below;
         // all other containers are irrelevant to this measurement.
@@ -184,6 +205,27 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
             "strip is not 34 DIP in {name}: {strip:?}"
         )));
     }
+    if let Some(chrome) = metrics.chrome {
+        assert_eq!(chrome.height, 34.0, "root strip in {name}");
+        for control in &metrics.controls {
+            assert_eq!(
+                control.size(),
+                Size::new(26.0, 26.0),
+                "hit target in {name}"
+            );
+            assert!(
+                viewport.contains_rectangle(*control),
+                "unreachable control in {name}"
+            );
+        }
+        let top = metrics
+            .notices
+            .map_or(chrome.y + chrome.height, |row| row.y + row.height);
+        assert!(
+            metrics.visible.iter().all(|r| r.y >= top),
+            "host chrome overlaps terminal in {name}"
+        );
+    }
     view.as_widget_mut().update(
         &mut tree,
         &Event::Window(iced::window::Event::RedrawRequested(Instant::now())),
@@ -242,8 +284,13 @@ fn paint(host: &mut Host, output: &Path, name: &str, size: Size, scale: f32) -> 
     fs::write(
         output.join(format!("{name}.txt")),
         format!(
-            "logical={size:?} scale={scale} physical={dimensions:?}\nstrip={:?}\nheaders={:?}\nvisible_terminals={:?}\ngreen_prompt_pixels={green}\n",
-            metrics.tab_strip, headers.headers, metrics.visible
+            "logical={size:?} scale={scale} physical={dimensions:?}\nstrip={:?}\nchrome={:?}\nnotices={:?}\ncontrol_targets={:?}\nheaders={:?}\nvisible_terminals={:?}\ngreen_prompt_pixels={green}\n",
+            metrics.tab_strip,
+            metrics.chrome,
+            metrics.notices,
+            metrics.controls,
+            headers.headers,
+            metrics.visible
         ),
     )?;
     Ok(())

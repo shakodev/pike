@@ -1,0 +1,6 @@
+platform=macos arch=aarch64 renderer=wgpu native_window=1200x800 controlled_ptys=1
+settle_s=3 interval_s=24.004 observed_native_redraws=1
+ps_before_time_rss=  0:00.22  99136
+ps_after_time_rss=  0:00.23  99120
+counter_order=font_measurements,pty_resizes,grid_resizes,cache_invalidations,snapshots
+counter_delta=[0, 0, 0, 0, 0]

@@ -93,6 +93,34 @@ fn visible_range(length: usize, active: usize, capacity: usize) -> Range<usize> 
     start..(start + visible).min(length)
 }
 
+/// Owned captions supplied by the application's effective command reference.
+#[derive(Clone)]
+pub struct Hints {
+    pub previous: String,
+    pub next: String,
+    pub rename: String,
+    pub reset: String,
+    pub move_left: String,
+    pub move_right: String,
+    pub close: String,
+    pub overflow: String,
+}
+
+impl Default for Hints {
+    fn default() -> Self {
+        Self {
+            previous: "Previous tab".into(),
+            next: "Next tab".into(),
+            rename: "Rename tab".into(),
+            reset: "Use automatic tab name".into(),
+            move_left: "Move tab left".into(),
+            move_right: "Move tab right".into(),
+            close: "Close tab".into(),
+            overflow: "All tabs".into(),
+        }
+    }
+}
+
 pub fn view<'a, M: Clone + 'a>(
     items: Vec<Item>,
     active: Option<TabId>,
@@ -100,8 +128,19 @@ pub fn view<'a, M: Clone + 'a>(
     close: fn(TabId) -> M,
     action: fn(TabAction) -> M,
 ) -> Element<'a, M> {
+    view_with_hints(items, active, activate, close, action, Hints::default())
+}
+
+pub fn view_with_hints<'a, M: Clone + 'a>(
+    items: Vec<Item>,
+    active: Option<TabId>,
+    activate: fn(TabId) -> M,
+    close: fn(TabId) -> M,
+    action: fn(TabAction) -> M,
+    hints: Hints,
+) -> Element<'a, M> {
     container(responsive(move |size| {
-        compact(&items, active, activate, close, action, size.width)
+        compact(&items, active, activate, close, action, size.width, &hints)
     }))
     .height(tokens::TAB_HEIGHT)
     .padding([4, 4])
@@ -117,6 +156,7 @@ fn compact<'a, M: Clone + 'a>(
     close: fn(TabId) -> M,
     action: fn(TabAction) -> M,
     width: f32,
+    hints: &Hints,
 ) -> Element<'a, M> {
     let selected = items.iter().position(|item| Some(item.id) == active);
     // Preserve a useful active label before allocating space to less frequent
@@ -135,10 +175,14 @@ fn compact<'a, M: Clone + 'a>(
     let mut controls = row![
         ui::icon(
             "‹",
-            "Previous tab",
+            hints.previous.clone(),
             action(TabAction::Select(Selection::Previous))
         ),
-        ui::icon("›", "Next tab", action(TabAction::Select(Selection::Next))),
+        ui::icon(
+            "›",
+            hints.next.clone(),
+            action(TabAction::Select(Selection::Next))
+        ),
     ]
     .spacing(0);
     if let Some(index) = selected {
@@ -146,18 +190,18 @@ fn compact<'a, M: Clone + 'a>(
         controls = controls
             .push(ui::icon(
                 "✎",
-                "Rename tab",
+                hints.rename.clone(),
                 action(TabAction::BeginRename(id)),
             ))
             .push(ui::icon(
                 "↺",
-                "Use automatic tab name",
+                hints.reset.clone(),
                 action(TabAction::ResetName(id)),
             ));
         if let Some(left) = index.checked_sub(1) {
             controls = controls.push(ui::icon(
                 "←",
-                "Move tab left",
+                hints.move_left.clone(),
                 action(TabAction::Move {
                     tab: id,
                     anchor: items[left].id,
@@ -168,7 +212,7 @@ fn compact<'a, M: Clone + 'a>(
         if let Some(right) = items.get(index + 1) {
             controls = controls.push(ui::icon(
                 "→",
-                "Move tab right",
+                hints.move_right.clone(),
                 action(TabAction::Move {
                     tab: id,
                     anchor: right.id,
@@ -204,7 +248,7 @@ fn compact<'a, M: Clone + 'a>(
                             .style(style::tooltip),
                         tooltip::Position::Bottom,
                     ),
-                    ui::reveal_icon("×", "Close tab", close(item.id), selected),
+                    ui::reveal_icon("×", hints.close.clone(), close(item.id), selected),
                 ]
                 .spacing(0),
             )
@@ -225,7 +269,7 @@ fn compact<'a, M: Clone + 'a>(
             .height(tokens::CONTROL),
         container(ui::icon(
             "⋯",
-            format!("All tabs ({count})"),
+            format!("{} ({count})", hints.overflow),
             action(TabAction::OpenOverflow)
         ))
         .id("tab-overflow-control"),
