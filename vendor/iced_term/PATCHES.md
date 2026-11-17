@@ -1,5 +1,23 @@
 # iced_term patch ledger
 
+## Issue #38 — shared ASCII pane clipping
+
+- Native release sampling found pinned tiny-skia canvas text repeatedly clearing
+  and filling a full-window mask for each ASCII cell: canvas text supplies
+  infinite local clip bounds. Move ASCII to the existing shaped-buffer renderer.
+  Repeated glyphs share buffers within the bounded visible viewport; no history
+  cache, runtime task, renderer dependency or PTY implementation is added.
+- ASCII shares the existing pane/ancestor mask. Logical buffer extents exceed
+  the pane to preserve italic ink clipping without rebuilding a mask per cell.
+  Unicode/combining/wide spans retain their existing cell clips. Pane dimensions
+  join the cache key so resizing refreshes the logical clipping guards.
+- The glyph cache and native text probes cover sharing, font/style separation,
+  clipping, cursor, copy, fractional scales and equal-size pane movement. See
+  [timing verification](../../docs/verification/issue-38-skia-timing.md) for the
+  local source identities, raw profiles, before/after results and remaining
+  readback/Windows limitations. Remove this workaround when upstream canvas
+  text can reuse its pane mask while preserving the same text/ink bounds.
+
 ## Issue #34 — bounded resize receipts and recoverable link-open failure
 
 - One coalesced native resize receipt slot in the existing bridge. Backend

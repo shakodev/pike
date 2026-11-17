@@ -1,0 +1,16 @@
+{
+  "success": false,
+  "failure": "fixture exited 1",
+  "app_pid": 48787,
+  "ready_child_pids": [
+    48788,
+    48790,
+    48793,
+    48799
+  ],
+  "child_processes_observed_after_app_exit": [],
+  "stderr_reader_finished": true,
+  "exit_code": 1,
+  "external_wall_seconds": 33.86881362500026,
+  "scope": "macOS diagnostic only"
+}

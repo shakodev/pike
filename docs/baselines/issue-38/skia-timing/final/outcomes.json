@@ -1,0 +1,32 @@
+[
+  {
+    "index": 0,
+    "success": true,
+    "failure": null
+  },
+  {
+    "index": 1,
+    "success": true,
+    "failure": null
+  },
+  {
+    "index": 2,
+    "success": true,
+    "failure": null
+  },
+  {
+    "index": 3,
+    "success": true,
+    "failure": null
+  },
+  {
+    "index": 4,
+    "success": true,
+    "failure": null
+  },
+  {
+    "index": 5,
+    "success": false,
+    "failure": "fixture exited 1"
+  }
+]

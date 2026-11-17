@@ -1,0 +1,9 @@
+session,visible,columns,rows,history,history_limit,snapshots,cells_copied,font_measurements,pty_resizes,grid_resizes,cache_invalidations,input_outstanding,input_queued,input_written,input_cancelled
+1,true,46,24,0,2000,958,1076801,1,4,4,979,0,0,36,0
+3,true,46,24,0,2000,864,964490,1,3,3,879,0,0,36,0
+4,true,46,24,0,2000,962,1068992,1,2,2,973,0,0,36,0
+5,true,46,24,0,2000,738,821696,1,2,2,749,0,0,36,0
+6,true,46,24,0,2000,739,821648,1,1,1,746,0,0,36,0
+7,true,46,24,0,2000,983,1091024,1,1,1,990,0,0,36,0
+8,true,46,24,0,2000,693,770864,1,1,1,700,0,0,36,0
+9,true,46,24,0,2000,915,1015952,1,1,1,922,0,0,36,0

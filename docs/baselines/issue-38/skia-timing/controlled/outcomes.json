@@ -1,0 +1,62 @@
+[
+  {
+    "index": 0,
+    "success": false,
+    "failure": "fixture exited 1"
+  },
+  {
+    "index": 1,
+    "success": true,
+    "failure": null
+  },
+  {
+    "index": 2,
+    "success": false,
+    "failure": "fixture exited 1"
+  },
+  {
+    "index": 3,
+    "success": true,
+    "failure": null
+  },
+  {
+    "index": 4,
+    "success": true,
+    "failure": null
+  },
+  {
+    "index": 5,
+    "success": true,
+    "failure": null
+  },
+  {
+    "index": 6,
+    "success": true,
+    "failure": null
+  },
+  {
+    "index": 7,
+    "success": false,
+    "failure": "fixture exited 1"
+  },
+  {
+    "index": 8,
+    "success": true,
+    "failure": null
+  },
+  {
+    "index": 9,
+    "success": false,
+    "failure": "fixture exited 1"
+  },
+  {
+    "index": 10,
+    "success": true,
+    "failure": null
+  },
+  {
+    "index": 11,
+    "success": true,
+    "failure": null
+  }
+]

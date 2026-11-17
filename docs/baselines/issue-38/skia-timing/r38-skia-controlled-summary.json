@@ -1,0 +1,386 @@
+[
+  {
+    "run": "run-0000",
+    "source": "982763098a0cf391ea9fbc865426decc611daba8",
+    "visible": 8,
+    "workload": "flood",
+    "repeat": 0,
+    "valid": false,
+    "interval_ms": 4126.758,
+    "end_lag_ms": 1123.9975,
+    "probes": 0,
+    "completed_probes": 0,
+    "child_count": 8,
+    "cleanup": true,
+    "app_resource_observations": {
+      "sample_count": 17,
+      "observed_seconds": 4.125927875001253,
+      "one_core_cpu_percent": 115.85272803632196,
+      "rss_bytes": {
+        "count": 17,
+        "median": 254967808.0,
+        "p95": 255115264.0,
+        "maximum": 255115264.0
+      },
+      "observer_ms": {
+        "count": 17,
+        "median": 4.428624999491149,
+        "p95": 5.163166999409441,
+        "maximum": 5.163166999409441
+      },
+      "scope": "diagnostic app-only samples; Windows resource costs and physical input/display latency unavailable"
+    }
+  },
+  {
+    "run": "run-0001",
+    "source": "9114d2a761a0dcb8bd4278961ad8adde9ac154c6",
+    "visible": 8,
+    "workload": "flood",
+    "repeat": 0,
+    "valid": true,
+    "interval_ms": 3113.1750000000006,
+    "end_lag_ms": 111.577375,
+    "probes": 0,
+    "completed_probes": 0,
+    "child_count": 8,
+    "cleanup": true,
+    "app_resource_observations": {
+      "sample_count": 13,
+      "observed_seconds": 3.100870958500309,
+      "one_core_cpu_percent": 137.05826707653293,
+      "rss_bytes": {
+        "count": 13,
+        "median": 254099456.0,
+        "p95": 260014080.0,
+        "maximum": 260014080.0
+      },
+      "observer_ms": {
+        "count": 13,
+        "median": 4.454625001017121,
+        "p95": 6.143584001620184,
+        "maximum": 6.143584001620184
+      },
+      "scope": "diagnostic app-only samples; Windows resource costs and physical input/display latency unavailable"
+    }
+  },
+  {
+    "run": "run-0002",
+    "source": "982763098a0cf391ea9fbc865426decc611daba8",
+    "visible": 4,
+    "workload": "flood",
+    "repeat": 0,
+    "valid": false,
+    "interval_ms": 3970.5640000000003,
+    "end_lag_ms": 968.297666,
+    "probes": 2,
+    "completed_probes": 1,
+    "child_count": 4,
+    "cleanup": true,
+    "app_resource_observations": {
+      "sample_count": 16,
+      "observed_seconds": 3.967616291500235,
+      "one_core_cpu_percent": 107.11721315150136,
+      "rss_bytes": {
+        "count": 16,
+        "median": 238403584.0,
+        "p95": 264765440.0,
+        "maximum": 264765440.0
+      },
+      "observer_ms": {
+        "count": 16,
+        "median": 4.517999999734457,
+        "p95": 5.12795899885532,
+        "maximum": 5.12795899885532
+      },
+      "scope": "diagnostic app-only samples; Windows resource costs and physical input/display latency unavailable"
+    }
+  },
+  {
+    "run": "run-0003",
+    "source": "9114d2a761a0dcb8bd4278961ad8adde9ac154c6",
+    "visible": 4,
+    "workload": "flood",
+    "repeat": 0,
+    "valid": true,
+    "interval_ms": 3062.908,
+    "end_lag_ms": 60.993792,
+    "probes": 2,
+    "completed_probes": 2,
+    "child_count": 4,
+    "cleanup": true,
+    "app_resource_observations": {
+      "sample_count": 13,
+      "observed_seconds": 3.0781899375006105,
+      "one_core_cpu_percent": 110.12965635098428,
+      "rss_bytes": {
+        "count": 13,
+        "median": 265535488.0,
+        "p95": 288456704.0,
+        "maximum": 288456704.0
+      },
+      "observer_ms": {
+        "count": 13,
+        "median": 4.751000000396743,
+        "p95": 7.638334000148461,
+        "maximum": 7.638334000148461
+      },
+      "scope": "diagnostic app-only samples; Windows resource costs and physical input/display latency unavailable"
+    }
+  },
+  {
+    "run": "run-0004",
+    "source": "982763098a0cf391ea9fbc865426decc611daba8",
+    "visible": 1,
+    "workload": "idle",
+    "repeat": 0,
+    "valid": true,
+    "interval_ms": 3002.042,
+    "end_lag_ms": 0.42995799999999995,
+    "probes": 0,
+    "completed_probes": 0,
+    "child_count": 1,
+    "cleanup": true,
+    "app_resource_observations": {
+      "sample_count": 12,
+      "observed_seconds": 3.0043942494994553,
+      "one_core_cpu_percent": 2.9956121775627285,
+      "rss_bytes": {
+        "count": 12,
+        "median": 233537536.0,
+        "p95": 233537536.0,
+        "maximum": 233537536.0
+      },
+      "observer_ms": {
+        "count": 12,
+        "median": 7.488290999390301,
+        "p95": 12.345499999355525,
+        "maximum": 12.345499999355525
+      },
+      "scope": "diagnostic app-only samples; Windows resource costs and physical input/display latency unavailable"
+    }
+  },
+  {
+    "run": "run-0005",
+    "source": "9114d2a761a0dcb8bd4278961ad8adde9ac154c6",
+    "visible": 1,
+    "workload": "idle",
+    "repeat": 0,
+    "valid": true,
+    "interval_ms": 3006.3169999999996,
+    "end_lag_ms": 0.54075,
+    "probes": 0,
+    "completed_probes": 0,
+    "child_count": 1,
+    "cleanup": true,
+    "app_resource_observations": {
+      "sample_count": 12,
+      "observed_seconds": 3.008670541500578,
+      "one_core_cpu_percent": 5.650336175233474,
+      "rss_bytes": {
+        "count": 12,
+        "median": 208355328.0,
+        "p95": 208355328.0,
+        "maximum": 208355328.0
+      },
+      "observer_ms": {
+        "count": 12,
+        "median": 9.156375001111883,
+        "p95": 11.520332998770755,
+        "maximum": 11.520332998770755
+      },
+      "scope": "diagnostic app-only samples; Windows resource costs and physical input/display latency unavailable"
+    }
+  },
+  {
+    "run": "run-0006",
+    "source": "9114d2a761a0dcb8bd4278961ad8adde9ac154c6",
+    "visible": 8,
+    "workload": "flood",
+    "repeat": 1,
+    "valid": true,
+    "interval_ms": 3089.7460000000005,
+    "end_lag_ms": 86.187083,
+    "probes": 0,
+    "completed_probes": 0,
+    "child_count": 8,
+    "cleanup": true,
+    "app_resource_observations": {
+      "sample_count": 13,
+      "observed_seconds": 3.065639312500025,
+      "one_core_cpu_percent": 126.2379427423254,
+      "rss_bytes": {
+        "count": 13,
+        "median": 229801984.0,
+        "p95": 248152064.0,
+        "maximum": 248152064.0
+      },
+      "observer_ms": {
+        "count": 13,
+        "median": 4.317083999922033,
+        "p95": 6.165041000713245,
+        "maximum": 6.165041000713245
+      },
+      "scope": "diagnostic app-only samples; Windows resource costs and physical input/display latency unavailable"
+    }
+  },
+  {
+    "run": "run-0007",
+    "source": "982763098a0cf391ea9fbc865426decc611daba8",
+    "visible": 8,
+    "workload": "flood",
+    "repeat": 1,
+    "valid": false,
+    "interval_ms": 4103.233,
+    "end_lag_ms": 1101.0660830000002,
+    "probes": 0,
+    "completed_probes": 0,
+    "child_count": 8,
+    "cleanup": true,
+    "app_resource_observations": {
+      "sample_count": 17,
+      "observed_seconds": 4.111702958499336,
+      "one_core_cpu_percent": 126.2250715186443,
+      "rss_bytes": {
+        "count": 17,
+        "median": 255246336.0,
+        "p95": 255279104.0,
+        "maximum": 255279104.0
+      },
+      "observer_ms": {
+        "count": 17,
+        "median": 4.242582999722799,
+        "p95": 9.00504199853458,
+        "maximum": 9.00504199853458
+      },
+      "scope": "diagnostic app-only samples; Windows resource costs and physical input/display latency unavailable"
+    }
+  },
+  {
+    "run": "run-0008",
+    "source": "9114d2a761a0dcb8bd4278961ad8adde9ac154c6",
+    "visible": 4,
+    "workload": "flood",
+    "repeat": 1,
+    "valid": true,
+    "interval_ms": 3062.406,
+    "end_lag_ms": 60.510166,
+    "probes": 2,
+    "completed_probes": 2,
+    "child_count": 4,
+    "cleanup": true,
+    "app_resource_observations": {
+      "sample_count": 13,
+      "observed_seconds": 3.049505417000546,
+      "one_core_cpu_percent": 112.1493334930314,
+      "rss_bytes": {
+        "count": 13,
+        "median": 265224192.0,
+        "p95": 265273344.0,
+        "maximum": 265273344.0
+      },
+      "observer_ms": {
+        "count": 13,
+        "median": 4.51966699984041,
+        "p95": 7.688333998885355,
+        "maximum": 7.688333998885355
+      },
+      "scope": "diagnostic app-only samples; Windows resource costs and physical input/display latency unavailable"
+    }
+  },
+  {
+    "run": "run-0009",
+    "source": "982763098a0cf391ea9fbc865426decc611daba8",
+    "visible": 4,
+    "workload": "flood",
+    "repeat": 1,
+    "valid": false,
+    "interval_ms": 4178.54,
+    "end_lag_ms": 1175.0579169999999,
+    "probes": 2,
+    "completed_probes": 1,
+    "child_count": 4,
+    "cleanup": true,
+    "app_resource_observations": {
+      "sample_count": 17,
+      "observed_seconds": 4.175968687499335,
+      "one_core_cpu_percent": 105.84370551511,
+      "rss_bytes": {
+        "count": 17,
+        "median": 264470528.0,
+        "p95": 264536064.0,
+        "maximum": 264536064.0
+      },
+      "observer_ms": {
+        "count": 17,
+        "median": 4.377125000246451,
+        "p95": 8.064249999733875,
+        "maximum": 8.064249999733875
+      },
+      "scope": "diagnostic app-only samples; Windows resource costs and physical input/display latency unavailable"
+    }
+  },
+  {
+    "run": "run-0010",
+    "source": "9114d2a761a0dcb8bd4278961ad8adde9ac154c6",
+    "visible": 1,
+    "workload": "idle",
+    "repeat": 1,
+    "valid": true,
+    "interval_ms": 3003.2340000000004,
+    "end_lag_ms": 0.207541,
+    "probes": 0,
+    "completed_probes": 0,
+    "child_count": 1,
+    "cleanup": true,
+    "app_resource_observations": {
+      "sample_count": 13,
+      "observed_seconds": 3.0139100629994573,
+      "one_core_cpu_percent": 2.654359231953446,
+      "rss_bytes": {
+        "count": 13,
+        "median": 233504768.0,
+        "p95": 233504768.0,
+        "maximum": 233504768.0
+      },
+      "observer_ms": {
+        "count": 13,
+        "median": 9.17512500018347,
+        "p95": 12.260208000952844,
+        "maximum": 12.260208000952844
+      },
+      "scope": "diagnostic app-only samples; Windows resource costs and physical input/display latency unavailable"
+    }
+  },
+  {
+    "run": "run-0011",
+    "source": "982763098a0cf391ea9fbc865426decc611daba8",
+    "visible": 1,
+    "workload": "idle",
+    "repeat": 1,
+    "valid": true,
+    "interval_ms": 3003.7400000000002,
+    "end_lag_ms": 0.578167,
+    "probes": 0,
+    "completed_probes": 0,
+    "child_count": 1,
+    "cleanup": true,
+    "app_resource_observations": {
+      "sample_count": 12,
+      "observed_seconds": 2.9935785835004936,
+      "one_core_cpu_percent": 2.33833848176942,
+      "rss_bytes": {
+        "count": 12,
+        "median": 233537536.0,
+        "p95": 233537536.0,
+        "maximum": 233537536.0
+      },
+      "observer_ms": {
+        "count": 12,
+        "median": 8.987416000309167,
+        "p95": 13.286208999488736,
+        "maximum": 13.286208999488736
+      },
+      "scope": "diagnostic app-only samples; Windows resource costs and physical input/display latency unavailable"
+    }
+  }
+]

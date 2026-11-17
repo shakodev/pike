@@ -1,0 +1,10 @@
+version=1
+default_profile='fixture'
+history=2000
+theme='dark'
+[font]
+family='monospace'
+size=14.0
+[profiles.fixture]
+shell="/private/tmp/r38-skia-readback-prototype/renderer_comparison"
+args=['--child']

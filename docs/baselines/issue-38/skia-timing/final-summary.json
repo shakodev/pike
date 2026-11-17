@@ -1,0 +1,116 @@
+[
+  {
+    "run": "run-0000",
+    "renderer": "tiny-skia",
+    "visible": 8,
+    "hidden": 0,
+    "seconds": 3,
+    "workload": "flood",
+    "valid": true,
+    "interval_ms": 3083.486,
+    "end_lag_ms": 82.681458,
+    "requested_probes": 0,
+    "completed_probes": 0,
+    "child_count": 8,
+    "cleanup": true
+  },
+  {
+    "run": "run-0001",
+    "renderer": "tiny-skia",
+    "visible": 4,
+    "hidden": 0,
+    "seconds": 3,
+    "workload": "flood",
+    "valid": true,
+    "interval_ms": 3072.414,
+    "end_lag_ms": 71.29458299999999,
+    "requested_probes": 2,
+    "completed_probes": 2,
+    "child_count": 4,
+    "cleanup": true,
+    "snapshot_ms": {
+      "median": 0.076,
+      "p95": 50.38
+    },
+    "readback_ms": {
+      "median": 203.515,
+      "p95": 275.38
+    }
+  },
+  {
+    "run": "run-0002",
+    "renderer": "tiny-skia",
+    "visible": 4,
+    "hidden": 8,
+    "seconds": 3,
+    "workload": "flood",
+    "valid": true,
+    "interval_ms": 3079.4890000000005,
+    "end_lag_ms": 76.375417,
+    "requested_probes": 0,
+    "completed_probes": 0,
+    "child_count": 12,
+    "cleanup": true
+  },
+  {
+    "run": "run-0003",
+    "renderer": "tiny-skia",
+    "visible": 1,
+    "hidden": 8,
+    "seconds": 3,
+    "workload": "idle",
+    "valid": true,
+    "interval_ms": 3006.5289999999995,
+    "end_lag_ms": 0.331,
+    "requested_probes": 0,
+    "completed_probes": 0,
+    "child_count": 9,
+    "cleanup": true
+  },
+  {
+    "run": "run-0004",
+    "renderer": "wgpu",
+    "visible": 4,
+    "hidden": 0,
+    "seconds": 3,
+    "workload": "flood",
+    "valid": true,
+    "interval_ms": 3019.7439999999997,
+    "end_lag_ms": 18.223791,
+    "requested_probes": 2,
+    "completed_probes": 2,
+    "child_count": 4,
+    "cleanup": true,
+    "snapshot_ms": {
+      "median": 0.208,
+      "p95": 10.188
+    },
+    "readback_ms": {
+      "median": 73.649,
+      "p95": 75.034
+    }
+  },
+  {
+    "run": "run-0005",
+    "renderer": "tiny-skia",
+    "visible": 4,
+    "hidden": 0,
+    "seconds": 30,
+    "workload": "flood",
+    "valid": false,
+    "interval_ms": 30081.237999999998,
+    "end_lag_ms": 77.730542,
+    "requested_probes": 200,
+    "completed_probes": 102,
+    "child_count": 4,
+    "cleanup": true,
+    "snapshot_ms": {
+      "median": 0.099,
+      "p95": 0.355
+    },
+    "readback_ms": {
+      "median": 218.142,
+      "p95": 225.975
+    }
+  }
+]

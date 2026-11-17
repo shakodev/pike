@@ -1,5 +1,9 @@
 # R38 resize-readiness correction — acceptance remains incomplete
 
+The later [tiny-skia timing correction](issue-38-skia-timing.md) addresses the
+End delays retained below. This record describes the earlier source and keeps
+its failed evidence unchanged.
+
 This follow-up starts from main `748675fa32b91644593ab498ecdf53967a138ac7`.
 The corrected executable source is `95bad4eb6637346a2edf70d62de540bf18d51247`.
 Issue #38 remains open: this fixes a comparison setup race, without selecting
