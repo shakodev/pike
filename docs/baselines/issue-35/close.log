@@ -1,0 +1,35 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.22s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-b5dc0c5d9138aeb4)
+
+running 11 tests
+test app::close::tests::background_exit_during_confirmation_never_changes_focus_or_target_set ... ok
+test app::close::tests::confirm_resolves_the_original_sessions_after_moves_and_replays_do_nothing ... ok
+test app::close::tests::exited_and_failed_close_without_prompt_last_tab_stays_empty_and_can_open_again ... ok
+test app::close::tests::force_exit_is_scoped_to_its_application ... ok
+test app::close::tests::force_scope_fixture ... ignored, subprocess fixture; invoked only by force_exit_is_scoped_to_its_application
+test app::close::tests::keyboard_selection_is_explicit_escape_cancels_and_repeats_cannot_confirm ... ok
+test app::close::tests::last_pane_confirm_retains_closing_budget_and_no_respawn ... ok
+test app::close::tests::modal_drops_queued_user_commands_but_accepts_protocol_and_cleanup ... ok
+test app::close::tests::real_keyboard_subscription_carries_the_decision_token_and_renews_identity ... ok
+test app::close::tests::tab_confirmation_counts_starting_running_once_and_cancel_changes_nothing ... ok
+test app::close::tests::timeout_wait_force_and_stale_tokens_are_scoped_and_event_driven ... ok
+
+test result: ok. 10 passed; 0 failed; 1 ignored; 0 measured; 215 filtered out; finished in 0.02s
+

@@ -1,0 +1,56 @@
+[
+  {
+    "name": "clippy-final",
+    "command": [
+      "cargo",
+      "clippy",
+      "--offline",
+      "--locked",
+      "--lib",
+      "--bin",
+      "pike",
+      "--tests",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "windows-compile-final",
+    "command": [
+      "cargo",
+      "check",
+      "--offline",
+      "--locked",
+      "--target",
+      "x86_64-pc-windows-msvc",
+      "--lib",
+      "--bin",
+      "pike",
+      "--tests"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "format-final",
+    "command": [
+      "cargo",
+      "fmt",
+      "--package",
+      "pike",
+      "--",
+      "--check"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "whitespace-final",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0
+  }
+]

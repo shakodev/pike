@@ -307,7 +307,7 @@ pub fn overflow<'a, M: Clone + 'a>(
                             .on_press(activate(item.id))
                             .height(tokens::CONTROL)
                             .padding([0, 8])
-                            .style(move |theme, status| style::tab(
+                            .style(move |theme, status| style::choice(
                                 theme,
                                 status,
                                 selected == Some(item.id)
@@ -333,7 +333,8 @@ pub fn overflow<'a, M: Clone + 'a>(
     container(
         column![
             text("All tabs").size(tokens::HEADING),
-            text("↑/↓ selects · Enter opens · Escape cancels").size(tokens::SMALL),
+            text("↑/↓ or Tab / Shift+Tab selects · Enter opens · Delete closes · Escape cancels")
+                .size(tokens::SMALL),
             text("● unread · ! bell · ■ exited").size(tokens::SMALL),
             scrollable(container(rows).padding(iced::Padding {
                 right: tokens::INSET * 2.0,

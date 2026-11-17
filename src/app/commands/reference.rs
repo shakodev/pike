@@ -14,6 +14,9 @@ use iced::{
 };
 use iced::{Rectangle, Vector};
 
+#[path = "recovery.rs"]
+mod recovery;
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct CommandReference {
     pub command: Command,
@@ -30,6 +33,9 @@ pub enum HelpAction {
     PageUp,
     PageDown,
     Execute(Command),
+    Recovery(crate::errors::ErrorId, crate::errors::Action),
+    CopyDiagnostics,
+    ClearDiagnostics,
 }
 
 impl App {
@@ -173,7 +179,13 @@ impl App {
         self.command_state.help = Some(self.active_session());
         self.command_state.help_selected = 0;
         self.command_state.help_scroll = Some(WidgetId::unique());
-        self.command_state.help_rows = Id::ALL.iter().map(|_| WidgetId::unique()).collect();
+        self.command_state.help_actions = self.menu_actions();
+        self.command_state.help_rows = self
+            .command_state
+            .help_actions
+            .iter()
+            .map(|_| WidgetId::unique())
+            .collect();
         self.synchronize();
         Task::none()
     }
@@ -191,7 +203,7 @@ impl App {
             self.command_state.help_selected = self
                 .command_state
                 .help_selected
-                .min(Id::ALL.len().saturating_sub(1));
+                .min(self.command_state.help_actions.len().saturating_sub(1));
         } else {
             drop(self.dismiss_help());
         }
@@ -231,35 +243,31 @@ impl App {
         {
             return Task::none();
         }
-        if let HelpAction::Execute(command) = action {
-            if !self.command_enabled(command) {
-                return Task::none();
-            }
-            let restore = self.dismiss_help();
-            let command = self.run_command(command);
-            return Task::batch([restore, command]);
+        if matches!(
+            action,
+            HelpAction::Execute(_)
+                | HelpAction::Recovery(..)
+                | HelpAction::CopyDiagnostics
+                | HelpAction::ClearDiagnostics
+        ) {
+            return self.run_menu_action(action);
         }
-        let last = Id::ALL.len().saturating_sub(1);
+        let last = self.command_state.help_actions.len().saturating_sub(1);
         let selected = &mut self.command_state.help_selected;
         *selected = match action {
-            HelpAction::Next => (*selected + 1).min(last),
-            HelpAction::Previous => selected.saturating_sub(1),
+            HelpAction::Next => (*selected + 1) % (last + 1),
+            HelpAction::Previous => (*selected + last) % (last + 1),
             HelpAction::First => 0,
             HelpAction::Last => last,
             HelpAction::PageUp => selected.saturating_sub(8),
             HelpAction::PageDown => (*selected + 8).min(last),
-            HelpAction::Execute(_) => unreachable!(),
+            _ => unreachable!(),
         };
         match (
             self.command_state.help_scroll.clone(),
             self.command_state.help_rows.get(*selected),
         ) {
-            (Some(scroll), Some(row)) => operate(Reveal {
-                scroll,
-                row: row.clone(),
-                viewport: None,
-                selected: None,
-            }),
+            (Some(scroll), Some(row)) => reveal(scroll, row.clone()),
             _ => Task::none(),
         }
     }
@@ -268,52 +276,65 @@ impl App {
         self.command_state.help?;
         let token = self.command_state.help_token;
         let references = self.command_reference();
-        let selected = references
+        let selected = self
+            .command_state
+            .help_actions
             .get(self.command_state.help_selected)
-            .map(|r| r.command);
+            .copied();
         let mut rows = column![].spacing(6).width(Fill);
-        for (index, reference) in references.into_iter().enumerate() {
-            let bindings = if reference.bindings.is_empty() {
-                "Unbound · assign a shortcut in settings.toml".into()
-            } else {
-                reference.bindings.join(" / ")
-            };
-            let label = if reference.enabled {
-                reference.label
-            } else {
-                format!("{} · unavailable in this context", reference.label)
-            };
-            let mut row = button(
-                column![text(label), text(bindings).size(13)]
+        for (index, action) in self.command_state.help_actions.iter().copied().enumerate() {
+            let (label, detail, enabled) = self.menu_item(action, &references);
+            let is_selected = index == self.command_state.help_selected;
+            let label = format!(
+                "{}{}{}",
+                if is_selected { "› " } else { "" },
+                label,
+                if enabled {
+                    ""
+                } else {
+                    " · unavailable in this context"
+                }
+            );
+            let row = button(
+                column![text(label), text(detail).size(13)]
                     .spacing(3)
                     .width(Fill),
             )
             .width(Fill)
             .padding(10)
-            .on_press_maybe(reference.enabled.then_some(Control::HelpAction(
-                token,
-                HelpAction::Execute(reference.command),
-            )));
-            if index == self.command_state.help_selected {
-                row = row.style(button::primary);
-            }
+            .on_press_maybe(enabled.then_some(Control::HelpAction(token, action)))
+            .style(move |theme, status| crate::ui::style::choice(theme, status, is_selected));
             let mut row = container(row).width(Fill);
             if let Some(id) = self.command_state.help_rows.get(index) {
                 row = row.id(id.clone());
             }
             rows = rows.push(row);
         }
-        let mut rows = scrollable(rows).height(Fill);
+        let mut rows = scrollable(container(rows).padding(iced::Padding {
+            right: crate::ui::tokens::INSET * 2.0,
+            ..Default::default()
+        }))
+        .height(Fill);
         if let Some(id) = &self.command_state.help_scroll {
             rows = rows.id(id.clone());
         }
-        let content: Element<'_, Control> = container(column![
-            text("Commands and shortcuts").size(22),
-            text("Arrow keys / Tab choose a command; Home/End and PageUp/PageDown navigate. Enter runs the selected available command. Escape returns to the terminal."),
-            text("Bindings shown below are effective now. Configure an unbound command or use this keyboard and mouse menu. Ctrl+C remains shell interrupt; Ctrl+Alt / AltGr and IME composition belong to the terminal."),
-            rows,
-            button("Return to terminal (Escape)").on_press(Control::DismissHelp),
-        ].spacing(12)).padding(24).width(Fill).height(Fill).into();
+        let content: Element<'_, Control> = container(
+            column![
+                text("Commands and shortcuts").size(22),
+                text("Tab / Shift+Tab or ↑/↓ selects · Home/End · Enter chooses · Escape returns")
+                    .size(13),
+                rows,
+                button("Return to terminal (Escape)")
+                    .style(crate::ui::style::quiet)
+                    .on_press(Control::DismissHelp),
+            ]
+            .spacing(8),
+        )
+        .padding(12)
+        .width(Fill)
+        .height(Fill)
+        .style(crate::ui::style::workspace)
+        .into();
         Some(resize::capture::capture_with_window(
             content.map(Message::Control),
             false,
@@ -327,7 +348,7 @@ impl App {
 fn help_key(
     event: &keyboard::Event,
     token: u64,
-    selected: Option<Command>,
+    selected: Option<HelpAction>,
     mappings: &[crate::settings::Shortcut],
 ) -> Option<KeyAction> {
     let keyboard::Event::KeyPressed {
@@ -355,7 +376,7 @@ fn help_key(
         Key::Named(Named::End) => HelpAction::Last,
         Key::Named(Named::PageUp) => HelpAction::PageUp,
         Key::Named(Named::PageDown) => HelpAction::PageDown,
-        Key::Named(Named::Enter) if !repeat => HelpAction::Execute(selected?),
+        Key::Named(Named::Enter) | Key::Named(Named::Space) if !repeat => selected?,
         _ => return Some(KeyAction::Consume),
     };
     Some(KeyAction::Dispatch(Control::HelpAction(token, action)))
@@ -368,6 +389,15 @@ struct Reveal {
     row: WidgetId,
     viewport: Option<(Rectangle, Vector)>,
     selected: Option<Rectangle>,
+}
+
+pub(in crate::app) fn reveal(scroll: WidgetId, row: WidgetId) -> Task<Message> {
+    operate(Reveal {
+        scroll,
+        row,
+        viewport: None,
+        selected: None,
+    })
 }
 impl<T: 'static> Operation<T> for Reveal {
     fn traverse(&mut self, f: &mut dyn FnMut(&mut dyn Operation<T>)) {
@@ -396,7 +426,7 @@ impl<T: 'static> Operation<T> for Reveal {
         };
         let top = row.y - viewport.y;
         let bottom = top + row.height;
-        let offset = if top < translation.y {
+        let offset = if top < translation.y || row.height >= viewport.height {
             top
         } else if bottom > translation.y + viewport.height {
             bottom - viewport.height

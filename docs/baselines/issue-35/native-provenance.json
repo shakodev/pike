@@ -1,0 +1,42 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "--lib",
+    "accessibility_",
+    "--",
+    "--ignored",
+    "--test-threads=1"
+  ],
+  "exit": 0,
+  "base": "748675fa32b91644593ab498ecdf53967a138ac7",
+  "source_sha256": {
+    "Cargo.lock": "ad77aab6799a3c26b52f93e59ce6d10ccbab049c845418ef2b437c7299c8c174",
+    "Cargo.toml": "1f056d9cfb1d3399375bd474bd6a301fb796e3e5a4cf5b17ac4f36bfcdbd36c8",
+    "src/app/close/view.rs": "a70efcd88d7109e95eee4732f28854ecbfd56998e1d34290cd7476650f2a092a",
+    "src/app/commands.rs": "d5aaf00cec495351bc6830aea24158c7ecec87c2f276b059d04a7d3e21d4c29c",
+    "src/app/commands/host.rs": "18e523a2b74f3ad3454f3e04a467d3a694294cae640734df111baccb6e6cac4a",
+    "src/app/commands/recovery.rs": "fd3e992bc11558bc3dd1f4ba17a46997922446b0065a39465c203058d55d5113",
+    "src/app/commands/recovery/tests.rs": "c7acdb3bd2c9efad99e5a708e4403182f6919dcbc7bfd2037aaf9a4691e30c79",
+    "src/app/commands/reference.rs": "6541c318de7c39f4783f3be4163d11f575e93e3eb9601d85a4966f04526e3f32",
+    "src/app/errors.rs": "ce42057ba996f5850c86be9c2e52b516abc3fd9f544be1b8908ffce9326e56b3",
+    "src/app/errors/view.rs": "bb48e50178bd996036f2b3f074216dea97dc9fac8790c834690ba320873d46a7",
+    "src/app/resize/capture.rs": "f1237342c6072a99d59a755e0273b90fc3e54e07a82b8eeb6282eb0b71302e07",
+    "src/app/settings.rs": "85be5282dded0aeb2ec612c8e5d5333ec5e7b67a5893e5568c7db29d6bc03a71",
+    "src/app/tab_dialog.rs": "a14de434b6115c2a6f3fa9759267f9ae5a85c57341eb6d03227ac422385eb52d",
+    "src/app/tab_dialog/tests.rs": "fa2a447b4edd28f6e37afceffc129cc7b12c65c67a237e700c7fe9f826735ee6",
+    "src/app/tests/errors/root.rs": "796e3748f0c1173b26588056a0b9444626e015d41561b06f4214b73447b14cb8",
+    "src/app/tests/errors/root/accessibility.rs": "a2641fe6e595ec496f79dc1561218d92ed30793f98bb1dc35750d55ce06079e1",
+    "src/settings/appearance.rs": "bfa66acb6e50872490a01f54be002d173076cf0f92d1f5446cbcc03a56429741",
+    "src/settings/tests.rs": "84efb177a0feba7f66a2bcb0b249d242efc51102e165e27bb7bbb45443d69e8f",
+    "src/tab_strip.rs": "e0ebeca06f6aac5e12bf19366ca10510a9317c8f87768e50763da0b473852e1a",
+    "src/ui/style.rs": "fded23703881fdc754ec154e6d4b35a9c5f5c75517210f7fb524600a822c4de9",
+    "src/ui/style/tests.rs": "ef7682fbac54c6c0f75e65cae67faa269967e0b1c22fd71d09cb39d2743bf6f7",
+    "tools/export-accessibility-captures.py": "a788725df27463b67aac70e7e3f92b5cc7cc3453b04d9b55d7f12f46e571f77f"
+  },
+  "test_binary_sha256": "3bf75d14fa256ebe447af59e4c6a7a6f41b5e72cf88c01a9a214271c3cc4b4cc",
+  "renderer": "default renderer-wgpu; macOS graphics device (physical display not exercised)",
+  "input": "synthetic events; real local Unix PTYs; no physical input or Windows execution"
+}

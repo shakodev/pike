@@ -1,5 +1,5 @@
 //! Restrained surfaces and one accent, resolved from the existing app theme.
-use iced::widget::{button, container, pane_grid};
+use iced::widget::{button, container, pane_grid, text_input};
 use iced::{Background, Border, Color, Theme};
 
 use super::tokens;
@@ -15,9 +15,70 @@ pub struct Palette {
     pub accent: Color,
 }
 
+/// Cached immutable themes; theme resolution adds no polling or per-frame
+/// custom palette allocation. OS high-contrast detection is a separate gate.
+pub fn high_contrast(light: bool) -> Theme {
+    static DARK: std::sync::OnceLock<Theme> = std::sync::OnceLock::new();
+    static LIGHT: std::sync::OnceLock<Theme> = std::sync::OnceLock::new();
+    (if light { &LIGHT } else { &DARK })
+        .get_or_init(|| {
+            Theme::custom(
+                if light {
+                    "Pike high contrast light"
+                } else {
+                    "Pike high contrast dark"
+                },
+                iced::theme::Palette {
+                    background: if light { Color::WHITE } else { Color::BLACK },
+                    text: if light { Color::BLACK } else { Color::WHITE },
+                    primary: if light {
+                        Color::from_rgb8(0, 51, 153)
+                    } else {
+                        Color::from_rgb8(255, 255, 0)
+                    },
+                    success: if light {
+                        Color::from_rgb8(0, 90, 0)
+                    } else {
+                        Color::from_rgb8(128, 255, 128)
+                    },
+                    danger: if light {
+                        Color::from_rgb8(140, 0, 0)
+                    } else {
+                        Color::from_rgb8(255, 128, 128)
+                    },
+                    warning: if light {
+                        Color::from_rgb8(100, 60, 0)
+                    } else {
+                        Color::from_rgb8(255, 255, 0)
+                    },
+                },
+            )
+        })
+        .clone()
+}
+
 pub fn palette(theme: &Theme) -> Palette {
     let light = !theme.extended_palette().is_dark;
     let rgb = Color::from_rgb8;
+    let base = theme.palette();
+    if matches!(theme, Theme::Custom(_))
+        && ((base.background == Color::BLACK && base.text == Color::WHITE)
+            || (base.background == Color::WHITE && base.text == Color::BLACK))
+    {
+        return Palette {
+            background: base.background,
+            surface: base.background,
+            raised: if light {
+                rgb(224, 224, 224)
+            } else {
+                rgb(32, 32, 32)
+            },
+            text: base.text,
+            muted: base.text,
+            line: base.text,
+            accent: base.primary,
+        };
+    }
     if light {
         Palette {
             background: rgb(250, 250, 250),
@@ -127,6 +188,41 @@ pub fn tab(theme: &Theme, status: button::Status, selected: bool) -> button::Sty
     style
 }
 
+/// A persistent outline and a textual selection marker distinguish keyboard
+/// selection without relying on hover or colour alone. Fixed width avoids
+/// changing geometry when selection moves (also for disabled menu rows).
+pub fn choice(theme: &Theme, status: button::Status, selected: bool) -> button::Style {
+    let p = palette(theme);
+    let mut style = quiet(theme, status);
+    style.border.width = 2.0;
+    style.border.color = if selected {
+        p.accent
+    } else {
+        Color::TRANSPARENT
+    };
+    style
+}
+
+pub fn input(theme: &Theme, status: text_input::Status) -> text_input::Style {
+    let p = palette(theme);
+    text_input::Style {
+        background: p.background.into(),
+        border: Border {
+            color: if matches!(status, text_input::Status::Focused { .. }) {
+                p.accent
+            } else {
+                p.line
+            },
+            width: 2.0,
+            radius: 3.0.into(),
+        },
+        icon: p.text,
+        placeholder: p.muted,
+        value: p.text,
+        selection: p.raised,
+    }
+}
+
 pub fn dividers(theme: &Theme) -> pane_grid::Style {
     let p = palette(theme);
     let mut style = pane_grid::default(theme);
@@ -140,3 +236,6 @@ pub fn dividers(theme: &Theme) -> pane_grid::Style {
     };
     style
 }
+
+#[cfg(test)]
+mod tests;

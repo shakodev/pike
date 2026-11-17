@@ -66,6 +66,10 @@ The [compatibility harness](docs/compatibility.md) opens one or two synthetic
 ConPTY sessions for developer checks and release measurements. Its original
 unpatched measurements remain in `docs/baselines/issue-3`.
 
+Keyboard navigation, error recovery, explicit high-contrast themes, and the
+current screen-reader limitations are documented in
+[Keyboard access and contrast](docs/accessibility.md).
+
 ## Dependency baseline
 
 Direct runtime requirements are exactly Iced 0.14.0, iced_term 0.8.0, Tokio

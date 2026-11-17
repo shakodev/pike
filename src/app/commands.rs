@@ -12,6 +12,7 @@ mod keymap;
 mod reference;
 pub use host::PasteRequest;
 pub(super) use host::{State, on_key};
+pub(in crate::app) use reference::reveal;
 pub use reference::{CommandReference, HelpAction};
 
 /// Expected refusals keep the current workspace usable and expose recovery.

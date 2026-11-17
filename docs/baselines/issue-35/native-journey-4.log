@@ -1,0 +1,29 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/Documents/Projects/pike)
+error[E0533]: expected value, found struct variant `Lifecycle::Closing`
+   --> src/app/tests/errors/root/accessibility.rs:334:9
+    |
+334 |         Lifecycle::Closing
+    |         ^^^^^^^^^^^^^^^^^^ not a value
+    |
+help: you might have meant to create a new value of the struct
+    |
+334 |         Lifecycle::Closing { awaiting_spawn: /* value */ }
+    |                            +++++++++++++++++++++++++++++++
+
+For more information about this error, try `rustc --explain E0533`.
+error: could not compile `pike` (lib test) due to 1 previous error

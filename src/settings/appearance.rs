@@ -55,14 +55,37 @@ pub enum Theme {
     Dark,
     Light,
     System,
+    HighContrastDark,
+    HighContrastLight,
 }
 
 impl Theme {
     pub fn is_light(self, system: iced::theme::Mode) -> bool {
-        self == Self::Light || (self == Self::System && system == iced::theme::Mode::Light)
+        matches!(self, Self::Light | Self::HighContrastLight)
+            || (self == Self::System && system == iced::theme::Mode::Light)
+    }
+
+    pub fn high_contrast(self) -> bool {
+        matches!(self, Self::HighContrastDark | Self::HighContrastLight)
     }
 
     pub fn palette(self, system: iced::theme::Mode) -> Box<ColorPalette> {
+        if self.high_contrast() {
+            let light = self.is_light(system);
+            return Box::new(ColorPalette {
+                foreground: if light { "#000000" } else { "#ffffff" }.into(),
+                background: if light { "#ffffff" } else { "#000000" }.into(),
+                bright_foreground: Some(if light { "#000000" } else { "#ffffff" }.into()),
+                dim_foreground: if light { "#404040" } else { "#bfbfbf" }.into(),
+                // ANSI colours remain terminal-controlled; these modes ensure
+                // contrast for default text/cursor, not arbitrary TUI colours.
+                ..if light {
+                    *Self::Light.palette(system)
+                } else {
+                    ColorPalette::default()
+                }
+            });
+        }
         if !self.is_light(system) {
             return Box::default();
         }

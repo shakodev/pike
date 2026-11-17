@@ -1,6 +1,30 @@
 use super::*;
 
 #[test]
+fn explicit_high_contrast_modes_roundtrip_and_keep_os_theme_independent() {
+    for (name, light) in [("high-contrast-dark", false), ("high-contrast-light", true)] {
+        let settings = Settings::parse(&format!("version = 1\ntheme = '{name}'")).unwrap();
+        assert_eq!(
+            Settings::parse(&settings.to_toml().unwrap()).unwrap(),
+            settings
+        );
+        for system in [iced::theme::Mode::Dark, iced::theme::Mode::Light] {
+            assert!(settings.theme().high_contrast());
+            assert_eq!(settings.theme().is_light(system), light);
+            let palette = settings.theme().palette(system);
+            assert_eq!(
+                palette.foreground,
+                if light { "#000000" } else { "#ffffff" }
+            );
+            assert_eq!(
+                palette.background,
+                if light { "#ffffff" } else { "#000000" }
+            );
+        }
+    }
+}
+
+#[test]
 fn missing_fields_have_documented_defaults_and_serialization_roundtrips() {
     let settings = Settings::parse("version = 1").unwrap();
     assert_eq!(settings, Settings::default());

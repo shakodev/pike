@@ -1,0 +1,57 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+warning: method `tab_dialog_focus_id` is never used
+   --> src/app/tab_dialog.rs:155:19
+    |
+ 83 | impl App {
+    | -------- method in this implementation
+...
+155 |     pub(super) fn tab_dialog_focus_id(&self) -> Option<Id> {
+    |                   ^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `pike` (lib test) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-b5dc0c5d9138aeb4)
+
+running 2 tests
+test app::tests::errors::root::accessibility::accessibility_high_contrast_dialogs_keep_selected_controls_visible ... FAILED
+test app::tests::errors::root::accessibility::accessibility_keyboard_journey_preserves_sessions_and_restores_input ... FAILED
+
+failures:
+
+---- app::tests::errors::root::accessibility::accessibility_high_contrast_dialogs_keep_selected_controls_visible stdout ----
+
+thread 'app::tests::errors::root::accessibility::accessibility_high_contrast_dialogs_keep_selected_controls_visible' (258378) panicked at src/app/tests/errors/root/accessibility.rs:16:10:
+local graphics device
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- app::tests::errors::root::accessibility::accessibility_keyboard_journey_preserves_sessions_and_restores_input stdout ----
+
+thread 'app::tests::errors::root::accessibility::accessibility_keyboard_journey_preserves_sessions_and_restores_input' (258383) panicked at src/app/tests/errors/root/accessibility.rs:16:10:
+local graphics device
+
+
+failures:
+    app::tests::errors::root::accessibility::accessibility_high_contrast_dialogs_keep_selected_controls_visible
+    app::tests::errors::root::accessibility::accessibility_keyboard_journey_preserves_sessions_and_restores_input
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 224 filtered out; finished in 0.21s
+
+error: test failed, to rerun pass `--lib`

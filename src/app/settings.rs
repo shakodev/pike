@@ -71,7 +71,10 @@ impl App {
     }
 
     pub fn theme(&self) -> iced::Theme {
-        if self.settings.active.theme().is_light(self.settings.system) {
+        let theme = self.settings.active.theme();
+        if theme.high_contrast() {
+            crate::ui::style::high_contrast(theme.is_light(self.settings.system))
+        } else if theme.is_light(self.settings.system) {
             iced::Theme::Light
         } else {
             iced::Theme::Dark
