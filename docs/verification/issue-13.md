@@ -1,5 +1,8 @@
 # Issue #13 — widget identity and moved-pane geometry
 
+See the [2026-10-28 native follow-up](issues-13-14-follow-up.md) for current
+Windows checks, measured evidence and explicitly pending physical verification.
+
 Native Windows synthetic verification now passes for both renderer profiles;
 see the final section for exact source SHA, run links and retained evidence.
 Earlier Windows-blocker notes below describe the original macOS-only reviews.

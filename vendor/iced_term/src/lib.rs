@@ -7,6 +7,7 @@ mod event_bridge;
 mod font;
 mod geometry;
 mod ime;
+mod keyboard;
 mod lifecycle;
 mod paste;
 mod snapshot;
