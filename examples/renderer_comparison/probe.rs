@@ -194,7 +194,7 @@ impl Probe {
     fn update(&mut self, message: Msg) -> Task<Msg> {
         match message {
             Msg::Advance => self.advance(),
-            Msg::App(message) => {
+            Msg::App(mut message) => {
                 if matches!(&message, Message::CloseWindow) {
                     self.failed = true;
                     self.note("interrupted", 0, 0, 0);
@@ -202,6 +202,13 @@ impl Probe {
                 }
                 if let Message::WindowFocused(value) = &message {
                     self.note("native_focus", 0, value, 0);
+                    if self.options.synthetic_focus && self.focus_requested {
+                        // The explicitly synthetic, non-Windows dry run owns
+                        // focus authority for its whole lifetime. Retain real
+                        // observations above, without revoking child commands
+                        // when another macOS application becomes foreground.
+                        message = Message::WindowFocused(true);
+                    }
                 }
                 if let Message::Terminal((id, Event::BackendCall(_, command))) = &message {
                     match command {
