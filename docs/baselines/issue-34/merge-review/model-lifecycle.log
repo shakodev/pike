@@ -1,0 +1,150 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s
+     Running unittests src/lib.rs (/Users/daan.hoedjes/Documents/Projects/pike/target/debug/deps/pike-b2ebd3beedc017cb)
+
+running 4 tests
+test app::boot::tests::close_before_readiness_never_reads_configuration_or_prepares_a_backend ... ok
+test app::boot::tests::queued_pre_ready_controls_and_late_receipts_cannot_allocate_or_prepare ... ok
+test app::boot::tests::readiness_preserves_window_theme_and_authority_and_initializes_once ... ok
+test app::boot::tests::settings_read_receipt_after_renderer_shutdown_cannot_commit_or_launch ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 216 filtered out; finished in 0.00s
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running unittests src/lib.rs (/Users/daan.hoedjes/Documents/Projects/pike/target/debug/deps/pike-b2ebd3beedc017cb)
+
+running 5 tests
+test executor::tests::blocking_work_queues_after_the_explicit_worker_budget ... ok
+test executor::tests::canceled_task_drops_its_future_and_executor_keeps_running ... ok
+test executor::tests::cancelled_async_waiter_keeps_its_slot_until_blocking_closure_returns ... ok
+test executor::tests::drop_cancels_pending_async_work_and_joins_finite_blocking_work ... ok
+test executor::tests::enter_spawn_block_on_and_timers_share_one_runtime ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 215 filtered out; finished in 0.11s
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.22s
+     Running unittests src/lib.rs (/Users/daan.hoedjes/Documents/Projects/pike/target/debug/deps/pike-b2ebd3beedc017cb)
+
+running 3 tests
+test native_cleanup::tests::only_explicit_force_control_can_choose_force ... ok
+test native_cleanup::tests::poison_recovery_keeps_cancellation_available ... ok
+test native_cleanup::tests::queued_prompt_cancellation_prevents_native_open_and_is_idempotent ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 217 filtered out; finished in 0.00s
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
+     Running unittests src/lib.rs (/Users/daan.hoedjes/Documents/Projects/pike/target/debug/deps/pike-b2ebd3beedc017cb)
+
+running 2 tests
+test diagnostics::tests::opt_in_coalescing_retention_eviction_and_off_release_are_explicit ... ok
+test diagnostics::tests::secret_like_source_values_cannot_enter_metadata_including_repeats_and_eviction ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 218 filtered out; finished in 0.01s
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running unittests src/lib.rs (/Users/daan.hoedjes/Documents/Projects/pike/target/debug/deps/pike-b2ebd3beedc017cb)
+
+running 3 tests
+test errors::tests::a_success_resolves_only_its_origin_and_category ... ok
+test errors::tests::every_error_has_bounded_safe_context_and_an_explicit_recovery ... ok
+test errors::tests::repeated_errors_coalesce_eviction_and_dismissal_never_recycle_authority ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 217 filtered out; finished in 0.00s
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
+     Running unittests src/lib.rs (/Users/daan.hoedjes/Documents/Projects/pike/target/debug/deps/pike-b2ebd3beedc017cb)
+
+running 1 test
+test errors::writes::tests::newer_operation_invalidates_old_and_duplicate_receipts_and_clear_releases_memory ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 219 filtered out; finished in 0.00s
+

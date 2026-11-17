@@ -1,0 +1,19 @@
+   Compiling futures-io v0.3.34
+   Compiling mio v1.2.4
+   Compiling socket2 v0.6.5
+   Compiling futures-util v0.3.34
+   Compiling tokio v1.54.1
+   Compiling futures-executor v0.3.34
+   Compiling futures v0.3.34
+   Compiling iced_futures v0.14.0
+   Compiling iced_runtime v0.14.0 (/private/tmp/pike-pr-85/vendor/iced_runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.28s
+     Running unittests src/lib.rs (/Users/daan.hoedjes/Documents/Projects/pike/target/debug/deps/iced_runtime-c1ebf6156109e2f3)
+
+running 3 tests
+test system::renderer_tests::readiness_and_failure_are_bounded_and_ordered_before_either_is_consumed ... ok
+test clipboard::tests::legacy_write_debug_is_redacted_and_canceled_acknowledgement_ends ... ok
+test clipboard::tests::acknowledged_write_is_one_native_action_and_metadata_only_result ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,1 @@
+passed: synthetic insert/move/save/exit

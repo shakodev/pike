@@ -1,0 +1,11 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.48s
+     Running unittests src/lib.rs (/Users/daan.hoedjes/Documents/Projects/pike/target/debug/deps/alacritty_terminal-da7c3e294e0471c9)
+
+running 4 tests
+test tty::unix::resize_errors::native_pixel_conversion_saturates_without_wrapping_grid_dimensions ... ok
+test tty::unix::resize_errors::invalid_native_fd_returns_bounded_error_and_preserves_process ... ok
+test event_loop::lifecycle_tests::fallible_resize_receipt_keeps_worker_and_input_alive_without_private_context ... ok
+test event_loop::read_tests::continuation_services_input_and_resize_between_bounded_read_turns ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 159 filtered out; finished in 0.01s
+

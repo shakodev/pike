@@ -1,0 +1,26 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.22s
+     Running unittests src/lib.rs (/Users/daan.hoedjes/Documents/Projects/pike/target/debug/deps/pike-b2ebd3beedc017cb)
+
+running 4 tests
+test app::close::native::reviewer_late_renderer::timeout_then_renderer_failure_must_enqueue_native_choice ... ok
+test app::close::native::tests::delayed_native_response_is_cancelled_by_real_pool_cleanup_and_old_force_is_inert ... ok
+test app::close::native::tests::renderer_failure_after_existing_timeout_enqueues_the_same_single_native_choice ... ok
+test app::close::native::tests::saturated_launch_and_config_slots_leave_native_recovery_capacity ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 216 filtered out; finished in 0.01s
+

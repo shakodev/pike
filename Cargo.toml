@@ -13,7 +13,7 @@ resolver = "3"
 
 [features]
 default = ["renderer-wgpu"]
-renderer-wgpu = ["iced/wgpu"]
+renderer-wgpu = ["iced/wgpu-bare", "dep:wgpu"]
 renderer-tiny-skia = ["iced/tiny-skia"]
 
 [dependencies]
@@ -21,6 +21,9 @@ iced = { version = "=0.14.0", default-features = false, features = ["tokio", "cr
 iced_term = { version = "=0.8.0", default-features = false }
 # The pinned runtime exposes metadata-only acknowledged clipboard writes.
 iced_runtime = "=0.14.0"
+# Feature anchor for the existing renderer dependency. WGL's hidden worker
+# window deadlocks native input-language changes; keep native backends only.
+wgpu = { version = "=27.0.1", optional = true, default-features = false, features = ["std", "parking_lot", "dx12", "metal", "vulkan", "wgsl"] }
 serde = { version = "=1.0.229", features = ["derive"] }
 toml = { version = "=1.1.8", default-features = false, features = ["std", "serde", "parse", "display"] }
 tokio = { version = "=1.54.1", default-features = false, features = ["rt-multi-thread", "sync", "time"] }

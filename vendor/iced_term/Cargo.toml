@@ -57,9 +57,6 @@ version = "0.14.0"
 version = "0.14.0"
 default-features = false
 
-[dependencies.open]
-version = "5.3.3"
-
 [dependencies.tokio]
 version = "1.50.0"
 default-features = false

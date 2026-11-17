@@ -1,0 +1,3 @@
+application_cursor,cases,bytes,hash,max_dispatch_us,fixture_pid,cleanup
+false,166,338,6240427134811137018,59.959,47827,Requested
+true,166,338,14833512360581434354,35.792,47829,Requested
