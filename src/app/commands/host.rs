@@ -32,6 +32,7 @@ pub(in crate::app) struct State {
     pub(in crate::app) help_selected: usize,
     pub(in crate::app) help_scroll: Option<iced::widget::Id>,
     pub(in crate::app) help_rows: Vec<iced::widget::Id>,
+    pub(in crate::app) help_actions: Vec<super::HelpAction>,
     pub(in crate::app) fonts: BTreeMap<SessionId, FontSettings>,
 }
 

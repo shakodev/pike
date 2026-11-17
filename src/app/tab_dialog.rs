@@ -1,7 +1,7 @@
 //! Tab dialogs use the existing modal/focus boundary and stable action tokens.
 use iced::advanced::widget::{Id, Operation, operate, operation};
 use iced::keyboard::{self, Key, key::Named};
-use iced::widget::{button, column, container, row, text, text_input};
+use iced::widget::{button, column, container, row, scrollable, text, text_input};
 use iced::{Element, Fill, Rectangle, Task};
 
 use super::resize::capture::KeyAction;
@@ -9,6 +9,7 @@ use super::{App, Control, Message, close, resize};
 use crate::identity::{SessionId, TabId};
 use crate::tab_strip;
 use crate::tabs::title_draft;
+use crate::ui::style;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum DialogAction {
@@ -21,6 +22,15 @@ pub enum DialogAction {
     Choose(TabId),
     Close(TabId),
     Composing(bool),
+    Editing,
+}
+
+#[derive(Clone, Copy, Default, PartialEq, Eq)]
+enum RenameFocus {
+    #[default]
+    Name,
+    Cancel,
+    Save,
 }
 
 enum Kind {
@@ -29,6 +39,9 @@ enum Kind {
         draft: String,
         input: Id,
         composing: bool,
+        focus: RenameFocus,
+        scroll: Id,
+        rows: [Id; 3],
     },
     Overflow {
         selected: TabId,
@@ -83,10 +96,16 @@ impl App {
         dialog.token = token;
         match &mut dialog.kind {
             Kind::Rename {
-                input, composing, ..
+                input,
+                composing,
+                scroll,
+                rows,
+                ..
             } => {
                 *input = Id::unique();
                 *composing = false;
+                *scroll = Id::unique();
+                *rows = std::array::from_fn(|_| Id::unique());
             }
             Kind::Overflow { scroll, .. } => *scroll = Id::unique(),
         }
@@ -94,10 +113,20 @@ impl App {
 
     pub(super) fn focus_tab_dialog(&self) -> Option<Task<Message>> {
         match &self.tab_dialog.current.as_ref()?.kind {
-            Kind::Rename { input, .. } => Some(operate(FocusName {
-                input: input.clone(),
-                window: self.window_focus.clone(),
-            })),
+            Kind::Rename {
+                input,
+                focus,
+                scroll,
+                rows,
+                ..
+            } => Some(Task::batch([
+                operate(FocusName {
+                    input: input.clone(),
+                    window: self.window_focus.clone(),
+                    focused: *focus == RenameFocus::Name,
+                }),
+                super::commands::reveal(scroll.clone(), rows[*focus as usize].clone()),
+            ])),
             Kind::Overflow { selected, scroll } => {
                 Some(operate(tab_strip::reveal(scroll.clone(), *selected)))
             }
@@ -122,6 +151,16 @@ impl App {
         }
     }
 
+    #[cfg(test)]
+    pub(super) fn tab_dialog_focus_id(&self) -> Option<Id> {
+        match &self.tab_dialog.current.as_ref()?.kind {
+            Kind::Rename { rows, focus, .. } => Some(rows[*focus as usize].clone()),
+            Kind::Overflow { selected, .. } => {
+                Some(Id::from(format!("tab-overflow-row-{}", selected.get())))
+            }
+        }
+    }
+
     pub(super) fn begin_tab_rename(&mut self, tab: TabId) -> Task<Message> {
         let Some(title) = self.tab_title(tab) else {
             self.notice = Some("That tab is no longer open. Select an existing tab to rename it.");
@@ -140,6 +179,9 @@ impl App {
                 draft: title.as_str().to_owned(),
                 input: input.clone(),
                 composing: false,
+                focus: RenameFocus::Name,
+                scroll: Id::unique(),
+                rows: std::array::from_fn(|_| Id::unique()),
             },
         });
         self.notice = None;
@@ -149,6 +191,7 @@ impl App {
         operate(FocusName {
             input,
             window: self.window_focus.clone(),
+            focused: true,
         })
     }
 
@@ -211,6 +254,40 @@ impl App {
         }
         if !self.window_focus.is_focused() && !matches!(action, DialogAction::Composing(false)) {
             return Task::none();
+        }
+        if let Some(Dialog {
+            kind:
+                Kind::Rename {
+                    focus,
+                    composing,
+                    input,
+                    scroll,
+                    rows,
+                    ..
+                },
+            ..
+        }) = &mut self.tab_dialog.current
+        {
+            if matches!(action, DialogAction::Next | DialogAction::Previous) && !*composing {
+                *focus = match (*focus, action) {
+                    (RenameFocus::Name, DialogAction::Next)
+                    | (RenameFocus::Save, DialogAction::Previous) => RenameFocus::Cancel,
+                    (RenameFocus::Cancel, DialogAction::Next)
+                    | (RenameFocus::Name, DialogAction::Previous) => RenameFocus::Save,
+                    _ => RenameFocus::Name,
+                };
+                // Retire delayed focus/reveal effects from the prior stop.
+                // The draft is model-owned; transient input/scroll state may
+                // reset without giving an old task a present widget to alter.
+                *input = Id::unique();
+                *scroll = Id::unique();
+                *rows = std::array::from_fn(|_| Id::unique());
+                return self.focus_tab_dialog().unwrap_or_else(Task::none);
+            }
+            if action == DialogAction::Editing {
+                *focus = RenameFocus::Name;
+                return Task::none();
+            }
         }
         match action {
             DialogAction::Cancel => return self.dismiss_tab_dialog(),
@@ -297,18 +374,27 @@ impl App {
                 draft,
                 input,
                 composing,
+                focus,
+                scroll,
+                rows,
                 ..
             } => {
                 let content: Element<'_, Edit> = container(column![
                     text("Rename tab").size(22),
                     text("Up to 256 characters. Leave blank to use the automatic name."),
-                    text_input("Automatic tab name", draft)
+                    container(text_input("Automatic tab name", draft)
                         .id(input.clone())
-                        .on_input(Edit::Name),
+                        .style(style::input)
+                        .on_input(Edit::Name)).id(rows[0].clone()),
                     text("Manual names stay until reset. Automatic names follow the focused terminal title, then its launch profile."),
+                    text("Tab / Shift+Tab selects Name, Cancel or Save. Enter chooses; Escape cancels."),
                     row![
-                        button("Cancel").on_press(Edit::Action(DialogAction::Cancel)),
-                        button("Save").on_press_maybe((!*composing).then_some(Edit::Action(DialogAction::Save))),
+                        container(button(if *focus == RenameFocus::Cancel { "› Cancel" } else { "Cancel" })
+                            .style(move |theme, status| style::choice(theme, status, *focus == RenameFocus::Cancel))
+                            .on_press(Edit::Action(DialogAction::Cancel))).id(rows[1].clone()),
+                        container(button(if *focus == RenameFocus::Save { "› Save" } else { "Save" })
+                            .style(move |theme, status| style::choice(theme, status, *focus == RenameFocus::Save))
+                            .on_press_maybe((!*composing).then_some(Edit::Action(DialogAction::Save)))).id(rows[2].clone()),
                     ].spacing(12),
                 ].spacing(12)).padding(24).max_width(620).width(Fill).into();
                 let content = content.map(move |edit| match edit {
@@ -316,11 +402,18 @@ impl App {
                     Edit::Action(action) => Message::Control(Control::TabDialog(token, action)),
                 });
                 resize::capture::capture_text(
-                    container(content).center_x(Fill).center_y(Fill),
+                    container(
+                        scrollable(container(content).center_x(Fill))
+                            .id(scroll.clone())
+                            .height(Fill),
+                    )
+                    .width(Fill)
+                    .height(Fill)
+                    .style(style::workspace),
                     input.clone(),
                     token,
                     self.window_focus.clone(),
-                    move |event| rename_key(event, self.settings.active.shortcuts()),
+                    move |event| rename_key(event, self.settings.active.shortcuts(), *focus),
                 )
             }
             Kind::Overflow { selected, scroll } => {
@@ -332,13 +425,14 @@ impl App {
                     Control::CloseTab,
                     Control::TabDialog(token, DialogAction::Cancel),
                 );
-                resize::capture(
+                resize::capture::capture_with_window(
                     container(content.map(Message::Control))
                         .center_x(Fill)
                         .center_y(Fill),
                     false,
                     None,
-                    overflow_key,
+                    self.window_focus.clone(),
+                    move |event| overflow_key(event, *selected),
                 )
             }
         };
@@ -367,6 +461,7 @@ impl App {
 fn rename_key(
     event: &keyboard::Event,
     shortcuts: &[crate::settings::Shortcut],
+    focus: RenameFocus,
 ) -> Option<KeyAction> {
     match event {
         keyboard::Event::KeyPressed {
@@ -383,14 +478,51 @@ fn rename_key(
             ..
         } => Some(KeyAction::Dispatch(Control::TabDialog(
             0,
-            DialogAction::Save,
+            if focus == RenameFocus::Cancel {
+                DialogAction::Cancel
+            } else {
+                DialogAction::Save
+            },
         ))),
+        keyboard::Event::KeyPressed {
+            key: Key::Named(Named::Space),
+            repeat: false,
+            ..
+        } if focus != RenameFocus::Name => Some(KeyAction::Dispatch(Control::TabDialog(
+            0,
+            if focus == RenameFocus::Cancel {
+                DialogAction::Cancel
+            } else {
+                DialogAction::Save
+            },
+        ))),
+        keyboard::Event::KeyPressed {
+            key: Key::Named(Named::Tab),
+            modifiers,
+            ..
+        } => Some(KeyAction::Dispatch(Control::TabDialog(
+            0,
+            if modifiers.shift() {
+                DialogAction::Previous
+            } else {
+                DialogAction::Next
+            },
+        ))),
+        keyboard::Event::KeyReleased {
+            key: Key::Named(Named::Tab | Named::Enter | Named::Escape),
+            ..
+        } => Some(KeyAction::Consume),
+        // Iced TextInput keeps modifier state from these native events, even
+        // while our logical focus is on Cancel/Save. Do not leave a held
+        // Command/Shift modifier latched when returning to the name field.
+        keyboard::Event::ModifiersChanged(_) => None,
+        _ if focus != RenameFocus::Name => Some(KeyAction::Consume),
         _ if super::commands::resolve_with(event, shortcuts).is_some() => Some(KeyAction::Consume),
         _ => None,
     }
 }
 
-fn overflow_key(event: &keyboard::Event) -> Option<KeyAction> {
+fn overflow_key(event: &keyboard::Event, selected: TabId) -> Option<KeyAction> {
     let keyboard::Event::KeyPressed {
         key,
         modifiers,
@@ -408,6 +540,7 @@ fn overflow_key(event: &keyboard::Event) -> Option<KeyAction> {
         Key::Named(Named::Tab) if modifiers.shift() => DialogAction::Previous,
         Key::Named(Named::Tab) => DialogAction::Next,
         Key::Named(Named::Enter) if !repeat => DialogAction::Save,
+        Key::Named(Named::Delete) if !repeat => DialogAction::Close(selected),
         Key::Named(Named::Escape) if !repeat => DialogAction::Cancel,
         _ => return Some(KeyAction::Consume),
     };
@@ -417,7 +550,11 @@ fn overflow_key(event: &keyboard::Event) -> Option<KeyAction> {
 struct FocusName {
     input: Id,
     window: iced_term::WindowFocus,
+    focused: bool,
 }
+
+#[cfg(test)]
+mod tests;
 impl Operation<Message> for FocusName {
     fn traverse(&mut self, operate: &mut dyn FnMut(&mut dyn Operation<Message>)) {
         if self.window.is_focused() {
@@ -426,7 +563,11 @@ impl Operation<Message> for FocusName {
     }
     fn focusable(&mut self, id: Option<&Id>, _: Rectangle, state: &mut dyn operation::Focusable) {
         if id == Some(&self.input) && self.window.is_focused() {
-            state.focus();
+            if self.focused {
+                state.focus();
+            } else {
+                state.unfocus();
+            }
         }
     }
 }

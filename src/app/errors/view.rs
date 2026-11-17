@@ -145,33 +145,7 @@ impl App {
             .id(format!("recovery-dismiss-{}", notice.id.get()))
         ]
         .spacing(tokens::SPACE);
-        let retry = if notice.resolved || notice.retrying {
-            None
-        } else {
-            match (owner, notice.error.recovery()) {
-                (Owner::Session(id), Recovery::Resize)
-                    if self.terminal(id).is_some_and(|t| !t.input_status().closed) =>
-                {
-                    Some("Retry size")
-                }
-                (Owner::Session(id), Recovery::Restart) if self.restart_ready(id) => {
-                    Some("Retry terminal")
-                }
-                (Owner::Session(id), Recovery::PasteAgain) if self.error_input_owner(id) => {
-                    Some("Try paste again")
-                }
-                (Owner::Session(id), Recovery::CopyAgain) if self.error_input_owner(id) => {
-                    Some("Try copy again")
-                }
-                (Owner::Application, Recovery::CopyAgain) if self.diagnostics.enabled() => {
-                    Some("Try copy again")
-                }
-                (Owner::Application, Recovery::ReloadSettings) if !self.settings.pending => {
-                    Some("Retry settings")
-                }
-                _ => None,
-            }
-        };
+        let retry = self.error_retry_label(notice, false);
         if let Some(label) = retry {
             let event = if matches!(
                 notice.error.recovery(),

@@ -53,6 +53,7 @@ struct Host {
     size: Size,
     clipboard: Option<String>,
     clipboard_reads: usize,
+    clipboard_writes: Vec<String>,
 }
 impl Host {
     fn apply(&mut self, message: Message) {
@@ -97,8 +98,11 @@ impl Host {
                     channel.send(self.clipboard.clone()).unwrap();
                 }
                 iced_runtime::Action::Clipboard(
-                    iced_runtime::clipboard::Action::WriteWithResult { channel, .. },
+                    iced_runtime::clipboard::Action::WriteWithResult {
+                        channel, contents, ..
+                    },
                 ) => {
+                    self.clipboard_writes.push(contents);
                     channel.send(Ok(())).unwrap();
                 }
                 _ => {}
@@ -237,6 +241,7 @@ fn root_recovery_row_keeps_background_controls_passive_and_routes_fresh_clipboar
         size: Size::new(960.0, 700.0),
         clipboard: None,
         clipboard_reads: 0,
+        clipboard_writes: Vec::new(),
     };
     host.settle();
     host.task(host.app.focus_active());
@@ -370,3 +375,5 @@ fn root_recovery_row_keeps_background_controls_passive_and_routes_fresh_clipboar
     );
     shutdown(&mut host.app, &host.executor);
 }
+
+mod accessibility;

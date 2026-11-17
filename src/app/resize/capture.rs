@@ -291,6 +291,15 @@ impl Widget<Message, iced::Theme, iced::Renderer> for Capture<'_> {
             _ => {}
         }
         if let Some(editor) = &self.editor {
+            if matches!(
+                event,
+                Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
+            ) {
+                shell.publish(Message::Control(Control::TabDialog(
+                    editor.token,
+                    DialogAction::Editing,
+                )));
+            }
             use iced::advanced::input_method::Event as Ime;
             let mut focused =
                 iced::advanced::widget::operation::focusable::is_focused(editor.input.clone());

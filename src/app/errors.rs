@@ -70,6 +70,48 @@ impl App {
         })
     }
 
+    /// Shared availability for pointer banners and the keyboard menu. The
+    /// menu temporarily suspends terminal input; it may offer clipboard retry
+    /// only for its original owner, and obtains a fresh lease after dismissal.
+    pub(super) fn error_retry_label(&self, notice: Notice, menu: bool) -> Option<&'static str> {
+        if notice.resolved || notice.retrying {
+            return None;
+        }
+        let input_owner = |id| {
+            if menu {
+                self.command_state.help == Some(Some(id))
+                    && self.active_session() == Some(id)
+                    && self.window_focus.is_focused()
+                    && self
+                        .terminal(id)
+                        .is_some_and(|t| !t.input_status().closed && !t.is_composing())
+            } else {
+                self.error_input_owner(id)
+            }
+        };
+        match (notice.owner, notice.error.recovery()) {
+            (Owner::Session(id), Recovery::Resize)
+                if self.terminal(id).is_some_and(|t| !t.input_status().closed) =>
+            {
+                Some("Retry size")
+            }
+            (Owner::Session(id), Recovery::Restart) if self.restart_ready(id) => {
+                Some("Retry terminal")
+            }
+            (Owner::Session(id), Recovery::PasteAgain) if input_owner(id) => {
+                Some("Try paste again")
+            }
+            (Owner::Session(id), Recovery::CopyAgain) if input_owner(id) => Some("Try copy again"),
+            (Owner::Application, Recovery::CopyAgain) if self.diagnostics.enabled() => {
+                Some("Try copy again")
+            }
+            (Owner::Application, Recovery::ReloadSettings) if !self.settings.pending => {
+                Some("Retry settings")
+            }
+            _ => None,
+        }
+    }
+
     pub(super) fn retry_error_request(&mut self, request: RecoveryRequest) -> Task<Message> {
         if request
             .consumed
