@@ -1,0 +1,76 @@
+   Compiling bytemuck v1.25.2
+   Compiling euclid v0.22.14
+   Compiling half v2.7.1
+   Compiling paste v1.0.15
+   Compiling font-types v0.12.7
+   Compiling font-types v0.10.1
+   Compiling read-fonts v0.41.0
+   Compiling lyon_geom v1.0.20
+   Compiling read-fonts v0.35.0
+   Compiling core-foundation v0.10.1
+   Compiling naga v27.0.3
+   Compiling malloc_buf v0.0.6
+   Compiling equivalent v1.0.3
+   Compiling hashbrown v0.17.1
+   Compiling bit-vec v0.8.0
+   Compiling foldhash v0.2.0
+   Compiling hashbrown v0.16.1
+   Compiling indexmap v2.14.2
+   Compiling bit-set v0.8.0
+   Compiling objc v0.2.7
+   Compiling core-graphics-types v0.2.0
+   Compiling lyon_path v1.0.19
+   Compiling codespan-reporting v0.12.0
+   Compiling wgpu-hal v27.0.4
+   Compiling unicode-ident v1.0.27
+   Compiling hexf-parse v0.2.1
+   Compiling block v0.1.6
+   Compiling metal v0.32.0
+   Compiling skrifa v0.44.0
+   Compiling swash v0.2.10
+   Compiling harfrust v0.3.2
+   Compiling skrifa v0.37.0
+   Compiling wgpu-types v27.0.1
+   Compiling profiling v1.0.18
+   Compiling cosmic-text v0.15.0
+   Compiling wgpu-core v27.0.3
+   Compiling litrs v1.0.1
+   Compiling document-features v0.2.12
+   Compiling wgpu-core-deps-apple v27.0.0
+   Compiling wgpu v27.0.1
+   Compiling svg_fmt v0.4.5
+   Compiling iced_graphics v0.14.0
+   Compiling float_next_after v1.0.0
+   Compiling lyon_tessellation v1.0.23
+   Compiling etagere v0.2.15
+   Compiling lyon_algorithms v1.0.22
+   Compiling lru v0.16.4
+   Compiling lyon v1.0.19
+   Compiling guillotiere v0.6.2
+   Compiling iced_program v0.14.0
+   Compiling iced_winit v0.14.1 (/private/tmp/pike-pr-84/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling cryoglyph v0.1.0
+   Compiling iced_wgpu v0.14.0
+   Compiling iced_renderer v0.14.0
+   Compiling iced_widget v0.14.2
+   Compiling iced v0.14.0
+   Compiling iced_term v0.8.0 (/private/tmp/pike-pr-84/vendor/iced_term)
+   Compiling pike v0.1.0 (/private/tmp/pike-pr-84)
+    Finished `release` profile [optimized] target(s) in 50.98s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

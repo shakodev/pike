@@ -1,0 +1,6 @@
+{
+  "file": "macos-release-workflow-raw.zip",
+  "bytes": 1021601,
+  "sha256": "1a5a45e0aec7426fe7e1dadf024d0f30b2e4d973348662b59b6b3c07da2f6f85",
+  "scope": "synthetic macOS workflow evidence and source/build identities; excludes binaries and all unit-test fabricated cost data"
+}

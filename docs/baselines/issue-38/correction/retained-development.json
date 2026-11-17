@@ -1,0 +1,466 @@
+[
+  {
+    "directory": "/private/tmp/pike-r38-evidence/four-hidden-saturated-flood",
+    "purpose": "development diagnosis, not accepted comparison measurements",
+    "retained_files": {
+      "synthetic-1.ppm": {
+        "bytes": 19027217,
+        "sha256": "1cc3d38135fad1f8119046df039591f99fae080aeecb7224d888831c7d8c2ce4"
+      },
+      "counters-before.csv": {
+        "bytes": 812,
+        "sha256": "e22de6711f43a5eb9aa86591f3aad8a477c18e13c315a99357718f7979fe89c3"
+      },
+      "redraws.txt": {
+        "bytes": 2,
+        "sha256": "4fc82b26aecb47d2868c4efbe3581732a3e7cbcc6c2efb32062c08170a05eeb8"
+      },
+      "counters-after.csv": {
+        "bytes": 820,
+        "sha256": "da4380fd18b8869b87af89f9a61ea5bae6a63a8920d934893238e2222216b150"
+      },
+      "counters-prepared.csv": {
+        "bytes": 799,
+        "sha256": "824d29f556e03ccdd4a2dcc33bee1675a5a2c0e5481849033f8bce1234413d15"
+      },
+      "settings.toml": {
+        "bytes": 241,
+        "sha256": "1bd824e9ef47d2e89d9c1e16e11d1e8be951acf63df0a671016b22c9740cc4b2"
+      },
+      "events.csv": {
+        "bytes": 1353,
+        "sha256": "44276443e12b1de5372ea45ae99e6de383e0dc322d9ca678cdc38994f1458d3b"
+      },
+      "completed.txt": {
+        "bytes": 7,
+        "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+      },
+      "graphics.toml": {
+        "bytes": 72,
+        "sha256": "b7906ad3b9244a71dc1fbcb4c832503dcd142c269195f999223e006aa3b24baa"
+      },
+      "frame-intervals.csv": {
+        "bytes": 12919,
+        "sha256": "870ed439f9ad726797008b38f1917226d3672189bd937fd63dfbb1e0375b3585"
+      },
+      "latency.csv": {
+        "bytes": 87,
+        "sha256": "e5f8deef2e9a3ce507dc8b5ca2b4c7770393fd2d4ab85a5d5e0ebe48ce2b98eb"
+      }
+    }
+  },
+  {
+    "directory": "/private/tmp/pike-r38-evidence/nonce-pixels-buffered",
+    "purpose": "development diagnosis, not accepted comparison measurements",
+    "retained_files": {
+      "synthetic-1.ppm": {
+        "bytes": 19027217,
+        "sha256": "47075c7c2e2ccb800a7058828a53f4a095765108af3158f536e20f8334d22e59"
+      },
+      "geometry.csv": {
+        "bytes": 38,
+        "sha256": "47a5f0d3aaede8fc7e5cf77ea8e3ed0790275076d7b09d4b90bad1899e4059cf"
+      },
+      "synthetic-2.ppm": {
+        "bytes": 19027217,
+        "sha256": "3d3074cfe191d9e050d9d6ef1880581a26c1a8ce1a8a1f61634b8525eb96cb04"
+      },
+      "counters-before.csv": {
+        "bytes": 244,
+        "sha256": "7442309d8be229a33da713c4e5fb81f9b6af36579d2c02838beb647387c2d2c8"
+      },
+      "redraws.txt": {
+        "bytes": 2,
+        "sha256": "9f14025af0065b30e47e23ebb3b491d39ae8ed17d33739e5ff3827ffb3634953"
+      },
+      "counters-after.csv": {
+        "bytes": 253,
+        "sha256": "5c676e071a9959986fded205285ae7d89dd86b1fae438cdc45c48923375aa0ef"
+      },
+      "counters-prepared.csv": {
+        "bytes": 244,
+        "sha256": "af947d7f9ab5c0b3a9d78a23d5eaba5fa50964e8a39c2a88d1bfe899a75af019"
+      },
+      "settings.toml": {
+        "bytes": 241,
+        "sha256": "1bd824e9ef47d2e89d9c1e16e11d1e8be951acf63df0a671016b22c9740cc4b2"
+      },
+      "events.csv": {
+        "bytes": 406,
+        "sha256": "7e487e7e75a8dc56dc3c6c497ae105f2ee55ce2adcddc5e3feee465e2ca9795c"
+      },
+      "completed.txt": {
+        "bytes": 7,
+        "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+      },
+      "graphics.toml": {
+        "bytes": 72,
+        "sha256": "b7906ad3b9244a71dc1fbcb4c832503dcd142c269195f999223e006aa3b24baa"
+      },
+      "frame-intervals.csv": {
+        "bytes": 12920,
+        "sha256": "5312e8816dc583d35f86edc074a9fed5d31380b939442368db72e86b3ed4d260"
+      },
+      "latency.csv": {
+        "bytes": 147,
+        "sha256": "2f9dd1044911b7d86451f2df6d71378966bab1402163bf3f25fd20b40fc963a0"
+      }
+    }
+  },
+  {
+    "directory": "/private/tmp/pike-r38-evidence/nonce-pixels-diagnostic",
+    "purpose": "development diagnosis, not accepted comparison measurements",
+    "retained_files": {
+      "geometry.csv": {
+        "bytes": 38,
+        "sha256": "47a5f0d3aaede8fc7e5cf77ea8e3ed0790275076d7b09d4b90bad1899e4059cf"
+      },
+      "counters-before.csv": {
+        "bytes": 244,
+        "sha256": "7442309d8be229a33da713c4e5fb81f9b6af36579d2c02838beb647387c2d2c8"
+      },
+      "redraws.txt": {
+        "bytes": 2,
+        "sha256": "4fc82b26aecb47d2868c4efbe3581732a3e7cbcc6c2efb32062c08170a05eeb8"
+      },
+      "counters-after.csv": {
+        "bytes": 250,
+        "sha256": "2aba191c8658fef4cc06530bb26d654ae0b10a00c8c56601b73433140fff674c"
+      },
+      "rejected-1-2952615.ppm": {
+        "bytes": 19027217,
+        "sha256": "84c9e65f79db57f7ff6845ff016e2058657d70784e884d359e4b2eb8540b0281"
+      },
+      "counters-prepared.csv": {
+        "bytes": 244,
+        "sha256": "af947d7f9ab5c0b3a9d78a23d5eaba5fa50964e8a39c2a88d1bfe899a75af019"
+      },
+      "settings.toml": {
+        "bytes": 241,
+        "sha256": "1bd824e9ef47d2e89d9c1e16e11d1e8be951acf63df0a671016b22c9740cc4b2"
+      },
+      "events.csv": {
+        "bytes": 368,
+        "sha256": "e7d505b2f90280cdedf08f0eb7aca08dbd82c6e8e65af1e84f7c1fabf7af6c8f"
+      },
+      "graphics.toml": {
+        "bytes": 72,
+        "sha256": "b7906ad3b9244a71dc1fbcb4c832503dcd142c269195f999223e006aa3b24baa"
+      },
+      "frame-intervals.csv": {
+        "bytes": 12919,
+        "sha256": "dd60fe58437b018ffbdbff86454c23ef91e6dc2fd5f3da89d381f3dc88fbfbc9"
+      },
+      "latency.csv": {
+        "bytes": 68,
+        "sha256": "6085667b9fe70b4a7f2f0d088ccca7cbd2ea0bc1dc4d9d5a26697b5bc66b97cd"
+      }
+    }
+  },
+  {
+    "directory": "/private/tmp/pike-r38-evidence/nonce-pixels-first",
+    "purpose": "development diagnosis, not accepted comparison measurements",
+    "retained_files": {
+      "geometry.csv": {
+        "bytes": 38,
+        "sha256": "47a5f0d3aaede8fc7e5cf77ea8e3ed0790275076d7b09d4b90bad1899e4059cf"
+      },
+      "counters-before.csv": {
+        "bytes": 244,
+        "sha256": "7442309d8be229a33da713c4e5fb81f9b6af36579d2c02838beb647387c2d2c8"
+      },
+      "redraws.txt": {
+        "bytes": 2,
+        "sha256": "d029fa3a95e174a19934857f535eb9427d967218a36ea014b70ad704bc6c8d1c"
+      },
+      "counters-after.csv": {
+        "bytes": 253,
+        "sha256": "ef919b797febe507d5d62c54c5f5f93de0f18102133827f373b07d1ccb4015cf"
+      },
+      "counters-prepared.csv": {
+        "bytes": 244,
+        "sha256": "af947d7f9ab5c0b3a9d78a23d5eaba5fa50964e8a39c2a88d1bfe899a75af019"
+      },
+      "settings.toml": {
+        "bytes": 241,
+        "sha256": "1bd824e9ef47d2e89d9c1e16e11d1e8be951acf63df0a671016b22c9740cc4b2"
+      },
+      "events.csv": {
+        "bytes": 391,
+        "sha256": "3f1c43df28c654cc6d9e14153633589382ce717649502a7f8f1c6287c9654206"
+      },
+      "graphics.toml": {
+        "bytes": 72,
+        "sha256": "b7906ad3b9244a71dc1fbcb4c832503dcd142c269195f999223e006aa3b24baa"
+      },
+      "frame-intervals.csv": {
+        "bytes": 12921,
+        "sha256": "6107feb781b7a157c9e53f315d693eb513728923095bc4ea510efa3d0c5225af"
+      },
+      "latency.csv": {
+        "bytes": 68,
+        "sha256": "6085667b9fe70b4a7f2f0d088ccca7cbd2ea0bc1dc4d9d5a26697b5bc66b97cd"
+      }
+    }
+  },
+  {
+    "directory": "/private/tmp/pike-r38-evidence/one-idle-counter-diagnostic",
+    "purpose": "development diagnosis, not accepted comparison measurements",
+    "retained_files": {
+      "counters-prepared.csv": {
+        "bytes": 244,
+        "sha256": "3b9b57c8619b2eed470d22d9811288a8f5d930c5b28f68563e2a098e8c6c3f17"
+      },
+      "settings.toml": {
+        "bytes": 241,
+        "sha256": "1bd824e9ef47d2e89d9c1e16e11d1e8be951acf63df0a671016b22c9740cc4b2"
+      },
+      "events.csv": {
+        "bytes": 192,
+        "sha256": "146adab99ab5ab3fffa79631da73d1f0cd03128436c2e51d152e8ae33daaea12"
+      },
+      "graphics.toml": {
+        "bytes": 72,
+        "sha256": "b7906ad3b9244a71dc1fbcb4c832503dcd142c269195f999223e006aa3b24baa"
+      },
+      "latency.csv": {
+        "bytes": 57,
+        "sha256": "ea7ad58d090aed19005e9915e3e8735c43d7a1587cca3a6d28e97b02570c6820"
+      }
+    }
+  },
+  {
+    "directory": "/private/tmp/pike-r38-evidence/one-idle-empty-reset",
+    "purpose": "development diagnosis, not accepted comparison measurements",
+    "retained_files": {
+      "counters-before.csv": {
+        "bytes": 244,
+        "sha256": "ce5a361216e6ea7d31f70cc0a27df5c1acd760b5014b4cbc61a25e9cc03fb78c"
+      },
+      "redraws.txt": {
+        "bytes": 1,
+        "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+      },
+      "counters-after.csv": {
+        "bytes": 244,
+        "sha256": "ce5a361216e6ea7d31f70cc0a27df5c1acd760b5014b4cbc61a25e9cc03fb78c"
+      },
+      "counters-prepared.csv": {
+        "bytes": 244,
+        "sha256": "af947d7f9ab5c0b3a9d78a23d5eaba5fa50964e8a39c2a88d1bfe899a75af019"
+      },
+      "settings.toml": {
+        "bytes": 241,
+        "sha256": "1bd824e9ef47d2e89d9c1e16e11d1e8be951acf63df0a671016b22c9740cc4b2"
+      },
+      "events.csv": {
+        "bytes": 257,
+        "sha256": "84e027ed4fd204cbe5c23bdba0399ba6865fb45b9dc9a3927a65b93b17e6c425"
+      },
+      "completed.txt": {
+        "bytes": 7,
+        "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+      },
+      "graphics.toml": {
+        "bytes": 72,
+        "sha256": "b7906ad3b9244a71dc1fbcb4c832503dcd142c269195f999223e006aa3b24baa"
+      },
+      "frame-intervals.csv": {
+        "bytes": 12919,
+        "sha256": "528eb3912d543193753a4508008d47f3f929db103d447b3f116d374f1f9aeb52"
+      },
+      "latency.csv": {
+        "bytes": 57,
+        "sha256": "ea7ad58d090aed19005e9915e3e8735c43d7a1587cca3a6d28e97b02570c6820"
+      }
+    }
+  },
+  {
+    "directory": "/private/tmp/pike-r38-evidence/one-idle-first",
+    "purpose": "development diagnosis, not accepted comparison measurements",
+    "retained_files": {
+      "settings.toml": {
+        "bytes": 241,
+        "sha256": "1bd824e9ef47d2e89d9c1e16e11d1e8be951acf63df0a671016b22c9740cc4b2"
+      },
+      "events.csv": {
+        "bytes": 21,
+        "sha256": "bddfbf6d34fd25bdd65a40681ccce2c172038821bd1cd4d6204d15bdfb20a164"
+      },
+      "graphics.toml": {
+        "bytes": 72,
+        "sha256": "b7906ad3b9244a71dc1fbcb4c832503dcd142c269195f999223e006aa3b24baa"
+      },
+      "latency.csv": {
+        "bytes": 57,
+        "sha256": "ea7ad58d090aed19005e9915e3e8735c43d7a1587cca3a6d28e97b02570c6820"
+      }
+    }
+  },
+  {
+    "directory": "/private/tmp/pike-r38-evidence/one-idle-focus",
+    "purpose": "development diagnosis, not accepted comparison measurements",
+    "retained_files": {
+      "settings.toml": {
+        "bytes": 241,
+        "sha256": "1bd824e9ef47d2e89d9c1e16e11d1e8be951acf63df0a671016b22c9740cc4b2"
+      },
+      "events.csv": {
+        "bytes": 135,
+        "sha256": "ddfdef3f91338100bd9812ea4ae22734b4912e3df62dba7e3b2e03049bc2ea2f"
+      },
+      "graphics.toml": {
+        "bytes": 72,
+        "sha256": "b7906ad3b9244a71dc1fbcb4c832503dcd142c269195f999223e006aa3b24baa"
+      },
+      "latency.csv": {
+        "bytes": 57,
+        "sha256": "ea7ad58d090aed19005e9915e3e8735c43d7a1587cca3a6d28e97b02570c6820"
+      }
+    }
+  },
+  {
+    "directory": "/private/tmp/pike-r38-evidence/one-idle-native",
+    "purpose": "development diagnosis, not accepted comparison measurements",
+    "retained_files": {
+      "settings.toml": {
+        "bytes": 241,
+        "sha256": "1bd824e9ef47d2e89d9c1e16e11d1e8be951acf63df0a671016b22c9740cc4b2"
+      },
+      "events.csv": {
+        "bytes": 104,
+        "sha256": "9fa4c5234b9f779f2b8624a8180a09136a8bf21d2cc3bf00ec50284254b3a5cf"
+      },
+      "graphics.toml": {
+        "bytes": 72,
+        "sha256": "b7906ad3b9244a71dc1fbcb4c832503dcd142c269195f999223e006aa3b24baa"
+      },
+      "latency.csv": {
+        "bytes": 57,
+        "sha256": "ea7ad58d090aed19005e9915e3e8735c43d7a1587cca3a6d28e97b02570c6820"
+      }
+    }
+  },
+  {
+    "directory": "/private/tmp/pike-r38-evidence/one-idle-synthetic",
+    "purpose": "development diagnosis, not accepted comparison measurements",
+    "retained_files": {
+      "settings.toml": {
+        "bytes": 241,
+        "sha256": "1bd824e9ef47d2e89d9c1e16e11d1e8be951acf63df0a671016b22c9740cc4b2"
+      },
+      "events.csv": {
+        "bytes": 190,
+        "sha256": "0cbb6b9314cf85a89add0d7a5aa9447f102fd26c357cded67f9438ec1245098b"
+      },
+      "graphics.toml": {
+        "bytes": 72,
+        "sha256": "b7906ad3b9244a71dc1fbcb4c832503dcd142c269195f999223e006aa3b24baa"
+      },
+      "latency.csv": {
+        "bytes": 57,
+        "sha256": "ea7ad58d090aed19005e9915e3e8735c43d7a1587cca3a6d28e97b02570c6820"
+      }
+    }
+  },
+  {
+    "directory": "/private/tmp/pike-r38-evidence/release-tiny-four-hidden",
+    "purpose": "development diagnosis, not accepted comparison measurements",
+    "retained_files": {
+      "synthetic-1.ppm": {
+        "bytes": 19027217,
+        "sha256": "0442208eca3699dd4e3e6afe865e30be4f9dceec53c9d7ea0394015929b0c36a"
+      },
+      "counters-before.csv": {
+        "bytes": 807,
+        "sha256": "501c24da1d1141005b7c3041b1f1e233e33b5470fcf4ad8f588d84aea61a0cdb"
+      },
+      "redraws.txt": {
+        "bytes": 2,
+        "sha256": "4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5"
+      },
+      "counters-after.csv": {
+        "bytes": 816,
+        "sha256": "e16beadd0a28d2dd4147c02b044d17085037ce194637a26c1aa207ed16e0b01f"
+      },
+      "counters-prepared.csv": {
+        "bytes": 790,
+        "sha256": "cb2ec10812caef625dd6a7d302a6162f7e34aab5d9a3b3a55121a76c8ad8dc32"
+      },
+      "settings.toml": {
+        "bytes": 280,
+        "sha256": "952b1b16249e2261f2a8612243b4a4b1cee2f13d0605b28e2ffed0bca285bbca"
+      },
+      "events.csv": {
+        "bytes": 1355,
+        "sha256": "06a8d398f33a753ce04e8c79b6f053c9983b41b5b2123a74b1cb39d11b3cc4e5"
+      },
+      "completed.txt": {
+        "bytes": 7,
+        "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+      },
+      "graphics.toml": {
+        "bytes": 72,
+        "sha256": "b7906ad3b9244a71dc1fbcb4c832503dcd142c269195f999223e006aa3b24baa"
+      },
+      "frame-intervals.csv": {
+        "bytes": 12919,
+        "sha256": "6f54d0332f1d0799fc09609371ed55630e44c52d23d8eba9ec4dfb0efd7cd435"
+      },
+      "latency.csv": {
+        "bytes": 90,
+        "sha256": "687568f9c17ab30ac114415fc855952c88fd8845148de1c2d70cef5b491ac993"
+      }
+    }
+  },
+  {
+    "directory": "/private/tmp/pike-r38-evidence/release-wgpu-four-hidden",
+    "purpose": "development diagnosis, not accepted comparison measurements",
+    "retained_files": {
+      "synthetic-1.ppm": {
+        "bytes": 19027217,
+        "sha256": "a07a0ace600c091ed8d57bfba86131d479a5bcfa65752782a764c43f4ff213e0"
+      },
+      "counters-before.csv": {
+        "bytes": 814,
+        "sha256": "20aa0bd1dcb44e6a32e2acf65126ea11f4ec9886d1abbbf424a6697de2934485"
+      },
+      "redraws.txt": {
+        "bytes": 2,
+        "sha256": "4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5"
+      },
+      "counters-after.csv": {
+        "bytes": 824,
+        "sha256": "8120303f745c6dcb8872857d97560bf4586707aa3e0e6b1ac119a0939bf6c0e6"
+      },
+      "counters-prepared.csv": {
+        "bytes": 806,
+        "sha256": "19ecdcdf8039837e22bb9d243957e770c6ba0584ce8b10bb9775b7a417e4f925"
+      },
+      "settings.toml": {
+        "bytes": 275,
+        "sha256": "0b0b89dccad73b35b916041ac399536d3a488defc5392da7caaf41f1907ea958"
+      },
+      "events.csv": {
+        "bytes": 1367,
+        "sha256": "8056b5ae0520f9824cd9fc1a49e2964e140aafadac29e18311d158e24fa2933d"
+      },
+      "completed.txt": {
+        "bytes": 7,
+        "sha256": "2700165975f68815c97d605c56eca8e90d497ade1264b6282401d13fee99ac27"
+      },
+      "graphics.toml": {
+        "bytes": 72,
+        "sha256": "b7906ad3b9244a71dc1fbcb4c832503dcd142c269195f999223e006aa3b24baa"
+      },
+      "frame-intervals.csv": {
+        "bytes": 12919,
+        "sha256": "9aab2727d29e4c610bfbf05e4acefd7f93b5cdbe0ee506fe9005d4c4f7e17b40"
+      },
+      "latency.csv": {
+        "bytes": 86,
+        "sha256": "eb6c19859567ef5eeef326dd8532874b7608b358b709e4fb5970bf350e42e3db"
+      }
+    }
+  }
+]

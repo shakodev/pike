@@ -1,0 +1,7 @@
+Sample,Seconds,Phase,Role,Pid,CreatedTicks,CpuSeconds,PrivateBytes,WorkingSetBytes,Threads,Handles
+0,0,measure,app,99,2000,0,1000,2000,3,10
+0,0,measure,fixture-child,100,2001,0,3000,4000,1,5
+0,0,measure,fixture-child,101,2002,0,3000,4000,1,5
+1,6,measure,app,99,2000,0.06,1000,2000,3,10
+1,6,measure,fixture-child,100,2001,0.12,3000,4000,1,5
+1,6,measure,fixture-child,101,2002,0.18,3000,4000,1,5

@@ -1,0 +1,34 @@
+{
+  "base_commit": "40f9ee065ede803e452b0179c048da4baa962328",
+  "source_state": "fixture files now committed by correction checkpoint; exact file hashes below",
+  "files_sha256": {
+    "examples/renderer_comparison/child.rs": "e4c31ec177493b88466102cf0ce833e05243c113950b2299473df6906d693317",
+    "examples/renderer_comparison/interval.rs": "82fd91efdce195b252c7921ee7f6e2eca7ba5b5840836b868ac9700ff41d793e",
+    "examples/renderer_comparison/metrics.rs": "0880dddbcecf06727cfb3d3723ef3117d9384dc3ad9f5d6e3d06cfb63bcc2135",
+    "examples/renderer_comparison/options.rs": "1af73c261ddb3e2c203f1e11a1356e95c544fdca2a27e5cc644b40410afe67f6",
+    "examples/renderer_comparison/pixels.rs": "3cbfc4ca45fdd25f2f6059853910e91b867f5cbb345791525a4bf656436be84b",
+    "examples/renderer_comparison/probe.rs": "312bef35e642090b0ed50f051c90701dd1ac457c82737022352b414a64c299a8",
+    "examples/renderer_comparison/samples.rs": "5a228fa8f560092b2dcf4927ffd591417127a57d6d05abdc6f7f0ff6c717c9e3",
+    "examples/renderer_comparison.rs": "62d97211fae34328967dcc655e838bd3f27fcd45d039b7d08980293f855f869d"
+  },
+  "native_debug_binary_sha256": "65ab2153f2289faa4c809db926e77c0125bb00e37905c511d2ea5f3f5e4b3767",
+  "native_proof_arguments": [
+    "--visible",
+    "4",
+    "--hidden",
+    "8",
+    "--history",
+    "saturated",
+    "--workload",
+    "flood",
+    "--seconds",
+    "3",
+    "--settle",
+    "0",
+    "--probes",
+    "2",
+    "--synthetic-focus",
+    "true"
+  ],
+  "native_scope": "actual App/native macOS graphics/Unix PTY; synthetic App focus; no Windows or product budget acceptance"
+}

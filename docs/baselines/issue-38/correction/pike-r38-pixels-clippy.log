@@ -1,0 +1,45 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13)
+error[E0308]: mismatched types
+   --> examples/renderer_comparison/probe.rs:569:37
+    |
+569 |               iced::event::listen_raw(move |event, _, _| {
+    |  _____________-----------------------_^
+    | |             |
+    | |             arguments to this function are incorrect
+570 | |                 metrics::observe(&event);
+571 | |                 if waiting_frame
+572 | |                     && matches!(
+...   |
+581 | |             }),
+    | |_____________^ expected fn pointer, found closure
+    |
+    = note: expected fn pointer `fn(iced::Event, iced::event::Status, iced::window::Id) -> std::option::Option<probe::Msg>`
+                  found closure `{closure@examples/renderer_comparison/probe.rs:569:37: 569:55}`
+note: closures can only be coerced to `fn` types if they do not capture any variables
+   --> examples/renderer_comparison/probe.rs:571:20
+    |
+571 |                 if waiting_frame
+    |                    ^^^^^^^^^^^^^ `waiting_frame` captured here
+note: function defined here
+   --> /Users/daan.hoedjes/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iced_futures-0.14.0/src/event.rs:54:8
+    |
+ 54 | pub fn listen_raw<Message>(
+    |        ^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `pike` (example "renderer_comparison") due to 1 previous error

@@ -1,0 +1,212 @@
+{
+  "scope": "macOS native graphics/Unix PTY/synthetic App focus; short workflow diagnostics only, not product or Windows performance acceptance",
+  "source_commit": "7221910ccd8ae911c029bdd10765cf9f850a588b",
+  "cases": 100,
+  "valid": 68,
+  "invalid": 32,
+  "cleanup_established_for_all_announced_children": true,
+  "total_ready_child_instances": 816,
+  "groups": [
+    {
+      "family": "instrumented-latency",
+      "renderer": "tiny-skia",
+      "variant": "baseline",
+      "workload": "flood",
+      "cases": 1,
+      "valid": 0,
+      "invalid": 1,
+      "observed_ms": {
+        "count": 1,
+        "median": 4103.376,
+        "p95": 4103.376,
+        "maximum": 4103.376
+      },
+      "minimum_producer_coverage_of_observed_parent": 0.7312378167641326
+    },
+    {
+      "family": "instrumented-latency",
+      "renderer": "tiny-skia",
+      "variant": "thin",
+      "workload": "flood",
+      "cases": 1,
+      "valid": 0,
+      "invalid": 1,
+      "observed_ms": {
+        "count": 1,
+        "median": 4144.593000000001,
+        "p95": 4144.593000000001,
+        "maximum": 4144.593000000001
+      },
+      "minimum_producer_coverage_of_observed_parent": 0.7237635705669482
+    },
+    {
+      "family": "instrumented-latency",
+      "renderer": "wgpu",
+      "variant": "baseline",
+      "workload": "flood",
+      "cases": 1,
+      "valid": 1,
+      "invalid": 0,
+      "observed_ms": {
+        "count": 1,
+        "median": 3013.022,
+        "p95": 3013.022,
+        "maximum": 3013.022
+      },
+      "minimum_producer_coverage_of_observed_parent": 0.9953534683040159
+    },
+    {
+      "family": "instrumented-latency",
+      "renderer": "wgpu",
+      "variant": "thin",
+      "workload": "flood",
+      "cases": 1,
+      "valid": 1,
+      "invalid": 0,
+      "observed_ms": {
+        "count": 1,
+        "median": 3015.6459999999997,
+        "p95": 3015.6459999999997,
+        "maximum": 3015.6459999999997
+      },
+      "minimum_producer_coverage_of_observed_parent": 0.9946932006633499
+    },
+    {
+      "family": "passive",
+      "renderer": "tiny-skia",
+      "variant": "baseline",
+      "workload": "flood",
+      "cases": 12,
+      "valid": 0,
+      "invalid": 12,
+      "observed_ms": {
+        "count": 10,
+        "median": 4135.787,
+        "p95": 5652.544,
+        "maximum": 5652.544
+      },
+      "minimum_producer_coverage_of_observed_parent": 0.531410369846045
+    },
+    {
+      "family": "passive",
+      "renderer": "tiny-skia",
+      "variant": "baseline",
+      "workload": "idle",
+      "cases": 12,
+      "valid": 10,
+      "invalid": 2,
+      "observed_ms": {
+        "count": 10,
+        "median": 3006.918,
+        "p95": 3011.69,
+        "maximum": 3011.69
+      },
+      "minimum_producer_coverage_of_observed_parent": null
+    },
+    {
+      "family": "passive",
+      "renderer": "tiny-skia",
+      "variant": "thin",
+      "workload": "flood",
+      "cases": 12,
+      "valid": 0,
+      "invalid": 12,
+      "observed_ms": {
+        "count": 11,
+        "median": 4276.107,
+        "p95": 5625.616,
+        "maximum": 5625.616
+      },
+      "minimum_producer_coverage_of_observed_parent": 0.5329777777777778
+    },
+    {
+      "family": "passive",
+      "renderer": "tiny-skia",
+      "variant": "thin",
+      "workload": "idle",
+      "cases": 12,
+      "valid": 10,
+      "invalid": 2,
+      "observed_ms": {
+        "count": 10,
+        "median": 3004.731,
+        "p95": 3011.2400000000002,
+        "maximum": 3011.2400000000002
+      },
+      "minimum_producer_coverage_of_observed_parent": null
+    },
+    {
+      "family": "passive",
+      "renderer": "wgpu",
+      "variant": "baseline",
+      "workload": "flood",
+      "cases": 12,
+      "valid": 12,
+      "invalid": 0,
+      "observed_ms": {
+        "count": 12,
+        "median": 3013.5319999999997,
+        "p95": 3017.342,
+        "maximum": 3017.342
+      },
+      "minimum_producer_coverage_of_observed_parent": 0.9920450778919456
+    },
+    {
+      "family": "passive",
+      "renderer": "wgpu",
+      "variant": "baseline",
+      "workload": "idle",
+      "cases": 12,
+      "valid": 11,
+      "invalid": 1,
+      "observed_ms": {
+        "count": 11,
+        "median": 3006.8770000000004,
+        "p95": 3012.2839999999997,
+        "maximum": 3012.2839999999997
+      },
+      "minimum_producer_coverage_of_observed_parent": null
+    },
+    {
+      "family": "passive",
+      "renderer": "wgpu",
+      "variant": "thin",
+      "workload": "flood",
+      "cases": 12,
+      "valid": 12,
+      "invalid": 0,
+      "observed_ms": {
+        "count": 12,
+        "median": 3013.8039999999996,
+        "p95": 3019.369,
+        "maximum": 3019.369
+      },
+      "minimum_producer_coverage_of_observed_parent": 0.9887379927128188
+    },
+    {
+      "family": "passive",
+      "renderer": "wgpu",
+      "variant": "thin",
+      "workload": "idle",
+      "cases": 12,
+      "valid": 11,
+      "invalid": 1,
+      "observed_ms": {
+        "count": 11,
+        "median": 3008.174,
+        "p95": 3011.4240000000004,
+        "maximum": 3011.4240000000004
+      },
+      "minimum_producer_coverage_of_observed_parent": null
+    }
+  ],
+  "missing_native_counters": [
+    "Windows private bytes",
+    "Windows working set",
+    "one-core CPU",
+    "GPU execution/presentation",
+    "thread/handle costs",
+    "physical input/display latency"
+  ],
+  "attribution": "Invalid interval/overlap is observed; production-versus-fixture-versus-host contribution is not assigned. Raw incomplete_latency0/0 on passive source722 reds is a trace-label artifact, not missing requested samples."
+}

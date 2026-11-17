@@ -1,0 +1,10 @@
+usage: renderer-comparison.py [-h] {build,plan,summarize,compare,dry-run} ...
+
+Build isolated release comparisons, produce finite run manifests, validate
+evidence. Python 3.11+, standard library only. Run from the repository root.
+
+positional arguments:
+  {build,plan,summarize,compare,dry-run}
+
+options:
+  -h, --help            show this help message and exit

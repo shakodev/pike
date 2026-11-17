@@ -1,0 +1,12 @@
+ms,event,session,a,b
+233.265,native_focus,0,false,0
+246.962,ready,1,50122,0
+247.019,synthetic_window_focus,0,true,0
+275.051,scenario_ready,0,1,0
+2279.134,measure_begin,0,1,0
+5405.369,measurement_epoch,0,1793643664781,1793643667907
+5405.436,measure_end,0,3126,2
+5425.925,throughput,1,6291456,3006068
+5425.954,producer_epoch,1,1793643664785,1793643667791
+5451.760,completion,1,true,0
+5452.761,finished,0,1,0

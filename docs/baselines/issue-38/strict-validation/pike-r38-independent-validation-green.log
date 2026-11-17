@@ -1,0 +1,14 @@
+unchanged_independent_test_source_sha256 e0a92ebf2c1613b34f33f3a516a5132f4aedfa84fc6c436ce786eedfe8760cfa
+adapter_scope=required collector fields and verified ownership snapshot; test bodies unchanged; all data synthetic
+test_compare_revalidates_raw_cost_after_summary_was_written (retained_independent_aggregation.IndependentRejectionTests.test_compare_revalidates_raw_cost_after_summary_was_written) ... ok
+test_control_complete_synthetic_cost_data_is_accepted (retained_independent_aggregation.IndependentRejectionTests.test_control_complete_synthetic_cost_data_is_accepted) ... ok
+test_failed_cleanup_cannot_be_a_valid_cost_summary (retained_independent_aggregation.IndependentRejectionTests.test_failed_cleanup_cannot_be_a_valid_cost_summary) ... ok
+test_missing_child_cost_cannot_be_silently_accepted (retained_independent_aggregation.IndependentRejectionTests.test_missing_child_cost_cannot_be_silently_accepted) ... ok
+test_negative_cpu_delta_is_invalid_data (retained_independent_aggregation.IndependentRejectionTests.test_negative_cpu_delta_is_invalid_data) ... ok
+test_nonfinite_native_geometry_is_invalid (retained_independent_aggregation.IndependentRejectionTests.test_nonfinite_native_geometry_is_invalid) ... ok
+test_run_identity_must_match_its_planned_manifest_row (retained_independent_aggregation.IndependentRejectionTests.test_run_identity_must_match_its_planned_manifest_row) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.309s
+
+OK

@@ -1,0 +1,13 @@
+ms,event,session,a,b
+123.391,native_focus,0,false,0
+209.028,native_focus,0,true,0
+220.621,ready,1,45838,0
+220.703,synthetic_window_focus,0,true,0
+256.055,ready,3,45845,0
+290.589,ready,4,45847,0
+324.553,ready,5,45855,0
+358.171,ready,6,45857,0
+391.912,ready,7,45861,0
+429.083,ready,8,45870,0
+469.389,ready,9,45872,0
+38128.213,native_focus,0,false,0

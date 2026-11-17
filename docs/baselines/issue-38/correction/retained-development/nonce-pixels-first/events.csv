@@ -1,0 +1,13 @@
+ms,event,session,a,b
+252.073,native_focus,0,false,0
+277.586,ready,1,47672,0
+277.643,synthetic_window_focus,0,true,0
+1310.081,scenario_ready,0,1,0
+3315.253,measure_begin,0,1,0
+4024.616,stale_pixels,1,1,0
+4688.204,stale_pixels,1,1,0
+5421.368,stale_pixels,1,1,0
+8460.242,measure_end,0,5144,0
+8478.102,incomplete_latency,0,0,2
+8478.158,throughput,1,10223616,5001185
+8505.557,completion,1,true,0

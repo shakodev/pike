@@ -1,0 +1,32 @@
+case_source_sha256 4fb1f2c69c4e5950051a047f368304b105efde9503fa1ddcfc30cc1a73661b43
+source_before_sha256 d6bc13251805c8498f1c689e997670b499fed7d7210a681340ec0a68336e37c8
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.04s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests examples/renderer_comparison.rs (target/debug/examples/renderer_comparison-15656b035a6a40a0)
+
+running 4 tests
+test probe::reviewer_latency_regressions::late_settle_after_close_cannot_restart_measurement_queries ... ok
+test probe::reviewer_latency_regressions::incomplete_latency_cannot_write_completion_marker ... ok
+test probe::reviewer_latency_regressions::end_cancels_pending_latency_query ... ok
+test probe::reviewer_latency_regressions::late_capture_is_not_a_measurement_sample ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.04s
+
+restored_source_sha256 d6bc13251805c8498f1c689e997670b499fed7d7210a681340ec0a68336e37c8

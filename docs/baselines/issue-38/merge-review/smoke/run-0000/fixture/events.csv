@@ -1,0 +1,13 @@
+ms,event,session,a,b
+390.974,native_focus,0,false,0
+391.084,native_focus,0,true,0
+466.711,ready,1,45053,0
+466.781,synthetic_window_focus,0,true,0
+522.363,scenario_ready,0,1,0
+2528.840,measure_begin,0,1,0
+5530.423,end_timer_armed_woke_ms,0,0.044833000000000005,3001.45925
+5530.580,end_timer_handling_lag_ms,0,0.281041,0
+5530.698,measurement_epoch,0,1794908081284,1794908084286
+5530.778,measure_end,0,3001,0
+6578.744,completion,1,true,0
+6578.914,finished,0,1,0

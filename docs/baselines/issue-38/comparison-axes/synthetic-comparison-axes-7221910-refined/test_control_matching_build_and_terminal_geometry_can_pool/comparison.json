@@ -1,0 +1,205 @@
+{
+  "schema": 1,
+  "source_commits": [
+    "SYNTHETIC-UNIT-TEST-NOT-A-NATIVE-RESULT"
+  ],
+  "selection": "PENDING",
+  "blockers": [
+    "20 warm startup repetitions per build missing",
+    "complete 1/4/8 visible and hidden resource matrix missing",
+    "dedicated 30-second/200-probe rendered latency evidence missing",
+    "dry runs are present; they cannot select a product default",
+    "independent correctness/text-quality and native decision review required",
+    "integrated actual34 product boot/readiness evidence pending",
+    "physical input/display and actual GPU presentation timing are separate gates"
+  ],
+  "failed_or_unvalidated_runs": [],
+  "missing_planned_run_count": 0,
+  "method": "nearest-rank distributions of run medians/p95s/maxima; raw observations retained separately",
+  "groups": [
+    {
+      "renderer": "tiny-skia",
+      "variant": "baseline",
+      "visible": 1,
+      "hidden": 1,
+      "history": "saturated",
+      "workload": "idle",
+      "startup": false,
+      "latency": false,
+      "build_identity": "06ac227cb66d31275ccd444fd843274760d752302abaf1afd91c86950ed9d1a3",
+      "run_count": 2,
+      "app_bytes": 100,
+      "executable_archive_bytes": 50,
+      "portable_archive_bytes": 100,
+      "startup_ready_ms": {
+        "count": 2,
+        "median": 0.0,
+        "p95": 0.0,
+        "maximum": 0.0
+      },
+      "snapshot_run_p95_ms": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "readback_run_p95_ms": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "raw_paths": [
+        "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/docs/baselines/issue-38/comparison-axes/synthetic-comparison-axes-7221910-refined/test_control_matching_build_and_terminal_geometry_can_pool/left/run-0000",
+        "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/docs/baselines/issue-38/comparison-axes/synthetic-comparison-axes-7221910-refined/test_control_matching_build_and_terminal_geometry_can_pool/right/run-0000"
+      ],
+      "parser_observed_bytes_per_second_per_session": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "writer_bytes_per_second_per_session": {
+        "count": 0,
+        "median": null,
+        "p95": null,
+        "maximum": null
+      },
+      "frame_redraw_p95_lower_bucket_ms": {
+        "count": 2,
+        "median": 2001.0,
+        "p95": 2001.0,
+        "maximum": 2001.0
+      },
+      "validated_input_samples": 0,
+      "app": {
+        "one_core_cpu_percent": {
+          "count": 2,
+          "median": 1.0,
+          "p95": 1.0,
+          "maximum": 1.0
+        },
+        "private_bytes_run_median": {
+          "count": 2,
+          "median": 1000.0,
+          "p95": 1000.0,
+          "maximum": 1000.0
+        },
+        "working_set_per_process_run_median": {
+          "count": 2,
+          "median": 2000.0,
+          "p95": 2000.0,
+          "maximum": 2000.0
+        },
+        "threads_per_process_run_maximum": {
+          "count": 2,
+          "median": 3.0,
+          "p95": 3.0,
+          "maximum": 3.0
+        },
+        "handles_per_process_run_maximum": {
+          "count": 2,
+          "median": 10.0,
+          "p95": 10.0,
+          "maximum": 10.0
+        }
+      },
+      "fixture-child": {
+        "one_core_cpu_percent": {
+          "count": 2,
+          "median": 5.0,
+          "p95": 5.0,
+          "maximum": 5.0
+        },
+        "private_bytes_run_median": {
+          "count": 2,
+          "median": 6000.0,
+          "p95": 6000.0,
+          "maximum": 6000.0
+        },
+        "working_set_per_process_run_median": {
+          "count": 2,
+          "median": 4000.0,
+          "p95": 4000.0,
+          "maximum": 4000.0
+        },
+        "threads_per_process_run_maximum": {
+          "count": 2,
+          "median": 1.0,
+          "p95": 1.0,
+          "maximum": 1.0
+        },
+        "handles_per_process_run_maximum": {
+          "count": 2,
+          "median": 5.0,
+          "p95": 5.0,
+          "maximum": 5.0
+        }
+      },
+      "conpty-host": {
+        "one_core_cpu_percent": {
+          "count": 0,
+          "median": null,
+          "p95": null,
+          "maximum": null
+        },
+        "private_bytes_run_median": {
+          "count": 0,
+          "median": null,
+          "p95": null,
+          "maximum": null
+        },
+        "working_set_per_process_run_median": {
+          "count": 0,
+          "median": null,
+          "p95": null,
+          "maximum": null
+        },
+        "threads_per_process_run_maximum": {
+          "count": 0,
+          "median": null,
+          "p95": null,
+          "maximum": null
+        },
+        "handles_per_process_run_maximum": {
+          "count": 0,
+          "median": null,
+          "p95": null,
+          "maximum": null
+        }
+      },
+      "owned-other": {
+        "one_core_cpu_percent": {
+          "count": 0,
+          "median": null,
+          "p95": null,
+          "maximum": null
+        },
+        "private_bytes_run_median": {
+          "count": 0,
+          "median": null,
+          "p95": null,
+          "maximum": null
+        },
+        "working_set_per_process_run_median": {
+          "count": 0,
+          "median": null,
+          "p95": null,
+          "maximum": null
+        },
+        "threads_per_process_run_maximum": {
+          "count": 0,
+          "median": null,
+          "p95": null,
+          "maximum": null
+        },
+        "handles_per_process_run_maximum": {
+          "count": 0,
+          "median": null,
+          "p95": null,
+          "maximum": null
+        }
+      }
+    }
+  ]
+}

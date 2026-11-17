@@ -1,0 +1,20 @@
+{
+  "success": false,
+  "failure": "external dry-run deadline",
+  "app_pid": 45837,
+  "ready_child_pids": [
+    45838,
+    45845,
+    45847,
+    45855,
+    45857,
+    45861,
+    45870,
+    45872
+  ],
+  "child_processes_observed_after_app_exit": [],
+  "stderr_reader_finished": true,
+  "exit_code": -15,
+  "external_wall_seconds": 43.06777745799991,
+  "scope": "local synthetic workflow check only"
+}
