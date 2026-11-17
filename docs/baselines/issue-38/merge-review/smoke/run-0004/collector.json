@@ -1,0 +1,24 @@
+{
+  "success": true,
+  "failure": null,
+  "app_pid": 45479,
+  "ready_child_pids": [
+    45480,
+    45483,
+    45485,
+    45488,
+    45490,
+    45496,
+    45498,
+    45500,
+    45502,
+    45504,
+    45511,
+    45513
+  ],
+  "child_processes_observed_after_app_exit": [],
+  "stderr_reader_finished": true,
+  "exit_code": 0,
+  "external_wall_seconds": 7.4100812919996315,
+  "scope": "local synthetic workflow check only"
+}

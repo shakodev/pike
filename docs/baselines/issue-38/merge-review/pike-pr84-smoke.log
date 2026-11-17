@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/private/tmp/pike-pr-84/tools/renderer-comparison.py", line 319, in <module>
+    main()
+    ~~~~^^
+  File "/private/tmp/pike-pr-84/tools/renderer-comparison.py", line 315, in main
+    args.func(args)
+    ~~~~~~~~~^^^^^^
+  File "/private/tmp/pike-pr-84/tools/renderer_comparison_dry_run.py", line 95, in check
+    raise ValueError("dry-run matrix contains invalid runs; all raw results and cleanup outcomes retained")
+ValueError: dry-run matrix contains invalid runs; all raw results and cleanup outcomes retained

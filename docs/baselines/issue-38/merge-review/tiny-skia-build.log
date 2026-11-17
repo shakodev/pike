@@ -1,0 +1,170 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.27
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling libc v0.2.191
+   Compiling libm v0.2.16
+   Compiling syn v3.0.9
+   Compiling bitflags v2.13.2
+   Compiling objc2-encode v4.1.0
+   Compiling syn v2.0.119
+   Compiling autocfg v1.5.1
+   Compiling version_check v0.9.5
+   Compiling num-traits v0.2.19
+   Compiling pin-project-lite v0.2.17
+   Compiling memchr v2.8.3
+   Compiling log v0.4.34
+   Compiling bytemuck_derive v1.12.1
+   Compiling once_cell v1.21.4
+   Compiling thiserror v2.0.21
+   Compiling bytemuck v1.25.2
+   Compiling thiserror-impl v2.0.21
+   Compiling core_maths v0.1.1
+   Compiling futures-core v0.3.34
+   Compiling smallvec v1.16.4
+   Compiling smol_str v0.2.2
+   Compiling futures-sink v0.3.34
+   Compiling arrayvec v0.7.8
+   Compiling cfg-if v1.0.5
+   Compiling futures-channel v0.3.34
+   Compiling futures-macro v0.3.34
+   Compiling futures-task v0.3.34
+   Compiling futures-io v0.3.34
+   Compiling web-time v1.1.0
+   Compiling slab v0.4.12
+   Compiling lilt v0.8.2
+   Compiling font-types v0.12.7
+   Compiling font-types v0.10.1
+   Compiling slotmap v1.1.1
+   Compiling futures-util v0.3.34
+   Compiling objc2 v0.6.5
+   Compiling bytes v1.12.1
+   Compiling glam v0.25.0
+   Compiling rustc-hash v2.1.3
+   Compiling raw-window-handle v0.6.2
+   Compiling objc-sys v0.3.5
+   Compiling read-fonts v0.41.0
+   Compiling read-fonts v0.35.0
+   Compiling iced_core v0.14.0
+   Compiling futures v0.3.34
+   Compiling tokio v1.54.1
+   Compiling zerocopy v0.8.63
+   Compiling iced_futures v0.14.0
+   Compiling skrifa v0.44.0
+   Compiling zerocopy-derive v0.8.63
+   Compiling ttf-parser v0.25.1
+   Compiling euclid v0.22.14
+   Compiling memmap2 v0.9.12
+   Compiling tinyvec v1.13.3
+   Compiling yazi v0.2.1
+   Compiling zeno v0.3.3
+   Compiling swash v0.2.10
+   Compiling fontdb v0.23.0
+   Compiling lyon_geom v1.0.20
+   Compiling objc2 v0.5.3
+   Compiling objc2-core-foundation v0.3.2
+   Compiling harfrust v0.3.2
+   Compiling skrifa v0.37.0
+   Compiling tracing-attributes v0.1.31
+   Compiling tracing-core v0.1.36
+   Compiling self_cell v1.3.0
+   Compiling linebender_resource_handle v0.1.1
+   Compiling unicode-linebreak v0.1.5
+   Compiling unicode-script v0.5.8
+   Compiling rangemap v1.8.0
+   Compiling sys-locale v0.3.2
+   Compiling unicode-segmentation v1.13.3
+   Compiling rustc-hash v1.1.0
+   Compiling unicode-bidi v0.3.18
+   Compiling cosmic-text v0.15.0
+   Compiling tracing v0.1.44
+   Compiling half v2.7.1
+   Compiling block2 v0.5.1
+   Compiling lyon_path v1.0.19
+   Compiling dispatch v0.2.0
+   Compiling objc2-foundation v0.2.2
+   Compiling iced_graphics v0.14.0
+   Compiling objc2-foundation v0.3.2
+   Compiling proc-macro2-diagnostics v0.10.1
+   Compiling errno v0.3.14
+   Compiling strict-num v0.1.1
+   Compiling arrayref v0.3.9
+   Compiling core-foundation-sys v0.8.7
+   Compiling tiny-skia-path v0.11.4
+   Compiling core-foundation v0.9.4
+   Compiling objc2-app-kit v0.2.2
+   Compiling objc2-quartz-core v0.3.2
+   Compiling objc2-core-graphics v0.3.2
+   Compiling iced_debug v0.14.0
+   Compiling foreign-types-macros v0.2.4
+   Compiling yansi v1.0.1
+   Compiling bitflags v1.3.2
+   Compiling cfg_aliases v0.2.2
+   Compiling foreign-types-shared v0.3.1
+   Compiling rustix v1.1.5
+   Compiling cursor-icon v1.2.0
+   Compiling foreign-types v0.5.0
+   Compiling winit v0.30.13
+   Compiling core-graphics-types v0.1.3
+   Compiling softbuffer v0.4.8
+   Compiling tiny-skia v0.11.4
+   Compiling kurbo v0.10.4
+   Compiling serde v1.0.229
+   Compiling heck v0.4.1
+   Compiling parking_lot_core v0.9.12
+   Compiling iced_tiny_skia v0.14.1
+   Compiling clipboard_macos v0.1.1
+   Compiling ouroboros_macro v0.18.5
+   Compiling core-graphics v0.23.2
+   Compiling iced_runtime v0.14.0 (/private/tmp/pike-pr-84/vendor/iced_runtime)
+   Compiling serde_derive v1.0.229
+   Compiling static_assertions v1.1.0
+   Compiling scopeguard v1.2.0
+   Compiling dpi v0.1.2
+   Compiling signal-hook v0.3.18
+   Compiling aliasable v0.1.3
+   Compiling ouroboros v0.18.5
+   Compiling iced_program v0.14.0
+   Compiling lock_api v0.4.14
+   Compiling window_clipboard v0.5.1
+   Compiling iced_renderer v0.14.0
+   Compiling signal-hook-registry v1.4.8
+   Compiling aho-corasick v1.1.5
+   Compiling anyhow v1.0.104
+   Compiling regex-syntax v0.8.11
+   Compiling iced_winit v0.14.1 (/private/tmp/pike-pr-84/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling regex-automata v0.4.18
+   Compiling vte v0.15.0
+   Compiling parking_lot v0.12.5
+   Compiling iced_widget v0.14.2
+   Compiling rustix-openpty v0.2.0
+   Compiling polling v3.11.0
+   Compiling winnow v1.0.4
+   Compiling unicode-width v0.2.2
+   Compiling base64 v0.22.1
+   Compiling home v0.5.12
+   Compiling alacritty_terminal v0.25.1 (/private/tmp/pike-pr-84/vendor/alacritty_terminal)
+   Compiling iced v0.14.0
+   Compiling toml_parser v1.1.5+spec-1.1.0
+   Compiling serde_spanned v1.1.2
+   Compiling toml_datetime v1.1.2+spec-1.1.0
+   Compiling toml_writer v1.1.3+spec-1.1.0
+   Compiling iced_term v0.8.0 (/private/tmp/pike-pr-84/vendor/iced_term)
+   Compiling toml v1.1.8+spec-1.1.0
+   Compiling pike v0.1.0 (/private/tmp/pike-pr-84)
+    Finished `release` profile [optimized] target(s) in 56.76s

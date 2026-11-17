@@ -1,0 +1,170 @@
+{
+  "startup_first_child_ms": 238.058,
+  "scenario_ready_ms": 1116.481,
+  "interval_ms": 3003.9690000000005,
+  "snapshot_latency_ms": {
+    "count": 0,
+    "median": null,
+    "p95": null,
+    "maximum": null
+  },
+  "readback_latency_ms": {
+    "count": 0,
+    "median": null,
+    "p95": null,
+    "maximum": null
+  },
+  "latency_observation_window_ms": null,
+  "input_30s_200_sample_gate": false,
+  "frame_redraw_intervals_ms": {
+    "count": 1,
+    "median_bucket": {
+      "lower_ms": 42,
+      "upper_ms_exclusive": 43
+    },
+    "p95_bucket": {
+      "lower_ms": 42,
+      "upper_ms_exclusive": 43
+    }
+  },
+  "native_geometry": {
+    "width_dip": "1600",
+    "height_dip": "991",
+    "scale": "2"
+  },
+  "throughput": [],
+  "work_delta": [
+    {
+      "session": 1,
+      "visible": true,
+      "snapshots": 0,
+      "cells_copied": 0,
+      "font_measurements": 0,
+      "pty_resizes": 0,
+      "grid_resizes": 0,
+      "cache_invalidations": 0,
+      "input_written": 0
+    },
+    {
+      "session": 3,
+      "visible": true,
+      "snapshots": 0,
+      "cells_copied": 0,
+      "font_measurements": 0,
+      "pty_resizes": 0,
+      "grid_resizes": 0,
+      "cache_invalidations": 0,
+      "input_written": 0
+    },
+    {
+      "session": 4,
+      "visible": true,
+      "snapshots": 0,
+      "cells_copied": 0,
+      "font_measurements": 0,
+      "pty_resizes": 0,
+      "grid_resizes": 0,
+      "cache_invalidations": 0,
+      "input_written": 0
+    },
+    {
+      "session": 5,
+      "visible": true,
+      "snapshots": 0,
+      "cells_copied": 0,
+      "font_measurements": 0,
+      "pty_resizes": 0,
+      "grid_resizes": 0,
+      "cache_invalidations": 0,
+      "input_written": 0
+    },
+    {
+      "session": 6,
+      "visible": false,
+      "snapshots": 0,
+      "cells_copied": 0,
+      "font_measurements": 0,
+      "pty_resizes": 0,
+      "grid_resizes": 0,
+      "cache_invalidations": 0,
+      "input_written": 0
+    },
+    {
+      "session": 8,
+      "visible": false,
+      "snapshots": 0,
+      "cells_copied": 0,
+      "font_measurements": 0,
+      "pty_resizes": 0,
+      "grid_resizes": 0,
+      "cache_invalidations": 0,
+      "input_written": 0
+    },
+    {
+      "session": 10,
+      "visible": false,
+      "snapshots": 0,
+      "cells_copied": 0,
+      "font_measurements": 0,
+      "pty_resizes": 0,
+      "grid_resizes": 0,
+      "cache_invalidations": 0,
+      "input_written": 0
+    },
+    {
+      "session": 12,
+      "visible": false,
+      "snapshots": 0,
+      "cells_copied": 0,
+      "font_measurements": 0,
+      "pty_resizes": 0,
+      "grid_resizes": 0,
+      "cache_invalidations": 0,
+      "input_written": 0
+    },
+    {
+      "session": 14,
+      "visible": false,
+      "snapshots": 0,
+      "cells_copied": 0,
+      "font_measurements": 0,
+      "pty_resizes": 0,
+      "grid_resizes": 0,
+      "cache_invalidations": 0,
+      "input_written": 0
+    },
+    {
+      "session": 16,
+      "visible": false,
+      "snapshots": 0,
+      "cells_copied": 0,
+      "font_measurements": 0,
+      "pty_resizes": 0,
+      "grid_resizes": 0,
+      "cache_invalidations": 0,
+      "input_written": 0
+    },
+    {
+      "session": 18,
+      "visible": false,
+      "snapshots": 0,
+      "cells_copied": 0,
+      "font_measurements": 0,
+      "pty_resizes": 0,
+      "grid_resizes": 0,
+      "cache_invalidations": 0,
+      "input_written": 0
+    },
+    {
+      "session": 20,
+      "visible": false,
+      "snapshots": 0,
+      "cells_copied": 0,
+      "font_measurements": 0,
+      "pty_resizes": 0,
+      "grid_resizes": 0,
+      "cache_invalidations": 0,
+      "input_written": 0
+    }
+  ]
+}
