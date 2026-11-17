@@ -1,0 +1,9 @@
+{
+  "commit": "748675fa32b91644593ab498ecdf53967a138ac7",
+  "source_sha256": {
+    "examples/renderer_comparison/probe.rs": "44430ea77312fed6227c76ac8832a19895d0ba014ba9d269905301f2a399585f",
+    "examples/renderer_comparison/child.rs": "e4c31ec177493b88466102cf0ce833e05243c113950b2299473df6906d693317",
+    "Cargo.lock": "ad77aab6799a3c26b52f93e59ce6d10ccbab049c845418ef2b437c7299c8c174",
+    "Cargo.toml": "23df49744890d9ec0ac7d736be54f7a403f83efe07a4d96248796228c23fb90f"
+  }
+}

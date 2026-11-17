@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "failure": null,
+  "app_pid": 34631,
+  "ready_child_pids": [
+    34632,
+    34639,
+    34642,
+    34646,
+    34650,
+    34652,
+    34654,
+    34656
+  ],
+  "child_processes_observed_after_app_exit": [],
+  "stderr_reader_finished": true,
+  "exit_code": 0,
+  "external_wall_seconds": 7.063008791999891,
+  "scope": "macOS diagnostic only"
+}

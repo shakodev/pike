@@ -1,5 +1,10 @@
 //! One outstanding input/readback observation; End revokes all late callbacks.
-use std::time::Instant;
+use std::time::{Duration, Instant};
+
+/// Keep the minimum input spacing independent of readback/validation cost.
+pub fn probe_delay(sent: Instant, now: Instant) -> Duration {
+    (sent + Duration::from_millis(100)).saturating_duration_since(now)
+}
 
 pub struct Samples {
     requested: usize,
@@ -124,6 +129,18 @@ impl Samples {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn slow_readbacks_do_not_add_another_full_input_spacing_delay() {
+        let sent = Instant::now();
+        assert_eq!(
+            probe_delay(sent, sent + Duration::from_millis(10)),
+            Duration::from_millis(90)
+        );
+        assert_eq!(
+            probe_delay(sent, sent + Duration::from_millis(150)),
+            Duration::ZERO
+        );
+    }
     #[test]
     fn end_revokes_pending_capture_and_incomplete_samples_fail() {
         let mut samples = Samples::new(1);

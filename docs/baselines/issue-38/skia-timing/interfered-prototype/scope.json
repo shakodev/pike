@@ -1,0 +1,9 @@
+{
+  "platform": "darwin",
+  "scope": "actual App/native graphics/Unix PTY, synthetic App focus, short workflow validation only",
+  "private_bytes": null,
+  "working_set": null,
+  "one_core_cpu": null,
+  "gpu": null,
+  "missing_counters": "native Windows collector and physical input/display checks unexecuted"
+}

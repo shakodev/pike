@@ -1,5 +1,13 @@
 # R38 renderer comparison — workflow/evidence, acceptance incomplete
 
+The [tiny-skia timing follow-up](issue-38-skia-timing.md) fixes the profiled
+per-cell mask rebuilds and verifies the previously late End cases. The long
+readback gate and native Windows renderer/profile decision remain open.
+
+The [resize-readiness follow-up](issue-38-resize-readiness.md) adds a native
+resize acknowledgement gate and retains eight new local diagnostic outcomes.
+Renderer/profile selection and full issue #38 acceptance remain incomplete.
+
 2026-11-17 integration update: R34 and R14 are now merged, and the fixture uses
 the product renderer-ready boot path and native wgpu profile. The sections below
 retain the original pre-integration history and invalid measurements. See the

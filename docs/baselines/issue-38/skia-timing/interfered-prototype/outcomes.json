@@ -1,0 +1,12 @@
+[
+  {
+    "index": 0,
+    "success": false,
+    "failure": "external dry-run deadline"
+  },
+  {
+    "index": 1,
+    "success": false,
+    "failure": "external dry-run deadline"
+  }
+]

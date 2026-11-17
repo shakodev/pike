@@ -1,0 +1,23 @@
+diff --git a/examples/renderer_comparison/probe.rs b/examples/renderer_comparison/probe.rs
+index 1b7e4b8..eac699c 100644
+--- a/examples/renderer_comparison/probe.rs
++++ b/examples/renderer_comparison/probe.rs
+@@ -426,7 +426,9 @@ impl Probe {
+                 self.note("ready", id.get(), pid, 0);
+             }
+         } else if value == "prepared" {
+-            self.prepared.insert(id);
++            if self.prepared.insert(id) {
++                self.note("prepared", id.get(), 0, 0);
++            }
+         } else if value == "final" {
+             self.final_seen.insert(id);
+         } else if let Some(done) = value.strip_prefix("done:") {
+@@ -524,6 +526,7 @@ impl Probe {
+                     .map(Msg::App);
+             }
+             self.stage = Stage::Prepare;
++            self.note("prepare_begin", 0, ids.len(), 0);
+             let mut tasks = vec![];
+             for id in ids {
+                 tasks.push(self.send(

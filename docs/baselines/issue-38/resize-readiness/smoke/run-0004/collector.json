@@ -1,0 +1,20 @@
+{
+  "success": false,
+  "failure": "fixture exited 1",
+  "app_pid": 4503,
+  "ready_child_pids": [
+    4504,
+    4511,
+    4513,
+    4515,
+    4517,
+    4519,
+    4521,
+    4523
+  ],
+  "child_processes_observed_after_app_exit": [],
+  "stderr_reader_finished": true,
+  "exit_code": 1,
+  "external_wall_seconds": 8.607729583000037,
+  "scope": "local synthetic workflow check only"
+}

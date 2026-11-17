@@ -1,0 +1,115 @@
+{
+  "startup_first_child_ms": 226.666,
+  "scenario_ready_ms": 497.515,
+  "interval_ms": 3062.406,
+  "snapshot_latency_ms": {
+    "count": 2,
+    "median": 0.081,
+    "p95": 0.113,
+    "maximum": 0.113
+  },
+  "readback_latency_ms": {
+    "count": 2,
+    "median": 252.567,
+    "p95": 282.433,
+    "maximum": 282.433
+  },
+  "latency_observation_window_ms": 765.952,
+  "input_30s_200_sample_gate": false,
+  "frame_redraw_intervals_ms": {
+    "count": 80,
+    "median_bucket": {
+      "lower_ms": 36,
+      "upper_ms_exclusive": 37
+    },
+    "p95_bucket": {
+      "lower_ms": 39,
+      "upper_ms_exclusive": 40
+    }
+  },
+  "native_geometry": {
+    "width_dip": "1600",
+    "height_dip": "991",
+    "scale": "2"
+  },
+  "throughput": [
+    {
+      "session": 5,
+      "synthetic_bytes": 6291456,
+      "writer_wall_us": 3001463,
+      "writer_bytes_per_second": 2096129.7873736909,
+      "parser_sentinel_observed_ms": 3062.0290000000005,
+      "parser_observed_bytes_per_second": 2054668.979294448
+    },
+    {
+      "session": 1,
+      "synthetic_bytes": 6291456,
+      "writer_wall_us": 3001502,
+      "writer_bytes_per_second": 2096102.5513226378,
+      "parser_sentinel_observed_ms": 3062.152,
+      "parser_observed_bytes_per_second": 2054586.4477008325
+    },
+    {
+      "session": 4,
+      "synthetic_bytes": 6291456,
+      "writer_wall_us": 3001491,
+      "writer_bytes_per_second": 2096110.2332140927,
+      "parser_sentinel_observed_ms": 3062.209,
+      "parser_observed_bytes_per_second": 2054548.203600734
+    },
+    {
+      "session": 3,
+      "synthetic_bytes": 6291456,
+      "writer_wall_us": 3001458,
+      "writer_bytes_per_second": 2096133.279226296,
+      "parser_sentinel_observed_ms": 3062.268,
+      "parser_observed_bytes_per_second": 2054508.6191019206
+    }
+  ],
+  "work_delta": [
+    {
+      "session": 1,
+      "visible": true,
+      "snapshots": 2127,
+      "cells_copied": 4798512,
+      "font_measurements": 0,
+      "pty_resizes": 0,
+      "grid_resizes": 0,
+      "cache_invalidations": 2127,
+      "input_written": 14
+    },
+    {
+      "session": 3,
+      "visible": true,
+      "snapshots": 1877,
+      "cells_copied": 4234512,
+      "font_measurements": 0,
+      "pty_resizes": 0,
+      "grid_resizes": 0,
+      "cache_invalidations": 1877,
+      "input_written": 0
+    },
+    {
+      "session": 4,
+      "visible": true,
+      "snapshots": 1959,
+      "cells_copied": 4419504,
+      "font_measurements": 0,
+      "pty_resizes": 0,
+      "grid_resizes": 0,
+      "cache_invalidations": 1959,
+      "input_written": 0
+    },
+    {
+      "session": 5,
+      "visible": true,
+      "snapshots": 2021,
+      "cells_copied": 4559376,
+      "font_measurements": 0,
+      "pty_resizes": 0,
+      "grid_resizes": 0,
+      "cache_invalidations": 2021,
+      "input_written": 0
+    }
+  ]
+}

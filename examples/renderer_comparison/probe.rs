@@ -4,6 +4,8 @@ mod interval;
 mod metrics;
 #[path = "samples.rs"]
 mod samples;
+#[path = "setup.rs"]
+mod setup;
 use crate::options::Options;
 use iced::{Element, Subscription, Task};
 use iced_term::{AlacrittyEvent, BackendCommand, Event};
@@ -61,7 +63,7 @@ enum Msg {
     Advance,
     Captured(usize, iced::window::Screenshot),
     Frame,
-    Geometry(bool, iced::Size, f32),
+    Geometry(bool, iced::window::Id, iced::Size, f32),
     ReleaseCleanup,
 }
 #[derive(PartialEq)]
@@ -100,6 +102,8 @@ struct Probe {
     latency: File,
     failed: bool,
     focus_requested: bool,
+    layout: setup::LayoutBarrier,
+    window: Option<iced::window::Id>,
 }
 
 impl Probe {
@@ -148,6 +152,8 @@ impl Probe {
                 latency,
                 failed: false,
                 focus_requested: false,
+                layout: setup::LayoutBarrier::default(),
+                window: None,
             },
             Task::batch([task.map(Msg::App), delay(deadline, Msg::Deadline)]),
         )
@@ -190,7 +196,7 @@ impl Probe {
     fn update(&mut self, message: Msg) -> Task<Msg> {
         match message {
             Msg::Advance => self.advance(),
-            Msg::App(message) => {
+            Msg::App(mut message) => {
                 if matches!(&message, Message::CloseWindow) {
                     self.failed = true;
                     self.note("interrupted", 0, 0, 0);
@@ -198,9 +204,21 @@ impl Probe {
                 }
                 if let Message::WindowFocused(value) = &message {
                     self.note("native_focus", 0, value, 0);
+                    if self.options.synthetic_focus && self.focus_requested {
+                        // The explicitly synthetic, non-Windows dry run owns
+                        // focus authority for its whole lifetime. Retain real
+                        // observations above, without revoking child commands
+                        // when another macOS application becomes foreground.
+                        message = Message::WindowFocused(true);
+                    }
                 }
                 if let Message::Terminal((id, Event::BackendCall(_, command))) = &message {
                     match command {
+                        BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::ResizeCompleted(
+                            result,
+                        )) => {
+                            self.layout.observe(*id, *result);
+                        }
                         BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::Title(title)) => {
                             self.title(*id, title)
                         }
@@ -258,7 +276,8 @@ impl Probe {
                 }
             }
             Msg::Probe => Task::none(),
-            Msg::Geometry(after, size, scale) => {
+            Msg::Geometry(after, id, size, scale) => {
+                self.window = Some(id);
                 fs::write(
                     self.options.output.join(if after {
                         "geometry-after.csv"
@@ -275,12 +294,11 @@ impl Probe {
                 self.advance()
             }
             Msg::Frame => {
-                if let Some(nonce) = self.samples.frame() {
-                    return iced::window::latest().then(move |id| {
-                        id.map_or_else(Task::none, |id| {
-                            iced::window::screenshot(id).map(move |shot| Msg::Captured(nonce, shot))
-                        })
-                    });
+                if let Some(id) = self.window
+                    && let Some(nonce) = self.samples.frame()
+                {
+                    return iced::window::screenshot(id)
+                        .map(move |shot| Msg::Captured(nonce, shot));
                 }
                 Task::none()
             }
@@ -326,10 +344,14 @@ impl Probe {
                         shot.crop(region).expect("validated nonce region"),
                     ));
                 }
-                Task::perform(
-                    async { tokio::time::sleep(Duration::from_millis(100)).await },
-                    |_| Msg::Probe,
-                )
+                let pause = samples::probe_delay(sample.sent, Instant::now());
+                if pause.is_zero() {
+                    Task::done(Msg::Probe)
+                } else {
+                    Task::perform(async move { tokio::time::sleep(pause).await }, |_| {
+                        Msg::Probe
+                    })
+                }
             }
             Msg::TimedEnd(armed, woke) => {
                 if self.stage != Stage::Measure || self.closing_requested {
@@ -426,7 +448,9 @@ impl Probe {
                 self.note("ready", id.get(), pid, 0);
             }
         } else if value == "prepared" {
-            self.prepared.insert(id);
+            if self.prepared.insert(id) {
+                self.note("prepared", id.get(), 0, 0);
+            }
         } else if value == "final" {
             self.final_seen.insert(id);
         } else if let Some(done) = value.strip_prefix("done:") {
@@ -474,9 +498,18 @@ impl Probe {
         let ids = self.ids();
         if self.stage == Stage::Build {
             if ids.is_empty()
-                || ids
-                    .iter()
-                    .any(|id| !self.ready.contains_key(id) || self.app.terminal(*id).is_none())
+                || ids.iter().any(|id| {
+                    !self.ready.contains_key(id)
+                        || self.app.terminal(*id).is_none_or(|terminal| {
+                            let stats = terminal.snapshot_stats();
+                            !self.layout.ready(
+                                *id,
+                                terminal.work_stats().pty_resizes,
+                                stats.columns,
+                                stats.screen_lines,
+                            )
+                        })
+                })
             {
                 return Task::none();
             }
@@ -524,6 +557,9 @@ impl Probe {
                     .map(Msg::App);
             }
             self.stage = Stage::Prepare;
+            self.note("prepare_begin", 0, ids.len(), 0);
+            metrics::counters(&self.app, &self.options.output, "prepare-begin")
+                .expect("setup counters");
             let mut tasks = vec![];
             for id in ids {
                 tasks.push(self.send(
@@ -751,7 +787,8 @@ fn geometry_task(after: bool) -> Task<Msg> {
     iced::window::latest().then(move |id| {
         id.map_or_else(Task::none, |id| {
             iced::window::size(id).then(move |size| {
-                iced::window::scale_factor(id).map(move |scale| Msg::Geometry(after, size, scale))
+                iced::window::scale_factor(id)
+                    .map(move |scale| Msg::Geometry(after, id, size, scale))
             })
         })
     })

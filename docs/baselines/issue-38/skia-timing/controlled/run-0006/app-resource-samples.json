@@ -1,0 +1,93 @@
+[
+  {
+    "seconds": 2.8231212295004298,
+    "observer_ms": 6.165041000713245,
+    "phase": "measure",
+    "rss_bytes": 226197504,
+    "cpu_seconds": 1.06
+  },
+  {
+    "seconds": 3.0922615210001823,
+    "observer_ms": 4.039542000100482,
+    "phase": "measure",
+    "rss_bytes": 228966400,
+    "cpu_seconds": 1.4
+  },
+  {
+    "seconds": 3.3544980629994825,
+    "observer_ms": 4.2617920007614885,
+    "phase": "measure",
+    "rss_bytes": 228966400,
+    "cpu_seconds": 1.73
+  },
+  {
+    "seconds": 3.62533527100004,
+    "observer_ms": 4.2872079993685475,
+    "phase": "measure",
+    "rss_bytes": 229801984,
+    "cpu_seconds": 2.08
+  },
+  {
+    "seconds": 3.891293458999826,
+    "observer_ms": 4.448000001502805,
+    "phase": "measure",
+    "rss_bytes": 229801984,
+    "cpu_seconds": 2.42
+  },
+  {
+    "seconds": 4.162945708500047,
+    "observer_ms": 4.256832999089966,
+    "phase": "measure",
+    "rss_bytes": 229801984,
+    "cpu_seconds": 2.76
+  },
+  {
+    "seconds": 4.429805375500109,
+    "observer_ms": 4.5490829998016125,
+    "phase": "measure",
+    "rss_bytes": 229801984,
+    "cpu_seconds": 3.1
+  },
+  {
+    "seconds": 4.695755791999545,
+    "observer_ms": 4.344749999290798,
+    "phase": "measure",
+    "rss_bytes": 229801984,
+    "cpu_seconds": 3.44
+  },
+  {
+    "seconds": 4.963002604500616,
+    "observer_ms": 4.260959000021103,
+    "phase": "measure",
+    "rss_bytes": 229801984,
+    "cpu_seconds": 3.78
+  },
+  {
+    "seconds": 5.224623416999748,
+    "observer_ms": 4.317083999922033,
+    "phase": "measure",
+    "rss_bytes": 248152064,
+    "cpu_seconds": 4.12
+  },
+  {
+    "seconds": 5.494411750500149,
+    "observer_ms": 4.578416999720503,
+    "phase": "measure",
+    "rss_bytes": 229801984,
+    "cpu_seconds": 4.46
+  },
+  {
+    "seconds": 5.759037479499966,
+    "observer_ms": 4.519958998571383,
+    "phase": "measure",
+    "rss_bytes": 229752832,
+    "cpu_seconds": 4.8
+  },
+  {
+    "seconds": 5.888760542000455,
+    "observer_ms": 3.775916000449797,
+    "phase": "end",
+    "rss_bytes": 229752832,
+    "cpu_seconds": 4.93
+  }
+]

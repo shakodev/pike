@@ -1,0 +1,297 @@
+diff --git a/vendor/iced_term/src/view.rs b/vendor/iced_term/src/view.rs
+index ce53609..469e9cf 100644
+--- a/vendor/iced_term/src/view.rs
++++ b/vendor/iced_term/src/view.rs
+@@ -7,9 +7,8 @@ use alacritty_terminal::index::Point as TerminalGridPoint;
+ use alacritty_terminal::selection::SelectionType;
+ use alacritty_terminal::term::{cell, TermMode};
+ use alacritty_terminal::vte::ansi::{self as ansi, NamedColor};
+-use iced::alignment::Vertical;
+ use iced::mouse::{Cursor, ScrollDelta};
+-use iced::widget::canvas::{Path, Text};
++use iced::widget::canvas::Path;
+ use iced::widget::container;
+ use iced::{Color, Element, Length, Point, Rectangle, Size, Theme, Vector};
+ use iced_core::clipboard::Kind as ClipboardKind;
+@@ -17,7 +16,6 @@ use iced_core::clipboard::Kind as ClipboardKind;
+ use iced_core::keyboard::Key;
+ use iced_core::keyboard::Modifiers;
+ use iced_core::mouse::{self, Click};
+-use iced_core::text::{Alignment, LineHeight, Shaping};
+ 
+ mod cursor;
+ mod glyphs;
+@@ -299,7 +297,6 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
+         let cell_width = term_size.cell_width;
+         let cell_height = term_size.cell_height;
+         let font_size = self.term.font.size;
+-        let font_scale_factor = self.term.font.scale_factor;
+         let focused =
+             content.focused && self.term.backend.window_focus.is_focused();
+         if self
+@@ -322,7 +319,6 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
+             // Precompute constants used in the inner loop
+             let display_offset = content.viewport.display_offset() as f32;
+             let cell_size = Size::new(cell_width, cell_height);
+-            let half_h = cell_height * 0.5;
+             // We use the background pallete color as a default
+             // because the widget global background color must be the same
+             let default_bg = self
+@@ -407,13 +403,8 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
+                 let x = indexed.point.column.0 as f32 * cell_width;
+                 let y = (indexed.point.line.0 as f32 + display_offset)
+                     * cell_height;
+-                let cell_center_y = y + half_h;
+                 let (fg, _) =
+                     self.cell_colors(content, indexed.cell, indexed.point);
+-                let columns = glyphs::columns(
+-                    indexed.cell,
+-                    content.viewport.columns() - indexed.point.column.0,
+-                );
+                 // Draw hovered hyperlink underline (rare; keep per-cell for correctness)
+                 if content.hovered_hyperlink.as_ref().is_some_and(|range| {
+                     range.contains(&indexed.point)
+@@ -439,36 +430,6 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
+                 {
+                     cursor.draw(frame);
+                 }
+-
+-                // ASCII retains the existing pane geometry cache. Unicode uses
+-                // the core text renderer below: tiny-skia canvas text ignores
+-                // per-text clip bounds in the pinned Iced implementation.
+-                if columns > 0
+-                    && glyphs::visible(indexed.cell)
+-                    && !glyphs::clipped(indexed.cell)
+-                {
+-                    let fg = cursor.map_or(fg, |cursor| {
+-                        cursor.glyph_color(indexed.point, fg)
+-                    });
+-                    frame.fill_text(Text {
+-                        content: glyphs::text(indexed.cell),
+-                        position: Point::new(
+-                            x + cell_width * 0.5,
+-                            cell_center_y,
+-                        ),
+-                        font: glyphs::font(
+-                            self.term.font.font_type,
+-                            indexed.flags,
+-                        ),
+-                        size: iced_core::Pixels(font_size),
+-                        color: fg,
+-                        align_x: Alignment::Center,
+-                        align_y: Vertical::Center,
+-                        shaping: Shaping::Advanced,
+-                        line_height: LineHeight::Relative(font_scale_factor),
+-                        ..Default::default()
+-                    });
+-                }
+             }
+         });
+ 
+@@ -484,9 +445,15 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
+                     let generation = (
+                         self.term.snapshot_stats().snapshots,
+                         self.term.work_stats().font_measurements,
++                        bounds.size(),
+                     );
+                     cache.update(generation, |glyphs| {
+-                        glyphs::build(content, &self.term.font, glyphs);
++                        glyphs::build(
++                            content,
++                            &self.term.font,
++                            bounds.size(),
++                            glyphs,
++                        );
+                     });
+                     // Iced's layer stack replaces, rather than intersects,
+                     // the parent clip. Preserve the current pane/ancestor
+@@ -514,20 +481,26 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
+                         let (fg, _) = self.cell_colors(content, cell, point);
+                         let fg = cursor
+                             .map_or(fg, |cursor| cursor.glyph_color(point, fg));
+-                        let Some(clip) = glyph.clip.intersection(&ancestor)
+-                        else {
+-                            continue;
++                        let raw = |clip| iced_graphics::text::Raw {
++                            buffer: std::sync::Arc::downgrade(&glyph.buffer),
++                            position: glyph.position,
++                            color: fg,
++                            clip_bounds: clip,
+                         };
+-                        renderer.with_layer(clip, |renderer| {
+-                            renderer.fill_raw(iced_graphics::text::Raw {
+-                                buffer: std::sync::Arc::downgrade(
+-                                    &glyph.buffer,
+-                                ),
+-                                position: glyph.position,
+-                                color: fg,
+-                                clip_bounds: clip,
++                        if glyphs::clipped(cell) {
++                            let Some(clip) = glyph.clip.intersection(&ancestor)
++                            else {
++                                continue;
++                            };
++                            renderer.with_layer(clip, |renderer| {
++                                renderer.fill_raw(raw(clip))
+                             });
+-                        });
++                        } else {
++                            // Raw ASCII shares the pane mask. Canvas text uses
++                            // infinite clip bounds in pinned tiny-skia, forcing
++                            // a full-window mask clear/fill for every cell.
++                            renderer.fill_raw(raw(ancestor));
++                        }
+                     }
+                 },
+             );
+diff --git a/vendor/iced_term/src/view/glyphs.rs b/vendor/iced_term/src/view/glyphs.rs
+index fd02ace..8563fe7 100644
+--- a/vendor/iced_term/src/view/glyphs.rs
++++ b/vendor/iced_term/src/view/glyphs.rs
+@@ -1,7 +1,7 @@
+ //! A terminal cell owns its text span; shaping must not choose grid positions.
+ use alacritty_terminal::term::cell::{Cell, Flags};
+ use iced::font::{Style, Weight};
+-use iced::{Font, Point, Rectangle};
++use iced::{Font, Point, Rectangle, Size};
+ use iced_graphics::text::{self as text_engine, cosmic_text};
+ use std::sync::Arc;
+ 
+@@ -15,14 +15,14 @@ pub(super) struct Glyph {
+ 
+ #[derive(Debug, Clone, Default)]
+ pub(super) struct Cache {
+-    generation: Option<(u64, u64)>,
++    generation: Option<(u64, u64, Size)>,
+     pub glyphs: Vec<Glyph>,
+ }
+ 
+ impl Cache {
+     pub fn update(
+         &mut self,
+-        generation: (u64, u64),
++        generation: (u64, u64, Size),
+         build: impl FnOnce(&mut Vec<Glyph>),
+     ) {
+         if self.generation == Some(generation) {
+@@ -86,6 +86,7 @@ pub(super) fn font(mut font: Font, flags: Flags) -> Font {
+ pub(super) fn build(
+     content: &crate::RenderableContent,
+     style: &crate::font::TermFont,
++    pane_size: Size,
+     glyphs: &mut Vec<Glyph>,
+ ) {
+     let cell = content.terminal_size;
+@@ -97,7 +98,7 @@ pub(super) fn build(
+             indexed.cell,
+             content.viewport.columns() - indexed.point.column.0,
+         );
+-        if width == 0 || !visible(indexed.cell) || !clipped(indexed.cell) {
++        if width == 0 || !visible(indexed.cell) {
+             continue;
+         }
+         let x = indexed.point.column.0 as f32 * cell.cell_width;
+@@ -115,7 +116,13 @@ pub(super) fn build(
+         );
+         let (buffer, measured) =
+             shapes.entry(key).or_insert_with_key(|(font, text, _)| {
+-                shape(text, *font, style, span.size())
++                shape(
++                    text,
++                    *font,
++                    style,
++                    span.size(),
++                    (!clipped(indexed.cell)).then_some(pane_size),
++                )
+             });
+         glyphs.push(Glyph {
+             buffer: Arc::clone(buffer),
+@@ -133,7 +140,8 @@ fn shape(
+     text: &str,
+     font: Font,
+     style: &crate::font::TermFont,
+-    span: iced::Size<f32>,
++    span: Size,
++    pane_size: Option<Size>,
+ ) -> (Arc<cosmic_text::Buffer>, iced::Size<f32>) {
+     use iced_core::text::Shaping;
+     let mut fonts = text_engine::font_system()
+@@ -161,6 +169,18 @@ fn shape(
+     }
+     buffer.shape_until_scroll(system, false);
+     let measured = text_engine::measure(&buffer).0;
++    if let Some(pane) = pane_size {
++        // Raw text reuses the current pane mask without rebuilding it. Make
++        // the logical bounds exceed the pane so tiny-skia also clips italic
++        // ink overhang, even when the first cell's measured origin is negative.
++        // This changes layout bounds only; it allocates no pane-sized bitmap.
++        buffer.set_size(
++            system,
++            Some(pane.width + measured.width + span.width + 2.0),
++            Some(pane.height + measured.height + span.height + 2.0),
++        );
++        buffer.shape_until_scroll(system, false);
++    }
+     drop(fonts);
+     (Arc::new(buffer), measured)
+ }
+diff --git a/vendor/iced_term/src/view/glyphs/tests.rs b/vendor/iced_term/src/view/glyphs/tests.rs
+index d3d65ff..129494c 100644
+--- a/vendor/iced_term/src/view/glyphs/tests.rs
++++ b/vendor/iced_term/src/view/glyphs/tests.rs
+@@ -140,13 +140,17 @@ fn continuation_and_hidden_cells_do_not_emit_duplicate_or_concealed_text() {
+ fn unchanged_generation_never_rebuilds_or_reshapes_unicode_spans() {
+     let mut cache = Cache::default();
+     let mut builds = 0;
+-    cache.update((4, 8), |_| builds += 1);
++    cache.update((4, 8, Size::new(120.0, 80.0)), |_| builds += 1);
+     for _ in 0..32 {
+-        cache.update((4, 8), |_| panic!("unrelated redraw reshaped glyphs"));
++        cache.update((4, 8, Size::new(120.0, 80.0)), |_| {
++            panic!("unrelated redraw reshaped glyphs")
++        });
+     }
+-    cache.update((5, 8), |_| builds += 1); // New viewport snapshot.
+-    cache.update((5, 9), |_| builds += 1); // Actual font measurement change.
+-    assert_eq!(builds, 3);
++    cache.update((5, 8, Size::new(120.0, 80.0)), |_| builds += 1); // New viewport snapshot.
++    cache.update((5, 9, Size::new(120.0, 80.0)), |_| builds += 1); // Actual font measurement change.
++    cache.update((5, 9, Size::new(240.0, 80.0)), |_| builds += 1);
++    assert_eq!(builds, 4); // Pane resize updates shared ASCII clip guards.
++
+     assert!(Cache::default().generation.is_none()); // Session-ID diff resets it.
+ }
+ 
+@@ -157,7 +161,7 @@ fn repeated_unicode_shares_one_bounded_shaped_buffer_and_keeps_clip_guards() {
+     content.capture(&term, crate::geometry::TerminalSize::default());
+     let style = crate::font::TermFont::new(Default::default());
+     let mut glyphs = Vec::new();
+-    build(&content, &style, &mut glyphs);
++    build(&content, &style, Size::new(120.0, 80.0), &mut glyphs);
+     assert_eq!(glyphs.len(), 3);
+     assert!(Arc::ptr_eq(&glyphs[0].buffer, &glyphs[1].buffer));
+     assert!(Arc::ptr_eq(&glyphs[1].buffer, &glyphs[2].buffer));
+@@ -165,3 +169,23 @@ fn repeated_unicode_shares_one_bounded_shaped_buffer_and_keeps_clip_guards() {
+     assert!(width.unwrap() > glyphs[0].clip.width);
+     assert!(height.unwrap() > glyphs[0].clip.height);
+ }
++
++#[test]
++fn ascii_buffers_are_shared_and_force_pane_clipping_without_per_cell_layers() {
++    let term = model(12, "FF\x1b[3mF\x1b[0mF");
++    let mut content = crate::RenderableContent::default();
++    content.capture(&term, crate::geometry::TerminalSize::default());
++    let style = crate::font::TermFont::new(Default::default());
++    let pane = Size::new(120.0, 80.0);
++    let mut glyphs = Vec::new();
++    build(&content, &style, pane, &mut glyphs);
++    assert_eq!(glyphs.len(), 4);
++    assert!(Arc::ptr_eq(&glyphs[0].buffer, &glyphs[1].buffer));
++    assert!(Arc::ptr_eq(&glyphs[0].buffer, &glyphs[3].buffer));
++    assert!(!Arc::ptr_eq(&glyphs[0].buffer, &glyphs[2].buffer));
++    for glyph in glyphs {
++        let (width, height) = glyph.buffer.size();
++        assert!(glyph.position.x + width.unwrap() > pane.width);
++        assert!(glyph.position.y + height.unwrap() > pane.height);
++    }
++}

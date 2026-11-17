@@ -1,0 +1,2 @@
+nonce,session,snapshot_ms,readback_ms,width,height,scale,elapsed_ms,validation_ms,child_pid
+1,1,445.245,3511.426,3200,1982,2,3550.754,0.065,34206

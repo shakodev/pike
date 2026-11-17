@@ -1,0 +1,5 @@
+session,visible,columns,rows,history,history_limit,snapshots,cells_copied,font_measurements,pty_resizes,grid_resizes,cache_invalidations,input_outstanding,input_queued,input_written,input_cancelled
+1,true,94,24,2000,2000,237,548081,1,3,3,254,0,0,47,0
+3,true,94,24,2000,2000,253,576794,1,2,2,264,0,0,40,0
+4,true,94,24,2000,2000,240,544928,1,1,1,247,0,0,40,0
+5,true,94,24,2000,2000,238,540416,1,1,1,245,0,0,40,0

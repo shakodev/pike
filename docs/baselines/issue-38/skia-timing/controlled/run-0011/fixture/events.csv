@@ -1,0 +1,16 @@
+ms,event,session,a,b
+188.517,native_focus,0,false,0
+188.603,native_focus,0,true,0
+210.008,ready,1,35168,0
+210.067,synthetic_window_focus,0,true,0
+210.165,prepare_begin,0,1,0
+261.359,prepared,1,0,0
+261.760,scenario_ready,0,1,0
+1277.497,native_focus,0,false,0
+2268.894,measure_begin,0,1,0
+5272.105,end_timer_armed_woke_ms,0,0.152291,3002.974041
+5272.445,end_timer_handling_lag_ms,0,0.578167,0
+5272.545,measurement_epoch,0,1794918132543,1794918135546
+5272.634,measure_end,0,3003,0
+6344.599,completion,1,true,0
+6344.751,finished,0,1,0

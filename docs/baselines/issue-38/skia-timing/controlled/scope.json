@@ -1,0 +1,8 @@
+{
+  "platform": "darwin",
+  "scope": "native macOS, synthetic focus, Unix PTY; diagnostic app RSS/cumulative CPU only",
+  "windows_private_bytes": null,
+  "windows_working_set": null,
+  "gpu": null,
+  "method": "external ps samples at 250 ms; CPU is one-core delta over observed sample interval, RSS is resident KiB converted to bytes; observers run sequentially"
+}

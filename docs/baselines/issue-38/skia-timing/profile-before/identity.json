@@ -1,0 +1,40 @@
+{
+  "command": [
+    "/private/tmp/r38-resize-builds/tiny-skia-baseline/renderer_comparison",
+    "--output",
+    "/private/tmp/r38-skia-profile-before/fixture",
+    "--visible",
+    "8",
+    "--hidden",
+    "0",
+    "--history",
+    "empty",
+    "--workload",
+    "flood",
+    "--seconds",
+    "3",
+    "--settle",
+    "0",
+    "--probes",
+    "0",
+    "--synthetic-focus",
+    "true"
+  ],
+  "sha256": "b8f79a7c1639c890a3dbfb735f253d23dc17aa5f81c86fbd6faf04780e3bf394",
+  "app_pid": 25821,
+  "children": [
+    25823,
+    25831,
+    25837,
+    25839,
+    25841,
+    25843,
+    25850,
+    25852
+  ],
+  "survivors": [],
+  "stderr_finished": true,
+  "exit_code": 1,
+  "wall_seconds": 8.450381624999864,
+  "scope": "sampling diagnostic; observer overhead excludes this from cost evidence"
+}

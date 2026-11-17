@@ -1,0 +1,18 @@
+{
+  "sample_count": 12,
+  "observed_seconds": 2.9935785835004936,
+  "one_core_cpu_percent": 2.33833848176942,
+  "rss_bytes": {
+    "count": 12,
+    "median": 233537536.0,
+    "p95": 233537536.0,
+    "maximum": 233537536.0
+  },
+  "observer_ms": {
+    "count": 12,
+    "median": 8.987416000309167,
+    "p95": 13.286208999488736,
+    "maximum": 13.286208999488736
+  },
+  "scope": "diagnostic app-only samples; Windows resource costs and physical input/display latency unavailable"
+}

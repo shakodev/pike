@@ -1,7 +1,7 @@
 //! A terminal cell owns its text span; shaping must not choose grid positions.
 use alacritty_terminal::term::cell::{Cell, Flags};
 use iced::font::{Style, Weight};
-use iced::{Font, Point, Rectangle};
+use iced::{Font, Point, Rectangle, Size};
 use iced_graphics::text::{self as text_engine, cosmic_text};
 use std::sync::Arc;
 
@@ -15,14 +15,14 @@ pub(super) struct Glyph {
 
 #[derive(Debug, Clone, Default)]
 pub(super) struct Cache {
-    generation: Option<(u64, u64)>,
+    generation: Option<(u64, u64, Size)>,
     pub glyphs: Vec<Glyph>,
 }
 
 impl Cache {
     pub fn update(
         &mut self,
-        generation: (u64, u64),
+        generation: (u64, u64, Size),
         build: impl FnOnce(&mut Vec<Glyph>),
     ) {
         if self.generation == Some(generation) {
@@ -86,6 +86,7 @@ pub(super) fn font(mut font: Font, flags: Flags) -> Font {
 pub(super) fn build(
     content: &crate::RenderableContent,
     style: &crate::font::TermFont,
+    pane_size: Size,
     glyphs: &mut Vec<Glyph>,
 ) {
     let cell = content.terminal_size;
@@ -97,7 +98,7 @@ pub(super) fn build(
             indexed.cell,
             content.viewport.columns() - indexed.point.column.0,
         );
-        if width == 0 || !visible(indexed.cell) || !clipped(indexed.cell) {
+        if width == 0 || !visible(indexed.cell) {
             continue;
         }
         let x = indexed.point.column.0 as f32 * cell.cell_width;
@@ -115,7 +116,13 @@ pub(super) fn build(
         );
         let (buffer, measured) =
             shapes.entry(key).or_insert_with_key(|(font, text, _)| {
-                shape(text, *font, style, span.size())
+                shape(
+                    text,
+                    *font,
+                    style,
+                    span.size(),
+                    (!clipped(indexed.cell)).then_some(pane_size),
+                )
             });
         glyphs.push(Glyph {
             buffer: Arc::clone(buffer),
@@ -133,7 +140,8 @@ fn shape(
     text: &str,
     font: Font,
     style: &crate::font::TermFont,
-    span: iced::Size<f32>,
+    span: Size,
+    pane_size: Option<Size>,
 ) -> (Arc<cosmic_text::Buffer>, iced::Size<f32>) {
     use iced_core::text::Shaping;
     let mut fonts = text_engine::font_system()
@@ -161,6 +169,18 @@ fn shape(
     }
     buffer.shape_until_scroll(system, false);
     let measured = text_engine::measure(&buffer).0;
+    if let Some(pane) = pane_size {
+        // Raw text reuses the current pane mask without rebuilding it. Make
+        // the logical bounds exceed the pane so tiny-skia also clips italic
+        // ink overhang, even when the first cell's measured origin is negative.
+        // This changes layout bounds only; it allocates no pane-sized bitmap.
+        buffer.set_size(
+            system,
+            Some(pane.width + measured.width + span.width + 2.0),
+            Some(pane.height + measured.height + span.height + 2.0),
+        );
+        buffer.shape_until_scroll(system, false);
+    }
     drop(fonts);
     (Arc::new(buffer), measured)
 }

@@ -406,6 +406,12 @@ fn run(
     pid: &mut u32,
 ) -> io::Result<()> {
     let ready = wait(executor, terminal, "pike:unicode:boot:")?;
+    // This offscreen fixture owns synthetic keyboard authority; no native
+    // window exists to deliver Focused before the widget copy checks.
+    let focus = iced_term::WindowFocus::default();
+    focus.set_focused(true);
+    terminal.set_window_focus(focus);
+    terminal.set_focused(true);
     *pid = ready
         .rsplit(':')
         .next()

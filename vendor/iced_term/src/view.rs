@@ -7,9 +7,8 @@ use alacritty_terminal::index::Point as TerminalGridPoint;
 use alacritty_terminal::selection::SelectionType;
 use alacritty_terminal::term::{cell, TermMode};
 use alacritty_terminal::vte::ansi::{self as ansi, NamedColor};
-use iced::alignment::Vertical;
 use iced::mouse::{Cursor, ScrollDelta};
-use iced::widget::canvas::{Path, Text};
+use iced::widget::canvas::Path;
 use iced::widget::container;
 use iced::{Color, Element, Length, Point, Rectangle, Size, Theme, Vector};
 use iced_core::clipboard::Kind as ClipboardKind;
@@ -17,7 +16,6 @@ use iced_core::clipboard::Kind as ClipboardKind;
 use iced_core::keyboard::Key;
 use iced_core::keyboard::Modifiers;
 use iced_core::mouse::{self, Click};
-use iced_core::text::{Alignment, LineHeight, Shaping};
 
 mod cursor;
 mod glyphs;
@@ -299,7 +297,6 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         let cell_width = term_size.cell_width;
         let cell_height = term_size.cell_height;
         let font_size = self.term.font.size;
-        let font_scale_factor = self.term.font.scale_factor;
         let focused =
             content.focused && self.term.backend.window_focus.is_focused();
         if self
@@ -322,7 +319,6 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
             // Precompute constants used in the inner loop
             let display_offset = content.viewport.display_offset() as f32;
             let cell_size = Size::new(cell_width, cell_height);
-            let half_h = cell_height * 0.5;
             // We use the background pallete color as a default
             // because the widget global background color must be the same
             let default_bg = self
@@ -407,13 +403,8 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                 let x = indexed.point.column.0 as f32 * cell_width;
                 let y = (indexed.point.line.0 as f32 + display_offset)
                     * cell_height;
-                let cell_center_y = y + half_h;
                 let (fg, _) =
                     self.cell_colors(content, indexed.cell, indexed.point);
-                let columns = glyphs::columns(
-                    indexed.cell,
-                    content.viewport.columns() - indexed.point.column.0,
-                );
                 // Draw hovered hyperlink underline (rare; keep per-cell for correctness)
                 if content.hovered_hyperlink.as_ref().is_some_and(|range| {
                     range.contains(&indexed.point)
@@ -439,36 +430,6 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                 {
                     cursor.draw(frame);
                 }
-
-                // ASCII retains the existing pane geometry cache. Unicode uses
-                // the core text renderer below: tiny-skia canvas text ignores
-                // per-text clip bounds in the pinned Iced implementation.
-                if columns > 0
-                    && glyphs::visible(indexed.cell)
-                    && !glyphs::clipped(indexed.cell)
-                {
-                    let fg = cursor.map_or(fg, |cursor| {
-                        cursor.glyph_color(indexed.point, fg)
-                    });
-                    frame.fill_text(Text {
-                        content: glyphs::text(indexed.cell),
-                        position: Point::new(
-                            x + cell_width * 0.5,
-                            cell_center_y,
-                        ),
-                        font: glyphs::font(
-                            self.term.font.font_type,
-                            indexed.flags,
-                        ),
-                        size: iced_core::Pixels(font_size),
-                        color: fg,
-                        align_x: Alignment::Center,
-                        align_y: Vertical::Center,
-                        shaping: Shaping::Advanced,
-                        line_height: LineHeight::Relative(font_scale_factor),
-                        ..Default::default()
-                    });
-                }
             }
         });
 
@@ -484,9 +445,15 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                     let generation = (
                         self.term.snapshot_stats().snapshots,
                         self.term.work_stats().font_measurements,
+                        bounds.size(),
                     );
                     cache.update(generation, |glyphs| {
-                        glyphs::build(content, &self.term.font, glyphs);
+                        glyphs::build(
+                            content,
+                            &self.term.font,
+                            bounds.size(),
+                            glyphs,
+                        );
                     });
                     // Iced's layer stack replaces, rather than intersects,
                     // the parent clip. Preserve the current pane/ancestor
@@ -514,20 +481,26 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
                         let (fg, _) = self.cell_colors(content, cell, point);
                         let fg = cursor
                             .map_or(fg, |cursor| cursor.glyph_color(point, fg));
-                        let Some(clip) = glyph.clip.intersection(&ancestor)
-                        else {
-                            continue;
+                        let raw = |clip| iced_graphics::text::Raw {
+                            buffer: std::sync::Arc::downgrade(&glyph.buffer),
+                            position: glyph.position,
+                            color: fg,
+                            clip_bounds: clip,
                         };
-                        renderer.with_layer(clip, |renderer| {
-                            renderer.fill_raw(iced_graphics::text::Raw {
-                                buffer: std::sync::Arc::downgrade(
-                                    &glyph.buffer,
-                                ),
-                                position: glyph.position,
-                                color: fg,
-                                clip_bounds: clip,
+                        if glyphs::clipped(cell) {
+                            let Some(clip) = glyph.clip.intersection(&ancestor)
+                            else {
+                                continue;
+                            };
+                            renderer.with_layer(clip, |renderer| {
+                                renderer.fill_raw(raw(clip))
                             });
-                        });
+                        } else {
+                            // Raw ASCII shares the pane mask. Canvas text uses
+                            // infinite clip bounds in pinned tiny-skia, forcing
+                            // a full-window mask clear/fill for every cell.
+                            renderer.fill_raw(raw(ancestor));
+                        }
                     }
                 },
             );
