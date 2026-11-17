@@ -63,7 +63,7 @@ enum Msg {
     Advance,
     Captured(usize, iced::window::Screenshot),
     Frame,
-    Geometry(bool, iced::Size, f32),
+    Geometry(bool, iced::window::Id, iced::Size, f32),
     ReleaseCleanup,
 }
 #[derive(PartialEq)]
@@ -103,6 +103,7 @@ struct Probe {
     failed: bool,
     focus_requested: bool,
     layout: setup::LayoutBarrier,
+    window: Option<iced::window::Id>,
 }
 
 impl Probe {
@@ -152,6 +153,7 @@ impl Probe {
                 failed: false,
                 focus_requested: false,
                 layout: setup::LayoutBarrier::default(),
+                window: None,
             },
             Task::batch([task.map(Msg::App), delay(deadline, Msg::Deadline)]),
         )
@@ -274,7 +276,8 @@ impl Probe {
                 }
             }
             Msg::Probe => Task::none(),
-            Msg::Geometry(after, size, scale) => {
+            Msg::Geometry(after, id, size, scale) => {
+                self.window = Some(id);
                 fs::write(
                     self.options.output.join(if after {
                         "geometry-after.csv"
@@ -291,12 +294,11 @@ impl Probe {
                 self.advance()
             }
             Msg::Frame => {
-                if let Some(nonce) = self.samples.frame() {
-                    return iced::window::latest().then(move |id| {
-                        id.map_or_else(Task::none, |id| {
-                            iced::window::screenshot(id).map(move |shot| Msg::Captured(nonce, shot))
-                        })
-                    });
+                if let Some(id) = self.window
+                    && let Some(nonce) = self.samples.frame()
+                {
+                    return iced::window::screenshot(id)
+                        .map(move |shot| Msg::Captured(nonce, shot));
                 }
                 Task::none()
             }
@@ -342,10 +344,14 @@ impl Probe {
                         shot.crop(region).expect("validated nonce region"),
                     ));
                 }
-                Task::perform(
-                    async { tokio::time::sleep(Duration::from_millis(100)).await },
-                    |_| Msg::Probe,
-                )
+                let pause = samples::probe_delay(sample.sent, Instant::now());
+                if pause.is_zero() {
+                    Task::done(Msg::Probe)
+                } else {
+                    Task::perform(async move { tokio::time::sleep(pause).await }, |_| {
+                        Msg::Probe
+                    })
+                }
             }
             Msg::TimedEnd(armed, woke) => {
                 if self.stage != Stage::Measure || self.closing_requested {
@@ -781,7 +787,8 @@ fn geometry_task(after: bool) -> Task<Msg> {
     iced::window::latest().then(move |id| {
         id.map_or_else(Task::none, |id| {
             iced::window::size(id).then(move |size| {
-                iced::window::scale_factor(id).map(move |scale| Msg::Geometry(after, size, scale))
+                iced::window::scale_factor(id)
+                    .map(move |scale| Msg::Geometry(after, id, size, scale))
             })
         })
     })
