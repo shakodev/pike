@@ -1,0 +1,12 @@
+{
+  "reviewed_pr_head": "26ca1d447d90ecbc664494112c9e2681f4d7a4c3",
+  "integrated_main": "9b2b43590324e3cecd3ea6fb87b48cda577e8e22",
+  "host": "macOS-26.7.3-arm64-arm-64bit-Mach-O",
+  "compiler": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "native_windows_executed": false,
+  "github_actions_used": false,
+  "native_fixture_source_sha256": "b9953eac6722d63fd930780ed75d4db33695b3778d30af42c091b2a9163b402b",
+  "native_fixture_binary_sha256": "e2205d9528f42b7e3ec836b50912742eba705ab9369f88a25b76939ec29e8663",
+  "native_fixture_source_unchanged_from_retained_fixture": true,
+  "native_fixture_additional_dependency_versions": []
+}

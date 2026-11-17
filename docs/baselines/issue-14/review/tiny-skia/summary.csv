@@ -1,0 +1,5 @@
+application_cursor,newline,cases,bytes,hash,max_dispatch_us,fixture_pid,cleanup
+false,false,168,338,6240427134811137018,3.666,59192,Requested
+true,false,168,338,14833512360581434354,2.416,59194,Requested
+false,true,168,340,15479964774545947290,5.542,59196,Requested
+true,true,168,340,2903191449820718642,0.917,59198,Requested

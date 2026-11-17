@@ -12,11 +12,27 @@ use tokio::runtime::{Builder, Runtime};
 /// blocking tasks must be finite. Session teardown belongs before app exit.
 pub struct SharedExecutor(Runtime);
 
+// Workers are lazy. One app admits at most two prepares, one config read and
+// one emergency dialog; permits stay inside each blocking closure until return.
+pub const BLOCKING_WORKERS: usize = crate::launch::PREPARATION_WORKERS + 2;
+
+pub(crate) struct BlockingSlot(std::sync::Arc<tokio::sync::Semaphore>);
+impl Default for BlockingSlot {
+    fn default() -> Self {
+        Self(std::sync::Arc::new(tokio::sync::Semaphore::new(1)))
+    }
+}
+impl BlockingSlot {
+    pub(crate) fn try_acquire(&self) -> Option<tokio::sync::OwnedSemaphorePermit> {
+        self.0.clone().try_acquire_owned().ok()
+    }
+}
+
 impl iced::Executor for SharedExecutor {
     fn new() -> io::Result<Self> {
         Builder::new_multi_thread()
             .worker_threads(1)
-            .max_blocking_threads(2)
+            .max_blocking_threads(BLOCKING_WORKERS)
             .thread_name("pike-runtime")
             .enable_time()
             .build()
@@ -46,6 +62,40 @@ mod tests {
     use std::time::Duration;
 
     const DEADLINE: Duration = Duration::from_secs(5);
+
+    #[test]
+    fn cancelled_async_waiter_keeps_its_slot_until_blocking_closure_returns() {
+        let executor = SharedExecutor::new().unwrap();
+        let slot = super::BlockingSlot::default();
+        let permit = slot.try_acquire().unwrap();
+        let (started, observed) = mpsc::channel();
+        let (release, gate) = mpsc::channel();
+        let (returned, completed) = tokio::sync::oneshot::channel();
+        let waiter = executor.enter(|| {
+            tokio::spawn(async move {
+                tokio::task::spawn_blocking(move || {
+                    started.send(()).unwrap();
+                    gate.recv_timeout(DEADLINE).unwrap();
+                    drop(permit);
+                    returned.send(()).unwrap();
+                })
+                .await
+                .unwrap();
+            })
+        });
+        observed.recv_timeout(DEADLINE).unwrap();
+        waiter.abort();
+        assert!(slot.try_acquire().is_none());
+        release.send(()).unwrap();
+        executor.block_on(async {
+            tokio::time::timeout(DEADLINE, completed)
+                .await
+                .unwrap()
+                .unwrap();
+        });
+        assert!(slot.try_acquire().is_some());
+        assert!(executor.block_on(waiter).unwrap_err().is_cancelled());
+    }
 
     #[test]
     fn enter_spawn_block_on_and_timers_share_one_runtime() {
@@ -90,12 +140,12 @@ mod tests {
     }
 
     #[test]
-    fn blocking_work_queues_after_two_workers() {
+    fn blocking_work_queues_after_the_explicit_worker_budget() {
         let executor = SharedExecutor::new().unwrap();
         let gate = Arc::new((std::sync::Mutex::new(false), std::sync::Condvar::new()));
         let (started, ready) = mpsc::channel();
         let mut tasks = Vec::new();
-        for _ in 0..2 {
+        for _ in 0..super::BLOCKING_WORKERS {
             let gate = Arc::clone(&gate);
             let started = started.clone();
             tasks.push(executor.enter(|| {
@@ -108,8 +158,9 @@ mod tests {
                 })
             }));
         }
-        ready.recv_timeout(DEADLINE).unwrap();
-        ready.recv_timeout(DEADLINE).unwrap();
+        for _ in 0..super::BLOCKING_WORKERS {
+            ready.recv_timeout(DEADLINE).unwrap();
+        }
         let third = executor.enter(|| tokio::task::spawn_blocking(move || started.send(())));
         let queued = ready.recv_timeout(Duration::from_millis(50));
         let (lock, signal) = &*gate;

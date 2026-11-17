@@ -1,0 +1,1 @@
+run_error=true handles=1 completions_at_return=1 children=1 live_at_return=0 live_after_wait=0 pool_cleanup=true

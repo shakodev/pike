@@ -1,0 +1,78 @@
+    Blocking waiting for file lock on build directory
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c)
+warning: unused variable: `session`
+   --> src/app/errors.rs:121:29
+    |
+121 |             (Owner::Session(session), Recovery::PasteAgain)
+    |                             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_session`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `recovery_request` is never used
+  --> src/app/errors.rs:50:19
+   |
+22 | impl App {
+   | -------- method in this implementation
+...
+50 |     pub(super) fn recovery_request(&self, id: ErrorId) -> Option<RecoveryRequest> {
+   |                   ^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: constant `ERROR_HEIGHT` is never used
+  --> src/app/errors/view.rs:10:26
+   |
+10 | pub(in crate::app) const ERROR_HEIGHT: f32 = 96.0;
+   |                          ^^^^^^^^^^^^
+
+warning: enum `Event` is never used
+  --> src/app/errors/view.rs:13:6
+   |
+13 | enum Event { Control(Control), Retry(super::RecoveryRequest) }
+   |      ^^^^^
+
+warning: methods `error_height`, `passive_error_view`, `error_view`, and `application_error_view` are never used
+  --> src/app/errors/view.rs:16:27
+   |
+15 | impl App {
+   | -------- methods in this implementation
+16 |     pub(in crate::app) fn error_height(&self, id: SessionId) -> f32 {
+   |                           ^^^^^^^^^^^^
+...
+23 |     pub(in crate::app) fn passive_error_view(&self) -> Option<Element<'_, Message>> {
+   |                           ^^^^^^^^^^^^^^^^^^
+...
+26 |     pub(in crate::app) fn error_view(&self, owner: Owner) -> Option<Element<'_, Message>> {
+   |                           ^^^^^^^^^^
+...
+85 |     pub(in crate::app) fn application_error_view(&self) -> Option<Element<'_, Message>> {
+   |                           ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `pike` (lib) generated 5 warnings (run `cargo fix --lib -p pike` to apply 1 suggestion)
+error[E0583]: file not found for module `writes`
+ --> tests/../src/errors.rs:6:1
+  |
+6 | mod writes;
+  | ^^^^^^^^^^^
+  |
+  = help: to create the module `writes`, create file "tests/../src/writes.rs" or "tests/../src/writes/mod.rs"
+  = note: if there is a `mod writes` elsewhere in the crate already, import it with `use crate::...` instead
+
+For more information about this error, try `rustc --explain E0583`.
+error: could not compile `pike` (test "recoverable_model") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

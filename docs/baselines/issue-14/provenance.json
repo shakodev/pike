@@ -1,0 +1,48 @@
+{
+  "RecordedAtUtc": "2026-10-27T09:47:35.101712+00:00",
+  "BaseCommit": "fb9e5fce64934340b023b73a40fcf79d43efec20",
+  "Host": "aarch64-apple-darwin",
+  "OS": "26.7.1",
+  "Compiler": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "Editor": [
+    "VIM - Vi IMproved 9.1 (2024 Jan 02, compiled Aug 18 2026 20:50:15)",
+    "macOS version - arm64",
+    "Included patches: 1-1752"
+  ],
+  "NativeWindowsExecuted": false,
+  "PSReadLineExecuted": false,
+  "PhysicalKeyboardLayoutsTested": false,
+  "SurvivingRawFixtures": 0,
+  "GitHubActionsUsed": false,
+  "Metrics": {
+    "wgpu": {
+      "wall_s": 1.0,
+      "user_s": 0.05,
+      "system_s": 0.09,
+      "rss_mib": 29.14,
+      "max_dispatch_us": 25.208
+    },
+    "tiny-skia": {
+      "wall_s": 0.9,
+      "user_s": 0.03,
+      "system_s": 0.09,
+      "rss_mib": 20.02,
+      "max_dispatch_us": 59.959
+    }
+  },
+  "SourceSha256": {
+    "Cargo.lock": "9164062dc5a79bdcea101c9189d7ac2bbe49035e30e5cd2db72e6bd15b8c3992",
+    "vendor/iced_term/Cargo.toml": "104bceb705ebfc941c1adca43917231e139e8b2b1ca252d4d538a32aaeb24815",
+    "vendor/iced_term/src/keyboard.rs": "316d21d4a4369a328ce2acc62ccce3efc9905001c9f88dd6f64c1f7f989ca74e",
+    "vendor/iced_term/src/keyboard/tests.rs": "fecf1bf00925913070a7f53c0713e292b0d48d94b4a3f7f091a801cb4fee736b",
+    "vendor/iced_term/src/view.rs": "ba11f120a6cd52fe5e352a5be1aec993e1decfc6dcc8dc47d415ec78ab1b06d3",
+    "vendor/iced_term/src/bindings.rs": "93a550a51ff2f801b1ca45ab1472933c6ddce2fa332b3a6db1d998f1b57553e4",
+    "vendor/iced_term/src/backend.rs": "82e70c78a946420b4033288986a769fe9c495eb472c5662e2bcb9dc57c4196a0",
+    "examples/input_fixture.rs": "9dfd596f2479260167e457042e05ff13f2960661d77480b8e07538fba147059c",
+    "examples/keyboard_input.rs": "7dbf6aa6868e6bb959cc4388de01857ed37ec83ef2c3c9a93805639e1a0b4c16",
+    "examples/support/keyboard_cases.rs": "99a6ec5fefecd022c009fbd7069eeabbfbd2c7555300c2e914a5008ca352ab2c",
+    "vendor/iced_term/src/lib.rs": "a54b3827a897ba257016de7ac78985d277fc86bbb236a131d1c41fc6d6516e87",
+    "vendor/iced_term/src/backend/history_tests.rs": "53118f6c56db84ebf74a2449d5fc1a77d83d9054a0af955cad541af181cd0a02",
+    "src/executor.rs": "d0de12b5be9a5b821f82e302ebe0a707b936e37e6e4195e4bef0aa59a0bd2a63"
+  }
+}

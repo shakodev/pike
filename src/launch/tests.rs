@@ -38,6 +38,13 @@ fn limits(jobs: u16, sessions: u16) -> LaunchLimits {
 }
 
 #[test]
+fn configurable_launch_admission_preserves_the_shared_recovery_budget() {
+    let pool = LaunchPool::new(limits(u16::MAX, 32));
+    assert_eq!(pool.jobs.available_permits(), PREPARATION_WORKERS);
+    assert_eq!(pool.sessions.available_permits(), 32);
+}
+
+#[test]
 fn slow_failure_keeps_executor_responsive_and_rejects_30_of_32_requests() {
     let executor = SharedExecutor::new().unwrap();
     let mut pool = LaunchPool::new(limits(2, 16));
@@ -119,7 +126,7 @@ fn canceled_before_blocking_work_starts_never_calls_prepare() {
     let mut pool = LaunchPool::default();
     let mut releases = Vec::new();
     let (entered, entries) = mpsc::channel();
-    for _ in 0..2 {
+    for _ in 0..crate::executor::BLOCKING_WORKERS {
         let (release, gate) = mpsc::channel();
         releases.push(release);
         let entered = entered.clone();
@@ -130,7 +137,7 @@ fn canceled_before_blocking_work_starts_never_calls_prepare() {
             }));
         });
     }
-    for _ in 0..2 {
+    for _ in 0..crate::executor::BLOCKING_WORKERS {
         entries.recv_timeout(DEADLINE).unwrap();
     }
     let called = Arc::new(std::sync::atomic::AtomicBool::new(false));

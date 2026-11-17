@@ -2,8 +2,10 @@
 
 Status: **NOT RUN**. The connected host is macOS and the owner confirmed that no
 Windows host is available. Do not provision infrastructure or enable Actions.
-Run only after R34's relevant merged production startup/renderer/lifecycle changes
-are integrated and independently reviewed. Keep the product defaults unchanged.
+R34's production startup/renderer/lifecycle changes are integrated. The fixture
+uses App::boot_with_config_path and records that readiness identity. Keep the
+product defaults unchanged until native Windows measurements and decision review
+are complete.
 
 Use a native interactive Windows 11 24H2+ x64 checkout of the exact reviewed
 `issue-38-renderer-selection` commit, the pinned stable compiler, Python 3.11+

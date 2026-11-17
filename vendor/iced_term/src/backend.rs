@@ -4,7 +4,7 @@ use crate::geometry::{same_pty_size, Geometry, TerminalSize};
 use crate::settings::{BackendSettings, HistoryLimit};
 use crate::snapshot::{RenderableContent, SnapshotStats};
 use crate::theme::Theme;
-use alacritty_terminal::event::{Event, EventListener, OnResize, WindowSize};
+use alacritty_terminal::event::{Event, EventListener, WindowSize};
 use alacritty_terminal::event_loop::{EventLoop, Notifier};
 use alacritty_terminal::grid::{Dimensions, Scroll};
 use alacritty_terminal::index::{Column, Direction, Line, Point, Side};
@@ -19,10 +19,10 @@ use iced::keyboard::Modifiers;
 use iced_core::Size;
 use std::cmp::min;
 use std::io::Result;
-use std::ops::Index;
 use std::sync::Arc;
 
 mod mouse;
+mod resize;
 
 /// Explicit local history navigation; never sends alternate-screen/TUI bytes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -47,6 +47,7 @@ pub enum Command {
     Scroll(i32),
     ScrollHistory(HistoryScroll),
     Resize(Option<Size<f32>>, Option<Size<f32>>),
+    RetryResize,
     SetHistoryLimit(HistoryLimit),
     /// The owning application supplies effective pane AND window focus.
     /// Hidden sessions must be unfocused; duplicate states never emit reports.
@@ -82,6 +83,7 @@ pub enum MouseButton {
 pub enum LinkAction {
     Clear,
     Hover,
+    /// Inert in Pike's MVP; deliberate fallible link actions belong to R44.
     Open,
 }
 
@@ -95,6 +97,7 @@ pub struct Backend {
     size: TerminalSize,
     geometry: Geometry,
     last_pty_size: WindowSize,
+    resize: resize::Resize,
     pty_resizes: u64,
     grid_resizes: u64,
     snapshot_dirty: bool,
@@ -143,6 +146,7 @@ impl Backend {
 
         let history_limit = settings.history;
         let config = term::Config {
+            kitty_keyboard: false,
             scrolling_history: history_limit.lines(),
             osc52: term::Osc52::Disabled,
             ..Default::default()
@@ -196,6 +200,7 @@ impl Backend {
             size: terminal_size,
             geometry: Geometry::default(),
             last_pty_size: terminal_size.into(),
+            resize: resize::Resize::default(),
             pty_resizes: 0,
             grid_resizes: 0,
             snapshot_dirty: true,
@@ -228,6 +233,18 @@ impl Backend {
         }
         if let Command::PasteRejected(error) = cmd {
             return Action::PasteRejected(error);
+        }
+        if let Command::RetryResize = cmd {
+            return self.retry_resize();
+        }
+        if let Command::ProcessAlacrittyEvent(Event::ResizeCompleted(result)) =
+            cmd
+        {
+            return if self.resize.complete(result) {
+                Action::ResizeCompleted(result)
+            } else {
+                Action::Ignore
+            };
         }
         if let Command::EventBridge(event) = cmd {
             return match event {
@@ -285,8 +302,14 @@ impl Backend {
             Command::EventBridge(_) => {
                 unreachable!("handled before terminal lock")
             },
+            Command::RetryResize => {
+                unreachable!("handled before terminal lock")
+            },
             Command::ProcessAlacrittyEvent(event) => {
                 match event {
+                    Event::ResizeCompleted(_) => {
+                        unreachable!("handled before terminal lock")
+                    },
                     Event::Exit => {
                         // Exit describes the model, not resource completion.
                         action = Action::Shutdown {
@@ -409,11 +432,12 @@ impl Backend {
                 self.scroll_history(&mut term, scroll)
             },
             Command::Resize(layout_size, font_measure) => {
-                self.resize(&mut term, layout_size, font_measure);
+                action = self.resize(&mut term, layout_size, font_measure);
             },
             Command::SetHistoryLimit(limit) => {
                 if self.history_limit != limit {
                     term.set_options(term::Config {
+                        kitty_keyboard: false,
                         scrolling_history: limit.lines(),
                         osc52: term::Osc52::Disabled,
                         ..Default::default()
@@ -455,7 +479,9 @@ impl Backend {
             },
             Command::ProcessLink(link_action, point) => {
                 let before = self.last_content.hovered_hyperlink.clone();
-                self.process_link_action(&term, link_action, point);
+                if self.process_link_action(&term, link_action, point) {
+                    action = Action::LinkOpenFailed;
+                }
                 self.render_dirty |=
                     before != self.last_content.hovered_hyperlink;
             },
@@ -478,7 +504,7 @@ impl Backend {
         terminal: &Term<EventProxy>,
         link_action: LinkAction,
         point: Point,
-    ) {
+    ) -> bool {
         match link_action {
             LinkAction::Hover => {
                 self.last_content.hovered_hyperlink = self.regex_match_at(
@@ -490,36 +516,11 @@ impl Backend {
             LinkAction::Clear => {
                 self.last_content.hovered_hyperlink = None;
             },
-            LinkAction::Open => {
-                self.open_link(terminal);
-            },
+            // MVP does not launch external programs from terminal links.
+            // Keep the command inert until deliberate, fallible actions (R44).
+            LinkAction::Open => {},
         };
-    }
-
-    fn open_link(&self, terminal: &Term<EventProxy>) {
-        if let Some(range) = &self.last_content.hovered_hyperlink {
-            let start = range.start();
-            let end = range.end();
-
-            if start.line < terminal.topmost_line()
-                || end.line > terminal.bottommost_line()
-                || start.column > terminal.last_column()
-                || end.column > terminal.last_column()
-            {
-                return;
-            }
-            let mut url = String::from(terminal.grid().index(*start).c);
-            for indexed in terminal.grid().iter_from(*start) {
-                url.push(indexed.c);
-                if indexed.point == *end {
-                    break;
-                }
-            }
-
-            open::that(url).unwrap_or_else(|_| {
-                panic!("link opening is failed");
-            })
-        }
+        false
     }
 
     fn start_selection(
@@ -587,28 +588,28 @@ impl Backend {
         terminal: &mut Term<EventProxy>,
         layout_size: Option<Size<f32>>,
         font_measure: Option<Size<f32>>,
-    ) {
+    ) -> Action {
         if layout_size.is_none()
             && font_measure.is_none()
             && !self.deferred_resize
         {
-            return;
+            return Action::Ignore;
         }
         let Some(next) = self.geometry.update(layout_size, font_measure) else {
-            return;
+            return Action::Ignore;
         };
         let closed = self.notifier.0.input_status().closed;
         // Preserve parsing geometry until the EOF drain has completed.
         if closed && self.shutdown.completion().is_none() {
             self.deferred_resize = true;
-            return;
+            return Action::Ignore;
         }
         self.deferred_resize = false;
         let native = WindowSize::from(next);
+        let mut action = Action::Ignore;
         if !closed && !same_pty_size(self.last_pty_size, native) {
-            self.notifier.on_resize(native);
+            action = self.request_resize(native);
             self.last_pty_size = native;
-            self.pty_resizes = self.pty_resizes.saturating_add(1);
         }
         if self.size.num_cols != next.num_cols
             || self.size.num_lines != next.num_lines
@@ -623,6 +624,7 @@ impl Backend {
             self.size = next;
             self.snapshot_dirty = true;
         }
+        action
     }
 
     pub(crate) fn preflight_input(

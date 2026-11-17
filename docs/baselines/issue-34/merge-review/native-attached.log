@@ -1,0 +1,19 @@
+run_error=true handles=2 completions_at_return=2 children=2 live_at_return=0 live_after_wait=0 pool_cleanup=true
+        0.28 real         0.10 user         0.07 sys
+           103727104  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               11658  page reclaims
+                  19  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   2  messages sent
+                   0  messages received
+                   5  signals received
+                  37  voluntary context switches
+                2318  involuntary context switches
+          1080259218  instructions retired
+           533448002  cycles elapsed
+            73335720  peak memory footprint

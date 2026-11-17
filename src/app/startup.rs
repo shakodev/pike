@@ -9,7 +9,7 @@ use iced_term::settings::BackendSettings;
 
 impl App {
     pub(super) fn begin_open(&mut self) -> Option<LaunchRequest> {
-        if self.exiting || !self.model.workspace().order().is_empty() {
+        if self.boot.is_some() || self.exiting || !self.model.workspace().order().is_empty() {
             return None;
         }
         let Ok((_, Effect::Spawn(reservation))) = self.model.create_tab() else {
@@ -30,6 +30,9 @@ impl App {
         reservation: Reservation,
         mut profile: BackendSettings,
     ) -> Option<LaunchRequest> {
+        if self.boot.is_some() {
+            return None;
+        }
         let token = self.model.claim_launch(reservation)?;
         self.notice = None;
         // Freeze the launch cwd. Splits inherit this directory even after a
@@ -52,6 +55,10 @@ impl App {
                 self.sessions.entries.insert(
                     reservation.session,
                     Entry::new(reservation, Owner::Failed(error)),
+                );
+                self.report_error(
+                    crate::errors::Owner::Session(reservation.session),
+                    crate::errors::Error::Launch(error),
                 );
                 None
             }
@@ -173,6 +180,10 @@ impl App {
                 self.sessions.entries.insert(
                     reservation.session,
                     Entry::new(reservation, Owner::Failed(error)),
+                );
+                self.report_error(
+                    crate::errors::Owner::Session(reservation.session),
+                    crate::errors::Error::Launch(error),
                 );
             } else {
                 self.sessions.entries.remove(&reservation.session);

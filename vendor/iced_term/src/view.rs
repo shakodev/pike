@@ -13,7 +13,9 @@ use iced::widget::canvas::{Path, Text};
 use iced::widget::container;
 use iced::{Color, Element, Length, Point, Rectangle, Size, Theme, Vector};
 use iced_core::clipboard::Kind as ClipboardKind;
-use iced_core::keyboard::{Key, Modifiers};
+#[cfg(test)]
+use iced_core::keyboard::Key;
+use iced_core::keyboard::Modifiers;
 use iced_core::mouse::{self, Click};
 use iced_core::text::{Alignment, LineHeight, Shaping};
 
@@ -161,129 +163,58 @@ impl<'a> TerminalView<'a> {
             shell.capture_event();
             return None;
         }
-        let mut binding_action = BindingAction::Ignore;
-        let last_content = self.term.backend.renderable_content();
+        use crate::keyboard::KeyAction;
         match event {
-            iced::keyboard::Event::ModifiersChanged(m) => {
-                state.keyboard_modifiers = *m;
-                let action = if state.keyboard_modifiers == Modifiers::COMMAND {
-                    LinkAction::Hover
-                } else {
-                    LinkAction::Clear
-                };
-                return Some(Command::ProcessLink(
-                    action,
-                    state.mouse_position_on_grid,
-                ));
+            iced::keyboard::Event::ModifiersChanged(modifiers)
+            | iced::keyboard::Event::KeyPressed { modifiers, .. }
+            | iced::keyboard::Event::KeyReleased { modifiers, .. } => {
+                state.keyboard_modifiers = *modifiers;
             },
-            iced::keyboard::Event::KeyPressed {
-                key,
-                modifiers,
-                text: Some(text),
-                ..
-            } if matches!(
-                key,
-                Key::Character(_)
-                    | Key::Named(iced_core::keyboard::key::Named::Space)
-            ) && modifiers.control()
-                && modifiers.alt()
-                && !modifiers.logo()
-                && !text.is_empty()
-                && !text.chars().any(char::is_control) =>
-            {
-                // Windows reports Space as a named key even for AltGr text.
-                // Preserve that text before bindings, just like character keys.
-                return Some(Command::Write(text.as_bytes().to_vec()));
-            },
-            iced::keyboard::Event::KeyPressed {
-                key,
-                modifiers,
-                text,
-                ..
-            } => match &key {
-                // Use the physical character key for bindings even when text is None (e.g., Ctrl/Cmd combos)
-                Key::Character(k) => {
-                    let lower = k.to_ascii_lowercase();
-                    binding_action = self.term.bindings.get_action(
-                        InputKind::Char(lower),
-                        *modifiers,
-                        last_content.terminal_mode,
-                    );
-
-                    // If no binding matched, only write printable text (when provided)
-                    if binding_action == BindingAction::Ignore {
-                        if let Some(c) = text {
-                            return Some(Command::Write(c.as_bytes().to_vec()));
-                        }
-                    }
-                },
-                Key::Named(code) => {
-                    binding_action = self.term.bindings.get_action(
-                        InputKind::KeyCode(*code),
-                        *modifiers,
-                        last_content.terminal_mode,
-                    );
-                    if *code == iced_core::keyboard::key::Named::Space
-                        && !modifiers.control()
-                        && !modifiers.alt()
-                        && !modifiers.logo()
-                        && matches!(
-                            binding_action,
-                            BindingAction::Ignore | BindingAction::Char(' ')
-                        )
-                    {
-                        if let Some(text) = text.as_ref().filter(|s| {
-                            !s.is_empty() && !s.chars().any(char::is_control)
-                        }) {
-                            // Spacing accents from dead-key + Space are text,
-                            // not a literal Space binding or an extra key.
-                            return Some(Command::Write(
-                                text.as_bytes().to_vec(),
-                            ));
-                        }
-                    }
-                },
-                Key::Unidentified => {
-                    // Dead-key output can have no usable logical binding key.
-                    if let Some(text) = text.as_ref().filter(|s| {
-                        !s.is_empty() && !s.chars().any(char::is_control)
-                    }) {
-                        return Some(Command::Write(text.as_bytes().to_vec()));
-                    }
-                },
-            },
-            _ => {},
         }
-
-        match binding_action {
-            BindingAction::Char(c) => {
-                let mut buf = [0, 0, 0, 0];
-                let str = c.encode_utf8(&mut buf);
-                return Some(Command::Write(str.as_bytes().to_vec()));
+        let action = crate::keyboard::action(
+            event,
+            &self.term.bindings,
+            self.term.backend.renderable_content().terminal_mode,
+        );
+        if matches!(action, KeyAction::Unhandled) {
+            return None;
+        }
+        shell.capture_event();
+        match action {
+            KeyAction::Unhandled | KeyAction::Consume => None,
+            KeyAction::Write { bytes, alt_prefix } => {
+                if bytes.is_empty() && !alt_prefix {
+                    return None;
+                }
+                let len = bytes.len().saturating_add(usize::from(alt_prefix));
+                if let Err(error) = self.term.backend.preflight_input(len) {
+                    return Some(Command::InputRejected(error));
+                }
+                let bytes = if alt_prefix {
+                    let mut prefixed = Vec::with_capacity(len);
+                    prefixed.push(0x1b);
+                    prefixed.extend_from_slice(&bytes);
+                    prefixed
+                } else {
+                    bytes.into_owned()
+                };
+                Some(Command::Write(bytes))
             },
-            BindingAction::Esc(seq) => {
-                return Some(Command::Write(seq.as_bytes().to_vec()));
+            KeyAction::Paste => Some(
+                self.term
+                    .backend
+                    .queue_paste(clipboard.read(ClipboardKind::Standard)),
+            ),
+            KeyAction::ScrollHistory(scroll) => {
+                Some(Command::ScrollHistory(scroll))
             },
-            BindingAction::Paste => {
-                let data = clipboard.read(ClipboardKind::Standard);
-                return Some(self.term.backend.queue_paste(data));
-            },
-            BindingAction::ScrollHistory(scroll) => {
-                shell.capture_event();
-                return Some(Command::ScrollHistory(scroll));
-            },
-            BindingAction::Copy => {
+            KeyAction::Copy => {
                 self.term.copy_selection(|text| {
                     clipboard.write(ClipboardKind::Standard, text);
                 });
-                // Copy is handled even with no selection or an unavailable
-                // clipboard; it must never reach an ancestor or terminal text.
-                shell.capture_event();
+                None
             },
-            _ => {},
-        };
-
-        None
+        }
     }
 }
 

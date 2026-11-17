@@ -47,6 +47,15 @@ class EvidenceTests(unittest.TestCase):
     def test_real_invariants_accept_complete_bounded_metadata(self):
         self.assertEqual(self.verify()["interval_ms"], 6000)
 
+    def test_nonfinite_or_negative_event_times_are_rejected_before_summarizing(self):
+        for index in (0, 2, 3, 4):
+            for value in ("nan", "inf", "-inf", "-1"):
+                saved = self.events[index][0]
+                self.events[index][0] = value
+                self.save()
+                with self.assertRaises(ValueError): self.verify()
+                self.events[index][0] = saved
+
     def test_missing_drained_completion_or_reused_child_identity_fails(self):
         for index, column, value in [(6, 3, "false"), (1, 3, 100), (1, 2, 1)]:
             saved = self.events[index][column]
@@ -114,6 +123,19 @@ class FeatureTests(unittest.TestCase):
         feature_guard(self.GRAPH, "tiny-skia")
         for suffix in ["wgpu v27.0.1|dx12", "iced v0.14.0|default", "tokio v1.54.1|full", "iced_futures v0.14.0|thread-pool", "iced_term v0.8.0|compatibility-defaults"]:
             with self.assertRaises(ValueError): feature_guard(self.GRAPH + suffix, "tiny-skia")
+
+
+    def test_native_wgpu_requires_bare_profile_and_rejects_wgl_features(self):
+        graph = self.GRAPH.replace("tiny-skia", "wgpu-bare") + "wgpu v27.0.1|dx12,metal,vulkan,wgsl\n"
+        feature_guard(graph, "wgpu")
+        for invalid in [
+            graph.replace("wgpu-bare", "wgpu"),
+            graph.replace("dx12,metal,vulkan,wgsl", "wgsl"),
+            *[graph + f"wgpu v27.0.1|{feature}\n" for feature in ("default", "gles", "webgl")],
+            graph + "glow v0.16.0|\n",
+            graph + "khronos-egl v6.0.0|\n",
+        ]:
+            with self.assertRaises(ValueError): feature_guard(invalid, "wgpu")
 
 
 class ManifestTests(unittest.TestCase):

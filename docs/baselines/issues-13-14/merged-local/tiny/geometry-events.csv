@@ -1,0 +1,14 @@
+ms,event,session,a,b
+0.124,fixture,1,3204,0
+9.284,fixture,2,18104,0
+21.276,fixture,3,24728,0
+105.315,translation_delta,1,1.25,0:0.000000
+212.607,pixel_checks,1,1.25,0
+320.747,translation_delta,1,1.5,29:0.042373
+464.728,pixel_checks,1,1.5,0
+637.165,translation_delta,1,2,0:0.000000
+880.676,pixel_checks,1,2,0
+1551.398,event_checks,0,32,0
+1551.436,window_focus_checks,0,4,0
+1551.449,virtual_pixel_dpi_checks,0,1.5,0
+1552.309,passed,0,3,0

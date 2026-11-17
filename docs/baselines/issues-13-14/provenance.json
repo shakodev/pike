@@ -1,0 +1,44 @@
+﻿{
+    "Base":  "68322b293736b1c369aa8bf5c3268d93f3e0ba87",
+    "OS":  {
+               "Caption":  "Microsoft Windows 11 Pro",
+               "Version":  "10.0.26200",
+               "BuildNumber":  "26200"
+           },
+    "CPU":  {
+                "Name":  "AMD Ryzen 5 2600X Six-Core Processor           ",
+                "NumberOfLogicalProcessors":  12
+            },
+    "GPU":  {
+                "Name":  "NVIDIA GeForce RTX 2070",
+                "DriverVersion":  "32.0.16.1742"
+            },
+    "Compiler":  "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "SourceHashes":  [
+                         {
+                             "File":  ".\\examples\\input_fixture.rs",
+                             "Hash":  "98132946784A16223D6B0F153D148B5F4AC77C6257650E86D69A5CEF4D41CFCF"
+                         },
+                         {
+                             "File":  ".\\examples\\keyboard_input.rs",
+                             "Hash":  "122EEBBF545691A0810FF431EF2B195BE2A3FDF4536C81DF0516E1B42AC696CD"
+                         },
+                         {
+                             "File":  ".\\examples\\support\\psreadline.ps1",
+                             "Hash":  "2191A05100302A55F0729806BC49405B2904DB2CB81CB25F505EB99D9F895047"
+                         },
+                         {
+                             "File":  ".\\tools\\test-keyboard-layout.ps1",
+                             "Hash":  "59F6D41E10F6841707875E2954A3232626E74607C5896251B44E53A8E407E6F2"
+                         },
+                         {
+                             "File":  ".\\vendor\\alacritty_terminal\\src\\event_loop.rs",
+                             "Hash":  "4791B1B292403E3A6EF1F99B2212D57FC968A2E6027B4BBBE98C51E994DAF1FB"
+                         }
+                     ],
+    "RuntimeHash":  "FEEEF341D891643C62D30B6B07800BC70F0BC148F44CB8C3BEE84AA557AE805A",
+    "PowerShellArchiveHash":  "CE7484804C0F0AD4DDA10C958E71ACDAF7EEBFB22505C1B480F89E0E9F1DA94D",
+    "RawChildCleanup":  "All 80 raw fixture PIDs absent after acknowledged shutdown across 20 successful complete runs",
+    "Scope":  "Synthetic fixture data only; physical checks pending; actual-window focus denied before scan-code injection",
+    "PeakWorkingSetNote":  "Null after process exit; not measured by repetition runner. Idle samples retain live private-bytes and working-set measurements."
+}

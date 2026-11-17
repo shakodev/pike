@@ -7,6 +7,7 @@ mod event_bridge;
 mod font;
 mod geometry;
 mod ime;
+mod keyboard;
 mod lifecycle;
 mod paste;
 mod snapshot;
@@ -16,6 +17,7 @@ mod view;
 mod window_focus;
 
 pub use alacritty_terminal::event::Event as AlacrittyEvent;
+pub use alacritty_terminal::event::{ResizeError, ResizeResult, WindowSize};
 pub use alacritty_terminal::index::Point as AlacrittyPoint;
 pub use alacritty_terminal::input::{
     InputError, InputStatus, INPUT_BYTE_LIMIT,

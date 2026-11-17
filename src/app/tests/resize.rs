@@ -251,7 +251,8 @@ fn modal_and_frozen_layout_jointly_gate_resize_but_keep_background_delivery() {
             .outstanding_bytes,
         0
     );
-    // Rejections reach hidden owners; footer constraints refresh on Cancel.
+    // Rejections reach hidden owners. Recovery now takes root viewport space
+    // once; it must not add a second per-pane footer after Cancel.
     drop(app.update(Message::Terminal((
         second.session,
         Event::BackendCall(
@@ -270,10 +271,8 @@ fn modal_and_frozen_layout_jointly_gate_resize_but_keep_background_delivery() {
     );
     let next = app.resize_geometry(target.tab, area).unwrap().minimum;
     let pane = app.model.target(second.session).unwrap().pane;
-    assert_eq!(
-        next[&pane].height,
-        minimum[&pane].height + super::super::split::FOOTER
-    );
+    assert_eq!(next[&pane].height, minimum[&pane].height);
+    assert_eq!(app.passive_error_height(), 128.0);
     assert_eq!(app.terminal(second.session).unwrap().widget_id(), &widget);
     assert_eq!(
         format!(

@@ -1,0 +1,79 @@
+   Compiling harfrust v0.3.2
+   Compiling winit v0.30.13
+   Compiling half v2.7.1
+   Compiling iced_runtime v0.14.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_runtime)
+   Compiling window_clipboard v0.5.1
+   Compiling iced_debug v0.14.0
+   Compiling cosmic-text v0.15.0
+   Compiling iced_graphics v0.14.0
+   Compiling iced_program v0.14.0
+   Compiling iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:566:55
+    |
+566 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:282:64
+    |
+282 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+error[E0382]: use of moved value: `error`
+  --> vendor/iced_winit/src/renderer_errors.rs:83:56
+   |
+80 |         for error in [SurfaceError::Timeout, SurfaceError::Other, SurfaceError::Lost, SurfaceError::Outdated] {
+   |             -----
+   |             |
+   |             this reinitialization might get skipped
+   |             move occurs because `error` has type `iced_program::iced_graphics::compositor::SurfaceError`, which does not implement the `Copy` trait
+81 |             let mut recovery = Recovery::default();
+82 |             for _ in 0..RETRIES { assert!(matches!(recovery.presented(1, Err(error)), Decision::Retry(_))); }
+   |             ------------------- inside of this loop                          ----- value moved here, in previous iteration of loop
+83 |             assert!(matches!(recovery.presented(1, Err(error)), Decision::Failed(_)));
+   |                                                        ^^^^^ value used here after move
+   |
+help: consider cloning the value if the performance cost is acceptable
+   |
+82 |             for _ in 0..RETRIES { assert!(matches!(recovery.presented(1, Err(error.clone())), Decision::Retry(_))); }
+   |                                                                                   ++++++++
+
+error[E0382]: use of moved value: `error`
+  --> vendor/iced_winit/src/renderer_errors.rs:85:56
+   |
+80 |         for error in [SurfaceError::Timeout, SurfaceError::Other, SurfaceError::Lost, SurfaceError::Outdated] {
+   |             ----- move occurs because `error` has type `iced_program::iced_graphics::compositor::SurfaceError`, which does not implement the `Copy` trait
+...
+83 |             assert!(matches!(recovery.presented(1, Err(error)), Decision::Failed(_)));
+   |                                                        ----- value moved here
+84 |             assert!(matches!(recovery.presented(1, Ok(())), Decision::Presented));
+85 |             assert!(matches!(recovery.presented(1, Err(error)), Decision::Retry(_)));
+   |                                                        ^^^^^ value used here after move
+   |
+help: consider cloning the value if the performance cost is acceptable
+   |
+83 |             assert!(matches!(recovery.presented(1, Err(error.clone())), Decision::Failed(_)));
+   |                                                             ++++++++
+
+error[E0382]: use of moved value: `error`
+  --> vendor/iced_winit/src/renderer_errors.rs:86:56
+   |
+80 |         for error in [SurfaceError::Timeout, SurfaceError::Other, SurfaceError::Lost, SurfaceError::Outdated] {
+   |             ----- move occurs because `error` has type `iced_program::iced_graphics::compositor::SurfaceError`, which does not implement the `Copy` trait
+...
+85 |             assert!(matches!(recovery.presented(1, Err(error)), Decision::Retry(_)));
+   |                                                        ----- value moved here
+86 |             assert!(matches!(recovery.presented(2, Err(error)), Decision::Retry(_)));
+   |                                                        ^^^^^ value used here after move
+   |
+help: consider cloning the value if the performance cost is acceptable
+   |
+85 |             assert!(matches!(recovery.presented(1, Err(error.clone())), Decision::Retry(_)));
+   |                                                             ++++++++
+
+For more information about this error, try `rustc --explain E0382`.
+warning: `iced_winit` (lib test) generated 2 warnings
+error: could not compile `iced_winit` (lib test) due to 3 previous errors; 2 warnings emitted

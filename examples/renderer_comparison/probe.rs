@@ -104,7 +104,12 @@ struct Probe {
 
 impl Probe {
     fn new(options: Options, config: std::path::PathBuf) -> (Self, Task<Msg>) {
-        let (app, task) = App::with_config_path(config);
+        let (app, task) = App::boot_with_config_path(config);
+        fs::write(
+            options.output.join("readiness.txt"),
+            "App::boot_with_config_path\n",
+        )
+        .expect("fixture boot identity");
         let mut events =
             File::create(options.output.join("events.csv")).expect("fresh fixture trace");
         writeln!(events, "ms,event,session,a,b").expect("fixture header");

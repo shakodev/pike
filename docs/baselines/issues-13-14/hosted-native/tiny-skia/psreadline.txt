@@ -1,0 +1,5 @@
+PowerShell=7.6.7; PSReadLine=2.4.5; EditMode=Emacs
+passed: ctrl-u
+passed: ctrl-c
+passed: after-cancel
+passed: navigation

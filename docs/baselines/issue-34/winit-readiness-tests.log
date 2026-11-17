@@ -1,0 +1,32 @@
+    Blocking waiting for file lock on build directory
+   Compiling iced_runtime v0.14.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_runtime)
+   Compiling iced_program v0.14.0
+   Compiling iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib test) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.28s
+     Running unittests src/lib.rs (target/debug/deps/iced_winit-ea0bf010b17606f9)
+
+running 6 tests
+test renderer_errors::tests::transient_and_surface_recovery_is_finite_and_success_or_new_surface_resets_it ... ok
+test window::ime::tests::stationary_cursor_dpi_refresh_calls_native_area_without_disabling ... ok
+test window::ime::tests::geometry_purpose_and_disable_keep_original_setter_semantics ... ok
+test clipboard::tests::native_failure_mapping_discards_platform_context ... ok
+test renderer_errors::tests::oom_is_a_safe_failure_and_one_bounded_receipt_precedes_exit_error ... ok
+test clipboard::tests::unavailable_native_writer_is_acknowledged_without_readback_or_raw_values ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,5 +1,16 @@
 # iced_term patch ledger
 
+## Issue #34 — bounded resize receipts and recoverable link-open failure
+
+- One coalesced native resize receipt slot in the existing bridge. Backend
+  checks the current serial and dimensions and consumes a result once; attempted
+  geometry remains deduplicated on failed frames. Explicit RetryResize alone
+  reissues a failed current size with a fresh checked serial.
+- No automatic retry, new PTY, geometry mapper, task or production fault hook.
+  Real controlled PTY tests verify retry acknowledgment and actual cleanup.
+- Replace the existing link-opener panic with a payload-free LinkOpenFailed
+  action. The user's next link click remains the retry; URLs never enter errors.
+
 ## Provenance
 
 - Published crate: iced_term **0.8.0**, extracted from the crates.io archive.
@@ -261,6 +272,43 @@ and API/overload policy details.
   clipping. See [verification and Windows limitations](../../docs/verification/issue-13.md).
   Remove this patch when upstream provides equivalent identity, local geometry
   and clipping behavior; PR 70 alone covers only the ID reset.
+
+## R14 / issue #14 — legacy keyboard bytes and explicit consumption
+
+- Add `keyboard.rs`: a pure legacy VT/xterm encoder with event-local modifiers,
+  Ctrl+A–Z/C0 mappings, normal/application cursor modes, F1–F20 and modified
+  navigation/function keys, Alt prefixes and committed-text fallback. The
+  Ctrl+U=0x15 correction covers Ctrl+Shift+U too, following
+  [upstream PR 89](https://github.com/kemokempo/iced_term/pull/89), head `f331a47`.
+  Correct malformed modified F1–F4 SS3 sequences and Alt+Insert's wrong code.
+- Keep only platform clipboard/history/custom overrides in `BindingsLayout`, rather
+  than allocating the large default keyboard table per session. Lookup borrows
+  character keys without lowercasing allocations; latest matching overrides win.
+  A missing binding is None; explicit `BindingAction::Ignore` consumes without
+  bytes. Copy/Paste consume even when no command/text is produced.
+- `view.rs` captures consumed keys independently of emitted commands and uses
+  each key's modifiers. Repeat presses encode once; releases emit no legacy
+  bytes. Committed text is borrowed until R06 preflight; input reaches the same
+  bounded writer. Ctrl+Alt printable text takes precedence over default legacy
+  encoding, preserving AltGr; dead/uncommitted keys do not manufacture text.
+- Disable default link activation and make explicit `LinkAction::Open` inert
+  until R44. Delete the panic-prone launcher and remove `open` from the normalized
+  manifest and root lockfile, also dropping its unused is-wsl/is-docker packages.
+  Published archive files and original manifest/lockfile remain provenance.
+- Set Alacritty kitty configuration explicitly false during preparation and
+  history changes. Do not advertise or encode negotiated kitty behavior (R45).
+- Honor ANSI newline mode for Return without changing Ctrl+M; remove the
+  inherited macOS Command+H-to-DEL binding so the host shortcut emits no bytes.
+- Ten keyboard regressions and one backend policy regression extend the
+  adapter suite to 81 passing tests per profile. The raw-byte widget/PTY probe
+  exercises 168 cases in all four cursor/newline modes, byte admission, and a synthetic Vim
+  edit/save/exit. No production polling/tasks or new dependencies are introduced.
+  See [verification, policy and native limitations](../../docs/verification/issue-14.md).
+- Current-main integration preserves IME ownership, named-Space committed text,
+  ordered paste, local history and host shortcut delegation. Newest custom
+  overrides survive delegation changes. Keyboard fixtures now bind explicit
+  window-focus authorities. See the [integration review](../../docs/verification/issue-14-main-integration.md)
+  for the 12 encoder regressions, local checks and outstanding native checks.
 
 ## R15 / issue #15 — authoritative selection and explicit copy
 

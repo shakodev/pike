@@ -46,6 +46,22 @@ fn flood(backend: &Backend) {
 }
 
 #[test]
+fn mvp_never_enables_kitty_modes_or_launches_links() {
+    let mut backend = backend();
+    {
+        let mut term = backend.term.lock();
+        Parser::new().advance(&mut *term, b"\x1b[>31u\x1b[=31u\x1b[?u");
+        assert!(!term.mode().intersects(TermMode::KITTY_KEYBOARD_PROTOCOL));
+    }
+    assert_eq!(
+        backend
+            .handle(Command::ProcessLink(LinkAction::Open, Point::default())),
+        Action::Ignore
+    );
+    finish(backend);
+}
+
+#[test]
 fn hidden_flood_and_explicit_refresh_do_not_create_snapshots() {
     let mut backend = backend();
     assert_eq!(backend.snapshot_stats().snapshots, 0);

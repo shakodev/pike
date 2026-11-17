@@ -51,7 +51,8 @@ def feature_guard(text, renderer):
             raise ValueError(f"missing {package}")
     other = "wgpu" if renderer == "tiny-skia" else "tiny-skia"
     forbidden = {"default", "thread-pool", "linux-theme-detection", "x11", "wayland", "web-colors", other}
-    if features["iced"] & forbidden or renderer not in features["iced"]:
+    expected = "wgpu-bare" if renderer == "wgpu" else renderer
+    if features["iced"] & forbidden or expected not in features["iced"]:
         raise ValueError("renderer isolation failed")
     if "thread-pool" in features["iced_futures"] or features["iced_term"] - {""}:
         raise ValueError("compatibility/executor defaults enabled")
@@ -61,11 +62,18 @@ def feature_guard(text, renderer):
         raise ValueError("missing required shared runtime features")
     if (renderer == "tiny-skia" and "wgpu" in features) or (renderer == "wgpu" and "iced_tiny_skia" in features):
         raise ValueError("other renderer package leaked")
+    if renderer == "wgpu":
+        if "wgpu" in features["iced"] or not {"dx12", "vulkan", "wgsl"} <= features.get("wgpu", set()):
+            raise ValueError("missing isolated native wgpu backend features")
+        if features["wgpu"] & {"default", "gles", "webgl"} or {"glow", "khronos-egl"} & features.keys():
+            raise ValueError("OpenGL/WGL leaked into the native renderer profile")
 
 
 def validate_fixture(path, visible, hidden, saturated, flood, probes, seconds=None):
     path = Path(path)
     events = read_csv(path / "events.csv")
+    if any(not math.isfinite(float(row["ms"])) or float(row["ms"]) < 0 for row in events):
+        raise ValueError("nonfinite or negative event timestamp")
     total = visible + hidden
     select = lambda name: [r for r in events if r["event"] == name]
     if any(select(name) for name in ("deadline", "fixture_failure", "invalid_history_or_visibility", "incomplete_latency", "invalid_interval", "invalid_overlap")):

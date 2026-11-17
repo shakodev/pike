@@ -1,0 +1,8 @@
+    Checking futures-executor v0.3.34
+    Checking socket2 v0.6.5
+    Checking mio v1.2.4
+    Checking futures v0.3.34
+    Checking tokio v1.54.1
+    Checking iced_futures v0.14.0
+    Checking iced_runtime v0.14.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_runtime)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.40s

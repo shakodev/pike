@@ -1,0 +1,2 @@
+run_error=true handles=1 completions_at_return=0 children=1 live_at_return=0 live_after_wait=0
+Error: "renderer failure returned before proven native disposal; inspect result.txt"

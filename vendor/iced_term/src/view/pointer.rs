@@ -253,7 +253,7 @@ impl<'a> TerminalView<'a> {
                                 InputKind::Mouse(mouse::Button::Left),
                                 state.keyboard_modifiers,
                                 mode,
-                            ) == BindingAction::LinkOpen
+                            ) == Some(&BindingAction::LinkOpen)
                         {
                             commands.push(Command::ProcessLink(
                                 LinkAction::Open,

@@ -1,5 +1,11 @@
 # R38 renderer comparison — workflow/evidence, acceptance incomplete
 
+2026-11-17 integration update: R34 and R14 are now merged, and the fixture uses
+the product renderer-ready boot path and native wgpu profile. The sections below
+retain the original pre-integration history and invalid measurements. See the
+[current integration review](issue-38-main-integration.md) for new local checks.
+Renderer selection and Windows acceptance remain incomplete.
+
 This work starts from merged main `f1737cfd3b5b85986a9a34acafd4f0c0cf1abfef`
 (R33/PR83). Product renderer, Cargo features/dependencies/defaults, shared runtime,
 and production App/session/focus/lifecycle code remain unchanged. R38 is **not

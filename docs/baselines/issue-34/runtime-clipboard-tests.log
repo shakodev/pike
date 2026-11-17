@@ -1,0 +1,19 @@
+   Compiling futures-util v0.3.34
+   Compiling tokio-macros v2.7.2
+   Compiling socket2 v0.6.5
+   Compiling mio v1.2.4
+   Compiling iced_core v0.14.0
+   Compiling tokio v1.54.1
+   Compiling futures-executor v0.3.34
+   Compiling futures v0.3.34
+   Compiling iced_futures v0.14.0
+   Compiling iced_runtime v0.14.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.71s
+     Running unittests src/lib.rs (target/debug/deps/iced_runtime-c1ebf6156109e2f3)
+
+running 2 tests
+test clipboard::tests::legacy_write_debug_is_redacted_and_canceled_acknowledgement_ends ... ok
+test clipboard::tests::acknowledged_write_is_one_native_action_and_metadata_only_result ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

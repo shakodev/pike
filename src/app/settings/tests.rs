@@ -106,3 +106,18 @@ fn configured_close_policy_changes_confirmation_without_changing_the_cleanup_own
         assert_eq!(app.model.workspace().order().is_empty(), !confirm);
     }
 }
+#[test]
+fn cancelled_or_superseded_read_keeps_its_slot_until_the_task_releases_it() {
+    let mut app = App::default();
+    app.settings.path = Some(std::path::PathBuf::from("synthetic-settings34.toml"));
+    let held = app.reload_settings();
+    assert!(held.units() > 0);
+    // Even a host cancellation cannot reuse a slot held by an existing task.
+    app.settings.pending = false;
+    assert_eq!(app.reload_settings().units(), 0);
+    assert!(!app.settings.pending);
+    drop(held);
+    let fresh = app.reload_settings();
+    assert!(fresh.units() > 0);
+    drop(fresh);
+}
