@@ -1,0 +1,17 @@
+{
+  "build": {
+    "renderer": "tiny-skia",
+    "variant": "baseline-diagnostic",
+    "executable": "/Users/daan.hoedjes/Documents/Projects/pike/target/aarch64-apple-darwin/release/examples/renderer_comparison",
+    "fixture_sha256": "511d9b4d47d9c2506b2ad5b9e5996e548d020b54efa75465181810d0e833ecf2"
+  },
+  "visible": 8,
+  "hidden": 0,
+  "history": "empty",
+  "workload": "idle",
+  "repeat": 0,
+  "seconds": 3,
+  "settle": 0,
+  "probes": 0,
+  "dry_run": true
+}

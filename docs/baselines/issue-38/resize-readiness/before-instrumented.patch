@@ -1,0 +1,54 @@
+diff --git a/examples/renderer_comparison/probe.rs b/examples/renderer_comparison/probe.rs
+index 1b7e4b8..110dd8d 100644
+--- a/examples/renderer_comparison/probe.rs
++++ b/examples/renderer_comparison/probe.rs
+@@ -63,6 +63,7 @@ enum Msg {
+     Frame,
+     Geometry(bool, iced::Size, f32),
+     ReleaseCleanup,
++    InspectSetup,
+ }
+ #[derive(PartialEq)]
+ enum Stage {
+@@ -190,6 +191,18 @@ impl Probe {
+     fn update(&mut self, message: Msg) -> Task<Msg> {
+         match message {
+             Msg::Advance => self.advance(),
++            Msg::InspectSetup => {
++                if self.stage == Stage::Prepare {
++                    metrics::counters(&self.app, &self.options.output, "setup-stalled").unwrap();
++                    for id in self.ids() {
++                        if let Some(content) = self.app.terminal(id).and_then(|t| t.renderable_content()) {
++                            let text: String = content.viewport.cells().iter().map(|c| c.c).collect();
++                            fs::write(self.options.output.join(format!("synthetic-setup-{}.txt", id.get())), text).unwrap();
++                        }
++                    }
++                }
++                Task::none()
++            }
+             Msg::App(message) => {
+                 if matches!(&message, Message::CloseWindow) {
+                     self.failed = true;
+@@ -426,7 +439,9 @@ impl Probe {
+                 self.note("ready", id.get(), pid, 0);
+             }
+         } else if value == "prepared" {
+-            self.prepared.insert(id);
++            if self.prepared.insert(id) {
++                self.note("prepared", id.get(), 0, 0);
++            }
+         } else if value == "final" {
+             self.final_seen.insert(id);
+         } else if let Some(done) = value.strip_prefix("done:") {
+@@ -524,7 +539,10 @@ impl Probe {
+                     .map(Msg::App);
+             }
+             self.stage = Stage::Prepare;
+-            let mut tasks = vec![];
++            self.note("prepare_begin", 0, ids.len(), 0);
++            metrics::counters(&self.app, &self.options.output, "prepare-begin")
++                .expect("setup counters");
++            let mut tasks = vec![delay(2, Msg::InspectSetup)];
+             for id in ids {
+                 tasks.push(self.send(
+                     id,

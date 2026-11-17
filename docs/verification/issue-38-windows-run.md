@@ -3,12 +3,16 @@
 Status: **NOT RUN**. The connected host is macOS and the owner confirmed that no
 Windows host is available. Do not provision infrastructure or enable Actions.
 R34's production startup/renderer/lifecycle changes are integrated. The fixture
-uses App::boot_with_config_path and records that readiness identity. Keep the
+uses App::boot_with_config_path and records that readiness identity. Setup also
+waits for each session's successful current native resize acknowledgement before
+creating another session or sending its preparation command; the attached 80×50
+placeholder grid is not layout readiness. `counters-prepare-begin.csv` records
+the geometry before any history/scene output. Keep the
 product defaults unchanged until native Windows measurements and decision review
 are complete.
 
 Use a native interactive Windows 11 24H2+ x64 checkout of the exact reviewed
-`issue-38-renderer-selection` commit, the pinned stable compiler, Python 3.11+
+commit recorded in the comparison build identity, the pinned stable compiler, Python 3.11+
 and PowerShell. No debugger, shell profile, real terminal transcript, or user
 environment dump is involved. Keep the machine, display, geometry, font, power
 mode and synthetic children fixed across compared builds. Do not run other

@@ -1,0 +1,10 @@
+version=1
+default_profile='fixture'
+history=2000
+theme='dark'
+[font]
+family='monospace'
+size=14.0
+[profiles.fixture]
+shell="/Users/daan.hoedjes/Documents/Projects/pike/target/aarch64-apple-darwin/release/examples/renderer_comparison"
+args=['--child']
