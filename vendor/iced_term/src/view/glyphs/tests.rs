@@ -140,13 +140,17 @@ fn continuation_and_hidden_cells_do_not_emit_duplicate_or_concealed_text() {
 fn unchanged_generation_never_rebuilds_or_reshapes_unicode_spans() {
     let mut cache = Cache::default();
     let mut builds = 0;
-    cache.update((4, 8), |_| builds += 1);
+    cache.update((4, 8, Size::new(120.0, 80.0)), |_| builds += 1);
     for _ in 0..32 {
-        cache.update((4, 8), |_| panic!("unrelated redraw reshaped glyphs"));
+        cache.update((4, 8, Size::new(120.0, 80.0)), |_| {
+            panic!("unrelated redraw reshaped glyphs")
+        });
     }
-    cache.update((5, 8), |_| builds += 1); // New viewport snapshot.
-    cache.update((5, 9), |_| builds += 1); // Actual font measurement change.
-    assert_eq!(builds, 3);
+    cache.update((5, 8, Size::new(120.0, 80.0)), |_| builds += 1); // New viewport snapshot.
+    cache.update((5, 9, Size::new(120.0, 80.0)), |_| builds += 1); // Actual font measurement change.
+    cache.update((5, 9, Size::new(240.0, 80.0)), |_| builds += 1);
+    assert_eq!(builds, 4); // Pane resize updates shared ASCII clip guards.
+
     assert!(Cache::default().generation.is_none()); // Session-ID diff resets it.
 }
 
@@ -157,11 +161,31 @@ fn repeated_unicode_shares_one_bounded_shaped_buffer_and_keeps_clip_guards() {
     content.capture(&term, crate::geometry::TerminalSize::default());
     let style = crate::font::TermFont::new(Default::default());
     let mut glyphs = Vec::new();
-    build(&content, &style, &mut glyphs);
+    build(&content, &style, Size::new(120.0, 80.0), &mut glyphs);
     assert_eq!(glyphs.len(), 3);
     assert!(Arc::ptr_eq(&glyphs[0].buffer, &glyphs[1].buffer));
     assert!(Arc::ptr_eq(&glyphs[1].buffer, &glyphs[2].buffer));
     let (width, height) = glyphs[0].buffer.size();
     assert!(width.unwrap() > glyphs[0].clip.width);
     assert!(height.unwrap() > glyphs[0].clip.height);
+}
+
+#[test]
+fn ascii_buffers_are_shared_and_force_pane_clipping_without_per_cell_layers() {
+    let term = model(12, "FF\x1b[3mF\x1b[0mF");
+    let mut content = crate::RenderableContent::default();
+    content.capture(&term, crate::geometry::TerminalSize::default());
+    let style = crate::font::TermFont::new(Default::default());
+    let pane = Size::new(120.0, 80.0);
+    let mut glyphs = Vec::new();
+    build(&content, &style, pane, &mut glyphs);
+    assert_eq!(glyphs.len(), 4);
+    assert!(Arc::ptr_eq(&glyphs[0].buffer, &glyphs[1].buffer));
+    assert!(Arc::ptr_eq(&glyphs[0].buffer, &glyphs[3].buffer));
+    assert!(!Arc::ptr_eq(&glyphs[0].buffer, &glyphs[2].buffer));
+    for glyph in glyphs {
+        let (width, height) = glyph.buffer.size();
+        assert!(glyph.position.x + width.unwrap() > pane.width);
+        assert!(glyph.position.y + height.unwrap() > pane.height);
+    }
 }
