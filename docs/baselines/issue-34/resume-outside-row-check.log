@@ -1,0 +1,67 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c)
+error: expected expression, found `+`
+  --> src/app/errors/view.rs:22:13
+   |
+22 |             + if self.diagnostics.enabled() { DIAGNOSTICS_HEIGHT } else { 0.0 }
+   |             ^ expected expression
+   |
+help: parentheses are required to parse this as an expression
+   |
+21 |         (if self.errors.is_empty() { 0.0 } else { ROOT_ERROR_HEIGHT })
+   |         +                                                            +
+
+error[E0308]: mismatched types
+  --> src/app/errors/view.rs:21:37
+   |
+21 |         if self.errors.is_empty() { 0.0 } else { ROOT_ERROR_HEIGHT }
+   |         ----------------------------^^^-----------------------------
+   |         |                           |
+   |         |                           expected `()`, found floating-point number
+   |         expected this to be `()`
+   |
+help: parentheses are required to parse this as an expression
+   |
+21 |         (if self.errors.is_empty() { 0.0 } else { ROOT_ERROR_HEIGHT })
+   |         +                                                            +
+help: you might have meant to return this value
+   |
+21 |         if self.errors.is_empty() { return 0.0; } else { ROOT_ERROR_HEIGHT }
+   |                                     ++++++    +
+
+error[E0308]: mismatched types
+  --> src/app/errors/view.rs:21:50
+   |
+21 |         if self.errors.is_empty() { 0.0 } else { ROOT_ERROR_HEIGHT }
+   |         -----------------------------------------^^^^^^^^^^^^^^^^^--
+   |         |                                        |
+   |         |                                        expected `()`, found `f32`
+   |         expected this to be `()`
+   |
+help: parentheses are required to parse this as an expression
+   |
+21 |         (if self.errors.is_empty() { 0.0 } else { ROOT_ERROR_HEIGHT })
+   |         +                                                            +
+help: you might have meant to return this value
+   |
+21 |         if self.errors.is_empty() { 0.0 } else { return ROOT_ERROR_HEIGHT; }
+   |                                                  ++++++                  +
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `pike` (lib) due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `pike` (lib test) due to 3 previous errors

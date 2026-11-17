@@ -1,0 +1,11 @@
+    Blocking waiting for file lock on build directory
+   Compiling alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/alacritty_terminal)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.58s
+     Running unittests src/lib.rs (target/debug/deps/alacritty_terminal-da7c3e294e0471c9)
+
+running 2 tests
+test tty::unix::resize_errors::native_pixel_conversion_saturates_without_wrapping_grid_dimensions ... ok
+test tty::unix::resize_errors::invalid_native_fd_returns_bounded_error_and_preserves_process ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 161 filtered out; finished in 0.00s
+

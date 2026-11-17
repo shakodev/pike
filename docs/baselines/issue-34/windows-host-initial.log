@@ -1,0 +1,89 @@
+   Compiling serde_core v1.0.229
+    Checking windows-sys v0.59.0
+    Checking winnow v1.0.4
+    Checking toml_writer v1.1.3+spec-1.1.0
+    Checking toml_parser v1.1.5+spec-1.1.0
+    Checking bitflags v2.13.2
+    Checking serde v1.0.229
+    Checking toml_datetime v1.1.2+spec-1.1.0
+    Checking serde_spanned v1.1.2
+    Checking iced_core v0.14.0
+    Checking spirv v0.3.0+sdk-1.3.268.0
+    Checking gpu-alloc-types v0.3.1
+    Checking gpu-descriptor-types v0.2.0
+    Checking gpu-alloc v0.6.2
+    Checking gpu-descriptor v0.3.2
+    Checking wgpu-types v27.0.1
+    Checking naga v27.0.3
+    Checking harfrust v0.3.2
+    Checking iced_futures v0.14.0
+    Checking iced_debug v0.14.0
+    Checking iced_runtime v0.14.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_runtime)
+    Checking winit v0.30.13
+    Checking vte v0.15.0
+    Checking alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/alacritty_terminal)
+    Checking cosmic-text v0.15.0
+    Checking iced_graphics v0.14.0
+    Checking toml v1.1.8+spec-1.1.0
+    Checking iced_program v0.14.0
+    Checking iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking wgpu-hal v27.0.4
+    Checking wgpu-core-deps-windows-linux-android v27.0.0
+    Checking wgpu-core v27.0.3
+    Checking wgpu v27.0.1
+    Checking cryoglyph v0.1.0
+    Checking iced_wgpu v0.14.0
+    Checking iced_renderer v0.14.0
+    Checking iced_widget v0.14.2
+    Checking iced v0.14.0
+    Checking iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_term)
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c)
+warning: unused import: `Control`
+ --> src/app/errors.rs:4:18
+  |
+4 | use super::{App, Control, Message};
+  |                  ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: constant `ERROR_HEIGHT` is never used
+ --> src/app/errors/view.rs:7:26
+  |
+7 | pub(in crate::app) const ERROR_HEIGHT: f32 = 96.0;
+  |                          ^^^^^^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `error_height`, `passive_error_view`, `error_view`, and `application_error_view` are never used
+  --> src/app/errors/view.rs:10:27
+   |
+ 9 | impl App {
+   | -------- methods in this implementation
+10 |     pub(in crate::app) fn error_height(&self, id: SessionId) -> f32 {
+   |                           ^^^^^^^^^^^^
+...
+13 |     pub(in crate::app) fn passive_error_view(&self) -> Option<Element<'_, Message>> { self.application_error_view() }
+   |                           ^^^^^^^^^^^^^^^^^^
+14 |     pub(in crate::app) fn error_view(&self, owner: Owner) -> Option<Element<'_, Message>> {
+   |                           ^^^^^^^^^^
+...
+53 |     pub(in crate::app) fn application_error_view(&self) -> Option<Element<'_, Message>> {
+   |                           ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `pike` (lib) generated 3 warnings (run `cargo fix --lib -p pike` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 13.57s

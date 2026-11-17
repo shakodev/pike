@@ -1,0 +1,41 @@
+   Compiling core-graphics-types v0.2.0
+   Compiling naga v27.0.3
+   Compiling harfrust v0.3.2
+   Compiling wgpu-types v27.0.1
+   Compiling metal v0.32.0
+   Compiling cosmic-text v0.15.0
+   Compiling wgpu-core v27.0.3
+   Compiling wgpu-hal v27.0.4
+   Compiling wgpu-core-deps-apple v27.0.0
+   Compiling wgpu v27.0.1
+   Compiling iced_graphics v0.14.0
+   Compiling iced_runtime v0.14.0 (/private/tmp/pike-pr-85/vendor/iced_runtime)
+   Compiling iced_program v0.14.0
+   Compiling alacritty_terminal v0.25.1 (/private/tmp/pike-pr-85/vendor/alacritty_terminal)
+   Compiling iced_winit v0.14.1 (/private/tmp/pike-pr-85/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> /private/tmp/pike-pr-85/vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> /private/tmp/pike-pr-85/vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling cryoglyph v0.1.0
+   Compiling iced_wgpu v0.14.0
+   Compiling iced_renderer v0.14.0
+   Compiling iced_widget v0.14.2
+   Compiling iced v0.14.0
+   Compiling iced_term v0.8.0 (/private/tmp/pike-pr-85/vendor/iced_term)
+   Compiling pike v0.1.0 (/private/tmp/pike-pr-85)
+   Compiling pike-pr85-native-review v0.0.0 (/private/tmp/pike-pr85-native-review)
+    Finished `release` profile [optimized] target(s) in 31.65s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

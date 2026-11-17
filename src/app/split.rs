@@ -33,7 +33,7 @@ impl App {
         source: PaneTarget,
         direction: Direction,
     ) -> Option<LaunchRequest> {
-        if self.exiting {
+        if self.boot.is_some() || self.exiting {
             return None;
         }
         let Some(state) = self.model.workspace().pane(source) else {

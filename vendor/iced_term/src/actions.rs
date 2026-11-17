@@ -16,6 +16,8 @@ pub enum Action {
     InputRejected(crate::InputError),
     PasteRejected(crate::PasteError),
     ImeRejected(crate::ImeError),
+    ResizeCompleted(crate::ResizeResult),
+    LinkOpenFailed,
     #[default]
     Ignore,
 }

@@ -11,6 +11,7 @@ const DEADLINE: Duration = Duration::from_secs(10);
 #[cfg(unix)]
 mod cancellation;
 mod closing;
+mod errors;
 mod ime;
 mod interaction;
 mod paste;
@@ -250,7 +251,7 @@ fn queued_preparation_is_nonblocking_and_canceled_before_native_creation() {
     let gate = Arc::new((Mutex::new(false), Condvar::new()));
     let (started, observed) = mpsc::channel();
     let mut blockers = Vec::new();
-    for _ in 0..2 {
+    for _ in 0..crate::executor::BLOCKING_WORKERS {
         let gate = gate.clone();
         let started = started.clone();
         blockers.push(executor.enter(|| {
@@ -263,7 +264,7 @@ fn queued_preparation_is_nonblocking_and_canceled_before_native_creation() {
             })
         }));
     }
-    for _ in 0..2 {
+    for _ in 0..crate::executor::BLOCKING_WORKERS {
         observed.recv_timeout(DEADLINE).unwrap();
     }
     let mut app = App {

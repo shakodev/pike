@@ -1,0 +1,58 @@
+    Blocking waiting for file lock on build directory
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+warning: constant `ERROR_HEIGHT` is never used
+  --> src/app/errors/view.rs:10:26
+   |
+10 | pub(in crate::app) const ERROR_HEIGHT: f32 = 96.0;
+   |                          ^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: enum `Event` is never used
+  --> src/app/errors/view.rs:13:6
+   |
+13 | enum Event {
+   |      ^^^^^
+
+warning: methods `error_height`, `passive_error_view`, `error_view`, and `application_error_view` are never used
+   --> src/app/errors/view.rs:19:27
+    |
+ 18 | impl App {
+    | -------- methods in this implementation
+ 19 |     pub(in crate::app) fn error_height(&self, id: SessionId) -> f32 {
+    |                           ^^^^^^^^^^^^
+...
+ 26 |     pub(in crate::app) fn passive_error_view(&self) -> Option<Element<'_, Message>> {
+    |                           ^^^^^^^^^^^^^^^^^^
+...
+ 29 |     pub(in crate::app) fn error_view(&self, owner: Owner) -> Option<Element<'_, Message>> {
+    |                           ^^^^^^^^^^
+...
+103 |     pub(in crate::app) fn application_error_view(&self) -> Option<Element<'_, Message>> {
+    |                           ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `pike` (lib test) generated 3 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.21s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-7aa914fb23ec4515)
+
+running 1 test
+test launch::tests::canceled_before_blocking_work_starts_never_calls_prepare ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 211 filtered out; finished in 0.01s
+

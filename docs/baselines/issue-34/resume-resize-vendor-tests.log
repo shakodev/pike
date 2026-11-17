@@ -1,0 +1,69 @@
+   Compiling bytemuck v1.25.2
+   Compiling futures-executor v0.3.34
+   Compiling softbuffer v0.4.8
+   Compiling winit v0.30.13
+   Compiling font-types v0.12.7
+   Compiling font-types v0.10.1
+   Compiling futures v0.3.34
+   Compiling read-fonts v0.41.0
+   Compiling read-fonts v0.35.0
+   Compiling iced_futures v0.14.0
+   Compiling wgpu-types v27.0.1
+   Compiling wgpu-hal v27.0.4
+   Compiling iced_debug v0.14.0
+   Compiling tiny-skia-path v0.11.4
+   Compiling tiny-skia v0.11.4
+   Compiling skrifa v0.44.0
+   Compiling harfrust v0.3.2
+   Compiling swash v0.2.10
+   Compiling skrifa v0.37.0
+   Compiling wgpu-core-deps-apple v27.0.0
+   Compiling wgpu-core v27.0.3
+   Compiling iced_runtime v0.14.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_runtime)
+   Compiling cosmic-text v0.15.0
+   Compiling iced_graphics v0.14.0
+   Compiling window_clipboard v0.5.1
+   Compiling tokio-macros v2.7.2
+   Compiling iced_tiny_skia v0.14.1
+   Compiling iced_program v0.14.0
+   Compiling alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/alacritty_terminal)
+   Compiling iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:568:55
+    |
+568 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:284:64
+    |
+284 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+   Compiling wgpu v27.0.1
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling tokio v1.54.1
+   Compiling cryoglyph v0.1.0
+   Compiling iced_wgpu v0.14.0
+   Compiling iced_renderer v0.14.0
+   Compiling iced_widget v0.14.2
+   Compiling iced v0.14.0
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_term)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 17.24s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/iced_term-d729f6cc834703be)
+
+running 7 tests
+test backend::resize::tests::stale_size_serial_and_exhaustion_do_not_replace_current_operation ... ok
+test view::glyphs::tests::leading_wide_wrap_placeholder_is_not_a_glyph_and_resize_preserves_copy ... ok
+test event_bridge::tests::resize_results_use_one_latest_slot_without_consuming_control_capacity ... ok
+test backend::protocol_tests::pixel_queries_round_fractional_grid_area_once_without_native_resize_work ... ok
+test backend::selection_tests::no_op_and_height_resize_preserve_selection_but_column_reflow_invalidates_it ... ok
+test terminal::work_tests::metadata_input_and_noops_do_no_font_resize_snapshot_or_cache_work ... ok
+test terminal::work_tests::output_flood_never_measures_fonts_or_resizes_and_hidden_output_never_snapshots ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 115 filtered out; finished in 0.60s
+

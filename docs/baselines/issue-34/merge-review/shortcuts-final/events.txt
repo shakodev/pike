@@ -1,0 +1,11 @@
+default create: one Control, repeat captured, both raw child streams empty
+actual root menu/arrow/Enter paste and copy return terminal focus; no duplicate bytes
+reload overrides/unbind remove stale copy/paste/close/resize/history chords; raw native fallback bytes exact
+ambiguous surviving-default conflict rejected atomically; previous custom paste remains live
+23 effective help bindings, measured End/PageUp/Home navigation, disabled command, Escape focus, shifted symbol/non-US/AltGr/IME priority
+actual asynchronous reload while help is open rejects held old row, refreshes 24 live help bindings and preserves Escape/focus
+held real Help Enter revoked: native_only=true roundtrip=false; fresh Execute/navigation/Escape/focus and child bytes intact
+held real Help Enter revoked: native_only=true roundtrip=true; fresh Execute/navigation/Escape/focus and child bytes intact
+held real Help Enter revoked: native_only=false roundtrip=false; fresh Execute/navigation/Escape/focus and child bytes intact
+held real Help Enter revoked: native_only=false roundtrip=true; fresh Execute/navigation/Escape/focus and child bytes intact
+delayed clipboard modal/tab/native-blur roundtrips discarded; custom structural mapping still dispatches once with zero child bytes

@@ -1,0 +1,4 @@
+before first error: active=Some(SessionId(1)) widget_focused=true healthy_bounds=Rectangle { x: 1.0, y: 61.0, width: 596.0, height: 738.0 }
+after first error: active=Some(SessionId(1)) widget_focused=true healthy_bounds=Some(Rectangle { x: 1.0, y: 189.0, width: 596.0, height: 610.0 })
+actual root/grid background Dismiss: origin=3 healthy=1 row_delta=128 disjoint row released; exact x only in healthy child; old_error=ErrorId(1)
+actual root Retry message rejects pane and raw-native-focus round trips; canceled read permits fresh Retry; cloned old reply cannot end newer retry; current native task reply admits FRESH34 once to original healthy owner

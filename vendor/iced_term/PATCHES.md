@@ -1,5 +1,16 @@
 # iced_term patch ledger
 
+## Issue #34 — bounded resize receipts and recoverable link-open failure
+
+- One coalesced native resize receipt slot in the existing bridge. Backend
+  checks the current serial and dimensions and consumes a result once; attempted
+  geometry remains deduplicated on failed frames. Explicit RetryResize alone
+  reissues a failed current size with a fresh checked serial.
+- No automatic retry, new PTY, geometry mapper, task or production fault hook.
+  Real controlled PTY tests verify retry acknowledgment and actual cleanup.
+- Replace the existing link-opener panic with a payload-free LinkOpenFailed
+  action. The user's next link click remains the retry; URLs never enter errors.
+
 ## Provenance
 
 - Published crate: iced_term **0.8.0**, extracted from the crates.io archive.

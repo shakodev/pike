@@ -1,0 +1,4 @@
+version=1
+[profiles.default]
+shell="/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/target/debug/pike-recoverable-native-fixture"
+args=["--child","/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/docs/baselines/issue-34/native-config-cancel"]

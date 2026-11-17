@@ -1,0 +1,53 @@
+    Checking iced_runtime v0.14.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_runtime)
+    Checking iced_program v0.14.0
+    Checking iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking iced v0.14.0
+    Checking iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_term)
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c)
+error[E0425]: cannot find function `write_with_result` in module `iced::clipboard`
+   --> src/app/errors.rs:110:57
+    |
+110 |             .copy_selection(|contents| iced::clipboard::write_with_result(contents)
+    |                                                         ^^^^^^^^^^^^^^^^^ not found in `iced::clipboard`
+
+error[E0425]: cannot find function `write_with_result` in module `iced::clipboard`
+   --> src/app/errors.rs:116:26
+    |
+116 |         iced::clipboard::write_with_result(self.diagnostic_capture())
+    |                          ^^^^^^^^^^^^^^^^^ not found in `iced::clipboard`
+
+error[E0425]: cannot find type `WriteError` in module `iced::clipboard`
+   --> src/app/errors.rs:120:135
+    |
+120 | ...tion>, result: Result<(), iced::clipboard::WriteError>) {
+    |                                               ^^^^^^^^^^ not found in `iced::clipboard`
+
+error[E0425]: cannot find type `WriteError` in module `iced::clipboard`
+  --> src/app.rs:46:71
+   |
+46 |     ClipboardWritten(Option<Reservation>, Result<(), iced::clipboard::WriteError>),
+   |                                                                       ^^^^^^^^^^ not found in `iced::clipboard`
+
+error[E0425]: cannot find type `WriteError` in module `iced::clipboard`
+  --> src/errors.rs:22:37
+   |
+22 |     ClipboardWrite(iced::clipboard::WriteError),
+   |                                     ^^^^^^^^^^ not found in `iced::clipboard`
+
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `pike` (lib) due to 5 previous errors

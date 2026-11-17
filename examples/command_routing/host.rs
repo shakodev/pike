@@ -194,6 +194,16 @@ impl Host {
             Action::Clipboard(iced_runtime::clipboard::Action::Write { target, contents }) => {
                 self.clipboard.write(target, contents);
             }
+            Action::Clipboard(iced_runtime::clipboard::Action::WriteWithResult {
+                target,
+                contents,
+                channel,
+            }) => {
+                // This deterministic fixture acknowledges its own write. It
+                // makes no claim about the native operating-system clipboard.
+                self.clipboard.write(target, contents);
+                let _ = channel.send(Ok(()));
+            }
             Action::Exit => {}
             // The finite headless host supplies a deterministic native mode;
             // the production runtime obtains it from its existing OS provider.

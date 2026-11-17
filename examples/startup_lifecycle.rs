@@ -1,12 +1,21 @@
 //! Opt-in native Iced/ConPTY startup probe. Never launches a user's shell.
-// Compile the production library source so the pool shares its identity and
-// model modules, while deterministic preparation remains crate-private.
-#[path = "../src/lib.rs"]
-#[allow(dead_code, unused_imports)] // The probe uses only part of the library API.
-mod probe_pike;
+// Compile only the production pool and its model dependencies, sharing one
+// identity domain without importing the unrelated application into this probe.
+#[path = "../src"]
+#[allow(dead_code, unused_imports)]
+mod probe_pike {
+    pub mod executor;
+    pub mod identity;
+    pub mod launch;
+    pub mod layout;
+    pub mod session;
+    pub mod tabs;
+    #[cfg(test)]
+    pub mod workspace;
+}
+use probe_pike::{executor, identity, launch, tabs};
 #[cfg(test)]
-use probe_pike::workspace;
-use probe_pike::{executor, identity, launch, layout, session};
+use probe_pike::{layout, session, workspace};
 #[path = "compatibility/report.rs"]
 mod report;
 

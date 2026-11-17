@@ -1,5 +1,18 @@
 # Alacritty terminal patch ledger
 
+## Issue #34 — recover native resize errors without stopping the process
+
+- Add a compatible `OnResize::try_on_resize` default and tracked resize messages
+  on the existing PTY worker, returning only serial, dimensions, kind and code.
+- Unix returns failed TIOCSWINSZ instead of calling the process-exit macro.
+  ConPTY validates signed COORD limits and preserves its signed HRESULT code;
+  the existing wrapper forwards the fallible result without warning strings.
+- Existing untracked callers keep their API; the application uses tracked
+  operations. I/O completion already carries typed failure metadata, so remove
+  raw OS-error formatting in the event loop. No second worker/PTY/renderer.
+- Focused tests cover a failed native fd, safe error conversion, continued input,
+  originating serial/dimensions, and existing resize/read interleaving.
+
 ## Issue #28 — close the owned Unix master before waiting for its child
 
 - The unchanged 0.25.1 Unix destructor sent SIGHUP and called `Child::wait`
