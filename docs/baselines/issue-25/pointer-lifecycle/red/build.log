@@ -1,0 +1,31 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> /Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> /Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike-r25-independent-review v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/docs/baselines/issue-25/focus-probe)
+warning: method `key` is never used
+  --> src/bin/blur_drag.rs:51:8
+   |
+ 8 | impl Host {
+   | --------- method in this implementation
+...
+51 |     fn key(&mut self, key: iced::keyboard::Key, modifiers: iced::keyboard::Modifiers, text: Option<&str>) {
+   |        ^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `pike-r25-independent-review` (bin "blur_drag") generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.40s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

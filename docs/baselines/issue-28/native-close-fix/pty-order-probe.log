@@ -1,0 +1,5 @@
+wait_before_master_close=pending
+  PID  PPID  PGID STAT WCHAN  COMMAND
+45224 45223 45224 ?Es  -      (bash)
+
+wait_after_master_close=completed pid=45224 code=-1 elapsed_ms=1023.4

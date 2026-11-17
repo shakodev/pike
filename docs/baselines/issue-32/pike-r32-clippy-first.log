@@ -1,0 +1,95 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_term)
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13)
+error: operator precedence might not be obvious
+  --> src/app/commands/keymap.rs:30:16
+   |
+30 |       let mask = u8::from(modifiers.control()) * shortcuts::CTRL
+   |  ________________^
+31 | |         | u8::from(modifiers.shift()) * shortcuts::SHIFT
+32 | |         | u8::from(modifiers.alt()) * shortcuts::ALT
+33 | |         | u8::from(modifiers.logo()) * shortcuts::LOGO;
+   | |______________________________________________________^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#precedence
+   = note: `-D clippy::precedence` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::precedence)]`
+help: consider parenthesizing your expression
+   |
+30 ~     let mask = u8::from(modifiers.control()) * shortcuts::CTRL
+31 +         | u8::from(modifiers.shift()) * shortcuts::SHIFT
+32 ~         | u8::from(modifiers.alt()) * shortcuts::ALT | (u8::from(modifiers.logo()) * shortcuts::LOGO);
+   |
+
+error: operator precedence might not be obvious
+  --> src/app/commands/keymap.rs:30:16
+   |
+30 |       let mask = u8::from(modifiers.control()) * shortcuts::CTRL
+   |  ________________^
+31 | |         | u8::from(modifiers.shift()) * shortcuts::SHIFT
+32 | |         | u8::from(modifiers.alt()) * shortcuts::ALT
+   | |____________________________________________________^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#precedence
+help: consider parenthesizing your expression
+   |
+30 ~     let mask = u8::from(modifiers.control()) * shortcuts::CTRL
+31 +         | u8::from(modifiers.shift()) * shortcuts::SHIFT | (u8::from(modifiers.alt()) * shortcuts::ALT)
+   |
+
+error: operator precedence might not be obvious
+  --> src/app/commands/keymap.rs:30:16
+   |
+30 |       let mask = u8::from(modifiers.control()) * shortcuts::CTRL
+   |  ________________^
+31 | |         | u8::from(modifiers.shift()) * shortcuts::SHIFT
+   | |________________________________________________________^ help: consider parenthesizing your expression: `(u8::from(modifiers.control()) * shortcuts::CTRL) | (u8::from(modifiers.shift()) * shortcuts::SHIFT)`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#precedence
+
+error: this `if` statement can be collapsed
+  --> src/app/commands/reference.rs:45:17
+   |
+45 | /                 if let Command::NewProfile(index) = command {
+46 | |                     if let Some(name) = self.settings.active.profiles().nth(index.into()) {
+47 | |                         label.push_str(&format!(" ({})", name.as_str()));
+48 | |                     }
+49 | |                 }
+   | |_________________^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#collapsible_if
+   = note: `-D clippy::collapsible-if` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+   |
+45 ~                 if let Command::NewProfile(index) = command
+46 ~                     && let Some(name) = self.settings.active.profiles().nth(index.into()) {
+47 |                         label.push_str(&format!(" ({})", name.as_str()));
+48 ~                     }
+   |
+
+error: very complex type used. Consider factoring parts into `type` definitions
+   --> src/app/resize/capture.rs:113:13
+    |
+113 |     on_key: Box<dyn Fn(&KeyEvent) -> Option<KeyAction> + 'a>,
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#type_complexity
+    = note: `-D clippy::type-complexity` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::type_complexity)]`
+
+error: could not compile `pike` (lib) due to 5 previous errors

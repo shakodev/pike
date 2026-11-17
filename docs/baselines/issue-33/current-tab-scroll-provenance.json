@@ -1,0 +1,10 @@
+{
+  "source": "a9ec359891701de9e9a2895437a9d2f9154521de",
+  "production_unchanged_from": "333d08f4697906903cf68d738713296f4ccf05c9",
+  "binary_sha256": "a201d8ea9c242685a630a3ca577a6f81f3885a9a4aa13c828db8a014dd74f735",
+  "files_sha256": {
+    "examples/support/chrome_actions.rs": "940df274d081ca28ea7edfd4a2a3f179f6883eb1d44e92125222b9db809aa949",
+    "examples/tab_management.rs": "f859b186ef62b5b76edd394c9b20271f21a4e49e6852abb0dc1a7e2427a7bd33",
+    "examples/tab_management/scenarios.rs": "79b8167305803b602b0d05c1dc507495fa58344edf85f618f3b4b5b42a88cf55"
+  }
+}

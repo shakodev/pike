@@ -1,0 +1,39 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.26s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-8047c988abb10012)
+
+running 1 test
+test app::tests::resize::modal_and_frozen_layout_jointly_gate_resize_but_keep_background_delivery ... FAILED
+
+failures:
+
+---- app::tests::resize::modal_and_frozen_layout_jointly_gate_resize_but_keep_background_delivery stdout ----
+
+thread 'app::tests::resize::modal_and_frozen_layout_jointly_gate_resize_but_keep_background_delivery' (7912233) panicked at src/app/tests/resize.rs:266:54:
+called `Option::unwrap()` on a `None` value
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    app::tests::resize::modal_and_frozen_layout_jointly_gate_resize_but_keep_background_delivery
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 99 filtered out; finished in 0.20s
+
+error: test failed, to rerun pass `-p pike --lib`

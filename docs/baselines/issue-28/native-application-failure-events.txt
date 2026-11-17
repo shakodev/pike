@@ -1,0 +1,5 @@
+starting session=1 entries=1
+attached session=1 font_measurements=1
+focus session=1 widget_focused=true
+fixture deadline expired; cleanup still required
+shutdown entries=0

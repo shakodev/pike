@@ -1,0 +1,51 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14)
+error: unexpected closing delimiter: `}`
+   --> src/tab_strip.rs:280:9
+    |
+189 |                     tooltip(
+    |                            - the nearest open delimiter
+...
+208 |                 ]
+    |                 - missing open `[` for this delimiter
+...
+247 | ) -> Element<'a, M> {
+    |                     - the nearest open delimiter
+...
+251 |         .fold(column![], |rows, (index, item)| {
+    |                                                - the nearest open delimiter
+252 |             rows.push(
+    |                      - the nearest open delimiter
+253 |                 container(
+254 |                     row![
+    |                         - the nearest open delimiter
+...
+273 |                         tooltip::Position::Bottom),
+    |                                                  - missing open `(` for this delimiter
+274 |                         ui::icon("×", "Close tab", close(item.id)),
+275 |                     ]
+    |                     - missing open `[` for this delimiter
+276 |                     .spacing(8),
+277 |                 )
+    |                 - missing open `(` for this delimiter
+278 |                 .id(row_id(item.id)),
+279 |             )
+    |             - missing open `(` for this delimiter
+280 |         })
+    |         ^ unexpected closing delimiter
+
+error: could not compile `pike` (lib) due to 1 previous error

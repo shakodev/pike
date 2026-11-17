@@ -1,0 +1,21 @@
+    Checking iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_winit)
+    Checking alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/alacritty_terminal)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking iced v0.14.0
+    Checking iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/vendor/iced_term)
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.35s

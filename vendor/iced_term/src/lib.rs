@@ -6,8 +6,10 @@ mod backend;
 mod event_bridge;
 mod font;
 mod geometry;
+mod ime;
 mod keyboard;
 mod lifecycle;
+mod paste;
 mod snapshot;
 mod terminal;
 mod theme;
@@ -24,14 +26,16 @@ pub use alacritty_terminal::term::TermMode;
 #[cfg(windows)]
 pub use alacritty_terminal::tty::LaunchError;
 pub use backend::Command as BackendCommand;
-pub use backend::{LinkAction, MouseButton};
+pub use backend::{HistoryScroll, LinkAction, MouseButton};
 pub use event_bridge::{EventBridgeError, EventBridgeEvent};
+pub use ime::{ImeCommit, ImeError, PREEDIT_BYTE_LIMIT};
 pub use lifecycle::{BackendCompletion, ExitReason, ShutdownHandle};
+pub use paste::{PasteError, PasteRequest, PASTE_BYTE_LIMIT};
 pub use snapshot::{RenderableContent, SnapshotStats, ViewportSnapshot};
 pub use terminal::{Command, Event, PreparedTerminal, Terminal, WorkStats};
 pub use theme::{ColorPalette, Theme};
 pub use view::TerminalView;
-pub use window_focus::WindowFocus;
+pub use window_focus::{WindowFocus, WindowInputLease};
 
 #[cfg(test)]
 mod lifecycle_tests;

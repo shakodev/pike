@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/usr/bin/time",
+    "-l",
+    "target/issue-20/release/examples/ime_composition",
+    "target/issue-19-ime/final-609d702-probe"
+  ],
+  "exit_code": 0
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "scope": "pure-tabs",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo test --locked -p pike --lib tabs::tests -- --nocapture --test-threads=1",
+    "result": "4 passed; model checkpoint 2bf91fa; no second raw receipt",
+    "receipt": null
+  },
+  {
+    "scope": "pure-workspace",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo test --locked -p pike --lib workspace::tests -- --nocapture --test-threads=1",
+    "result": "16 passed; model checkpoint 2bf91fa; no second raw receipt",
+    "receipt": null
+  },
+  {
+    "scope": "fixture-build",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo build --offline --locked -p pike --example live_tabs",
+    "result": "passed",
+    "receipt": "fixture-build.log"
+  },
+  {
+    "scope": "native-tabs",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo test --offline --locked -p pike --lib app::tests::tabs:: -- --nocapture --test-threads=1",
+    "result": "5 passed before two joint tests were added",
+    "receipt": "native-tab-tests.log"
+  },
+  {
+    "scope": "native-joint",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo test --offline --locked -p pike --lib -- app::tests::tabs::switching_frozen app::tests::tabs::tab_switch_invalidates --include-ignored --nocapture --test-threads=1",
+    "result": "2 passed including explicit graphics/IME",
+    "receipt": "native-joint-tab-tests.log"
+  },
+  {
+    "scope": "native-neighbors",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo test --offline --locked -p pike --lib -- app::tests::split:: app::tests::resize:: app::tests::interaction::queued_keyboard_requires_current_pane_and_window_focus app::tests::closing::modal_accepts_launch_and_natural_completion_without_closing_or_focusing_a_target --nocapture --test-threads=1",
+    "result": "12 passed; 1 explicitly ignored graphics sibling paste neighbor",
+    "receipt": "native-host-neighbors.log"
+  },
+  {
+    "scope": "native-adapter",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo test --offline --locked -p iced_term --lib -- view::state_tests::same_sized_tab_replacements_reset_all_input_state_and_receive_their_own_layout lifecycle_tests::hidden_native_output_keeps_history_and_reactivates_the_exited_buffer_once --nocapture --test-threads=1",
+    "result": "2 passed",
+    "receipt": "native-adapter-neighbors.log"
+  },
+  {
+    "scope": "clippy",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo clippy --offline --locked -p pike --lib --bin pike --tests --example live_tabs -- -D warnings",
+    "result": "passed",
+    "receipt": "clippy.log"
+  },
+  {
+    "scope": "windows-cross-clippy",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo clippy --offline --locked -p pike --lib --bin pike --tests --example live_tabs --target x86_64-pc-windows-msvc -- -D warnings",
+    "result": "passed; compile only",
+    "receipt": "windows-cross-clippy.log"
+  },
+  {
+    "scope": "format",
+    "command": "CARGO_BUILD_JOBS=4 CARGO_TARGET_DIR=target cargo fmt --package pike -- --check",
+    "result": "passed",
+    "receipt": "format.log"
+  },
+  {
+    "scope": "diff",
+    "command": "git diff 52f5f90675c11ce15d19a11554c9105f803056a3 --check -- src examples docs/verification",
+    "result": "passed",
+    "receipt": "diff-check.log"
+  },
+  {
+    "scope": "native-gui",
+    "command": "target/debug/examples/live_tabs docs/baselines/issue-29/native-development-1",
+    "result": "passed; completed.txt confirms native App cleanup",
+    "receipt": "native-development-1.log"
+  }
+]

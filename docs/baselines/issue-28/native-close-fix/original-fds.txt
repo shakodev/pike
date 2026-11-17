@@ -1,0 +1,17 @@
+COMMAND     PID         USER   FD   TYPE             DEVICE SIZE/OFF                NODE NAME
+pike-8047 44994 daan.hoedjes  cwd    DIR               1,14      576             5839879 /Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14
+pike-8047 44994 daan.hoedjes  txt    REG               1,14 61695560             8355888 /Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/target/debug/deps/pike-8047c988abb10012
+pike-8047 44994 daan.hoedjes  txt    REG               1,14  2562000 1152921500312573256 /usr/lib/dyld
+pike-8047 44994 daan.hoedjes  txt    REG               1,14    72984             5036591 /Library/Preferences/Logging/.plist-cache.nReR2Agl
+pike-8047 44994 daan.hoedjes  txt    REG               1,14  2156036 1152921500312142370 /System/Library/Fonts/Menlo.ttc
+pike-8047 44994 daan.hoedjes  txt    REG               1,14  7110352 1152921500312142639 /System/Library/Fonts/Supplemental/NISC18030.ttf
+pike-8047 44994 daan.hoedjes  txt    REG               1,14   315876 1152921500312142855 /System/Library/Fonts/Supplemental/PTMono.ttc
+pike-8047 44994 daan.hoedjes  txt    REG               1,14   684624 1152921500312142531 /System/Library/Fonts/Supplemental/Courier New.ttf
+pike-8047 44994 daan.hoedjes  txt    REG               1,14   109700 1152921500312142449 /System/Library/Fonts/Supplemental/Andale Mono.ttf
+pike-8047 44994 daan.hoedjes  txt    REG               1,14   223892 1152921500312142428 /System/Library/Fonts/SFNSMono.ttf
+pike-8047 44994 daan.hoedjes  txt    REG               1,14   691796 1152921500312142527 /System/Library/Fonts/Supplemental/Courier New Bold.ttf
+pike-8047 44994 daan.hoedjes    0r   CHR                3,2      0t0                 336 /dev/null
+pike-8047 44994 daan.hoedjes    1w   REG               1,14      121             8355950 /Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/target/issue-28/fix/original-observed-test.log
+pike-8047 44994 daan.hoedjes    2w   REG               1,14      121             8355950 /Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/target/issue-28/fix/original-observed-test.log
+pike-8047 44994 daan.hoedjes    3u   CHR              15,14 0t629955                 605 /dev/ptmx
+pike-8047 44994 daan.hoedjes    8u  unix 0x9a551771d9399c46      0t0                     ->(none)

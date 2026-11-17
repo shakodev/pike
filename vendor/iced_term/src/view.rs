@@ -1,5 +1,5 @@
 use crate::backend::{Backend, Command, LinkAction, MouseButton};
-use crate::bindings::{BindingAction, BindingsLayout, InputKind};
+use crate::bindings::{BindingAction, InputKind};
 use crate::terminal::{Event, Terminal};
 use crate::theme::TerminalStyle;
 use crate::RenderableContent;
@@ -13,12 +13,18 @@ use iced::widget::canvas::{Path, Text};
 use iced::widget::container;
 use iced::{Color, Element, Length, Point, Rectangle, Size, Theme, Vector};
 use iced_core::clipboard::Kind as ClipboardKind;
+#[cfg(test)]
+use iced_core::keyboard::Key;
 use iced_core::keyboard::Modifiers;
 use iced_core::mouse::{self, Click};
 use iced_core::text::{Alignment, LineHeight, Shaping};
 
 mod cursor;
 mod glyphs;
+mod ime;
+#[cfg(test)]
+mod paste_tests;
+mod pointer;
 use iced_core::widget::operation::{self, Focusable};
 use iced_graphics::core::widget::{tree, Tree};
 use iced_graphics::core::Widget;
@@ -106,7 +112,9 @@ impl<'a> TerminalView<'a> {
         if previous != Some(bounds) {
             // A moved pane must not continue a drag/double-click at its old
             // screen position. Selection itself remains owned by the session.
-            state.reset_pointer();
+            for command in Self::cancel_pointer(state) {
+                shell.publish(Event::BackendCall(self.term.id, command));
+            }
         }
         if previous.map(|bounds| bounds.size()) != Some(bounds.size()) {
             // Every session needs its first layout, including equal-sized tab
@@ -136,227 +144,25 @@ impl<'a> TerminalView<'a> {
         }
     }
 
-    fn handle_mouse_event(
-        &self,
-        state: &mut TerminalViewState,
-        layout_position: Point,
-        cursor_position: Point,
-        event: &iced::mouse::Event,
-    ) -> Vec<Command> {
-        let mut commands = Vec::new();
-        let terminal_content = self.term.backend.renderable_content();
-        let terminal_mode = terminal_content.terminal_mode;
-
-        // Button events carry no position of their own. Use the current Iced
-        // cursor, not a remembered grid point: a diff/relayout may have reset
-        // that point without an intervening CursorMoved event.
-        if matches!(
-            event,
-            mouse::Event::ButtonPressed(_) | mouse::Event::ButtonReleased(_)
-        ) {
-            state.mouse_position_on_grid = Backend::selection_point(
-                cursor_position.x - layout_position.x,
-                cursor_position.y - layout_position.y,
-                &terminal_content.terminal_size,
-                terminal_content.viewport.display_offset(),
-            );
-        }
-
-        match event {
-            iced_core::mouse::Event::ButtonPressed(
-                iced_core::mouse::Button::Left,
-            ) => {
-                if !state.is_focused() {
-                    return Vec::default();
-                }
-
-                Self::handle_left_button_pressed(
-                    state,
-                    &terminal_mode,
-                    cursor_position,
-                    layout_position,
-                    &mut commands,
-                );
-            },
-            iced_core::mouse::Event::CursorMoved { position } => {
-                if !state.is_focused() {
-                    return Vec::default();
-                }
-
-                Self::handle_cursor_moved(
-                    state,
-                    self.term.backend.renderable_content(),
-                    position,
-                    layout_position,
-                    &mut commands,
-                );
-            },
-            iced_core::mouse::Event::ButtonReleased(
-                iced_core::mouse::Button::Left,
-            ) => {
-                if !state.is_focused() {
-                    return Vec::default();
-                }
-
-                Self::handle_button_released(
-                    state,
-                    &terminal_mode,
-                    &self.term.bindings,
-                    &mut commands,
-                );
-            },
-            iced::mouse::Event::WheelScrolled { delta } => {
-                Self::handle_wheel_scrolled(
-                    state,
-                    *delta,
-                    &self.term.font.measure,
-                    &mut commands,
-                );
-            },
-            _ => {},
-        }
-
-        commands
-    }
-
-    fn handle_left_button_pressed(
-        state: &mut TerminalViewState,
-        terminal_mode: &TermMode,
-        cursor_position: Point,
-        layout_position: Point,
-        commands: &mut Vec<Command>,
-    ) {
-        let cmd = if terminal_mode.intersects(TermMode::MOUSE_MODE) {
-            Command::MouseReport(
-                MouseButton::LeftButton,
-                state.keyboard_modifiers,
-                state.mouse_position_on_grid,
-                true,
-            )
-        } else {
-            let current_click = Click::new(
-                cursor_position,
-                mouse::Button::Left,
-                state.last_click,
-            );
-            let selection_type = match current_click.kind() {
-                mouse::click::Kind::Single => SelectionType::Simple,
-                mouse::click::Kind::Double => SelectionType::Semantic,
-                mouse::click::Kind::Triple => SelectionType::Lines,
-            };
-            state.last_click = Some(current_click);
-            Command::SelectStart(
-                selection_type,
-                (
-                    cursor_position.x - layout_position.x,
-                    cursor_position.y - layout_position.y,
-                ),
-            )
-        };
-        commands.push(cmd);
-        state.is_dragged = true;
-    }
-
-    fn handle_cursor_moved(
-        state: &mut TerminalViewState,
-        terminal_content: &RenderableContent,
-        position: &Point,
-        layout_position: Point,
-        commands: &mut Vec<Command>,
-    ) {
-        let cursor_x = position.x - layout_position.x;
-        let cursor_y = position.y - layout_position.y;
-        state.mouse_position_on_grid = Backend::selection_point(
-            cursor_x,
-            cursor_y,
-            &terminal_content.terminal_size,
-            terminal_content.viewport.display_offset(),
-        );
-
-        // Handle command or selection update based on terminal mode and modifiers
-        if state.is_dragged {
-            let terminal_mode = terminal_content.terminal_mode;
-            let cmd = if terminal_mode.intersects(TermMode::MOUSE_MOTION) {
-                Command::MouseReport(
-                    MouseButton::LeftMove,
-                    state.keyboard_modifiers,
-                    state.mouse_position_on_grid,
-                    true,
-                )
-            } else {
-                Command::SelectUpdate((cursor_x, cursor_y))
-            };
-            commands.push(cmd);
-        }
-
-        // Handle link hover if applicable
-        if state.keyboard_modifiers == Modifiers::COMMAND {
-            commands.push(Command::ProcessLink(
-                LinkAction::Hover,
-                state.mouse_position_on_grid,
-            ));
-        }
-    }
-
-    fn handle_button_released(
-        state: &mut TerminalViewState,
-        terminal_mode: &TermMode,
-        bindings: &BindingsLayout, // Use the actual type of your bindings here
-        commands: &mut Vec<Command>,
-    ) {
-        state.is_dragged = false;
-
-        if terminal_mode.intersects(TermMode::MOUSE_MODE) {
-            commands.push(Command::MouseReport(
-                MouseButton::LeftButton,
-                state.keyboard_modifiers,
-                state.mouse_position_on_grid,
-                false,
-            ));
-        }
-
-        if bindings.get_action(
-            InputKind::Mouse(iced_core::mouse::Button::Left),
-            state.keyboard_modifiers,
-            *terminal_mode,
-        ) == Some(&BindingAction::LinkOpen)
-        {
-            commands.push(Command::ProcessLink(
-                LinkAction::Open,
-                state.mouse_position_on_grid,
-            ));
-        }
-    }
-
-    fn handle_wheel_scrolled(
-        state: &mut TerminalViewState,
-        delta: ScrollDelta,
-        font_measure: &Size<f32>,
-        commands: &mut Vec<Command>,
-    ) {
-        match delta {
-            ScrollDelta::Lines { y, .. } => {
-                let lines = y.signum() * y.abs().round();
-                commands.push(Command::Scroll(lines as i32));
-            },
-            ScrollDelta::Pixels { y, .. } => {
-                state.scroll_pixels -= y;
-                let line_height = font_measure.height; // Assume this method exists and gives the height of a line
-                let lines = (state.scroll_pixels / line_height).trunc();
-                state.scroll_pixels %= line_height;
-                if lines != 0.0 {
-                    commands.push(Command::Scroll(lines as i32));
-                }
-            },
-        }
-    }
-
     fn handle_keyboard_event(
         &self,
         state: &mut TerminalViewState,
         clipboard: &mut dyn iced_graphics::core::Clipboard,
         event: &iced::keyboard::Event,
-    ) -> KeyboardOutcome {
+        shell: &mut iced_core::Shell<'_, Event>,
+    ) -> Option<Command> {
+        if self.term.is_composing()
+            && matches!(
+                event,
+                iced::keyboard::Event::KeyPressed { .. }
+                    | iced::keyboard::Event::KeyReleased { .. }
+            )
+        {
+            // Composition owns text, candidate navigation and control bindings.
+            // The native Commit is the sole source of its UTF-8 input.
+            shell.capture_event();
+            return None;
+        }
         use crate::keyboard::KeyAction;
         match event {
             iced::keyboard::Event::ModifiersChanged(modifiers)
@@ -365,22 +171,24 @@ impl<'a> TerminalView<'a> {
                 state.keyboard_modifiers = *modifiers;
             },
         }
-        match crate::keyboard::action(
+        let action = crate::keyboard::action(
             event,
             &self.term.bindings,
             self.term.backend.renderable_content().terminal_mode,
-        ) {
-            KeyAction::Unhandled => KeyboardOutcome::Ignored,
-            KeyAction::Consume => KeyboardOutcome::Consumed,
+        );
+        if matches!(action, KeyAction::Unhandled) {
+            return None;
+        }
+        shell.capture_event();
+        match action {
+            KeyAction::Unhandled | KeyAction::Consume => None,
             KeyAction::Write { bytes, alt_prefix } => {
                 if bytes.is_empty() && !alt_prefix {
-                    return KeyboardOutcome::Consumed;
+                    return None;
                 }
                 let len = bytes.len().saturating_add(usize::from(alt_prefix));
                 if let Err(error) = self.term.backend.preflight_input(len) {
-                    return KeyboardOutcome::Command(Command::InputRejected(
-                        error,
-                    ));
+                    return Some(Command::InputRejected(error));
                 }
                 let bytes = if alt_prefix {
                     let mut prefixed = Vec::with_capacity(len);
@@ -390,28 +198,21 @@ impl<'a> TerminalView<'a> {
                 } else {
                     bytes.into_owned()
                 };
-                KeyboardOutcome::Command(Command::Write(bytes))
+                Some(Command::Write(bytes))
             },
-            KeyAction::Paste => {
-                if let Some(data) = clipboard.read(ClipboardKind::Standard) {
-                    if let Err(error) =
-                        self.term.backend.preflight_input(data.len())
-                    {
-                        return KeyboardOutcome::Command(
-                            Command::InputRejected(error),
-                        );
-                    }
-                    return KeyboardOutcome::Command(Command::Write(
-                        data.into_bytes(),
-                    ));
-                }
-                KeyboardOutcome::Consumed
+            KeyAction::Paste => Some(
+                self.term
+                    .backend
+                    .queue_paste(clipboard.read(ClipboardKind::Standard)),
+            ),
+            KeyAction::ScrollHistory(scroll) => {
+                Some(Command::ScrollHistory(scroll))
             },
             KeyAction::Copy => {
                 self.term.copy_selection(|text| {
                     clipboard.write(ClipboardKind::Standard, text);
                 });
-                KeyboardOutcome::Consumed
+                None
             },
         }
     }
@@ -430,7 +231,9 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
     }
 
     fn state(&self) -> tree::State {
-        tree::State::new(TerminalViewState::new(self.term.id))
+        let mut state = TerminalViewState::new(self.term.id);
+        state.ime = std::sync::Arc::downgrade(&self.term.backend.ime);
+        tree::State::new(state)
     }
 
     fn diff(&self, tree: &mut Tree) {
@@ -439,6 +242,11 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         if tree.state.downcast_ref::<TerminalViewState>().terminal_id
             != self.term.id
         {
+            if let Some(ime) =
+                tree.state.downcast_ref::<TerminalViewState>().ime.upgrade()
+            {
+                ime.cancel();
+            }
             tree.state = self.state();
         }
     }
@@ -735,10 +543,11 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         _renderer: &iced::Renderer,
         clipboard: &mut dyn iced_graphics::core::Clipboard,
         shell: &mut iced_graphics::core::Shell<'_, Event>,
-        _viewport: &Rectangle,
+        viewport: &Rectangle,
     ) {
         let state = tree.state.downcast_mut::<TerminalViewState>();
         self.handle_resize(state, layout, shell);
+        let mut cleanup = Vec::new();
         match event {
             iced::Event::Window(iced::window::Event::Focused) => {
                 self.term.backend.window_focus.set_focused(true);
@@ -751,14 +560,40 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
             },
             iced::Event::Window(iced::window::Event::Unfocused) => {
                 self.term.backend.window_focus.set_focused(false);
-                state.reset_pointer();
+                cleanup.extend(Self::cancel_pointer(state));
                 state.keyboard_modifiers = Modifiers::empty();
+            },
+            iced::Event::Mouse(mouse::Event::CursorLeft) => {
+                cleanup.extend(Self::cancel_pointer(state));
+            },
+            iced::Event::Keyboard(iced::keyboard::Event::ModifiersChanged(
+                modifiers,
+            )) if !state.is_focused() => {
+                // Wheel and Shift-selection target hover, independently of
+                // keyboard focus. Track global modifiers without sending input.
+                state.keyboard_modifiers = *modifiers;
             },
             _ => {},
         }
 
         let is_cursor_in_layout = self.is_cursor_in_layout(cursor, layout);
-        self.handle_focus(event, state, is_cursor_in_layout);
+        let captured = Self::has_pointer_capture(state) || !cleanup.is_empty();
+        let mouse_blocked = shell.is_event_captured() && !captured;
+        if matches!(
+            event,
+            iced::Event::Mouse(mouse::Event::ButtonPressed(
+                mouse::Button::Left
+            ))
+        ) && !is_cursor_in_layout
+        {
+            cleanup.extend(Self::cancel_pointer(state));
+        }
+        // Row dispatches to every child with one shared Shell. An earlier
+        // child's capture must not suppress this pane's outside-click unfocus
+        // or release cleanup. A consumed inside click must not acquire focus.
+        if !shell.is_event_captured() || !is_cursor_in_layout {
+            self.handle_focus(event, state, is_cursor_in_layout);
+        }
         let focused =
             state.is_focused() && self.term.backend.window_focus.is_focused();
         if focused != self.term.backend.is_focused() {
@@ -768,52 +603,58 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
             ));
         }
 
+        let ime_command =
+            self.update_ime(state, event, layout, viewport, shell);
         let commands = match event {
-            iced::Event::Mouse(mouse_event) if is_cursor_in_layout => self
-                .handle_mouse_event(
+            iced::Event::InputMethod(_) => ime_command.into_iter().collect(),
+            iced::Event::Mouse(mouse_event)
+                if !mouse_blocked
+                    && (is_cursor_in_layout
+                        || (captured
+                            && matches!(
+                                mouse_event,
+                                mouse::Event::CursorMoved { .. }
+                                    | mouse::Event::ButtonReleased(_)
+                            ))) =>
+            {
+                self.handle_mouse_event(
                     state,
                     layout.position(),
-                    cursor.position().unwrap(),
+                    cursor.position().unwrap_or_else(|| {
+                        Self::fallback_cursor(state, layout.position())
+                    }),
                     mouse_event,
-                ),
+                )
+            },
             iced::Event::Keyboard(keyboard_event) => {
-                if !state.is_focused() {
+                if !focused {
                     return;
                 }
 
-                match self.handle_keyboard_event(
+                self.handle_keyboard_event(
                     state,
                     clipboard,
                     keyboard_event,
-                ) {
-                    KeyboardOutcome::Ignored => {},
-                    KeyboardOutcome::Consumed => shell.capture_event(),
-                    KeyboardOutcome::Command(command) => {
-                        shell.capture_event();
-                        shell
-                            .publish(Event::BackendCall(self.term.id, command));
-                    },
-                }
-                return;
+                    shell,
+                )
+                .into_iter()
+                .collect()
             },
             _ => Vec::new(),
         };
 
-        // Releases outside the pane still end its drag. Do not let a later
-        // cursor re-entry extend a selection after the button was released.
-        if matches!(
-            event,
-            iced::Event::Mouse(mouse::Event::ButtonReleased(
-                mouse::Button::Left
-            ))
-        ) {
-            state.is_dragged = false;
-        }
-        if !commands.is_empty() {
+        if !commands.is_empty()
+            || !cleanup.is_empty()
+            || (is_cursor_in_layout
+                && matches!(
+                    event,
+                    iced::Event::Mouse(mouse::Event::WheelScrolled { .. })
+                ))
+        {
             shell.capture_event();
         }
 
-        for cmd in commands {
+        for cmd in cleanup.into_iter().chain(commands) {
             shell.publish(Event::BackendCall(self.term.id, cmd));
         }
     }
@@ -831,7 +672,8 @@ impl Widget<Event, Theme, iced::Renderer> for TerminalView<'_> {
         let terminal_mode =
             self.term.backend.renderable_content().terminal_mode;
         if self.is_cursor_in_layout(cursor, layout)
-            && !terminal_mode.contains(TermMode::SGR_MOUSE)
+            && (!terminal_mode.intersects(TermMode::MOUSE_MODE)
+                || state.keyboard_modifiers.shift())
         {
             cursor_mode = iced_core::mouse::Interaction::Text;
         }
@@ -850,20 +692,15 @@ impl<'a> From<TerminalView<'a>> for Element<'a, Event, Theme, iced::Renderer> {
     }
 }
 
-enum KeyboardOutcome {
-    Ignored,
-    Consumed,
-    Command(Command),
-}
-
 #[derive(Debug, Clone)]
 struct TerminalViewState {
     terminal_id: u64,
+    ime: std::sync::Weak<crate::ime::Session>,
     glyphs: std::cell::RefCell<glyphs::Cache>,
     focus: bool,
     is_dragged: bool,
     last_click: Option<mouse::Click>,
-    scroll_pixels: f32,
+    pointer: pointer::State,
     keyboard_modifiers: Modifiers,
     bounds: Option<Rectangle>,
     mouse_position_on_grid: TerminalGridPoint,
@@ -873,11 +710,12 @@ impl TerminalViewState {
     fn new(terminal_id: u64) -> Self {
         Self {
             terminal_id,
+            ime: Default::default(),
             glyphs: Default::default(),
             focus: false,
             is_dragged: false,
             last_click: None,
-            scroll_pixels: 0.0,
+            pointer: pointer::State::default(),
             keyboard_modifiers: Modifiers::empty(),
             bounds: None,
             mouse_position_on_grid: TerminalGridPoint::default(),
@@ -887,7 +725,7 @@ impl TerminalViewState {
     fn reset_pointer(&mut self) {
         self.is_dragged = false;
         self.last_click = None;
-        self.scroll_pixels = 0.0;
+        self.pointer = pointer::State::default();
         self.mouse_position_on_grid = TerminalGridPoint::default();
     }
 }
@@ -902,6 +740,9 @@ impl operation::Focusable for TerminalViewState {
     }
 
     fn unfocus(&mut self) {
+        if let Some(ime) = self.ime.upgrade() {
+            ime.cancel();
+        }
         self.focus = false;
         self.reset_pointer();
         self.keyboard_modifiers = Modifiers::empty();
@@ -976,436 +817,4 @@ impl BackgroundRect {
 mod state_tests;
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    mod handle_left_button_pressed_tests {
-        use super::*;
-        use alacritty_terminal::index::{Column, Line};
-
-        #[test]
-        fn handles_mouse_mode_with_left_click() {
-            let mut state = TerminalViewState::new(0);
-            let terminal_mode = TermMode::MOUSE_MODE;
-            let layout_position = Point { x: 5.0, y: 5.0 };
-            let cursor_position = Point { x: 100.0, y: 150.0 };
-            let mut commands = Vec::new();
-            let _modifiers = Modifiers::empty();
-
-            TerminalView::handle_left_button_pressed(
-                &mut state,
-                &terminal_mode,
-                cursor_position,
-                layout_position,
-                &mut commands,
-            );
-
-            assert_eq!(commands.len(), 1);
-            assert!(matches!(
-                commands[0],
-                Command::MouseReport(
-                    MouseButton::LeftButton,
-                    _modifiers,
-                    TerminalGridPoint {
-                        line: Line(0),
-                        column: Column(0),
-                    },
-                    true,
-                )
-            ));
-            assert!(state.is_dragged);
-        }
-
-        #[test]
-        fn starts_simple_selection_with_left_click() {
-            let terminal_mode = TermMode::SGR_MOUSE;
-            let cursor_position = Point { x: 200.0, y: 150.0 };
-            let layout_position = Point { x: 50.0, y: 50.0 };
-
-            let cases = vec![
-                SelectionType::Simple,
-                SelectionType::Semantic,
-                SelectionType::Lines,
-            ];
-
-            for _selection_type in cases {
-                let mut state = TerminalViewState::new(0);
-                state.keyboard_modifiers = Modifiers::SHIFT;
-                let mut commands = Vec::new();
-
-                TerminalView::handle_left_button_pressed(
-                    &mut state,
-                    &terminal_mode,
-                    cursor_position,
-                    layout_position,
-                    &mut commands,
-                );
-
-                assert_eq!(commands.len(), 1);
-                assert!(matches!(
-                    commands[0],
-                    Command::SelectStart(_selection_type, (150.0, 100.0))
-                ),);
-                assert!(state.is_dragged);
-            }
-        }
-    }
-
-    mod handle_cursor_moved_tests {
-        use alacritty_terminal::index::{Column, Line};
-
-        use super::*;
-
-        #[test]
-        fn updates_mouse_position_on_grid() {
-            let mut state = TerminalViewState::new(0);
-            let terminal_content = RenderableContent::default();
-            let mut commands = Vec::new();
-            let cases = vec![
-                (
-                    Point { x: 0.0, y: 0.0 },
-                    Point { x: 1.0, y: 1.0 },
-                    TerminalGridPoint {
-                        line: Line(1),
-                        column: Column(1),
-                    },
-                ),
-                (
-                    Point { x: 0.0, y: 0.0 },
-                    Point { x: 2.0, y: 2.0 },
-                    TerminalGridPoint {
-                        line: Line(2),
-                        column: Column(2),
-                    },
-                ),
-                (
-                    Point { x: 0.0, y: 0.0 },
-                    Point { x: 30.0, y: 2.0 },
-                    TerminalGridPoint {
-                        line: Line(2),
-                        column: Column(30),
-                    },
-                ),
-                (
-                    Point { x: 10.0, y: 0.0 },
-                    Point { x: 30.0, y: 2.0 },
-                    TerminalGridPoint {
-                        line: Line(2),
-                        column: Column(20),
-                    },
-                ),
-                (
-                    Point { x: 10.0, y: 10.0 },
-                    Point { x: 30.0, y: 2.0 },
-                    TerminalGridPoint {
-                        line: Line(0),
-                        column: Column(20),
-                    },
-                ),
-            ];
-
-            for (layout_position, cursor_position, expected) in cases {
-                TerminalView::handle_cursor_moved(
-                    &mut state,
-                    &terminal_content,
-                    &cursor_position,
-                    layout_position,
-                    &mut commands,
-                );
-
-                assert_eq!(state.mouse_position_on_grid, expected);
-            }
-        }
-
-        #[test]
-        fn generates_drag_update_command_when_dragged() {
-            let mut state = TerminalViewState::new(0);
-            state.is_dragged = true; // Simulate an ongoing drag operation
-            let terminal_content = RenderableContent::default();
-            let layout_position = Point { x: 5.0, y: 5.0 };
-            let cursor_position = Point { x: 100.0, y: 150.0 };
-            let mut commands = Vec::new();
-
-            TerminalView::handle_cursor_moved(
-                &mut state,
-                &terminal_content,
-                &cursor_position,
-                layout_position,
-                &mut commands,
-            );
-
-            assert_eq!(commands.len(), 1);
-            assert!(matches!(
-                commands[0],
-                Command::SelectUpdate((95.0, 145.0))
-            ));
-        }
-
-        #[test]
-        fn generates_drag_update_command_when_dragged_in_mouse_motion_mode() {
-            let mut state = TerminalViewState::new(0);
-            state.is_dragged = true; // Simulate an ongoing drag operation
-            let terminal_content = RenderableContent {
-                terminal_mode: TermMode::MOUSE_MOTION,
-                ..RenderableContent::default()
-            };
-            let layout_position = Point { x: 5.0, y: 5.0 };
-            let cursor_position = Point { x: 100.0, y: 150.0 };
-            let mut commands = Vec::new();
-            let _modifiers = Modifiers::empty();
-
-            TerminalView::handle_cursor_moved(
-                &mut state,
-                &terminal_content,
-                &cursor_position,
-                layout_position,
-                &mut commands,
-            );
-
-            assert_eq!(commands.len(), 1);
-            assert!(matches!(
-                commands[0],
-                Command::MouseReport(
-                    MouseButton::LeftMove,
-                    _modifiers,
-                    TerminalGridPoint {
-                        line: Line(49),
-                        column: Column(79),
-                    },
-                    true,
-                )
-            ));
-        }
-
-        #[test]
-        fn generates_drag_update_command_when_dragged_in_srg_mode_with_key_mods(
-        ) {
-            let mut state = TerminalViewState::new(0);
-            state.keyboard_modifiers = Modifiers::SHIFT;
-            state.is_dragged = true; // Simulate an ongoing drag operation
-            let terminal_content = RenderableContent {
-                terminal_mode: TermMode::SGR_MOUSE,
-                ..RenderableContent::default()
-            };
-            let layout_position = Point { x: 5.0, y: 5.0 };
-            let cursor_position = Point { x: 100.0, y: 150.0 };
-            let mut commands = Vec::new();
-
-            TerminalView::handle_cursor_moved(
-                &mut state,
-                &terminal_content,
-                &cursor_position,
-                layout_position,
-                &mut commands,
-            );
-
-            assert_eq!(commands.len(), 1);
-            assert!(matches!(
-                commands[0],
-                Command::SelectUpdate((95.0, 145.0))
-            ));
-        }
-
-        #[test]
-        fn generates_drag_update_and_link_open() {
-            let mut state = TerminalViewState::new(0);
-            state.keyboard_modifiers = Modifiers::COMMAND;
-            state.is_dragged = true; // Simulate an ongoing drag operation
-            let terminal_content = RenderableContent {
-                terminal_mode: TermMode::SGR_MOUSE,
-                ..RenderableContent::default()
-            };
-            let layout_position = Point { x: 5.0, y: 5.0 };
-            let cursor_position = Point { x: 100.0, y: 150.0 };
-            let mut commands = Vec::new();
-
-            TerminalView::handle_cursor_moved(
-                &mut state,
-                &terminal_content,
-                &cursor_position,
-                layout_position,
-                &mut commands,
-            );
-
-            assert_eq!(commands.len(), 2);
-            assert!(matches!(
-                commands[0],
-                Command::SelectUpdate((95.0, 145.0))
-            ));
-            assert!(matches!(
-                commands[1],
-                Command::ProcessLink(
-                    LinkAction::Hover,
-                    TerminalGridPoint {
-                        line: Line(49),
-                        column: Column(79),
-                    },
-                )
-            ));
-        }
-    }
-
-    mod handle_button_released_tests {
-        use super::*;
-        use alacritty_terminal::index::{Column, Line};
-
-        #[test]
-        fn mouse_mode_activated() {
-            let mut state = TerminalViewState::new(0);
-            let terminal_mode = TermMode::MOUSE_MODE;
-            let bindings = BindingsLayout::new();
-            let mut commands = Vec::new();
-            let _modifiers = Modifiers::empty();
-
-            TerminalView::handle_button_released(
-                &mut state,
-                &terminal_mode,
-                &bindings,
-                &mut commands,
-            );
-
-            assert_eq!(commands.len(), 1);
-            assert!(matches!(
-                commands[0],
-                Command::MouseReport(
-                    MouseButton::LeftButton,
-                    _modifiers,
-                    TerminalGridPoint {
-                        line: Line(0),
-                        column: Column(0)
-                    },
-                    false
-                )
-            ));
-        }
-
-        #[test]
-        fn default_mouse_release_never_opens_a_link() {
-            let mut state = TerminalViewState::new(0);
-            state.keyboard_modifiers = Modifiers::COMMAND;
-            let terminal_mode = TermMode::MOUSE_MODE;
-            let bindings = BindingsLayout::new();
-            let mut commands = Vec::new();
-            let _modifiers = Modifiers::empty();
-
-            TerminalView::handle_button_released(
-                &mut state,
-                &terminal_mode,
-                &bindings,
-                &mut commands,
-            );
-
-            assert_eq!(commands.len(), 1);
-            assert!(matches!(
-                commands[0],
-                Command::MouseReport(
-                    MouseButton::LeftButton,
-                    _modifiers,
-                    TerminalGridPoint {
-                        line: Line(0),
-                        column: Column(0)
-                    },
-                    false
-                )
-            ));
-        }
-
-        #[test]
-        fn default_non_mouse_release_never_opens_a_link() {
-            let mut state = TerminalViewState::new(0);
-            state.keyboard_modifiers = Modifiers::COMMAND;
-            state.mouse_position_on_grid = TerminalGridPoint {
-                line: Line(4),
-                column: Column(10),
-            };
-            let terminal_mode = TermMode::empty(); // Assume SGR_MOUSE mode doesn't affect link opening
-            let bindings = BindingsLayout::new();
-            let mut commands = Vec::new();
-
-            TerminalView::handle_button_released(
-                &mut state,
-                &terminal_mode,
-                &bindings,
-                &mut commands,
-            );
-
-            assert!(commands.is_empty());
-        }
-    }
-
-    mod handle_wheel_scrolled_tests {
-        use super::*;
-        use crate::font::TermFont;
-        use crate::settings::FontSettings;
-
-        #[test]
-        fn scroll_with_lines_downward() {
-            let mut state = TerminalViewState::new(0);
-            let font = TermFont::new(FontSettings::default());
-            let mut commands = Vec::new();
-
-            TerminalView::handle_wheel_scrolled(
-                &mut state,
-                ScrollDelta::Lines { y: 3.0, x: 0.0 }, // Scroll down 3 lines
-                &font.measure,
-                &mut commands,
-            );
-
-            assert_eq!(commands.len(), 1);
-            assert!(matches!(commands[0], Command::Scroll(3)));
-        }
-
-        #[test]
-        fn scroll_with_lines_upward() {
-            let mut state = TerminalViewState::new(0);
-            let font = TermFont::new(FontSettings::default());
-            let mut commands = Vec::new();
-
-            TerminalView::handle_wheel_scrolled(
-                &mut state,
-                ScrollDelta::Lines { y: -2.0, x: 0.0 },
-                &font.measure,
-                &mut commands,
-            );
-
-            assert_eq!(commands.len(), 1);
-            assert!(matches!(commands[0], Command::Scroll(-2)));
-        }
-
-        #[test]
-        fn scroll_with_pixels_accumulating_downward() {
-            let mut state = TerminalViewState::new(0);
-            let font = TermFont::new(FontSettings::default());
-            let mut commands = Vec::new();
-
-            TerminalView::handle_wheel_scrolled(
-                &mut state,
-                ScrollDelta::Pixels { y: 45.0, x: 0.0 },
-                &font.measure,
-                &mut commands,
-            );
-
-            assert_eq!(commands.len(), 1);
-            assert!(matches!(commands[0], Command::Scroll(-2)));
-            assert_eq!(state.scroll_pixels, -8.600002);
-        }
-
-        #[test]
-        fn scroll_with_pixels_accumulating_upward() {
-            let mut state = TerminalViewState::new(0);
-            let font = TermFont::new(FontSettings::default());
-            let mut commands = Vec::new();
-
-            TerminalView::handle_wheel_scrolled(
-                &mut state,
-                ScrollDelta::Pixels { y: -60.0, x: 0.0 },
-                &font.measure,
-                &mut commands,
-            );
-
-            assert_eq!(commands.len(), 1);
-            assert!(matches!(commands[0], Command::Scroll(3)));
-            assert_eq!(state.scroll_pixels, 5.4000034);
-        }
-    }
-}
+mod pointer_tests;

@@ -1,0 +1,2 @@
+session=190101, Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }
+session=190102, Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }

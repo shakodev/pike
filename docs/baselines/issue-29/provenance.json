@@ -1,0 +1,139 @@
+{
+  "original_base": "b29a7756f06007f4b6f6872f93b2d2038b8519fd",
+  "merged_base": "52f5f90675c11ce15d19a11554c9105f803056a3",
+  "source_head": "b45c4cd726756444617922a07be63dcf33e0e105",
+  "integration_commit": "6a8b0296b19b524bb6760f0fe9c7aa325c596c8d",
+  "source_files": {
+    "examples/live_tabs.rs": {
+      "git_blob": "c46ee4031316331e6f00c984ec41b27029c3d928",
+      "sha256": "3004d2913e7db47bf5bfcf1d1ed708e7de6723ab03048fd9b82d1812e64be393"
+    },
+    "examples/support/live_tabs_widget.rs": {
+      "git_blob": "adcd4ee7eff6a2fde38d28129fe4b3600652055b",
+      "sha256": "f7e4cdd51418787a5fb748476dfaf2dcb12b83f776fb7428fb6ebf589195b0ec"
+    },
+    "src/app.rs": {
+      "git_blob": "66ef9059be0cc604222ebebf02022fec4a8f5515",
+      "sha256": "164cbba13ed9200af373fd18b2365ffdfb36fb11bb361a90516a2072745faa8a"
+    },
+    "src/app/resize.rs": {
+      "git_blob": "b12f32213fc7dde5d8f47c66a2b7a2a18dfc9f23",
+      "sha256": "f553fe5c0edb1ed435518521123fb34bb3ada4e44e93dae30da10d56f6d9cf48"
+    },
+    "src/app/startup.rs": {
+      "git_blob": "f0d6adb41fd35b0f55993b19eae1dd9905f67762",
+      "sha256": "cd17a129cfbbf00663c42050ae2e4a0ab52d4c74633ab56669ecf9119faaec81"
+    },
+    "src/app/tabs.rs": {
+      "git_blob": "db0ee5813bca9200d502df92c159cd698611128b",
+      "sha256": "0d3ece9fe1dd1bc2b3947b0adc9146b7e9a8f4a57da8c4ce8b7a91842b199a34"
+    },
+    "src/app/tests.rs": {
+      "git_blob": "93cf4d1ed9271a9a9943cdce316b480c1bac96eb",
+      "sha256": "5935dfd302bf0fd95317f212eb721966b37519003815896d4be4e627e1e26391"
+    },
+    "src/app/tests/tabs.rs": {
+      "git_blob": "e95c0dbe8fd588f440bb0c3c757ecb4ccb5d4292",
+      "sha256": "8bd7f4d23479d1573dc20f3856e0d7ab709c53e8ef74a9e5f35c9fbf713be4d8"
+    },
+    "src/app/view.rs": {
+      "git_blob": "0f1abed8d16761b13b281524ecc959603bebdef5",
+      "sha256": "6c09b7a4985ea263e015f052c302197a5370258341fb10c6b793ea6608be535f"
+    },
+    "src/layout.rs": {
+      "git_blob": "14515b51cd5428e8a64a5abdeab0802187be1505",
+      "sha256": "2d3692b43a1a5853a693eabb42fb868e81cbda12107f90e53ae1aae7736c4e1a"
+    },
+    "src/lib.rs": {
+      "git_blob": "8dbf1d59e5268db776a31b247673bc1208755454",
+      "sha256": "3fec36a5c65144c596eac5b97129bfb8d3f45bacb81485674e2e45e3381ed236"
+    },
+    "src/tabs.rs": {
+      "git_blob": "21e9731c95edacdf71d91065fcc3fecad456e673",
+      "sha256": "c4867cbb66e8d4655cf0d3de43b1cca949597435f8861db08c6a307c4f53bc5f"
+    },
+    "src/tabs/tests.rs": {
+      "git_blob": "e1e4be249b80aecc2050bcb1aeebe988db6c906c",
+      "sha256": "f87577df37819b912ff7e15e79aca5b4f5b1f6e0f4af517fdcd2da0a69ee706e"
+    },
+    "src/terminal.rs": {
+      "git_blob": "4b7cfeb2827efea3e94d49451ac900e1f6f59ac0",
+      "sha256": "0d5b5e5233519bd7d7d18186872a8aede5683655a111dbda78d49e800c7f9e0d"
+    },
+    "src/workspace.rs": {
+      "git_blob": "a115c330c988030b8959c8419089934783bb4b14",
+      "sha256": "105f5cd4a2f3d9aff045f046969ad616fd689365f7a760b0a30aea53098cf127"
+    }
+  },
+  "fixture_binary_sha256": "937ea8fb91ddd55c8bdf1850758d2b5cf565cacb89d512782cc2f8a2277a7f67",
+  "host": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+  "renderer": "default wgpu",
+  "native_windows_execution": false,
+  "native_fixture": {
+    "result": "passed",
+    "child_pids": [
+      44617,
+      44620,
+      44628,
+      44631
+    ],
+    "activation_dispatch_us": [
+      223,
+      234,
+      234,
+      250,
+      233,
+      224,
+      232
+    ],
+    "physical_input": false
+  },
+  "receipts_sha256": {
+    "clippy.log": "2f9ef07f8d108700b7ccd8c57d2dc7c5935130d8c6baaa006d450d61a0f15d5c",
+    "commands.json": "44d3535be06c8bf066ab0e147ebc2e4fdcc9bfe3206c60073d29dc57d6eb963a",
+    "diff-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fixture-build.log": "a5f5abd534f18f2eeb19b4e5ebca3586e1d6b1263634388324deadf6493775c2",
+    "format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-adapter-neighbors.log": "f8e0212c602e6a1fc92c9702b7685fd3f8e4ed956715547bdccb74dc5bd511c2",
+    "native-development-1/44617/cwd.txt": "feb02bfe0813d832013b0bdf2fc5c0a279efc3557aeb0f77b04edc5db43590c0",
+    "native-development-1/44617/fixture-input.txt": "e3746ab18be984e3c6c16468716acb746399ceacbcb4d2985759b6789c4f5e14",
+    "native-development-1/44617/profile.txt": "32d91847eed001469006e68c6212f8e13a8a081b08ebf17a5f0a0e819ab90d5c",
+    "native-development-1/44617/ready.txt": "b24d6d33736ecd5604a4b17bc9c6481039fac362bb7df044ef1c10a2bfd21db6",
+    "native-development-1/44620/background.go": "4cd0e21a9a0795a14ec9aa5f0e7d1abff0492565770e43eafdf1e3e8afed1f33",
+    "native-development-1/44620/background.txt": "4bd6edae02098ecfb3a5f311249693ae44685638a047cac5d2e099e70892f161",
+    "native-development-1/44620/cwd.txt": "feb02bfe0813d832013b0bdf2fc5c0a279efc3557aeb0f77b04edc5db43590c0",
+    "native-development-1/44620/exit.go": "4cd0e21a9a0795a14ec9aa5f0e7d1abff0492565770e43eafdf1e3e8afed1f33",
+    "native-development-1/44620/fixture-input.txt": "e3746ab18be984e3c6c16468716acb746399ceacbcb4d2985759b6789c4f5e14",
+    "native-development-1/44620/input.bin": "e8ff255252eea550dee4ef5912c37daab1c1d63ae3d2b3bb2f88ef55f8c2b1dd",
+    "native-development-1/44620/profile.txt": "32d91847eed001469006e68c6212f8e13a8a081b08ebf17a5f0a0e819ab90d5c",
+    "native-development-1/44620/ready.txt": "b24d6d33736ecd5604a4b17bc9c6481039fac362bb7df044ef1c10a2bfd21db6",
+    "native-development-1/44628/cwd.txt": "feb02bfe0813d832013b0bdf2fc5c0a279efc3557aeb0f77b04edc5db43590c0",
+    "native-development-1/44628/fixture-input.txt": "e3746ab18be984e3c6c16468716acb746399ceacbcb4d2985759b6789c4f5e14",
+    "native-development-1/44628/profile.txt": "32d91847eed001469006e68c6212f8e13a8a081b08ebf17a5f0a0e819ab90d5c",
+    "native-development-1/44628/ready.txt": "b24d6d33736ecd5604a4b17bc9c6481039fac362bb7df044ef1c10a2bfd21db6",
+    "native-development-1/44631/cwd.txt": "feb02bfe0813d832013b0bdf2fc5c0a279efc3557aeb0f77b04edc5db43590c0",
+    "native-development-1/44631/fixture-input.txt": "e3746ab18be984e3c6c16468716acb746399ceacbcb4d2985759b6789c4f5e14",
+    "native-development-1/44631/input.bin": "1d720afc50d28ca787041facb69082a55fe52a11072cdb2a9dba4f8afe5493aa",
+    "native-development-1/44631/profile.txt": "32d91847eed001469006e68c6212f8e13a8a081b08ebf17a5f0a0e819ab90d5c",
+    "native-development-1/44631/ready.txt": "b24d6d33736ecd5604a4b17bc9c6481039fac362bb7df044ef1c10a2bfd21db6",
+    "native-development-1/completed.txt": "284d1e8c4918248233df17642bbb940c001e1fa856c18aab86ba6dbe7813eb13",
+    "native-development-1/events.txt": "17934e2b235e1fddf507cbccb038b738fd21aae3108b404a0789890423e67269",
+    "native-development-1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-host-neighbors.log": "a4c4f5ac3d6b6fd6f143a57ddec07ccf887a6c09997a44ac8850fa2d304ad227",
+    "native-joint-tab-tests.log": "70cd3e6314d538b37f7e4ebf2f66d47346bf4d19d1e564e9c6e3ddcdc6240fdd",
+    "native-tab-tests.log": "5236ef26fa5f68194944faef945d808b8915fa321197c9a996e2db25abf6adf4",
+    "windows-cross-clippy.log": "695c5368816029e30f0a457840daca6f26b351a497c1010eafd42a504eef4d46"
+  },
+  "unchanged_from_merged_base": [
+    "Cargo.toml",
+    "Cargo.lock",
+    "vendor",
+    "src/session.rs",
+    "src/launch.rs",
+    "src/app/resize/capture.rs",
+    "src/layout/resize.rs",
+    "src/layout/resize/tests.rs"
+  ],
+  "later_publication_delta": "documentation and bounded synthetic artifacts only",
+  "actions": "off"
+}

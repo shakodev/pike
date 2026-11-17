@@ -1,0 +1,5 @@
+ordinary-space: expected=[32], actual=[[32]], captured=true
+dead-key-space: expected=[194, 180], actual=[[194, 180]], captured=true
+character-altgr: expected=[64], actual=[[64]], captured=true
+named-space-altgr: expected=[194, 160], actual=[], captured=false
+named-space-shift-altgr: expected=[194, 160], actual=[], captured=false

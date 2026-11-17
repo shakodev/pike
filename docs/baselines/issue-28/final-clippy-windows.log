@@ -1,0 +1,106 @@
+    Blocking waiting for file lock on build directory
+    Checking bytemuck v1.25.2
+    Checking smallvec v1.16.4
+    Checking euclid v0.22.14
+   Compiling khronos_api v3.1.0
+    Checking half v2.7.1
+    Checking windows-result v0.2.0
+   Compiling xml-rs v0.8.29
+    Checking windows-strings v0.1.0
+    Checking font-types v0.12.7
+    Checking font-types v0.10.1
+   Compiling windows-implement v0.58.0
+   Compiling gl_generator v0.14.0
+   Compiling windows-interface v0.58.0
+   Compiling thiserror v1.0.69
+    Checking read-fonts v0.41.0
+   Compiling glutin_wgl_sys v0.6.1
+    Checking windows-core v0.58.0
+    Checking read-fonts v0.35.0
+    Checking parking_lot_core v0.9.12
+    Checking lyon_geom v1.0.20
+    Checking libloading v0.8.9
+   Compiling naga v27.0.3
+   Compiling thiserror-impl v1.0.69
+   Compiling khronos-egl v6.0.0
+   Compiling ash v0.38.0+1.3.281
+    Checking hashbrown v0.17.1
+    Checking foldhash v0.2.0
+    Checking equivalent v1.0.3
+    Checking bit-vec v0.8.0
+    Checking foldhash v0.1.5
+    Checking hashbrown v0.15.5
+    Checking bit-set v0.8.0
+    Checking indexmap v2.14.2
+    Checking hashbrown v0.16.1
+    Checking skrifa v0.44.0
+    Checking windows v0.58.0
+    Checking lyon_path v1.0.19
+    Checking parking_lot v0.12.5
+    Checking codespan-reporting v0.12.0
+   Compiling wgpu-hal v27.0.4
+    Checking gpu-alloc-types v0.3.1
+    Checking spirv v0.3.0+sdk-1.3.268.0
+    Checking gpu-descriptor-types v0.2.0
+    Checking unicode-ident v1.0.27
+    Checking hexf-parse v0.2.1
+    Checking presser v0.3.1
+    Checking swash v0.2.10
+    Checking gpu-descriptor v0.3.2
+    Checking gpu-alloc v0.6.2
+    Checking harfrust v0.3.2
+    Checking skrifa v0.37.0
+    Checking gpu-allocator v0.27.0
+    Checking wgpu-types v27.0.1
+    Checking ordered-float v5.5.0
+    Checking range-alloc v0.1.5
+    Checking renderdoc-sys v1.1.0
+    Checking glow v0.16.0
+    Checking profiling v1.0.18
+    Checking cosmic-text v0.15.0
+   Compiling wgpu-core v27.0.3
+   Compiling litrs v1.0.1
+   Compiling wgpu v27.0.1
+   Compiling document-features v0.2.12
+    Checking svg_fmt v0.4.5
+    Checking iced_graphics v0.14.0
+    Checking float_next_after v1.0.0
+    Checking etagere v0.2.15
+    Checking lyon_tessellation v1.0.23
+    Checking lyon_algorithms v1.0.22
+    Checking lru v0.16.4
+    Checking guillotiere v0.6.2
+    Checking windows-sys v0.61.2
+    Checking lyon v1.0.19
+    Checking iced_program v0.14.0
+    Checking windows-sys v0.59.0
+    Checking iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking open v5.4.5
+    Checking polling v3.11.0
+    Checking home v0.5.12
+    Checking miow v0.6.1
+    Checking alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/vendor/alacritty_terminal)
+    Checking wgpu-core-deps-windows-linux-android v27.0.0
+    Checking cryoglyph v0.1.0
+    Checking iced_wgpu v0.14.0
+    Checking iced_renderer v0.14.0
+    Checking iced_widget v0.14.2
+    Checking iced v0.14.0
+    Checking iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/vendor/iced_term)
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 21.13s

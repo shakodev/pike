@@ -1,0 +1,119 @@
+{
+  "env": {
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_TARGET_DIR": "target"
+  },
+  "renderer": "default renderer-wgpu",
+  "commands": [
+    {
+      "command": "cargo test --offline --locked -p pike --lib tabs::tests",
+      "exit_code": 0,
+      "result": "ca4b9aa: 7 passed"
+    },
+    {
+      "command": "cargo test --offline --locked -p pike --lib workspace::tab_tests",
+      "exit_code": 0,
+      "result": "ca4b9aa: 4 passed"
+    },
+    {
+      "command": "cargo test --offline --locked -p pike --lib tab_strip::tests",
+      "exit_code": 0,
+      "result": "ca4b9aa: 1 passed"
+    },
+    {
+      "command": "cargo test --offline --locked -p pike --lib tab_strip::reveal::tests::overflow_reveal_uses_measured_rows_and_current_scroll_and_rejects_stale_modal_ids -- --exact",
+      "exit_code": 0,
+      "result": "e6bd4cd: 1 passed"
+    },
+    {
+      "command": "python3 docs/baselines/issue-30/clipping/run_probe.py",
+      "exit_code": 0,
+      "result": "e6bd4cd product: zero outside-label pixels; original script retained as run_probe_historical.py"
+    },
+    {
+      "command": "cargo test --offline --locked -p pike --lib app::tests::tab_management",
+      "exit_code": 101,
+      "result": "development: 1 passed, 1 test expectation failed; 256-scalar draft includes two editable leading spaces"
+    },
+    {
+      "command": "cargo test --offline --locked -p pike --lib app::tests::tab_management::rename_cancel_and_stale_dialog_actions_preserve_active_owner_and_pending_intent -- --exact",
+      "exit_code": 0,
+      "result": "1 passed; corrected expected saved length254 after trimming two draft spaces"
+    },
+    {
+      "command": "cargo test --offline --locked -p pike --lib title_",
+      "exit_code": 0,
+      "result": "4 affected title tests passed"
+    },
+    {
+      "command": "cargo test --offline --locked -p pike --lib app::commands::",
+      "exit_code": 0,
+      "result": "9 passed"
+    },
+    {
+      "command": "cargo test --offline --locked -p pike --lib app::tests::tab_management::app_blur_without_widget_events_retires_editor_receipts_and_preserves_the_draft -- --exact",
+      "exit_code": 0,
+      "result": "1 passed; app-blur-green.log"
+    },
+    {
+      "command": "cargo build --offline --locked -p pike --example tab_management",
+      "exit_code": 0,
+      "result": "native-development-4-build.log"
+    },
+    {
+      "command": "target/debug/examples/tab_management docs/baselines/issue-30/native-development-1",
+      "exit_code": 1,
+      "result": "fixture sampling/setup and hidden renderable-content oracle failure retained"
+    },
+    {
+      "command": "target/debug/examples/tab_management docs/baselines/issue-30/native-development-2",
+      "exit_code": 1,
+      "result": "hidden renderable-content oracle failure retained after wait correction"
+    },
+    {
+      "command": "target/debug/examples/tab_management docs/baselines/issue-30/native-development-3",
+      "exit_code": 1,
+      "result": "real Host1200x800 / pointer viewport1100x720 mismatch retained"
+    },
+    {
+      "command": "target/debug/examples/tab_management docs/baselines/issue-30/native-development-4",
+      "exit_code": 0,
+      "result": "12 tabs, 13 distinct children; complete native synthetic actual-App acceptance passed"
+    },
+    {
+      "command": "cargo test --offline --locked -p pike --lib app::tests::tab_management::tab_dialogs_cancel_held_terminal_ime_clones_before_and_after_dismissal -- --ignored --exact --test-threads=1",
+      "exit_code": 0,
+      "result": "1 native graphics/PTY test passed; dialog-terminal-ime-green.log"
+    },
+    {
+      "command": "cargo clippy --offline --locked -p pike --lib --bin pike --tests --example tab_management -- -D warnings",
+      "exit_code": 0,
+      "result": "final-clippy.log"
+    },
+    {
+      "command": "cargo clippy --offline --locked -p pike --target x86_64-pc-windows-msvc --lib --bin pike --tests --example tab_management -- -D warnings",
+      "exit_code": 0,
+      "result": "final-windows-cross-clippy.log; compile only"
+    },
+    {
+      "command": "cargo clippy --offline --locked -p pike --example tab_management --example command_routing -- -D warnings",
+      "exit_code": 0,
+      "result": "canonical-viewport-clippy-green.log; mechanical common-constant extraction"
+    },
+    {
+      "command": "cargo clippy --offline --locked -p pike --target x86_64-pc-windows-msvc --example tab_management -- -D warnings",
+      "exit_code": 0,
+      "result": "canonical-viewport-windows-cross-clippy.log; compile only"
+    },
+    {
+      "command": "cargo fmt --package pike -- --check",
+      "exit_code": 0,
+      "result": "final-format.log and canonical-viewport-format.log"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "final-diff-check.log; checked again after report edits"
+    }
+  ]
+}

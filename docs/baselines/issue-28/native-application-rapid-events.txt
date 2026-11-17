@@ -1,0 +1,4 @@
+starting session=1 entries=1
+attached session=1 font_measurements=1
+retained session=1 code=Some(7) final_sentinel=true completion=Completion { reason: ChildExit, exit_code: Some(7), output_drained: true }
+shutdown entries=0

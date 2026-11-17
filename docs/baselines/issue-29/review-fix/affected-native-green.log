@@ -1,0 +1,46 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.83s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-8047c988abb10012)
+
+running 21 tests
+test app::tests::closing::modal_accepts_launch_and_natural_completion_without_closing_or_focusing_a_target ... ok
+test app::tests::resize::modal_and_frozen_layout_jointly_gate_resize_but_keep_background_delivery ... ok
+test app::tests::resize::resize_minimize_restore_font_and_repeated_dimensions_keep_native_session ... ok
+test app::tests::split::failed_split_can_retry_in_place_and_limit_or_geometry_refusal_is_actionable ... ok
+test app::tests::split::host_geometry_uses_measured_cells_and_accounts_for_status_chrome ... ok
+test app::tests::split::host_session_limit_refusal_keeps_original_and_explains_recovery ... ok
+test app::tests::split::removing_a_prepared_split_disposes_only_its_owner_and_keeps_original_input ... ok
+test app::tests::split::slow_queued_split_is_cancelable_while_the_original_remains_usable ... ok
+test app::tests::split::split_reserves_before_launch_keeps_source_selected_and_focuses_on_attachment ... ok
+test app::tests::split::visible_sibling_hovered_mouse_and_alternate_wheel_do_not_require_or_steal_focus ... ok
+test app::tests::split::visible_sibling_stale_focus_and_keyboard_cannot_change_input_authority ... ok
+test app::tests::tabs::delayed_split_in_hidden_tab_cannot_steal_focus ... ok
+test app::tests::tabs::hidden_retry_replaces_cached_owner_without_geometry ... ok
+test app::tests::tabs::late_split_round_trip_respects_newer_explicit_pane_choice ... ok
+test app::tests::tabs::modal_close_owns_new_tab_and_switch_and_last_tab_leaves_reopenable_empty_window ... ok
+test app::tests::tabs::new_tab_inherits_frozen_source_profile_and_late_attachment_stays_hidden ... ok
+test app::tests::tabs::retry_round_trip_respects_newer_explicit_focus ... ok
+test app::tests::tabs::switching_frozen_tabs_restores_bounded_presentation_and_prunes_closed_owners ... ok
+test app::tests::tabs::tab_admission_errors_are_retained_redacted_and_restartable_and_limit_is_atomic ... ok
+test app::tests::tabs::tab_switch_invalidates_deferred_ime_without_restoring_old_tokens ... ok
+test app::tests::tabs::tab_switch_refreshes_once_and_rejects_hidden_geometry_input_and_stale_activity ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 95 filtered out; finished in 0.48s
+

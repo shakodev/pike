@@ -1,0 +1,5 @@
+bytes: Completion { reason: ChildExit, exit_code: Some(0), output_drained: true }; PID 80041 absent
+close: Completion { reason: Requested, exit_code: None, output_drained: false }; PID 80110 absent
+stall: Completion { reason: Requested, exit_code: None, output_drained: false }; PID 80056 absent
+normal/bracketed/mode-change/Unicode/controls/order/limit/no-Enter passed
+passed

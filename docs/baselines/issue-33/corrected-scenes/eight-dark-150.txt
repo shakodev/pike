@@ -1,0 +1,8 @@
+logical=Size { width: 1200.0, height: 800.0 } scale=1.5 physical=Size { width: 1800, height: 1200 }
+strip=Some(Rectangle { x: 4.0, y: 0.0, width: 1132.0, height: 34.0 })
+chrome=Some(Rectangle { x: 0.0, y: 0.0, width: 1200.0, height: 34.0 })
+notices=None
+control_targets=[Rectangle { x: 1106.0, y: 4.0, width: 26.0, height: 26.0 }, Rectangle { x: 1140.0, y: 4.0, width: 26.0, height: 26.0 }, Rectangle { x: 1170.0, y: 4.0, width: 26.0, height: 26.0 }]
+headers=[Rectangle { x: 245.0, y: 34.0, width: 52.0, height: 26.0 }, Rectangle { x: 1148.0, y: 34.0, width: 52.0, height: 26.0 }, Rectangle { x: 847.0, y: 419.0, width: 52.0, height: 26.0 }, Rectangle { x: 1148.0, y: 419.0, width: 52.0, height: 26.0 }, Rectangle { x: 245.0, y: 419.0, width: 52.0, height: 26.0 }, Rectangle { x: 546.0, y: 419.0, width: 52.0, height: 26.0 }, Rectangle { x: 1148.0, y: 227.0, width: 52.0, height: 26.0 }, Rectangle { x: 494.0, y: 34.0, width: 104.0, height: 26.0 }]
+visible_terminals=[Rectangle { x: 1.0, y: 61.0, width: 295.0, height: 353.0 }, Rectangle { x: 603.0, y: 61.0, width: 596.0, height: 161.0 }, Rectangle { x: 603.0, y: 446.0, width: 295.0, height: 353.0 }, Rectangle { x: 904.0, y: 446.0, width: 295.0, height: 353.0 }, Rectangle { x: 1.0, y: 446.0, width: 295.0, height: 353.0 }, Rectangle { x: 302.0, y: 446.0, width: 295.0, height: 353.0 }, Rectangle { x: 603.0, y: 254.0, width: 596.0, height: 160.0 }, Rectangle { x: 302.0, y: 61.0, width: 295.0, height: 353.0 }]
+green_prompt_pixels=12124

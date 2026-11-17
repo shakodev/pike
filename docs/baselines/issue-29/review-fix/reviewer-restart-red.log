@@ -1,0 +1,43 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-reviewer-2)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.88s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-8047c988abb10012)
+
+running 2 tests
+test app::tests::tabs::reviewer2_restart_after_tab_round_trip_respects_newer_focus ... 
+thread 'app::tests::tabs::reviewer2_restart_after_tab_round_trip_respects_newer_focus' (7992576) panicked at /Users/daan.hoedjes/orca/workspaces/pike/pike-reviewer-2/docs/baselines/issue-29-reviewer2/focus_probe.rs:77:5:
+assertion `left == right` failed: late restart stole focus; replacement focused=true
+  left: Some(SessionId(4))
+ right: Some(SessionId(1))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+test app::tests::tabs::reviewer2_restart_hidden_cache_replaces_old_owner_without_geometry ... 
+thread 'app::tests::tabs::reviewer2_restart_hidden_cache_replaces_old_owner_without_geometry' (7992674) panicked at /Users/daan.hoedjes/orca/workspaces/pike/pike-reviewer-2/docs/baselines/issue-29-reviewer2/focus_probe.rs:100:5:
+cached grid retains pre-restart owner IDs: [SessionId(9)], old=SessionId(9)
+FAILED
+
+failures:
+
+failures:
+    app::tests::tabs::reviewer2_restart_after_tab_round_trip_respects_newer_focus
+    app::tests::tabs::reviewer2_restart_hidden_cache_replaces_old_owner_without_geometry
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 113 filtered out; finished in 0.25s
+
+error: test failed, to rerun pass `-p pike --lib`

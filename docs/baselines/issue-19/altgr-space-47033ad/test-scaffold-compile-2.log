@@ -1,0 +1,44 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_term)
+error[E0382]: borrow of moved value: `key`
+   --> vendor/iced_term/src/view/ime/tests.rs:369:22
+    |
+356 |       for key in [
+    |           ---
+    |           |
+    |           this reinitialization might get skipped
+    |           move occurs because `key` has type `iced_core::keyboard::Key`, which does not implement the `Copy` trait
+...
+363 | /         for modifiers in [
+364 | |             Modifiers::CTRL | Modifiers::SHIFT,
+365 | |             Modifiers::CTRL | Modifiers::ALT,
+366 | |             Modifiers::CTRL | Modifiers::ALT | Modifiers::SHIFT,
+367 | |         ] {
+    | |_________- inside of this loop
+368 |               let event = keyboard::Event::KeyPressed {
+369 |                   key: key.clone(),
+    |                        ^^^ value borrowed here after move
+370 |                   modified_key: key,
+    |                                 --- value moved here, in previous iteration of loop
+    |
+help: consider cloning the value if the performance cost is acceptable
+    |
+370 |                 modified_key: key.clone(),
+    |                                  ++++++++
+
+For more information about this error, try `rustc --explain E0382`.
+error: could not compile `iced_term` (lib test) due to 1 previous error

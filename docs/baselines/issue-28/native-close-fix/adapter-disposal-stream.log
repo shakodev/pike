@@ -1,0 +1,72 @@
+COMMAND: CARGO_BUILD_JOBS=4 cargo test --locked -p iced_term --lib -- lifecycle_tests::natural_exit lifecycle_tests::repeated_close lifecycle_tests::canceled_subscription lifecycle_tests::canceled_startup lifecycle_tests::prepared_backend lifecycle_tests::dropping_prepared event_bridge::tests::stream_end_waits_for_distinct_sticky_backend_completion --nocapture --test-threads=1
+   Compiling bytemuck v1.25.2
+   Compiling futures-executor v0.3.34
+   Compiling softbuffer v0.4.8
+   Compiling winit v0.30.13
+   Compiling font-types v0.12.7
+   Compiling font-types v0.10.1
+   Compiling futures v0.3.34
+   Compiling iced_futures v0.14.0
+   Compiling wgpu-types v27.0.1
+   Compiling read-fonts v0.35.0
+   Compiling read-fonts v0.41.0
+   Compiling iced_debug v0.14.0
+   Compiling tiny-skia-path v0.11.4
+   Compiling tiny-skia v0.11.4
+   Compiling wgpu-hal v27.0.4
+   Compiling wgpu-core-deps-apple v27.0.0
+   Compiling wgpu-core v27.0.3
+   Compiling skrifa v0.37.0
+   Compiling skrifa v0.44.0
+   Compiling harfrust v0.3.2
+   Compiling wgpu v27.0.1
+   Compiling swash v0.2.10
+   Compiling iced_runtime v0.14.0
+   Compiling window_clipboard v0.5.1
+   Compiling tokio-macros v2.7.2
+   Compiling socket2 v0.6.5
+   Compiling cosmic-text v0.15.0
+   Compiling mio v1.2.4
+   Compiling tokio v1.54.1
+   Compiling iced_graphics v0.14.0
+   Compiling cryoglyph v0.1.0
+   Compiling iced_wgpu v0.14.0
+   Compiling iced_tiny_skia v0.14.1
+   Compiling iced_program v0.14.0
+   Compiling iced_renderer v0.14.0
+   Compiling iced_widget v0.14.2
+   Compiling iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling iced v0.14.0
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/vendor/iced_term)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 17.25s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/iced_term-9ce9422d345acd8b)
+
+running 7 tests
+test event_bridge::tests::stream_end_waits_for_distinct_sticky_backend_completion ... ok
+test lifecycle_tests::canceled_startup_result_disposes_an_unobserved_session ... ok
+test lifecycle_tests::canceled_subscription_and_waiter_do_not_cancel_cleanup_of_dropped_owner ... ok
+test lifecycle_tests::dropping_prepared_backend_without_font_attachment_acknowledges_cleanup ... ok
+test lifecycle_tests::natural_exit_drains_multiple_chunks_and_retains_the_final_read_only_model ... natural completion: 29.421042ms
+ok
+test lifecycle_tests::prepared_backend_moves_from_worker_and_attaches_on_ui_thread ... ok
+test lifecycle_tests::repeated_close_during_output_has_one_backend_result_and_fused_stream ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 113 filtered out; finished in 0.27s
+

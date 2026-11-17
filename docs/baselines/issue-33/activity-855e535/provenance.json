@@ -1,0 +1,20 @@
+{
+  "source_commit": "855e535d86c15447826304396989277e6f16f30d",
+  "command": "target/debug/examples/native_chrome docs/baselines/issue-33/activity-855e535 --activity",
+  "exit_code": 0,
+  "platform": "macOS arm64",
+  "renderer": "wgpu",
+  "native_rasters": 208,
+  "binary_sha256": "643838c9d431097b46f9f0ba9de8fcac3237a95cc704deb51bc11cb4acd0a2fa",
+  "scopes": [
+    "individual and combined unread/bell/exited",
+    "long ASCII and CJK titles",
+    "dark and light",
+    "200/320/1200 DIP strip",
+    "200/320 DIP overflow",
+    "100/125/150/200 percent scale",
+    "actual overflow hit targets",
+    "unchanged external redraws request Wait"
+  ],
+  "owner_stop": "Full R33 remains incomplete; no actual32/root integration or final full-App acceptance."
+}

@@ -1,0 +1,11 @@
+{
+  "source": "8543f823c35003528413efbd6b547334532d94c8",
+  "production_source": "8543f823c35003528413efbd6b547334532d94c8",
+  "binary_sha256": "7967868e02948d1b1747d35de8e5942c208b668d672f80619eff6bb06d40b747",
+  "saved_binary": "/private/tmp/pike-r33-observed-baseline-idle-r14",
+  "harness_sha256": {
+    "examples/native_chrome_idle.rs": "b809349daaf2a9cdbe8a01237da8f5538631eb7686e3e591d9dd0bd0b0708771",
+    "examples/native_chrome/window.rs": "52c1900b90394c51cc5350618525644a96b301e9b4f8003125b9a7c1a06d9c3f",
+    "examples/native_chrome/child.rs": "d559693af7c2c2886ee569e64db6c7f94f0f6df2f1f285c25132edf7434fcbab"
+  }
+}

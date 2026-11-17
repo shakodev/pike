@@ -1,0 +1,31 @@
+{
+  "reviewed_old_head": "11f01214afabd120694d6b40f85c8a9e110ea001",
+  "integrated_main": "713020604d2df41de84d31797eb7128818521eff",
+  "source_parent": "5628eae4e140bcc0c99fd76420468511039a3948",
+  "source_sha256": {
+    "vendor/iced_term/src/view.rs": "a2e166f91840845795f3c71ee57bd700d44d9f6bc59179ea9a041e1cd1336d54",
+    "vendor/iced_term/src/backend/mouse.rs": "00fbcafcbe147063ad550f4b8994e2b073f4366b97759999cde6bacea729009f",
+    "vendor/iced_term/src/backend/mouse_history_tests.rs": "4369cbd631ab6b3431cc0952b6cf9df0c967012036f0a3d844eaa2c6ffb8b65c",
+    "examples/mouse_history.rs": "0fa861487469c7dfa514324a02e353be22167a40df3a6c7bfc3103aa9da61eff",
+    "examples/mouse_history/row.rs": "80af0f3344d68a737a5359ffaf26c9b305def8f3599f4052ebb9246cecb5dc24",
+    "examples/mouse_history/release_bounds.rs": "6abb146ecfd3f46cb908e30299c9b185b6087cf30b9de0fcb0dd7f8882d3e9c7",
+    "Cargo.lock": "f2499ce171f71875ac098ef7b52161139645cf5f6fa81ac2c778bcffa2f8b367"
+  },
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t26.7.1\nBuildVersion:\t\t25G241",
+  "platform": "arm64",
+  "build_jobs": 4,
+  "target_dir": "target/issue-18",
+  "fixture_path": "target/issue-17/fix-round1/public-probe",
+  "raw_history_cases": 18,
+  "row_cases": 12,
+  "vendor_tests": {
+    "backend_mouse": 10,
+    "view_pointer": 9,
+    "view_state": 5,
+    "view_paste": 1
+  },
+  "native_windows_tested": false,
+  "physical_input_tested": false,
+  "remote_ci_run": false
+}

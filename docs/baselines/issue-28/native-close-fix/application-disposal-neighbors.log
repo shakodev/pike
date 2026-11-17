@@ -1,0 +1,31 @@
+COMMAND: CARGO_BUILD_JOBS=4 cargo test --locked -p pike --lib -- app::tests::cancellation:: app::tests::aggregate_shutdown app::tests::closing::stalled_reader app::tests::closing::success_error_exit --nocapture --test-threads=1
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.39s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-8047c988abb10012)
+
+running 5 tests
+test app::tests::aggregate_shutdown_acknowledges_disposal_even_when_bridge_receipts_are_queued ... ok
+test app::tests::cancellation::cancellation_during_native_preparation_retains_closing_until_disposal ... ok
+test app::tests::cancellation::window_close_during_native_preparation_accounts_for_late_cleanup ... ok
+test app::tests::closing::stalled_reader_window_timeout_wait_remains_responsive_until_actual_cleanup ... pike28 native stalled close_us=113 deadline_ms=3002 wait_us=9 total_ms=3005
+ok
+test app::tests::closing::success_error_exit_keeps_final_sentinel_and_bounded_read_only_model ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 88 filtered out; finished in 3.47s
+

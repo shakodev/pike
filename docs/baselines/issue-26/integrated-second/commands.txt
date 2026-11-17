@@ -1,0 +1,37 @@
+repeated split right: status=Captured app_actions=0 owner=Some(3)
+repeated split right: status=Captured app_actions=0 owner=Some(3)
+repeated split right: status=Captured app_actions=0 owner=Some(3)
+split down: status=Captured app_actions=1 owner=Some(3)
+directional focus: status=Captured app_actions=1 owner=Some(3)
+exclusive actual widget/model owner=3
+exclusive actual widget/model owner=3
+directional focus: status=Captured app_actions=1 owner=Some(1)
+exclusive actual widget/model owner=1
+exclusive actual widget/model owner=1
+directional focus: status=Captured app_actions=1 owner=Some(3)
+exclusive actual widget/model owner=3
+exclusive actual widget/model owner=3
+directional focus: status=Captured app_actions=1 owner=Some(4)
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=1
+exclusive actual widget/model owner=1
+exclusive actual widget/model owner=1
+exclusive actual widget/model owner=1
+exclusive actual widget/model owner=3
+exclusive actual widget/model owner=3
+exclusive actual widget/model owner=3
+exclusive actual widget/model owner=3
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+maximize: status=Captured app_actions=1 owner=Some(4)
+repeat maximize: status=Captured app_actions=0 owner=Some(4)
+restore: status=Captured app_actions=1 owner=Some(4)
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4

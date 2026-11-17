@@ -126,8 +126,32 @@ fn main() -> io::Result<()> {
                     let (events, captured) =
                         scene.dispatch(terminal, &renderer, Event::Keyboard(case.event.clone()));
                     maximum = maximum.max(start.elapsed());
-                    check(captured == case.captured, "key event capture mismatch")?;
-                    if case.expected.is_empty() {
+                    if captured != case.captured {
+                        return Err(io::Error::other(format!(
+                            "key event capture mismatch: {:?}",
+                            case.event
+                        )));
+                    }
+                    if matches!(
+                        case.event,
+                        KeyEvent::KeyPressed {
+                            key: iced::keyboard::Key::Named(iced::keyboard::key::Named::F22),
+                            ..
+                        }
+                    ) {
+                        check(
+                            matches!(
+                                events.as_slice(),
+                                [iced_term::Event::BackendCall(
+                                    _,
+                                    BackendCommand::PasteRejected(
+                                        iced_term::PasteError::ClipboardUnavailable
+                                    )
+                                )]
+                            ),
+                            "empty clipboard did not report unavailable",
+                        )?;
+                    } else if case.expected.is_empty() {
                         check(
                             events.is_empty(),
                             "consumed/released key fell through to bytes",
@@ -375,6 +399,11 @@ fn with_terminal<T>(
             ..Default::default()
         },
     )?;
+    // This headless fixture owns a synthetic focused window authority.
+    let window = iced_term::WindowFocus::default();
+    window.set_focused(true);
+    terminal.set_window_focus(window);
+    terminal.set_host_shortcuts(true);
     let result = run(&mut terminal);
     let handle = terminal.shutdown_handle();
     drop(terminal);

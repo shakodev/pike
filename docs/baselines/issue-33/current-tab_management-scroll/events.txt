@@ -1,0 +1,20 @@
+ready tab=2 session=1 pid=18574
+ready tab=4 session=3 pid=18577
+ready tab=6 session=5 pid=18580
+ready tab=8 session=7 pid=18583
+ready tab=10 session=9 pid=18586
+ready tab=12 session=11 pid=18589
+ready tab=14 session=13 pid=18592
+ready tab=16 session=15 pid=18595
+ready tab=18 session=17 pid=18598
+ready tab=20 session=19 pid=18601
+ready tab=22 session=21 pid=18604
+ready tab=24 session=23 pid=18607
+bare-F2 remains terminal-owned: exact 1b4f51
+same-view rename preedit Enter/Escape/app-chord suppressed; unopened/blurred/stale commits rejected; fresh retry exact
+manual > bounded sanitized OSC; OSC ResetTitle preserves manual; explicit reset restores launch-profile fallback
+ready tab=2 session=25 pid=18620
+12 tabs / 13 distinctive children: reordered last to first; exact SessionId/TabId/PID/widget/registry and hidden nested ratios/zoom/focus preserved
+direct/current-order next/previous and actual pointer/keyboard overflow reach all twelve tabs; selected final row visible
+multi-session background Cancel harmless; confirm cleans only exact two owners; active child remains focused and accepts exact x
+active removal selects current right neighbor; all 13 cleanup receipts acknowledged; exact fixture byte streams only; no stale registry owners

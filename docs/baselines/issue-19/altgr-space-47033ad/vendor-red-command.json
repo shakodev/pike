@@ -1,0 +1,24 @@
+{
+  "production_source_commit": "47033ad34fa7e34571b5088fba9dcc35c4f8ee77",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "-p",
+    "iced_term",
+    "--lib",
+    "--no-default-features",
+    "--features",
+    "iced/tiny-skia,iced/tokio",
+    "view::ime::tests::ime_public_row_named_space_altgr_text_and_nontext_binding_priority",
+    "--",
+    "--exact",
+    "--nocapture"
+  ],
+  "CARGO_BUILD_JOBS": "4",
+  "CARGO_TARGET_DIR": "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target/issue-20",
+  "exit_code": 101,
+  "result": "Compiled; one test ran and failed because CtrlAlt NamedSpace supplied NBSP emitted no Write.",
+  "test_snapshot": "New Row regression initial scaffold; later extended with explicit nontext bindings, a named-arrow control and expanded composing-key modifiers. First two regression cases remain identical."
+}

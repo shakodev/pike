@@ -1,0 +1,8 @@
+logical=Size { width: 320.0, height: 240.0 } scale=1.25 physical=Size { width: 400, height: 300 }
+strip=None
+chrome=Some(Rectangle { x: 0.0, y: 0.0, width: 320.0, height: 34.0 })
+notices=None
+control_targets=[Rectangle { x: 260.0, y: 0.0, width: 26.0, height: 26.0 }, Rectangle { x: 290.0, y: 0.0, width: 26.0, height: 26.0 }]
+headers=[]
+visible_terminals=[]
+green_prompt_pixels=0

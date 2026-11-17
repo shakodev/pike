@@ -8,6 +8,7 @@ use iced_core::{
 pub enum BindingAction {
     Copy,
     Paste,
+    ScrollHistory(crate::HistoryScroll),
     Char(char),
     Esc(String),
     /// Reserved; external link opening is disabled in Pike's MVP.
@@ -86,6 +87,8 @@ macro_rules! generate_bindings {
 #[derive(Clone, Debug)]
 pub(crate) struct BindingsLayout {
     layout: Vec<(Binding<InputKind>, BindingAction)>,
+    custom: Vec<(Binding<InputKind>, BindingAction)>,
+    host_shortcuts: bool,
 }
 
 impl Default for BindingsLayout {
@@ -96,9 +99,55 @@ impl Default for BindingsLayout {
 
 impl BindingsLayout {
     pub(crate) fn new() -> Self {
-        Self {
-            layout: platform_keyboard_bindings(),
+        Self::with_host_shortcuts(false)
+    }
+
+    fn with_host_shortcuts(host_shortcuts: bool) -> Self {
+        let mut layout = Self {
+            layout: Vec::new(),
+            custom: Vec::new(),
+            host_shortcuts,
+        };
+        if !host_shortcuts {
+            layout.layout = platform_keyboard_bindings();
+            layout.layout.retain(|(binding, _)| {
+                !(binding.target == InputKind::Char("v".into())
+                    && binding.modifiers
+                        == (Modifiers::CTRL | Modifiers::SHIFT))
+            });
+            layout.layout.extend(generate_bindings!(KeyboardBinding;
+                "v", Modifiers::CTRL | Modifiers::SHIFT; BindingAction::Paste;
+                Insert, Modifiers::SHIFT; BindingAction::Paste;
+                PageUp, Modifiers::SHIFT, ~TermMode::ALT_SCREEN; BindingAction::ScrollHistory(crate::HistoryScroll::PageUp);
+                PageDown, Modifiers::SHIFT, ~TermMode::ALT_SCREEN; BindingAction::ScrollHistory(crate::HistoryScroll::PageDown);
+                Home, Modifiers::SHIFT, ~TermMode::ALT_SCREEN; BindingAction::ScrollHistory(crate::HistoryScroll::Top);
+                End, Modifiers::SHIFT, ~TermMode::ALT_SCREEN; BindingAction::ScrollHistory(crate::HistoryScroll::Bottom);
+            ));
         }
+        layout
+    }
+
+    pub(crate) fn set_host_shortcuts(&mut self, enabled: bool) {
+        if self.host_shortcuts == enabled {
+            return;
+        }
+        let custom = std::mem::take(&mut self.custom);
+        *self = Self::with_host_shortcuts(enabled);
+        self.add_bindings(custom);
+    }
+
+    fn insert(
+        layout: &mut Vec<(Binding<InputKind>, BindingAction)>,
+        binding: Binding<InputKind>,
+        action: BindingAction,
+    ) {
+        if let Some(position) =
+            layout.iter().position(|(existing, _)| existing == &binding)
+        {
+            layout.remove(position);
+        }
+        // The newest matching override wins, including mode-specific overrides.
+        layout.push((binding, action));
     }
 
     pub(crate) fn add_bindings(
@@ -106,16 +155,8 @@ impl BindingsLayout {
         bindings: Vec<(Binding<InputKind>, BindingAction)>,
     ) {
         for (binding, action) in bindings {
-            if let Some(position) = self
-                .layout
-                .iter()
-                .position(|(existing, _)| existing == &binding)
-            {
-                self.layout.remove(position);
-            }
-            // Most recently configured matching override wins, including a
-            // mode-specific override of a broader platform shortcut.
-            self.layout.push((binding, action));
+            Self::insert(&mut self.layout, binding.clone(), action.clone());
+            Self::insert(&mut self.custom, binding, action);
         }
     }
 

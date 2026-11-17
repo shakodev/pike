@@ -1,0 +1,1 @@
+passed: actual local Vim mouse-selected row2 before append/write/natural exit

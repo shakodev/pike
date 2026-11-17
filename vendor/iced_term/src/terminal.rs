@@ -121,6 +121,13 @@ impl Terminal {
             .attach(settings.font, settings.theme))
     }
 
+    /// Delegate copy, paste and local history shortcuts to a host command
+    /// resolver. Defaults remain enabled for other clients. Existing custom
+    /// AddBindings overrides survive toggles; native encoding/IME is unchanged.
+    pub fn set_host_shortcuts(&mut self, enabled: bool) {
+        self.bindings.set_host_shortcuts(enabled);
+    }
+
     pub fn widget_id(&self) -> &iced::widget::Id {
         &self.widget_id
     }
@@ -172,6 +179,9 @@ impl Terminal {
     /// Returns a scoped rejection if the required focus-out report could not
     /// be admitted; that backend also requests close instead of losing a reply.
     pub fn set_visible(&mut self, visible: bool) -> Action {
+        if !visible {
+            self.cancel_composition();
+        }
         if self.backend.is_visible() == visible {
             return Action::Ignore;
         }
@@ -221,6 +231,54 @@ impl Terminal {
         self.backend.input_status()
     }
 
+    /// Shared menu/shortcut paste path. Pass the clipboard read result and
+    /// preserve the originating session ID across any asynchronous read.
+    /// None returns ClipboardUnavailable. No contents are logged or retained.
+    ///
+    /// At admission: reject original UTF-8 over 1 MiB; normalize CRLF/CR/LF to
+    /// LF with bracketed paste enabled, CR otherwise; retain tabs/printable
+    /// Unicode and strip all other C0/C1 controls/DEL. Never append Enter.
+    /// Bracket markers and content enter the bounded FIFO atomically together.
+    pub fn paste(&mut self, text: Option<String>) -> Action {
+        let receipt = self.backend.queue_paste(text);
+        self.handle(Command::ProxyToBackend(receipt))
+    }
+
+    /// Advisory allocation-free whole-paste check for hosts. It reserves no
+    /// credit. Actual admission repeats it using the current model mode and
+    /// current remaining input credit, so stale checks cannot admit a prefix.
+    pub fn preflight_paste(
+        &self,
+        text: &str,
+    ) -> std::result::Result<(), crate::PasteError> {
+        self.backend.preflight_paste(text)
+    }
+
+    /// True while this focused session owns an open native composition. Hosts
+    /// must give it priority over application shortcuts, including control keys.
+    pub fn is_composing(&self) -> bool {
+        self.is_visible()
+            && self.backend.window_focus.is_focused()
+            && !self.input_status().closed
+            && self.backend.ime.composing()
+    }
+
+    /// Cancel transient preedit and deferred commits before an owner/modal
+    /// transition. The next redraw resets native IME; no PTY input is generated.
+    pub fn cancel_composition(&self) {
+        self.backend.window_focus.release_ime(&self.backend.ime);
+    }
+
+    /// Suspend native IME for a modal or another input owner, then restore it
+    /// with valid widget/window focus. Call as part of the host's UI transition.
+    /// This does not change pane focus or terminal focus-report semantics.
+    pub fn set_input_method_enabled(&mut self, enabled: bool) {
+        if !enabled {
+            self.cancel_composition();
+        }
+        self.backend.ime.set_enabled(enabled);
+    }
+
     /// Actual status when known; explicit cancellation/signals may have none.
     pub fn exit_code(&self) -> Option<i32> {
         self.backend.exit_code()
@@ -229,6 +287,9 @@ impl Terminal {
     /// Pane focus, gated by visibility and the actual owner's WindowFocus.
     /// Workspace owners must route activation/removal, including hidden tabs.
     pub fn set_focused(&mut self, focused: bool) -> Action {
+        if !focused {
+            self.cancel_composition();
+        }
         self.handle(Command::ProxyToBackend(backend::Command::FocusChanged(
             focused
                 && self.is_visible()
@@ -239,6 +300,9 @@ impl Terminal {
     /// Bind the actual window owner's authority before showing/activating a
     /// terminal. Share this handle with hidden sessions and later attachments.
     pub fn set_window_focus(&mut self, focus: crate::WindowFocus) -> Action {
+        if !self.backend.window_focus.same_window(&focus) {
+            self.cancel_composition();
+        }
         self.backend.window_focus = focus;
         if !self.backend.window_focus.is_focused() {
             self.set_focused(false)
@@ -291,7 +355,12 @@ impl Terminal {
             },
         };
 
-        if !matches!(action, Action::InputRejected(_)) {
+        if !matches!(
+            action,
+            Action::InputRejected(_)
+                | Action::PasteRejected(_)
+                | Action::ImeRejected(_)
+        ) {
             self.backend.sync_if_dirty();
             let changed = self.backend.take_render_dirty();
             if self.is_visible() && (changed || repaint) {

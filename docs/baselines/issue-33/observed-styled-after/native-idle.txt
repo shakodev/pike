@@ -1,0 +1,8 @@
+platform=macos arch=aarch64 renderer=wgpu native_window=1200x800 controlled_ptys=1
+settle_s=3 interval_s=24.007 observed_native_redraws=1
+window_event_order=focused,unfocused,resized
+window_event_delta=[0, 0, 0]
+ps_before_time_rss=  0:00.17  99552
+ps_after_time_rss=  0:00.19  99680
+counter_order=font_measurements,pty_resizes,grid_resizes,cache_invalidations,snapshots
+counter_delta=[0, 0, 0, 0, 0]

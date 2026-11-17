@@ -1,0 +1,24 @@
+{
+  "archive_sha256": "7589888c8e951899cc688247a69933bb7a0511f0b4b2e122ac3fcd5dacb37f72",
+  "identical": [
+    ".cargo_vcs_info.json",
+    "Cargo.lock",
+    "Cargo.toml",
+    "Cargo.toml.orig",
+    "README.md",
+    "src/clipboard.rs",
+    "src/conversion.rs",
+    "src/error.rs",
+    "src/lib.rs",
+    "src/proxy.rs",
+    "src/window/state.rs"
+  ],
+  "changed": [
+    "src/window.rs"
+  ],
+  "added": [
+    "LICENSE",
+    "PATCHES.md",
+    "src/window/ime.rs"
+  ]
+}

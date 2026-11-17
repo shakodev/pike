@@ -1,0 +1,61 @@
+   Compiling iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-reviewer-2/vendor/iced_winit)
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+   Compiling iced v0.14.0
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-reviewer-2/vendor/iced_term)
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-reviewer-2)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.48s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-8047c988abb10012)
+
+running 21 tests
+test app::close::tests::background_exit_during_confirmation_never_changes_focus_or_target_set ... ok
+test app::close::tests::confirm_resolves_the_original_sessions_after_moves_and_replays_do_nothing ... ok
+test app::close::tests::exited_and_failed_close_without_prompt_last_tab_stays_empty_and_can_open_again ... ok
+test app::close::tests::force_exit_is_scoped_to_its_application ... pike28 native application-only force process_ms=23
+ok
+test app::close::tests::force_scope_fixture ... ignored, subprocess fixture; invoked only by force_exit_is_scoped_to_its_application
+test app::close::tests::keyboard_selection_is_explicit_escape_cancels_and_repeats_cannot_confirm ... ok
+test app::close::tests::last_pane_confirm_retains_closing_budget_and_no_respawn ... ok
+test app::close::tests::modal_drops_queued_user_commands_but_accepts_protocol_and_cleanup ... ok
+test app::close::tests::real_keyboard_subscription_carries_the_decision_token_and_renews_identity ... ok
+test app::close::tests::tab_confirmation_counts_starting_running_once_and_cancel_changes_nothing ... ok
+test app::close::tests::timeout_wait_force_and_stale_tokens_are_scoped_and_event_driven ... ok
+test app::tests::aggregate_shutdown_acknowledges_disposal_even_when_bridge_receipts_are_queued ... ok
+test app::tests::cancellation::cancellation_during_native_preparation_retains_closing_until_disposal ... ok
+test app::tests::cancellation::window_close_during_native_preparation_accounts_for_late_cleanup ... ok
+test app::tests::closing::actual_modal_buttons_cancel_restore_focus_and_confirm_only_the_owned_session ... ignored, requires a local graphics device; run explicitly for close controls
+test app::tests::closing::close_during_output_is_nonblocking_idempotent_and_waits_for_native_receipt ... 
+thread 'app::tests::closing::close_during_output_is_nonblocking_idempotent_and_waits_for_native_receipt' (7279573) panicked at src/app/tests/closing.rs:390:10:
+called `Result::unwrap()` on an `Err` value: Elapsed(())
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+test app::tests::closing::ime::modal_and_teardown_cancel_all_held_ime_clones_after_focus_is_restored ... ignored, requires native graphics; explicit modal/teardown deferred-IME regression
+test app::tests::closing::in_place_restart_rejects_old_close_launch_and_terminal_events_and_keeps_sibling ... ok
+test app::tests::closing::modal_accepts_launch_and_natural_completion_without_closing_or_focusing_a_target ... ok
+test app::tests::closing::stalled_reader_window_timeout_wait_remains_responsive_until_actual_cleanup ... pike28 native stalled close_us=43 deadline_ms=3004 wait_us=12 total_ms=3007
+ok
+test app::tests::closing::success_error_exit_keeps_final_sentinel_and_bounded_read_only_model ... ok
+
+failures:
+
+failures:
+    app::tests::closing::close_during_output_is_nonblocking_idempotent_and_waits_for_native_receipt
+
+test result: FAILED. 17 passed; 1 failed; 3 ignored; 0 measured; 72 filtered out; finished in 13.72s
+
+error: test failed, to rerun pass `-p pike --lib`

@@ -1,0 +1,80 @@
+    Checking serde_core v1.0.229
+    Checking bytemuck v1.25.2
+    Checking futures-executor v0.3.34
+    Checking objc2 v0.6.5
+    Checking futures v0.3.34
+    Checking font-types v0.10.1
+    Checking font-types v0.12.7
+    Checking read-fonts v0.35.0
+    Checking read-fonts v0.41.0
+    Checking strict-num v0.1.1
+    Checking arrayref v0.3.9
+    Checking tiny-skia-path v0.11.4
+    Checking tiny-skia v0.11.4
+    Checking bitflags v2.13.2
+    Checking iced_core v0.14.0
+    Checking core-graphics-types v0.2.0
+    Checking metal v0.32.0
+    Checking iced_futures v0.14.0
+    Checking naga v27.0.3
+    Checking skrifa v0.37.0
+    Checking skrifa v0.44.0
+    Checking harfrust v0.3.2
+    Checking wgpu-types v27.0.1
+    Checking swash v0.2.10
+    Checking objc2-core-foundation v0.3.2
+    Checking iced_debug v0.14.0
+    Checking wgpu-hal v27.0.4
+    Checking objc2-foundation v0.2.2
+    Checking objc2-foundation v0.3.2
+    Checking cosmic-text v0.15.0
+    Checking wgpu-core-deps-apple v27.0.0
+    Checking wgpu-core v27.0.3
+    Checking objc2-quartz-core v0.3.2
+    Checking iced_graphics v0.14.0
+    Checking objc2-core-graphics v0.3.2
+    Checking softbuffer v0.4.8
+    Checking kurbo v0.10.4
+    Checking iced_runtime v0.14.0
+    Checking rustix v1.1.5
+    Checking objc2-app-kit v0.2.2
+    Checking iced_tiny_skia v0.14.1
+    Checking serde v1.0.229
+    Checking iced_program v0.14.0
+    Checking vte v0.15.0
+    Checking rustix-openpty v0.2.0
+    Checking polling v3.11.0
+    Checking socket2 v0.6.5
+    Checking mio v1.2.4
+   Compiling tokio-macros v2.7.2
+    Checking wgpu v27.0.1
+    Checking alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/alacritty_terminal)
+    Checking clipboard_macos v0.1.1
+    Checking winit v0.30.13
+    Checking window_clipboard v0.5.1
+    Checking tokio v1.54.1
+    Checking cryoglyph v0.1.0
+    Checking iced_winit v0.14.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_winit)
+    Checking iced_wgpu v0.14.0
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking iced_renderer v0.14.0
+    Checking iced_widget v0.14.2
+    Checking iced v0.14.0
+    Checking iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_term)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.60s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

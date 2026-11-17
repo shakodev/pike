@@ -1,0 +1,56 @@
+use iced::advanced::input_method::{Event as Ime, InputMethod};
+use iced::advanced::renderer::Headless;
+use iced::advanced::widget::{Tree, operation};
+use iced::advanced::{Layout, Shell, clipboard, layout, mouse};
+use iced::keyboard::{self, Key, Modifiers};
+use iced::{Element, Event, Executor, Point, Rectangle, Size};
+use iced_term::{BackendCommand as B, Command, Terminal, TerminalView, actions::Action};
+use pike::executor::SharedExecutor;
+use std::{fs, time::{Duration, Instant}};
+fn ui<'a>(a: &'a Terminal,b: &'a Terminal)->Element<'a,iced_term::Event>{
+    iced::widget::row![TerminalView::show(a),TerminalView::show(b)].into()
+}
+fn dispatch(a:&Terminal,b:&Terminal,tree:&mut Tree,r:&iced::Renderer,event:Event,cursor:mouse::Cursor)->(Vec<iced_term::Event>,InputMethod,bool){
+    let mut view=ui(a,b);tree.diff(view.as_widget());let size=Size::new(800.0,200.0);
+    let node=view.as_widget_mut().layout(tree,r,&layout::Limits::new(size,size));
+    let mut out=Vec::new();let mut shell=Shell::new(&mut out);
+    view.as_widget_mut().update(tree,&event,Layout::new(&node),cursor,r,&mut clipboard::Null,&mut shell,&Rectangle::with_size(size));
+    let strategy=shell.input_method().clone();let captured=shell.is_event_captured();(out,strategy,captured)
+}
+fn route(a:&mut Terminal,b:&mut Terminal,messages:Vec<iced_term::Event>)->Vec<Action>{
+    messages.into_iter().map(|iced_term::Event::BackendCall(id,c)|{
+        if id==a.id {a.handle(Command::ProxyToBackend(c))}else if id==b.id {b.handle(Command::ProxyToBackend(c))}else{panic!("wrong session")}
+    }).collect()
+}
+fn terminal(id:u64)->Terminal{
+    Terminal::new(id,iced_term::settings::Settings{backend:iced_term::settings::BackendSettings{program:"/bin/sh".into(),args:vec!["-c".into(),"exec sleep 30".into()],..Default::default()},..Default::default()}).unwrap()
+}
+fn redraw()->Event{Event::Window(iced::window::Event::RedrawRequested(Instant::now()))}
+fn admitted(t:&Terminal)->usize{let s=t.input_status();s.outstanding_bytes+s.written_bytes+s.cancelled_bytes}
+
+fn main()->Result<(),Box<dyn std::error::Error>>{
+    let out=std::env::args().nth(1).ok_or("output path required")?;fs::create_dir(&out)?;
+    let ex=SharedExecutor::new()?;let r=ex.block_on(<iced::Renderer as Headless>::new(iced::Font::MONOSPACE,iced::Pixels(14.0),None)).ok_or("renderer")?;
+    let mut a=terminal(73111);let mut b=terminal(73112);let owner=iced_term::WindowFocus::default();owner.set_focused(true);a.set_window_focus(owner.clone());b.set_window_focus(owner.clone());let mut tree=Tree::empty();
+    let (events,_,_)=dispatch(&a,&b,&mut tree,&r,redraw(),mouse::Cursor::Unavailable);route(&mut a,&mut b,events);
+    {let mut v=ui(&a,&b);let size=Size::new(800.0,200.0);let n=v.as_widget_mut().layout(&mut tree,&r,&layout::Limits::new(size,size));v.as_widget_mut().operate(&mut tree,Layout::new(&n),&r,&mut operation::focusable::focus::<()>(a.widget_id().clone()));}
+    let (events,_,_)=dispatch(&a,&b,&mut tree,&r,redraw(),mouse::Cursor::Unavailable);route(&mut a,&mut b,events);
+    let mut record=String::new();let mut bad=0;
+    for (name,key,modifiers,text) in [
+        ("ordinary-space",Key::Named(keyboard::key::Named::Space),Modifiers::empty()," "),
+        ("dead-key-space",Key::Named(keyboard::key::Named::Space),Modifiers::empty(),"´"),
+        ("character-altgr",Key::Character("q".into()),Modifiers::CTRL|Modifiers::ALT,"@"),
+        ("named-space-altgr",Key::Named(keyboard::key::Named::Space),Modifiers::CTRL|Modifiers::ALT,"\u{a0}"),
+        ("named-space-shift-altgr",Key::Named(keyboard::key::Named::Space),Modifiers::CTRL|Modifiers::ALT|Modifiers::SHIFT,"\u{a0}"),
+    ]{
+        let event=Event::Keyboard(keyboard::Event::KeyPressed{key:key.clone(),modified_key:key,physical_key:keyboard::key::Physical::Code(keyboard::key::Code::Space),location:keyboard::Location::Standard,modifiers,text:Some(text.into()),repeat:false});
+        let (events,_,captured)=dispatch(&a,&b,&mut tree,&r,event,mouse::Cursor::Unavailable);
+        let writes:Vec<_>=events.into_iter().filter_map(|iced_term::Event::BackendCall(_,c)|if let B::Write(bytes)=c{Some(bytes)}else{None}).collect();
+        record.push_str(&format!("{name}: expected={:?}, actual={writes:?}, captured={captured}\n",text.as_bytes()));
+        if writes!=[text.as_bytes().to_vec()]{bad+=1;}
+    }
+    let ah=a.shutdown_handle();let bh=b.shutdown_handle();drop(a);drop(b);
+    for h in [ah,bh]{ex.block_on(async{tokio::time::timeout(Duration::from_secs(5),h.wait()).await})?;}
+    fs::write(format!("{out}/observations.txt"),&record)?;print!("{record}");
+    if bad>0{return Err("printable AltGr text dropped for named Space".into())}Ok(())
+}

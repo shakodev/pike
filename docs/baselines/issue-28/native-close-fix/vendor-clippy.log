@@ -1,0 +1,17 @@
+COMMAND: CARGO_BUILD_JOBS=4 cargo clippy --locked -p alacritty_terminal --lib --tests -- -D warnings
+    Checking memchr v2.8.3
+    Checking serde v1.0.229
+    Checking cursor-icon v1.2.0
+    Checking arrayvec v0.7.8
+    Checking zmij v1.0.23
+    Checking atomic-waker v1.1.2
+    Checking itoa v1.0.18
+    Checking aho-corasick v1.1.5
+    Checking fastrand v2.5.0
+    Checking futures-io v0.3.34
+    Checking vte v0.15.0
+    Checking serde_json v1.0.154
+    Checking piper v0.2.5
+    Checking regex-automata v0.4.18
+    Checking alacritty_terminal v0.25.1 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/vendor/alacritty_terminal)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.84s

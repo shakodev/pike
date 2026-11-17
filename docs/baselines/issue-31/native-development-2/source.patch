@@ -1,0 +1,74 @@
+diff --git a/examples/settings_reload/scenarios.rs b/examples/settings_reload/scenarios.rs
+index c2b43a5..53e54f7 100644
+--- a/examples/settings_reload/scenarios.rs
++++ b/examples/settings_reload/scenarios.rs
+@@ -7,7 +7,7 @@ use iced::{
+ };
+ use iced_term::{ShutdownHandle, TermMode};
+ use pike::{
+-    app::{Control, Message},
++    app::{CloseAction, Control, Message},
+     identity::{Reservation, SessionId},
+     layout::PaneTarget,
+     session::Lifecycle,
+@@ -242,6 +242,16 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
+         a.pid != b.pid && a.session != b.session,
+         "profiles did not create independent owners",
+     )?;
++    host.update(Message::Control(Control::CloseSession(a.session)));
++    let (token, count) = host
++        .app
++        .close_confirmation()
++        .ok_or_else(|| io::Error::other("default close confirmation missing"))?;
++    check(count == 1, "close policy targeted wrong running count")?;
++    host.update(Message::Control(Control::CloseAction(CloseAction::Cancel(
++        token,
++    ))));
++    host.until(|host| host.focused(b.session))?;
+     check(
+         host.app
+             .terminal(a.session)
+@@ -274,11 +284,20 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
+     )?;
+     key(host, Key::Named(Named::Escape), Modifiers::empty())?;
+     host.until(|host| host.focused(b.session))?;
++    // Drive the pinned adapter's native disable/enable boundary after Help
++    // restored its terminal owner, before claiming composition is active.
++    host.redraw();
++    host.redraw();
++    host.drain()?;
+     host.event(Event::InputMethod(Ime::Opened), mouse::Cursor::Unavailable);
+     host.event(
+         Event::InputMethod(Ime::Preedit("ni".into(), Some(0..2))),
+         mouse::Cursor::Unavailable,
+     );
++    check(
++        host.app.terminal(b.session).unwrap().is_composing(),
++        "synthetic preedit was not established",
++    )?;
+     key(
+         host,
+         Key::Named(Named::F5),
+@@ -371,6 +390,13 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
+     click(host, "New tab")?;
+     let new_b = ready(host)?;
+     new_b.identity(output, "b", true)?;
++    click(host, "Split right")?;
++    let split_b = ready(host)?;
++    split_b.identity(output, "b", true)?;
++    check(
++        split_b.session != new_b.session && split_b.pid != new_b.pid,
++        "split did not get an independent current profile",
++    )?;
+     check(
+         a.intact(host) && b.intact(host),
+         "new profile version changed earlier running owners",
+@@ -415,7 +441,7 @@ pub fn verify(host: &mut Host, output: &Path) -> io::Result<Vec<String>> {
+         "launch mutated parent environment",
+     )?;
+     host.evidence.push(format!("new-only cwd/env/args: inherited-b={} restarted-a={}; invalid-file retained; removed-profile refused; IME/help priority passed", new_b.pid, restarted_a.pid));
+-    let owners = [&b, &new_b, &restarted_a];
++    let owners = [&b, &new_b, &split_b, &restarted_a];
+     host.update(Message::CloseWindow);
+     check(
+         host.app.close_confirmation().is_none(),

@@ -1,0 +1,5 @@
+pid=14774
+cwd=/private/tmp/pike-r31-resume-joint-1/b-next
+profile=b
+revision=after
+argument=new-args

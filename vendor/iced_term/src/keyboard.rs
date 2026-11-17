@@ -11,6 +11,7 @@ pub(crate) enum KeyAction<'a> {
     },
     Copy,
     Paste,
+    ScrollHistory(crate::HistoryScroll),
     Consume,
     Unhandled,
 }
@@ -58,6 +59,9 @@ pub(crate) fn action<'a>(
             },
             BindingAction::Copy => KeyAction::Copy,
             BindingAction::Paste => KeyAction::Paste,
+            BindingAction::ScrollHistory(scroll) => {
+                KeyAction::ScrollHistory(*scroll)
+            },
             BindingAction::Esc(sequence) => KeyAction::text(sequence, false),
             BindingAction::Char(c) => {
                 let mut utf8 = [0; 4];
@@ -75,7 +79,12 @@ pub(crate) fn action<'a>(
         .filter(|text| !text.is_empty());
     // Iced exposes no side-specific AltGr modifier. Trust committed text for
     // Ctrl+Alt (and non-ASCII Option text) rather than inventing a Meta prefix.
-    if modifiers.alt() {
+    if modifiers.alt()
+        && matches!(
+            key,
+            Key::Character(_) | Key::Named(Named::Space) | Key::Unidentified
+        )
+    {
         if let Some(text) =
             text.filter(|text| text.chars().all(|c| !c.is_control()))
         {
@@ -87,13 +96,27 @@ pub(crate) fn action<'a>(
             }
         }
     }
+    if matches!(key, Key::Named(Named::Space))
+        && !modifiers.control()
+        && !modifiers.alt()
+    {
+        if let Some(text) =
+            text.filter(|text| text.chars().all(|c| !c.is_control()))
+        {
+            return KeyAction::text(text, false);
+        }
+    }
     if let Key::Named(named) = key {
         return named_action(*named, *modifiers, mode);
     }
     // Dead keys have no committed text. Do not manufacture input from their
     // unmodified base key; the later committed text is sent by its own event.
     if matches!(modified_key, Key::Unidentified) && text.is_none() {
-        return KeyAction::Consume;
+        return if matches!(key, Key::Unidentified) {
+            KeyAction::Unhandled
+        } else {
+            KeyAction::Consume
+        };
     }
     if modifiers.control() {
         if let Some(code) = control_code(modified_key)

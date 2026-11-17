@@ -1,0 +1,96 @@
+{
+  "base_original": "9bafb5f4f2686d61c45478667737b433bee634ce",
+  "base_integrated": "1e90fb3754d69ec8e60632f6010432bf1273f370",
+  "preserved_checkpoint": "e393033daa9411d67ab4bcbff21b225bf11f2202",
+  "product_source": "adbcf0fbea283a05da912eadcc98485c069b1440",
+  "compiled_complete_source": "d4b410801c2afc60fe1a3a7ddc60b0f145a401c5",
+  "compiled_complete_tree": "1d96770cc741757863943a3dfee308c79a0f842e",
+  "native_joint_binary_sha256": "0f178665c8cc388448c8e795d7690bbabb3a07a21f344a5fbb9ae2cdaa37f3b8",
+  "native_family_binary_sha256": null,
+  "native_family_note": "Compiled at adbcf0f; binary hash was not retained before the fixture-only joint rebuild.",
+  "host": "macOS 26.7.2 (25G332), aarch64-apple-darwin; rustc 1.97.1 (8bab26f4f)",
+  "environment": {
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_TARGET_DIR": "target",
+    "dependencies": "offline, locked",
+    "renderer": "default wgpu"
+  },
+  "checks": [
+    {
+      "command": "cargo build --offline --locked -p pike --bin pike --example settings_reload --example pane_moving --example command_routing",
+      "exit": 0,
+      "source": "adbcf0f",
+      "log": "pike-r31-resume-integrated-build.log"
+    },
+    {
+      "command": "cargo build --offline --locked -p pike --example settings_reload",
+      "exit": 0,
+      "source": "d4b4108",
+      "log": "pike-r31-resume-joint-build.log"
+    },
+    {
+      "command": "target/debug/examples/settings_reload /private/tmp/pike-r31-resume-family-adbcf0f",
+      "exit": 0,
+      "source": "adbcf0f",
+      "log": "pike-r31-resume-family-adbcf0f.log",
+      "evidence": "native-family-adbcf0f"
+    },
+    {
+      "command": "target/debug/examples/settings_reload /private/tmp/pike-r31-resume-joint-1",
+      "exit": 0,
+      "source": "d4b4108",
+      "log": "pike-r31-resume-joint-1.log",
+      "evidence": "native-joint-1"
+    },
+    {
+      "command": "cargo test --offline --locked -p pike --lib settings",
+      "exit": 0,
+      "passed": 18,
+      "failed": 0,
+      "log": "pike-r31-resume-settings-tests.log"
+    },
+    {
+      "command": "cargo test --offline --locked -p pike --lib app::",
+      "exit": 0,
+      "passed": 86,
+      "failed": 0,
+      "ignored": 9,
+      "log": "pike-r31-resume-app-tests.log"
+    },
+    {
+      "command": "cargo test --offline --locked -p pike --lib app::tests::tab_management::tab_dialogs_cancel_held_terminal_ime_clones_before_and_after_dismissal -- --exact --ignored",
+      "exit": 0,
+      "passed": 1,
+      "failed": 0,
+      "log": "pike-r31-resume-native-tab-ime.log"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit": 0,
+      "log": "pike-r31-resume-format.log"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "log": "pike-r31-resume-diff-check.log"
+    },
+    {
+      "command": "cargo clippy --offline --locked -p pike --lib --bin pike --tests --example settings_reload --example pane_moving --example command_routing -- -D warnings",
+      "exit": 0,
+      "log": "pike-r31-resume-clippy.log"
+    },
+    {
+      "command": "cargo clippy --offline --locked -p pike --lib --bin pike --tests --example settings_reload --example pane_moving --example command_routing --target x86_64-pc-windows-msvc -- -D warnings",
+      "exit": 0,
+      "log": "pike-r31-resume-windows-clippy.log"
+    }
+  ],
+  "limitations": [
+    "MSVC cross-compilation only, no native Windows/ConPTY runtime",
+    "No physical keyboard/monitor or Windows IME candidate UI checks",
+    "No release memory/CPU/latency measurements or claims",
+    "No Linux runtime check",
+    "Vendor unchanged: no dependency tests required",
+    "Actions remained disabled; no remote CI"
+  ]
+}

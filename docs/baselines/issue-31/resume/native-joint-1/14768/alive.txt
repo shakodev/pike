@@ -1,0 +1,5 @@
+pid=14768
+cwd=/private/tmp/pike-r31-resume-joint-1/b
+profile=b
+revision=before
+argument=old-args

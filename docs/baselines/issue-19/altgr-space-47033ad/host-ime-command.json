@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--no-default-features",
+    "--features",
+    "renderer-tiny-skia",
+    "--lib",
+    "app::tests::ime",
+    "--",
+    "--include-ignored"
+  ],
+  "exit_code": 0
+}

@@ -1,0 +1,322 @@
+[
+  {
+    "png": "empty-dark-100.png",
+    "width": 1200,
+    "height": 800,
+    "rgb_sha256": "82ef6a375daade940114a162b3b2e91d644d3066f63b2a981a12eeac76cf3c42",
+    "png_sha256": "1469bf9074619ff75a17e12fa15b9f092a84698338a985e1d32ba033d910f1b8",
+    "source_ppm_sha256": "59cddc923a5a0e7d94b9d589cc0cd06fe0d72753caf5015a4b6df82c2b1a0365"
+  },
+  {
+    "png": "empty-dark-125.png",
+    "width": 1500,
+    "height": 1000,
+    "rgb_sha256": "6f58ef707f28f28f31d1226af9eebf038fdcc6883ecbfbab101e975e588873b3",
+    "png_sha256": "ff404b9bf5c5668672ec30edc68406d27c0595ec7bba61cc8e552af63828645c",
+    "source_ppm_sha256": "7282d5f20493014ca6dbb03de0e6eaff5718663ffe94763217da68933bc0ce23"
+  },
+  {
+    "png": "empty-dark-150.png",
+    "width": 1800,
+    "height": 1200,
+    "rgb_sha256": "3edccb5c1ac9898ab1bb28c3d9d42d9dd14d5ae6c23daaca7f1b19f852019f4a",
+    "png_sha256": "b571edb486080a24a0e6422bc593f04c2725f1dfb3060f06b4ca0bf7cce6fa29",
+    "source_ppm_sha256": "9e0d7037d3d31c0b49b6b4ad9b313c7b73b67763732d40da29c2faba72f46d36"
+  },
+  {
+    "png": "empty-dark-200.png",
+    "width": 2400,
+    "height": 1600,
+    "rgb_sha256": "f560d2980ab1a83b60247d632e6dbbe59f305febd5b83c4fe83561b143842d66",
+    "png_sha256": "29228a29fdfe124c118652b0eef98c117c4df500db10436357fec4ce599b2e08",
+    "source_ppm_sha256": "efb342de55162dca4dea195575d1205c62bf1b3372b6325eba4d065856eca9d8"
+  },
+  {
+    "png": "empty-light-100.png",
+    "width": 1200,
+    "height": 800,
+    "rgb_sha256": "8434e8b1a3113d40a4168ccf8ada969253800deb309fa09eeacf89efe8f6ebdb",
+    "png_sha256": "a13f08446bfc1ca62da3163c7ff744f4e76782f406c12acfe3a7241da8d4bfb0",
+    "source_ppm_sha256": "b27e4adc16cfac37807758a46e142ea57220b6353080f4c64234ffccad137929"
+  },
+  {
+    "png": "empty-light-125.png",
+    "width": 1500,
+    "height": 1000,
+    "rgb_sha256": "cea6a7de09454be2d014c01ef18ff93cb0a7ac001fafd83b0405e2c32687b291",
+    "png_sha256": "faf1db944f7a2b2760a6dbe800f360af309b2d93fa48e702147313b4e5a53d6b",
+    "source_ppm_sha256": "12017ad30eb5e8d2b5905f72273d323ce1ea7bbf222dd196360daa2f58da2c8f"
+  },
+  {
+    "png": "empty-light-150.png",
+    "width": 1800,
+    "height": 1200,
+    "rgb_sha256": "b9778dd7b6f3231963ba8f0263e2cee331e1aefe2eef92cbc9710fb95cc6e3d9",
+    "png_sha256": "dbf3365795ab44818086e38be7f9dc7ee48c9df9619c83ffa5c73215de95dc44",
+    "source_ppm_sha256": "5fb5c70dbe6ead4e563b44729fc76b36dc888a043cbb054a80610373d01be17c"
+  },
+  {
+    "png": "empty-light-200.png",
+    "width": 2400,
+    "height": 1600,
+    "rgb_sha256": "f9911fa041826a5d233831b6a437c9a6385af2488bbab528664406568821cd91",
+    "png_sha256": "4b2e2d36383cbab076849c64765fb1896c662ed21fd0f45e101a2fded6d205f9",
+    "source_ppm_sha256": "4c5dcfa3057249a88a24541cabff5d58761b0c5603b37f816ea3e1e51ce1dedc"
+  },
+  {
+    "png": "empty-small-dark-100.png",
+    "width": 320,
+    "height": 240,
+    "rgb_sha256": "a01a65545f6dd19473dc7c0387ce648b4370c136b2e2cffea35a3634cdbb8288",
+    "png_sha256": "22e7070130988ec9880929210ebb0f1749d4002e4aa7e20dbdc2af77aa8623f9",
+    "source_ppm_sha256": "318372210eccf509f41d4c9cb176077b8009e12ad97f0212d25675a3546536c5"
+  },
+  {
+    "png": "empty-small-dark-125.png",
+    "width": 400,
+    "height": 300,
+    "rgb_sha256": "26c0a1f221334f96f65c1bcf030215dc701260fd38c0ccd1b1eb8c10c6a54ddc",
+    "png_sha256": "36757aace527a262ed0b9c7ec7bc365da2c531a77d51979fb9f11673ff06dd1e",
+    "source_ppm_sha256": "f849b74560192f04396d1798c2eb65ad0098e10b9f3e1a148d3a718e9abcaf7f"
+  },
+  {
+    "png": "empty-small-dark-150.png",
+    "width": 480,
+    "height": 360,
+    "rgb_sha256": "adcb7a0f4ca5ba0ae9eff20b2c561bf57a4364800df0c894dab684a3487e9874",
+    "png_sha256": "b134715ce8b8f2b77eda4560f0a5bce2a7c698c7f322a908a1e5fa4d25dc41d4",
+    "source_ppm_sha256": "6f93a27a5bff6c264d4d93ef84f76ad4030d84a6b91da6be968f2a2e8ba9fdf6"
+  },
+  {
+    "png": "empty-small-dark-200.png",
+    "width": 640,
+    "height": 480,
+    "rgb_sha256": "208fee1f66f43cd9447f60c0c5d6324ad34df39ed7d9731d683c1036417e8bda",
+    "png_sha256": "b920ec5e4446d70ea2250342a8706578c9340389357bdef5f4b8689987b569b0",
+    "source_ppm_sha256": "7fe2888bfed98d5aad33021f69293f6aa67e5d1ab7a070deea9425debb7ff76a"
+  },
+  {
+    "png": "empty-small-light-100.png",
+    "width": 320,
+    "height": 240,
+    "rgb_sha256": "3d98a4c4950e386462b154aa52dc41bea70e2011e8c931e8f4edc0fe0836f73e",
+    "png_sha256": "2443b15464efe3b420cb4194e991cf493ae47924e6a542262c360349eca1ca14",
+    "source_ppm_sha256": "f4b3391d643275ed2d4eb93089883be027815b808b9565db278c2d47adcbba8b"
+  },
+  {
+    "png": "empty-small-light-125.png",
+    "width": 400,
+    "height": 300,
+    "rgb_sha256": "af11d102e3969a26a8008a336956301d3b06e19ada4d776e1d2a969d8114a8f5",
+    "png_sha256": "583e1adff347147c401696a12eaceb2c81280dd57d5662ae167d5125e52f2e15",
+    "source_ppm_sha256": "a34b702fafd28b951fc49d7b47d7532f3d74d454ce89092c560210213456a662"
+  },
+  {
+    "png": "empty-small-light-150.png",
+    "width": 480,
+    "height": 360,
+    "rgb_sha256": "96b6c145d5cb29e074ae5dd00fe818e7785be7f1b2f25f9d4fa77265d0240b5c",
+    "png_sha256": "1a5b7e509c0ae8dea34a2b7825ae52c407c073016b80010243ba2a80b59d76a1",
+    "source_ppm_sha256": "034c286473015b2cc7728e99f68f41952ef89bb6a6ead7e31463a33cb1c4a260"
+  },
+  {
+    "png": "empty-small-light-200.png",
+    "width": 640,
+    "height": 480,
+    "rgb_sha256": "ac1dc85d4625b2214802bbb19e067f947cc6f7ce9a1f25dde6daddc725ee839f",
+    "png_sha256": "243ebe342a3c5dd33c60aa9277f9837e1747ca36718d852927bdd90d1895a7c9",
+    "source_ppm_sha256": "e290cb9660400a120dfc9f6e8e74d8ec66a4a92b7dcb4fdd785d74330073cbc7"
+  },
+  {
+    "png": "error-dark-100.png",
+    "width": 1200,
+    "height": 800,
+    "rgb_sha256": "dff371b09744c6f10e191de95d7622c82cbc99527c5409b469ce95c2646d17b2",
+    "png_sha256": "488654ed4be3efaee2cf181c7a864ce0475adef63ab24d05ba5fd374eb9a880d",
+    "source_ppm_sha256": "c26f46f52b549aefe023b90f5ba4a80b0ca801e54aa0742db82dde55d8b7e248"
+  },
+  {
+    "png": "error-dark-125.png",
+    "width": 1500,
+    "height": 1000,
+    "rgb_sha256": "0aa022108a9d37c5d6f2c82dba229195ed3a199735eb5d5c038b316fd39b1b78",
+    "png_sha256": "368cdd2da066daa124fdc17b0ad2c31e6f3dd3cdc3c210b984ab565e98e75bba",
+    "source_ppm_sha256": "2499ae71648a8a72e29ea89d8629a940761c0766777ddc46fa5ed83696b038e6"
+  },
+  {
+    "png": "error-dark-150.png",
+    "width": 1800,
+    "height": 1200,
+    "rgb_sha256": "2eba57dcfd119029805de7f8adf35420f839a9f4aca20631eae64b35dad976d1",
+    "png_sha256": "101667c2cda7d49bbb21c1dd77e65f5b70be62a61cf54dc961406ed67a7e9db6",
+    "source_ppm_sha256": "0f827293f6ecdddacdc4662ab892f35cb15a43586c8d1d3fb43b0cb7e7f5270b"
+  },
+  {
+    "png": "error-dark-200.png",
+    "width": 2400,
+    "height": 1600,
+    "rgb_sha256": "67f3fa110db2b434ec7228e112dab53489fcfac5556e3211e9dac96b32895c56",
+    "png_sha256": "9c649563b1105cf48e377d0dd78c5169b9038f38038ffe7f27ba58dd24326c49",
+    "source_ppm_sha256": "b3c76a329e775e67933ddddd4397e08929041ff3f1b43176dffebd4187f550fa"
+  },
+  {
+    "png": "error-light-100.png",
+    "width": 1200,
+    "height": 800,
+    "rgb_sha256": "f8e823584aee6778703605e6c4f9c4bb67a981721bdb3e7bbec42d08e9a36e59",
+    "png_sha256": "683a562206435e4f9ec725c1cc2f9862a19e688e61eeab579723be4db828df0b",
+    "source_ppm_sha256": "e3d260bbc85521e34c25911a5a6d91073090badac5254abe11c6f25357d8c758"
+  },
+  {
+    "png": "error-light-125.png",
+    "width": 1500,
+    "height": 1000,
+    "rgb_sha256": "0bc8e9a143b79292d87711a7f2bb7b7016dd172b6855b06d38cb2ae46d9038d6",
+    "png_sha256": "5e7c45a31c3016e5b4881d7baa90ef7c2790ea7f2f832943acb92e86a26fe179",
+    "source_ppm_sha256": "f7b1c9501016ec9436aaf26132482687ff30c15f928eec0b34cbfcfc546a08ec"
+  },
+  {
+    "png": "error-light-150.png",
+    "width": 1800,
+    "height": 1200,
+    "rgb_sha256": "d4fd8f83a2f51a781520f8ab8cf63b1605392e6f3eb9747dbf5e4eee2189bbbb",
+    "png_sha256": "a3f417fb3ce9c7f1b629e446cc7f802ca30c47287c78801b019dc1190e0ca046",
+    "source_ppm_sha256": "427ddbb31d5df63af7716ce6c2a3680ac08014cc9f7d1fcb35513ecac81ae052"
+  },
+  {
+    "png": "error-light-200.png",
+    "width": 2400,
+    "height": 1600,
+    "rgb_sha256": "54427056a4ae863b48da6d157556756749b2e1f79a8046cc77cfedf4792a41b8",
+    "png_sha256": "4d7a006d8a9e2873098968eebd65f296022400900b64df391b893f4bd8895445",
+    "source_ppm_sha256": "f16666cb2e07d4d7914d7fe769568a28f853b966b3f7a095d2624deb5137f858"
+  },
+  {
+    "png": "error-small-dark-100.png",
+    "width": 320,
+    "height": 240,
+    "rgb_sha256": "98ce3396fe2cac743f57d6acc73fffb150f051633022c3e0ad5ad3cf012b980b",
+    "png_sha256": "6d307d1127089dab712a024c7f8b4b762a9bf19d8f15337be34d93d8337b506c",
+    "source_ppm_sha256": "5d24957dcff1c4cf133b6aec20a0f6de08b2de68bf3de284bcc9e609b47de051"
+  },
+  {
+    "png": "error-small-dark-125.png",
+    "width": 400,
+    "height": 300,
+    "rgb_sha256": "d62468d65fc748c2e4b1be112f7812beccff03ceaeed05991aa30b08f59da0a5",
+    "png_sha256": "194ba454761d57ea9b4086b80b577283a05e9c02fa5edccb07cc646f108f38d4",
+    "source_ppm_sha256": "2476fc6a4d9956af94569123868bf622c2d6f62698fd9fbeb7b8640bf0322efe"
+  },
+  {
+    "png": "error-small-dark-150.png",
+    "width": 480,
+    "height": 360,
+    "rgb_sha256": "43d75f39cb59c56d29db2192cf5ba90412bf4df1f83a71ac718ebc77642b896b",
+    "png_sha256": "bd7fd634f47ccb47ab974cab1ba4adbd92b3497bdd682268d4e3126cd0a02bf7",
+    "source_ppm_sha256": "114bcc4e59ffad27a2b8975e398c56af018ddeaa16f84c82a96175e783b0b1cd"
+  },
+  {
+    "png": "error-small-dark-200.png",
+    "width": 640,
+    "height": 480,
+    "rgb_sha256": "1796eaf5537f6667f2d343056cff3b0f19c9f2f16b509802caa67dadabc8b9f0",
+    "png_sha256": "21105b5a9d54291188358a5f618f257970bb3a23da53ea7bfb4632405a42bbdb",
+    "source_ppm_sha256": "904921612d481db4b7dae27aacdafcf71bd83c7b8d33cfceabd4137dad8b1797"
+  },
+  {
+    "png": "error-small-light-100.png",
+    "width": 320,
+    "height": 240,
+    "rgb_sha256": "68b2322f494138574a470de291f0bb92e244baba3862ee68134ee935abc9b9ed",
+    "png_sha256": "cc5402a784286bfd96b603bd16b7bedff6b3e40b9c5e02c44e8dca80ab8ab34c",
+    "source_ppm_sha256": "57661d3b597261774e8c9bece82eb50ea0e36d10b1df734f67be38adc8b6926a"
+  },
+  {
+    "png": "error-small-light-125.png",
+    "width": 400,
+    "height": 300,
+    "rgb_sha256": "cecb9460228eae5cdeada0d59fcff9708fb06f6f5d02a49313c2f39980aac67d",
+    "png_sha256": "330f5c0c154ff023eeeba4f2a901f29e53746e3b428ec24c7031164a579e0dd9",
+    "source_ppm_sha256": "6837128ff987fc6ed1cb5a9c444e28b8f7b62202775b37b4f82f6ae12474e629"
+  },
+  {
+    "png": "error-small-light-150.png",
+    "width": 480,
+    "height": 360,
+    "rgb_sha256": "fc8ca87269055577dacec0ebd21a311e7d8fc0b662af18e1f09add2c9931977c",
+    "png_sha256": "77373b7d2c1a780642e27805a3488993e86edc7b75f0ef0dccf8be8b2a7aca9b",
+    "source_ppm_sha256": "1d9523d3d885ad78d159a98758a1f25c346720deaf089583b2c1113af41e0638"
+  },
+  {
+    "png": "error-small-light-200.png",
+    "width": 640,
+    "height": 480,
+    "rgb_sha256": "f20b0f1f30315a7a3549e886dbf75eb0f8b0becd1b6b46a59d6645b3f4d9cf0c",
+    "png_sha256": "ab2673178a1f67f20152e397e81290244efbb051fdfb4b8c3a88c1c44b594d20",
+    "source_ppm_sha256": "6b30bc50f2a33c7173849fd1e32faefe282407196c1146db906828344aa25c26"
+  },
+  {
+    "png": "exited-dark-100.png",
+    "width": 1200,
+    "height": 800,
+    "rgb_sha256": "9102a05bf05667cd379c7782f7dbdd46ff25fcc77758d654cd57ff5fd231a154",
+    "png_sha256": "0db77d80727fb7bf746b46fdb4144d55ecde9a640c3c367f6402fc7ef9cba60e",
+    "source_ppm_sha256": "543cf92179cc885cd1546d80ffbb44e6780316df6a73878ea6eaff82f2bede7d"
+  },
+  {
+    "png": "exited-dark-125.png",
+    "width": 1500,
+    "height": 1000,
+    "rgb_sha256": "45a0a92e8b577fe3bac8021e5fd9e58c20f231f7331a53c7e4a8858463f679e3",
+    "png_sha256": "7f2bcf6a070fe1fe9caccfce302893572411b7b932b62edbea059e0d6ba7e004",
+    "source_ppm_sha256": "c1c462eb15fa86a696787b6c121e8eed42a3b1b80342a738129754f1f72f5618"
+  },
+  {
+    "png": "exited-dark-150.png",
+    "width": 1800,
+    "height": 1200,
+    "rgb_sha256": "93aba3d561ee8fd320a5cca496ec1430f70bc62fe4e45a99adfa69fc715bfdfc",
+    "png_sha256": "84c6f5b0bf55a5e58fc7115bf6f605066380aabd57fb375f286a215f6b6c9967",
+    "source_ppm_sha256": "f7a47fdb64407cc4e2e4e9143b3461f8e7f7d089c8c65481b627f6cc6d8d45fd"
+  },
+  {
+    "png": "exited-dark-200.png",
+    "width": 2400,
+    "height": 1600,
+    "rgb_sha256": "65c735aa36ae42175436b92339b645d36365f1966fb03e6a143e31199df4cbed",
+    "png_sha256": "d2295579c8adddf28fd88f2b8cf7975919292ad7d5f0d41d98c1266bca3048d5",
+    "source_ppm_sha256": "dccca950066eade0be2844b4e0ae905fea6d683dd2159ae6e8b18e754ee98b11"
+  },
+  {
+    "png": "exited-light-100.png",
+    "width": 1200,
+    "height": 800,
+    "rgb_sha256": "308360c1dce82b849161a22d883ffbd08f04c456a7292df54108a780d8e09606",
+    "png_sha256": "99bc4d1b75eff9623b05e813683e72f9f99906bbdfcf62432cefe3933179f002",
+    "source_ppm_sha256": "b906c4a46a2308231886f66a87d0f16a6681e8a60afc4990df042fe5725a6940"
+  },
+  {
+    "png": "exited-light-125.png",
+    "width": 1500,
+    "height": 1000,
+    "rgb_sha256": "28036608996400d65601bc19ee7bdbd911e11aacead90848c00676cf47d54c51",
+    "png_sha256": "6718b4f74f8d21c195285679c18b9da8793e5d2710a1e6c64075166ae81bd9c0",
+    "source_ppm_sha256": "fef093b297b132e349d59223e699cc8d3177503eae62c282448eee02e9384165"
+  },
+  {
+    "png": "exited-light-150.png",
+    "width": 1800,
+    "height": 1200,
+    "rgb_sha256": "3b793f5e4308b3910f0fcc36b77fc90e120ad346551722014b4dec80755f6530",
+    "png_sha256": "221b317b15efbc155f25bf65865e6d2f3e30d2110f231fdaf6b4a382e70aa548",
+    "source_ppm_sha256": "f4dacf34ba634a8c46e41a68c99fe35e091461a0cb83efae9733957b6da317de"
+  },
+  {
+    "png": "exited-light-200.png",
+    "width": 2400,
+    "height": 1600,
+    "rgb_sha256": "d88b8ef1c8391d1ded659f228aea21ee8d2b3ab28c4bd4bebc51065f374af17e",
+    "png_sha256": "beaa25eb595cea1f107ec3c1430c1eda47f529c237e6bb745b4697f60c27f90f",
+    "source_ppm_sha256": "6d1a238c9c7f8c4df3af4fcd6433b09f5051e054265fb1888a17f870f6f0b21c"
+  }
+]

@@ -153,6 +153,8 @@ fn activation_applies_layout_deferred_during_shutdown_even_after_bridge_failure(
             backend.notifier.0.clone(),
             events,
             completion,
+            backend.pending_paste.clone(),
+            backend.ime.clone(),
         );
         if failed {
             backend.handle(Command::EventBridge(EventBridgeEvent::Error(

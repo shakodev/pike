@@ -1,0 +1,61 @@
+[
+  {
+    "argv": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "-p",
+      "pike",
+      "--lib",
+      "--message-format=json"
+    ],
+    "exit_code": 0
+  },
+  {
+    "argv": [
+      "rustc",
+      "--edition=2024",
+      "--crate-name",
+      "r30_clipping_probe",
+      "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/docs/baselines/issue-30/clipping/author-green-probe.rs",
+      "-L",
+      "dependency=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/target/debug/deps",
+      "--extern",
+      "iced=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/target/debug/deps/libiced-f2f9aef222a5f1fd.rlib",
+      "--extern",
+      "pike=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/target/debug/libpike.rlib",
+      "-o",
+      "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/target/r30-clipping-probe"
+    ],
+    "exit_code": 0
+  },
+  {
+    "argv": [
+      "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/target/r30-clipping-probe"
+    ],
+    "exit_code": 0
+  },
+  {
+    "argv": [
+      "rustc",
+      "--edition=2024",
+      "--crate-name",
+      "r30_fixture_helpers",
+      "--crate-type",
+      "lib",
+      "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/target/r30-fixture-helpers.rs",
+      "-L",
+      "dependency=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/target/debug/deps",
+      "--extern",
+      "iced=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/target/debug/deps/libiced-f2f9aef222a5f1fd.rlib",
+      "--extern",
+      "iced_term=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/target/debug/deps/libiced_term-9545d1934b006eaa.rlib",
+      "--extern",
+      "pike=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/target/debug/libpike.rlib",
+      "-o",
+      "/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c/target/libr30_fixture_helpers.rlib"
+    ],
+    "exit_code": 0
+  }
+]

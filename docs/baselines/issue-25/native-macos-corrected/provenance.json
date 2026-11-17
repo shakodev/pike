@@ -1,0 +1,17 @@
+{
+  "host": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "source_base": "5d34cb74b99f5e7e6865789f645e5fe519ba2d94",
+  "app_implementation_head": "61acb1bf01ff8fac65a58a89ae56f1b4eeb76797",
+  "renderer": "default renderer-wgpu",
+  "jobs": 4,
+  "commands": [
+    "CARGO_BUILD_JOBS=4 cargo build --release --locked -p pike --example pane_resizing",
+    "/usr/bin/time -l target/release/examples/pane_resizing docs/baselines/issue-25/native-macos-corrected"
+  ],
+  "sha256": {
+    "examples/pane_resizing.rs": "37882cf0dbb84dab74ae7f1420a05dbb9a1c61718d8441541343d0c9d48d92c7",
+    "examples/pane_resizing/widget.rs": "159cac7f9602ae0cd166088dfbdc810bb0a4c75a60fe712fcc6f3751755ac9a4",
+    "target/release/examples/pane_resizing": "c08e86a5bfc837b8eb6cc1779f70d8a9980ee634a2d962ff4e682dfaefd941a0"
+  }
+}

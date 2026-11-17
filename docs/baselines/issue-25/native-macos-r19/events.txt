@@ -1,0 +1,35 @@
+session=1 pid=33149
+session=3 pid=33151
+session=4 pid=33154
+session=5 pid=33169
+begin-case=0
+passed-case=0 exact-native-dimensions=4 identities=4
+begin-case=1
+actual widget focus restored after divider drag
+passed-case=1 exact-native-dimensions=4 identities=4
+begin-case=2
+actual widget focus restored after divider drag
+passed-case=2 exact-native-dimensions=4 identities=4
+begin-case=3
+passed-case=3 exact-native-dimensions=4 identities=4
+begin-case=4
+passed-case=4 exact-native-dimensions=4 identities=4
+begin-case=5
+passed-case=5 exact-native-dimensions=4 identities=4
+begin-case=6
+passed-case=6 exact-native-dimensions=4 identities=4
+begin-case=7
+passed-case=7 exact-native-dimensions=4 identities=4
+begin-case=8
+passed-case=8 exact-native-dimensions=4 identities=4
+begin-case=9
+passed-case=9 exact-native-dimensions=4 identities=4
+begin-case=10
+passed-case=10 exact-native-dimensions=4 identities=4
+begin-case=11
+passed-case=11 exact-native-dimensions=4 identities=4
+begin-case=12
+passed-case=12 exact-native-dimensions=4 identities=4
+begin-case=13
+passed-case=13 exact-native-dimensions=4 identities=4
+begin-case=14

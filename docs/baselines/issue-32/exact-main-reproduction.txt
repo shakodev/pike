@@ -1,0 +1,5 @@
+Base: a5fe9fc4d8f0df53db240155ecebe0088d9898f4
+Extraction: git archive of the exact base into /private/tmp/pike-r32-exact-main-a5fe
+Command: CARGO_TARGET_DIR=/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/target CARGO_BUILD_JOBS=4 cargo check --manifest-path /private/tmp/pike-r32-exact-main-a5fe/Cargo.toml --locked -p pike --example startup_lifecycle
+Result: exit 101; 49 unresolved root-import/restricted-ancestor/method errors
+Log: pike-r32-exact-main-startup.log

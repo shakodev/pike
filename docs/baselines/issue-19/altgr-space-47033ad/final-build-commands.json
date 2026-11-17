@@ -1,0 +1,54 @@
+[
+  {
+    "name": "host-fmt-609d702",
+    "argv": [
+      "rustfmt",
+      "--edition",
+      "2024",
+      "--check",
+      "src/terminal.rs",
+      "src/app/tests/ime.rs"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "host-clippy-609d702",
+    "argv": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "--no-default-features",
+      "--features",
+      "renderer-tiny-skia",
+      "--lib",
+      "--tests",
+      "--bin",
+      "pike",
+      "--example",
+      "ime_composition",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "final-release-build-609d702",
+    "argv": [
+      "cargo",
+      "build",
+      "--release",
+      "--locked",
+      "--offline",
+      "--no-default-features",
+      "--features",
+      "renderer-tiny-skia",
+      "--bin",
+      "pike",
+      "--example",
+      "ime_composition"
+    ],
+    "exit_code": 0
+  }
+]

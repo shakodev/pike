@@ -1,0 +1,9 @@
+Local implementation follow-up draft; publication is held by the coordinator.
+
+Both native pointer findings were reproduced at published `58f289853b13a6788c25ddfd9ed498ee2dcbc223` and corrected in source commit `077d092a8d81d9ff0f6dbabf9f02ba9c146fedbf` on the same PR #76 branch. The unchanged leeway probe now emits zero terminal selection/mouse commands, and the unchanged blur-drag probe leaves the canonical ratio unchanged on an unheld move after refocus.
+
+The existing capture widget now shares pointer admission with pane contents, protecting terminals across Iced's mapped event shells while retaining native PaneGrid drag geometry. Blur or owner loss explicitly releases PaneGrid's armed resize without replacing terminal Trees. The capture, KeyAction and font interfaces are unchanged.
+
+Verification ran locally: selected formatting and macOS/Windows cross-Clippy pass, 28 App tests pass with four existing device tests ignored, and asserted persistent-Tree tests pass in ordinary and confirmed mouse-report modes. Ordinary clicks, selection drag and mouse reports pass through; divider gestures admit no PTY input; owner transfer cancels stale drag; a fresh press can resize; the original three regressions stay green. The release fixture passes 14 cases / 56 independent native-size comparisons, retains all four session/process/widget identities and leaves no child processes after cleanup.
+
+Exact sources, SHA256 hashes, red/green native logs, native geometry, measurements and command details are in `docs/verification/issue-25.md` and `docs/baselines/issue-25/pointer-lifecycle/`. Native Windows, physical keyboard/monitor, mixed-monitor and ordinary idle-resource verification remain unperformed; Actions remains disabled and no merge is requested by this draft. Independent final review remains with R1.

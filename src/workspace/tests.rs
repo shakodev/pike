@@ -4,6 +4,208 @@ use crate::session::Lifecycle;
 use iced::widget::pane_grid::{self, Node, Pane};
 use std::collections::BTreeSet;
 
+#[test]
+fn directional_focus_tracks_nested_geometry_without_lifecycle_effects() {
+    use pane_grid::Direction::{Down, Left, Right, Up};
+    let mut model = Model::default();
+    let (left, first) = model.create_tab().unwrap();
+    let (top, second) = model.split(left, Axis::Vertical).unwrap();
+    let (bottom, third) = model.split(top, Axis::Horizontal).unwrap();
+    let ids = [first, second, third].map(reservation);
+    for ids in ids {
+        model.spawn_succeeded(ids);
+    }
+    let tree = format!(
+        "{:?}",
+        model.workspace().tab(left.tab).unwrap().grid().layout()
+    );
+    model.focus(left).unwrap();
+    for (source, direction, expected) in [
+        (left, Right, Some(top)),
+        (top, Down, Some(bottom)),
+        (bottom, Up, Some(top)),
+        (top, Left, Some(left)),
+        (left, Left, None),
+        (left, Up, None),
+    ] {
+        assert_eq!(model.focus_adjacent(source, direction), Ok(expected));
+        assert_eq!(
+            model.workspace().tab(left.tab).unwrap().focused(),
+            expected.unwrap_or(source).pane
+        );
+        invariants(&model);
+    }
+    assert_eq!(
+        tree,
+        format!(
+            "{:?}",
+            model.workspace().tab(left.tab).unwrap().grid().layout()
+        )
+    );
+    assert_eq!(model.sessions().len(), 3);
+    for ids in ids {
+        assert_eq!(
+            model.sessions().get(ids.session).unwrap().reservation(),
+            ids
+        );
+        assert_eq!(
+            model.sessions().get(ids.session).unwrap().lifecycle(),
+            Lifecycle::Running
+        );
+    }
+}
+
+#[test]
+fn directional_focus_restores_zoom_and_rejects_removed_sources_atomically() {
+    use pane_grid::Direction::{Left, Right};
+    let mut model = Model::default();
+    let (left, _) = model.create_tab().unwrap();
+    let (right, _) = model.split(left, Axis::Vertical).unwrap();
+    model.zoom(right).unwrap();
+    assert_eq!(model.focus_adjacent(right, Left), Ok(Some(left)));
+    assert_eq!(
+        model.workspace().tab(left.tab).unwrap().grid().maximized(),
+        None
+    );
+    model.close_pane(right).unwrap();
+    assert_eq!(model.focus_adjacent(right, Left), Err(Error::StalePane));
+    assert_eq!(model.focus_adjacent(left, Right), Ok(None));
+    assert_eq!(
+        model.workspace().tab(left.tab).unwrap().focused(),
+        left.pane
+    );
+    model.close_pane(left).unwrap();
+    assert_eq!(model.focus_adjacent(left, Right), Err(Error::StaleTab));
+    invariants(&model);
+}
+
+#[test]
+fn guarded_splits_use_exact_half_ratios_and_preserve_the_source() {
+    use iced::Size;
+    for axis in [Axis::Vertical, Axis::Horizontal] {
+        let mut model = Model::default();
+        let (source, effect) = model.create_tab().unwrap();
+        let original = reservation(effect);
+        model.spawn_succeeded(original);
+        let geometry = SplitGeometry {
+            area: Size::new(408.0, 264.0),
+            minimum: Size::new(202.0, 130.0),
+            spacing: 4.0,
+        };
+        let (created, effect) = model.split_with_geometry(source, axis, geometry).unwrap();
+        let next = reservation(effect);
+        assert_ne!(next.session, original.session);
+        assert_ne!(next.request, original.request);
+        assert_eq!(
+            model.workspace().pane(source).unwrap().session,
+            original.session
+        );
+        assert_eq!(
+            model.sessions().get(original.session).unwrap().lifecycle(),
+            Lifecycle::Running
+        );
+        assert_eq!(model.target(next.session), Some(created));
+        let Node::Split {
+            axis: actual,
+            ratio,
+            ..
+        } = model.workspace().tab(source.tab).unwrap().grid().layout()
+        else {
+            panic!("missing split")
+        };
+        assert_eq!((*actual, *ratio), (axis, 0.5));
+        invariants(&model);
+    }
+}
+
+#[test]
+fn geometry_refusal_is_atomic_for_rounding_nested_and_invalid_sizes() {
+    use iced::Size;
+    let mut model = Model::default();
+    let (source, _) = model.create_tab().unwrap();
+    let mut geometry = SplitGeometry {
+        area: Size::new(408.0, 264.0),
+        minimum: Size::new(202.0, 130.0),
+        spacing: 4.0,
+    };
+    for area in [
+        Size::new(407.0, 264.0),
+        Size::new(408.0, 129.0),
+        Size::ZERO,
+        Size::new(f32::NAN, 500.0),
+        Size::new(500.0, f32::INFINITY),
+    ] {
+        geometry.area = area;
+        assert_eq!(
+            model.split_with_geometry(source, Axis::Vertical, geometry),
+            Err(Error::Geometry)
+        );
+        assert_eq!(model.sessions().len(), 1);
+        assert_eq!(
+            model.workspace().tab(source.tab).unwrap().focused(),
+            source.pane
+        );
+    }
+    geometry.area = Size::new(408.0, 264.0);
+    let (right, _) = model
+        .split_with_geometry(source, Axis::Vertical, geometry)
+        .unwrap();
+    assert_eq!(
+        model.split_with_geometry(right, Axis::Vertical, geometry),
+        Err(Error::Geometry)
+    );
+    let (down, _) = model
+        .split_with_geometry(right, Axis::Horizontal, geometry)
+        .unwrap();
+    assert_eq!(
+        model.split_with_geometry(down, Axis::Horizontal, geometry),
+        Err(Error::Geometry)
+    );
+    assert_eq!(model.sessions().len(), 3);
+    invariants(&model);
+}
+
+#[test]
+fn retained_budget_is_32_and_in_place_retry_preserves_layout_at_capacity() {
+    let mut model = Model::default();
+    let (source, first) = model.create_tab().unwrap();
+    let first = reservation(first);
+    model.spawn_succeeded(first);
+    let mut last = source;
+    for _ in 1..32 {
+        let (target, spawn) = model.split(source, Axis::Vertical).unwrap();
+        model.spawn_failed(reservation(spawn), Failure::Spawn);
+        last = target;
+    }
+    assert_eq!(model.sessions().len(), 32);
+    assert_eq!(
+        model.split(source, Axis::Horizontal),
+        Err(Error::SessionLimit)
+    );
+    let tree = format!(
+        "{:?}",
+        model.workspace().tab(source.tab).unwrap().grid().layout()
+    );
+    let old = model.workspace().pane(last).unwrap().session;
+    let retry = reservation(model.restart(last).unwrap());
+    assert_ne!(retry.session, old);
+    assert!(model.sessions().get(old).is_none());
+    assert_eq!(model.sessions().len(), 32);
+    assert_eq!(
+        tree,
+        format!(
+            "{:?}",
+            model.workspace().tab(source.tab).unwrap().grid().layout()
+        )
+    );
+    assert_eq!(model.restart(source), Err(Error::NotRestartable));
+    assert_eq!(
+        model.workspace().pane(source).unwrap().session,
+        first.session
+    );
+    invariants(&model);
+}
+
 fn reservation(effect: Effect) -> Reservation {
     match effect {
         Effect::Spawn(reservation) => reservation,

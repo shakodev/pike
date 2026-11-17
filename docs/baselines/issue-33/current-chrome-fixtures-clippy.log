@@ -1,0 +1,94 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14)
+error[E0433]: cannot find `chrome_actions` in `crate`
+  --> examples/remappable_shortcuts/focus.rs:24:20
+   |
+24 |             crate::chrome_actions::click_id(host, "command-menu-control")?;
+   |                    ^^^^^^^^^^^^^^ could not find `chrome_actions` in the crate root
+   |
+note: found an item that was configured out
+  --> examples/remappable_shortcuts.rs:7:5
+   |
+ 3 | #[cfg(windows)]
+   |       ------- the item is gated here
+...
+ 7 | mod chrome_actions;
+   |     ^^^^^^^^^^^^^^
+
+error[E0433]: cannot find `chrome_actions` in `crate`
+  --> examples/remappable_shortcuts/focus.rs:93:20
+   |
+93 |             crate::chrome_actions::click_id(host, "command-menu-control")?;
+   |                    ^^^^^^^^^^^^^^ could not find `chrome_actions` in the crate root
+   |
+note: found an item that was configured out
+  --> examples/remappable_shortcuts.rs:7:5
+   |
+ 3 | #[cfg(windows)]
+   |       ------- the item is gated here
+...
+ 7 | mod chrome_actions;
+   |     ^^^^^^^^^^^^^^
+
+error[E0433]: cannot find `chrome_actions` in `crate`
+   --> examples/remappable_shortcuts/scenarios.rs:102:12
+    |
+102 |     crate::chrome_actions::click_id(host, "command-menu-control")?;
+    |            ^^^^^^^^^^^^^^ could not find `chrome_actions` in the crate root
+    |
+note: found an item that was configured out
+   --> examples/remappable_shortcuts.rs:7:5
+    |
+  3 | #[cfg(windows)]
+    |       ------- the item is gated here
+...
+  7 | mod chrome_actions;
+    |     ^^^^^^^^^^^^^^
+
+error[E0433]: cannot find `chrome_actions` in `crate`
+   --> examples/remappable_shortcuts/scenarios.rs:397:12
+    |
+397 |     crate::chrome_actions::click_id(host, "command-menu-control")?;
+    |            ^^^^^^^^^^^^^^ could not find `chrome_actions` in the crate root
+    |
+note: found an item that was configured out
+   --> examples/remappable_shortcuts.rs:7:5
+    |
+  3 | #[cfg(windows)]
+    |       ------- the item is gated here
+...
+  7 | mod chrome_actions;
+    |     ^^^^^^^^^^^^^^
+
+error[E0433]: cannot find `chrome_actions` in `crate`
+   --> examples/remappable_shortcuts/scenarios.rs:442:12
+    |
+442 |     crate::chrome_actions::click_id(host, "command-menu-control")?;
+    |            ^^^^^^^^^^^^^^ could not find `chrome_actions` in the crate root
+    |
+note: found an item that was configured out
+   --> examples/remappable_shortcuts.rs:7:5
+    |
+  3 | #[cfg(windows)]
+    |       ------- the item is gated here
+...
+  7 | mod chrome_actions;
+    |     ^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0433`.
+error: could not compile `pike` (example "remappable_shortcuts") due to 5 previous errors
+warning: build failed, waiting for other jobs to finish...

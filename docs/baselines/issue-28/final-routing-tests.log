@@ -1,0 +1,28 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-8047c988abb10012)
+
+running 4 tests
+test app::tests::all_live_entries_subscribe_and_background_exit_keeps_the_active_session ... ok
+test app::tests::interaction::native::hidden_history_is_ignored_and_exited_history_selection_copy_stay_local ... ok
+test app::tests::interaction::native::hovered_mouse_and_alternate_wheel_are_owned_visible_and_do_not_focus ... ok
+test app::tests::interaction::queued_keyboard_requires_current_pane_and_window_focus ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 89 filtered out; finished in 0.13s
+

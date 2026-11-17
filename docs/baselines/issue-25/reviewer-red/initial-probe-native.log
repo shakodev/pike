@@ -1,0 +1,4 @@
+divider-tap focused=false
+plain-key write-messages=0
+resize-key focused=false
+cleanup sessions=0

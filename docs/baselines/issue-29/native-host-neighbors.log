@@ -1,0 +1,37 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.29s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-8047c988abb10012)
+
+running 13 tests
+test app::tests::closing::modal_accepts_launch_and_natural_completion_without_closing_or_focusing_a_target ... ok
+test app::tests::interaction::queued_keyboard_requires_current_pane_and_window_focus ... ok
+test app::tests::resize::modal_and_frozen_layout_jointly_gate_resize_but_keep_background_delivery ... ok
+test app::tests::resize::resize_minimize_restore_font_and_repeated_dimensions_keep_native_session ... ok
+test app::tests::split::failed_split_can_retry_in_place_and_limit_or_geometry_refusal_is_actionable ... ok
+test app::tests::split::host_geometry_uses_measured_cells_and_accounts_for_status_chrome ... ok
+test app::tests::split::host_session_limit_refusal_keeps_original_and_explains_recovery ... ok
+test app::tests::split::real_widget_sibling_paste_cancels_held_clones_and_releases_pending_capacity ... ignored, requires a local graphics device; run explicitly for visible sibling paste routing
+test app::tests::split::removing_a_prepared_split_disposes_only_its_owner_and_keeps_original_input ... ok
+test app::tests::split::slow_queued_split_is_cancelable_while_the_original_remains_usable ... ok
+test app::tests::split::split_reserves_before_launch_keeps_source_selected_and_focuses_on_attachment ... ok
+test app::tests::split::visible_sibling_hovered_mouse_and_alternate_wheel_do_not_require_or_steal_focus ... ok
+test app::tests::split::visible_sibling_stale_focus_and_keyboard_cannot_change_input_authority ... ok
+
+test result: ok. 12 passed; 0 failed; 1 ignored; 0 measured; 98 filtered out; finished in 0.27s
+

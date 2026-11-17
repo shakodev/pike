@@ -1,0 +1,7 @@
+candidate_initial=Rectangle { x: 44.214844, y: 56.649998, width: 8.428711, height: 18.199999 }
+candidate_moved=Rectangle { x: 74.21484, y: 96.649994, width: 8.428711, height: 18.199999 }
+candidate_resized=Rectangle { x: 74.21484, y: 96.649994, width: 8.428711, height: 18.199999 }
+candidate_model_updated=Rectangle { x: 91.072266, y: 114.85, width: 8.428711, height: 18.199999 }
+A_bytes=12
+B_bytes=3
+synthetic_preedit/commit/replay/cancel/owner/blur/modal/shortcut/dead-key/AltGr passed

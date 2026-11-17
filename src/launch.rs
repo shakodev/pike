@@ -24,7 +24,7 @@ impl Default for LaunchLimits {
     fn default() -> Self {
         Self {
             jobs: NonZeroU16::new(2).unwrap(),
-            sessions: NonZeroU16::new(16).unwrap(),
+            sessions: NonZeroU16::new(32).unwrap(),
         }
     }
 }
@@ -109,6 +109,8 @@ impl LaunchRequest {
         self.cancel.as_ref().unwrap().clone()
     }
 
+    /// Cancellation after successful preparation is delivered only after native
+    /// disposal; pre-creation cancellation and spawn errors need no such wait.
     pub async fn receive(mut self) -> Result<Box<PreparedSession>, LaunchError> {
         let result = (&mut self.result)
             .await
@@ -240,6 +242,16 @@ impl LaunchPool {
         })
     }
 
+    /// Test-only preparation gate; executes the same admission and worker path.
+    #[cfg(all(test, unix))]
+    pub(crate) fn start_reserved_with(
+        &mut self,
+        token: LaunchToken,
+        prepare: impl FnOnce(SessionId) -> io::Result<PreparedTerminal> + Send + 'static,
+    ) -> Result<LaunchRequest, LaunchError> {
+        self.start_job(Some(token), prepare)
+    }
+
     // Crate visibility lets the opt-in probe exercise the exact pool source
     // with deterministic preparation without exposing a public injection API.
     pub(crate) fn start_with(
@@ -304,7 +316,15 @@ impl LaunchPool {
                         || send.is_closed()
                     {
                         drop(prepared);
+                        // A failed-launch receipt releases the model's Closing
+                        // reservation. If preparation created a native owner,
+                        // acknowledge disposal (and free admission) first.
+                        handle.request_close();
+                        handle.wait().await;
+                        drop(job);
+                        drop(session);
                         let _ = send.send(Err(LaunchError::Canceled));
+                        return;
                     } else {
                         // On send failure the returned owner drops here and closes.
                         let _ = send.send(Ok(Box::new(PreparedSession {
@@ -368,6 +388,12 @@ impl LaunchPool {
             cancel: Some(CancelLaunch(cancel)),
             result,
         })
+    }
+
+    /// A receipt can authorize normal window exit only after every worker has
+    /// returned its permit following native disposal, including late prepare.
+    pub(crate) fn shutdown_complete(&self) -> bool {
+        self.closed && self.sessions.available_permits() == self.session_limit as usize
     }
 
     /// Stop admission immediately; await all starting/live/disposal ownership

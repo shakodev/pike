@@ -1,0 +1,51 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_term)
+error[E0521]: borrowed data escapes outside of closure
+   --> vendor/iced_term/src/view/ime/tests.rs:119:24
+    |
+ 99 |     let row = |a, b| -> iced::Element<'_, Event> {
+    |         --- `row` declared here, outside of the closure body
+...
+118 |     let mut dispatch = |a: &Terminal, b: &Terminal, event| {
+    |                         - `a` is a reference that is only valid in the closure body
+119 |         let mut view = row(a, b);
+    |                        ^^^^^^^^^ `a` escapes the closure body here
+
+error[E0521]: borrowed data escapes outside of closure
+   --> vendor/iced_term/src/view/ime/tests.rs:119:24
+    |
+ 99 |     let row = |a, b| -> iced::Element<'_, Event> {
+    |         --- `row` declared here, outside of the closure body
+...
+118 |     let mut dispatch = |a: &Terminal, b: &Terminal, event| {
+    |                                       - `b` is a reference that is only valid in the closure body
+119 |         let mut view = row(a, b);
+    |                        ^^^^^^^^^ `b` escapes the closure body here
+
+warning: variable does not need to be mutable
+  --> vendor/iced_term/src/view/ime/tests.rs:84:9
+   |
+84 |     let mut a = Live::new(19004);
+   |         ----^
+   |         |
+   |         help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+For more information about this error, try `rustc --explain E0521`.
+warning: `iced_term` (lib test) generated 1 warning
+error: could not compile `iced_term` (lib test) due to 2 previous errors; 1 warning emitted

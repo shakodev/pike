@@ -1,0 +1,3 @@
+session,completion,boot_title
+171001,Ok(Completion { reason: Requested, exit_code: None, output_drained: false }),pike:mouse:boot:20477
+171002,Ok(Completion { reason: Requested, exit_code: None, output_drained: false }),pike:mouse:boot:20479

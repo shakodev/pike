@@ -1,0 +1,64 @@
+{
+  "kind": "release macOS arm64; native PTYs, synthetic public-widget input/scale",
+  "cases": 14,
+  "comparisons": 56,
+  "dispatch": {
+    "n": 2998,
+    "median_us": 8.0,
+    "p95_us": 54,
+    "max_us": 7417
+  },
+  "redraw_request_intervals": {
+    "n": 760,
+    "median_us": 9584.0,
+    "p95_us": 42649,
+    "max_us": 1707669
+  },
+  "redraw_event_delivery": {
+    "n": 761,
+    "median_us": 270,
+    "p95_us": 1392,
+    "max_us": 59289
+  },
+  "native_resize_counts": {
+    "1": 20,
+    "3": 19,
+    "4": 18,
+    "5": 18
+  },
+  "native_resize_total": 75,
+  "native_resize_increases_by_case": {
+    "0": 7,
+    "1": 4,
+    "2": 2,
+    "3": 4,
+    "4": 2,
+    "5": 4,
+    "6": 4,
+    "7": 4,
+    "8": 4,
+    "9": 12,
+    "11": 16,
+    "12": 8,
+    "13": 4
+  },
+  "duplicate_resize_proposals": 1120,
+  "duplicate_extra_native_resizes": 0,
+  "pids": [
+    33149,
+    33151,
+    33154,
+    33169
+  ],
+  "remaining_child_processes": "",
+  "ps_exit": 1,
+  "ps_stderr": "",
+  "physical_input": false,
+  "native_windows": false,
+  "synthetic_dpi_percent": [
+    100,
+    125,
+    150,
+    200
+  ]
+}

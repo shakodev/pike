@@ -1,0 +1,1 @@
+Actual tab strip: 34 DIP; overflow 26x26 DIP and real hit-tested at 200/320/1200 DIP in dark/light at 100/125/150/200%.

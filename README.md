@@ -1,5 +1,8 @@
 # Pike
 
+Version-one per-user settings, explicit reload, launch profiles and live
+font/theme/history behavior are documented in [Settings](docs/settings.md).
+
 A Windows-first terminal multiplexer built with Rust, Iced, and iced_term.
 The app opens one independent terminal without blocking its UI during shell
 startup. Close terminal cancels a pending launch or closes the session;
@@ -65,7 +68,8 @@ unpatched measurements remain in `docs/baselines/issue-3`.
 
 ## Dependency baseline
 
-Direct requirements are exactly Iced 0.14.0, iced_term 0.8.0 and Tokio 1.54.1.
+Direct runtime requirements are exactly Iced 0.14.0, iced_term 0.8.0, Tokio
+1.54.1, serde 1.0.229 and TOML 1.1.8 (spec 1.1.0).
 Transitive versions and checksums are fixed by
 `Cargo.lock`; those dependencies' own manifests still use compatible ranges.
 See the [dependency audit](docs/dependencies/README.md) for resolved versions,

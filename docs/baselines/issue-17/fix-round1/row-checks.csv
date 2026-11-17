@@ -1,0 +1,13 @@
+case,clicked_session,key_targets,result
+history-click,171001,[171001],passed
+history-consumed-click,171001,[],passed
+history-click,171002,[171002],passed
+history-consumed-click,171002,[],passed
+sgr-click,171001,[171001],passed
+sgr-consumed-click,171001,[],passed
+sgr-click,171002,[171002],passed
+sgr-consumed-click,171002,[],passed
+consumed-outside-cleanup,171001,[],passed
+consumed-outside-cleanup,171002,[],passed
+hover-wheel,171001,[171002],passed
+hover-wheel,171002,[171001],passed

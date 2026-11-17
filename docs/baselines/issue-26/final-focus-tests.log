@@ -1,0 +1,26 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
+     Running unittests src/lib.rs (target/issue-20/debug/deps/pike-500ef254f7c5c953)
+
+running 4 tests
+test app::focus::tests::existing_target_still_gets_exclusive_focus ... ok
+test app::focus::tests::obsolete_focus_effect_does_not_unfocus_a_replacement ... ok
+test app::focus::tests::delayed_visible_owner_cannot_override_a_newer_selection ... ok
+test app::focus::tests::authorization_is_rechecked_between_presence_and_focus_passes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 130 filtered out; finished in 0.00s
+

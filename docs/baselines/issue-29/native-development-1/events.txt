@@ -1,0 +1,27 @@
+remembered session=1 pid=44617 dimensions=128x32 history=100
+actual-app-button New tab clicked
+pending-tab session=3 switch-away-before-attachment=true
+hidden-attachment snapshots=0 viewport-cells=0 focus-preserved=true
+activation session=3 refreshes=1 dispatch_us=223
+actual-widget-focus session=3 focused=true
+remembered session=3 pid=44620 dimensions=128x32 history=100
+activation session=1 refreshes=1 dispatch_us=234
+actual-widget-focus session=1 focused=true
+hidden-output updates=64 queries=2 exact-replies=true unread=true bell=true snapshots=0 grid-resizes=0 cache-invalidations=0 inactive-input=0
+activation session=3 refreshes=1 dispatch_us=234
+actual-widget-focus session=3 focused=true
+remembered session=5 pid=44628 dimensions=63x15 history=100
+remembered session=6 pid=44631 dimensions=63x15 history=100
+activation session=1 refreshes=1 dispatch_us=250
+actual-widget-focus session=1 focused=true
+activation session=6 refreshes=1 dispatch_us=233
+actual-widget-focus session=6 focused=true
+nested-return remembered-session=6 layout-preserved=true public-widget-input=active29
+activation session=1 refreshes=1 dispatch_us=224
+actual-widget-focus session=1 focused=true
+public-widget exact-active-input=true inactive-bytes=0
+hidden-natural-exit code=37 native-cleanup=true focus-preserved=true snapshots=0 exit-flag=true
+activation session=3 refreshes=1 dispatch_us=232
+actual-widget-focus session=6 focused=true
+passed same-size=true nested=true identity-mode-history-selection=true hidden-query-output-exit=true pending-spawn=true
+native-cleanup acknowledged

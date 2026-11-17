@@ -1,0 +1,1286 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14)
+error[E0432]: unresolved import `crate::terminal`
+  --> examples/../src/app.rs:11:12
+   |
+11 | use crate::terminal::{Owner, Sessions};
+   |            ^^^^^^^^ unresolved import
+   |
+help: a similar path exists
+   |
+11 | use crate::probe_pike::terminal::{Owner, Sessions};
+   |            ++++++++++++
+
+error[E0432]: unresolved import `crate::workspace`
+  --> examples/../src/app.rs:12:12
+   |
+12 | use crate::workspace::Model;
+   |            ^^^^^^^^^ unresolved import
+   |
+note: found an item that was configured out
+  --> examples/startup_lifecycle.rs:8:17
+   |
+ 7 | #[cfg(test)]
+   |       ---- the item is gated here
+ 8 | use probe_pike::workspace;
+   |                 ^^^^^^^^^
+help: a similar path exists
+   |
+12 | use crate::probe_pike::workspace::Model;
+   |            ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+ --> examples/../src/app/commands/host.rs:9:12
+  |
+9 | use crate::app::resize::capture::KeyAction;
+  |            ^^^ unresolved import
+  |
+help: a similar path exists
+  |
+9 | use crate::probe_pike::app::resize::capture::KeyAction;
+  |            ++++++++++++
+
+error[E0432]: unresolved import `crate::ui`
+ --> examples/../src/app/close/view.rs:5:12
+  |
+5 | use crate::ui::{style, tokens};
+  |            ^^ unresolved import
+  |
+help: a similar path exists
+  |
+5 | use crate::probe_pike::ui::{style, tokens};
+  |            ++++++++++++
+
+error[E0432]: unresolved import `crate::app`
+  --> examples/../src/app/commands/host.rs:10:12
+   |
+10 | use crate::app::{App, Control, Message, close};
+   |            ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+10 | use crate::probe_pike::app::{App, Control, Message, close};
+   |            ++++++++++++
+
+error[E0432]: unresolved import `crate::tabs`
+   --> examples/../src/app/commands/host.rs:118:28
+    |
+118 |                 use crate::tabs::Selection;
+    |                            ^^^^ unresolved import
+    |
+help: a similar path exists
+    |
+118 |                 use crate::probe_pike::tabs::Selection;
+    |                            ++++++++++++
+
+error[E0432]: unresolved import `crate::app`
+ --> examples/../src/app/commands/keymap.rs:3:12
+  |
+3 | use crate::app::{Direction, ResizeStep};
+  |            ^^^ unresolved import
+  |
+help: a similar path exists
+  |
+3 | use crate::probe_pike::app::{Direction, ResizeStep};
+  |            ++++++++++++
+
+error[E0433]: cannot find `settings` in `crate`
+ --> examples/../src/app/commands/keymap.rs:4:12
+  |
+4 | use crate::settings::{
+  |            ^^^^^^^^ unresolved import
+  |
+help: a similar path exists
+  |
+4 | use crate::probe_pike::settings::{
+  |            ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+ --> examples/../src/app/commands/reference.rs:3:12
+  |
+3 | use crate::app::resize::capture::KeyAction;
+  |            ^^^ unresolved import
+  |
+help: a similar path exists
+  |
+3 | use crate::probe_pike::app::resize::capture::KeyAction;
+  |            ++++++++++++
+
+error[E0432]: unresolved import `crate::settings`
+ --> examples/../src/app/commands/keymap.rs:4:12
+  |
+4 | use crate::settings::{
+  |            ^^^^^^^^ unresolved import
+  |
+help: a similar path exists
+  |
+4 | use crate::probe_pike::settings::{
+  |            ++++++++++++
+
+error[E0433]: cannot find `settings` in `crate`
+ --> examples/../src/app/commands/reference.rs:7:5
+  |
+7 |     settings::shortcuts::{self, Command as Id},
+  |     ^^^^^^^^ unresolved import
+  |
+help: a similar path exists
+  |
+7 |     probe_pike::settings::shortcuts::{self, Command as Id},
+  |     ++++++++++++
+
+error[E0432]: unresolved import `crate::app`
+ --> examples/../src/app/commands/reference.rs:5:5
+  |
+5 |     app::{App, Control, Message, resize},
+  |     ^^^ unresolved import
+  |
+help: a similar path exists
+  |
+5 |     probe_pike::app::{App, Control, Message, resize},
+  |     ++++++++++++
+
+error[E0432]: unresolved import `crate::app`
+  --> examples/../src/app/panes/gesture.rs:13:12
+   |
+13 | use crate::app::{Control, Message};
+   |            ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+13 | use crate::probe_pike::app::{Control, Message};
+   |            ++++++++++++
+
+error[E0432]: unresolved import `crate::terminal`
+  --> examples/../src/app/panes/view.rs:12:12
+   |
+12 | use crate::terminal::Owner;
+   |            ^^^^^^^^ unresolved import
+   |
+help: a similar path exists
+   |
+12 | use crate::probe_pike::terminal::Owner;
+   |            ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/panes/view.rs:43:20
+   |
+43 |         use crate::app::commands::Command;
+   |                    ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+43 |         use crate::probe_pike::app::commands::Command;
+   |                    ++++++++++++
+
+error[E0432]: unresolved import `crate::ui`
+  --> examples/../src/app/panes/view.rs:13:12
+   |
+13 | use crate::ui::{self, style, tokens};
+   |            ^^ unresolved import
+   |
+help: a similar path exists
+   |
+13 | use crate::probe_pike::ui::{self, style, tokens};
+   |            ++++++++++++
+
+error[E0432]: unresolved import `crate::app`
+  --> examples/../src/app/resize/capture.rs:12:12
+   |
+12 | use crate::app::{Control, DialogAction, Message};
+   |            ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+12 | use crate::probe_pike::app::{Control, DialogAction, Message};
+   |            ++++++++++++
+
+error[E0432]: unresolved import `crate::settings`
+ --> examples/../src/app/settings.rs:7:5
+  |
+7 |     settings::{self, Error, ProfileId, Settings},
+  |     ^^^^^^^^ unresolved import
+  |
+help: a similar path exists
+  |
+7 |     probe_pike::settings::{self, Error, ProfileId, Settings},
+  |     ++++++++++++
+
+error[E0432]: unresolved import `crate::workspace`
+ --> examples/../src/app/split.rs:6:12
+  |
+6 | use crate::workspace::Error;
+  |            ^^^^^^^^^ unresolved import
+  |
+note: found an item that was configured out
+ --> examples/startup_lifecycle.rs:8:17
+  |
+7 | #[cfg(test)]
+  |       ---- the item is gated here
+8 | use probe_pike::workspace;
+  |                 ^^^^^^^^^
+help: a similar path exists
+  |
+6 | use crate::probe_pike::workspace::Error;
+  |            ++++++++++++
+
+error[E0432]: unresolved import `crate::terminal`
+ --> examples/../src/app/startup.rs:6:12
+  |
+6 | use crate::terminal::{Entry, Owner};
+  |            ^^^^^^^^ unresolved import
+  |
+help: a similar path exists
+  |
+6 | use crate::probe_pike::terminal::{Entry, Owner};
+  |            ++++++++++++
+
+error[E0432]: unresolved import `crate::tab_strip`
+  --> examples/../src/app/tab_dialog.rs:10:5
+   |
+10 | use crate::tab_strip;
+   |     ^^^^^^^^^^^^^^^^ no `tab_strip` in the root
+   |
+help: consider importing this module instead
+   |
+10 | use crate::probe_pike::tab_strip;
+   |            ++++++++++++
+
+error[E0432]: unresolved import `crate::tabs`
+  --> examples/../src/app/tab_dialog.rs:11:12
+   |
+11 | use crate::tabs::title_draft;
+   |            ^^^^ unresolved import
+   |
+help: a similar path exists
+   |
+11 | use crate::probe_pike::tabs::title_draft;
+   |            ++++++++++++
+
+error[E0432]: unresolved import `crate::tab_strip`
+ --> examples/../src/app/tabs.rs:8:12
+  |
+8 | use crate::tab_strip::{self, Item, TabAction};
+  |            ^^^^^^^^^ unresolved import
+  |
+help: a similar path exists
+  |
+8 | use crate::probe_pike::tab_strip::{self, Item, TabAction};
+  |            ++++++++++++
+
+error[E0432]: unresolved import `crate::tabs`
+ --> examples/../src/app/tabs.rs:9:12
+  |
+9 | use crate::tabs::{Selection, Title, display_title};
+  |            ^^^^ unresolved import
+  |
+help: a similar path exists
+  |
+9 | use crate::probe_pike::tabs::{Selection, Title, display_title};
+  |            ++++++++++++
+
+error[E0432]: unresolved import `crate::workspace`
+  --> examples/../src/app/tabs.rs:10:12
+   |
+10 | use crate::workspace::Error;
+   |            ^^^^^^^^^ unresolved import
+   |
+note: found an item that was configured out
+  --> examples/startup_lifecycle.rs:8:17
+   |
+ 7 | #[cfg(test)]
+   |       ---- the item is gated here
+ 8 | use probe_pike::workspace;
+   |                 ^^^^^^^^^
+help: a similar path exists
+   |
+10 | use crate::probe_pike::workspace::Error;
+   |            ++++++++++++
+
+error[E0432]: unresolved import `crate::ui`
+   --> examples/../src/app/tabs.rs:145:20
+    |
+145 |         use crate::ui::command_hint;
+    |                    ^^ unresolved import
+    |
+help: a similar path exists
+    |
+145 |         use crate::probe_pike::ui::command_hint;
+    |                    ++++++++++++
+
+error[E0432]: unresolved import `crate::ui`
+ --> examples/../src/app/view.rs:5:12
+  |
+5 | use crate::ui::{self, style, tokens};
+  |            ^^ unresolved import
+  |
+help: a similar path exists
+  |
+5 | use crate::probe_pike::ui::{self, style, tokens};
+  |            ++++++++++++
+
+error[E0432]: unresolved import `crate::tabs`
+ --> examples/../src/layout.rs:6:12
+  |
+6 | use crate::tabs::{Activity, Title};
+  |            ^^^^ unresolved import
+  |
+help: a similar path exists
+  |
+6 | use crate::probe_pike::tabs::{Activity, Title};
+  |            ++++++++++++
+
+error[E0432]: unresolved import `crate::tabs`
+ --> examples/../src/tab_strip.rs:8:12
+  |
+8 | use crate::tabs::{Activity, Placement, Selection, Title};
+  |            ^^^^ unresolved import
+  |
+help: a similar path exists
+  |
+8 | use crate::probe_pike::tabs::{Activity, Placement, Selection, Title};
+  |            ++++++++++++
+
+error[E0432]: unresolved import `crate::ui`
+ --> examples/../src/tab_strip.rs:9:12
+  |
+9 | use crate::ui::{self, style, tokens};
+  |            ^^ unresolved import
+  |
+help: a similar path exists
+  |
+9 | use crate::probe_pike::ui::{self, style, tokens};
+  |            ++++++++++++
+
+error[E0432]: unresolved import `crate::tabs`
+  --> examples/../src/terminal.rs:11:12
+   |
+11 | use crate::tabs::{ActivityEvent, Title};
+   |            ^^^^ unresolved import
+   |
+help: a similar path exists
+   |
+11 | use crate::probe_pike::tabs::{ActivityEvent, Title};
+   |            ++++++++++++
+
+error[E0432]: unresolved import `crate::workspace`
+  --> examples/../src/terminal.rs:12:12
+   |
+12 | use crate::workspace::Model;
+   |            ^^^^^^^^^ unresolved import
+   |
+note: found an item that was configured out
+  --> examples/startup_lifecycle.rs:8:17
+   |
+ 7 | #[cfg(test)]
+   |       ---- the item is gated here
+ 8 | use probe_pike::workspace;
+   |                 ^^^^^^^^^
+help: a similar path exists
+   |
+12 | use crate::probe_pike::workspace::Model;
+   |            ++++++++++++
+
+error[E0432]: unresolved import `crate::tabs`
+  --> examples/../src/workspace.rs:13:12
+   |
+13 | use crate::tabs::{ActivityEvent, Placement, Selection, Title};
+   |            ^^^^ unresolved import
+   |
+help: a similar path exists
+   |
+13 | use crate::probe_pike::tabs::{ActivityEvent, Placement, Selection, Title};
+   |            ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/close/view.rs:10:19
+   |
+10 |     pub(in crate::app) fn close_view(&self) -> Option<Element<'_, Message>> {
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+10 |     pub(in crate::probe_pike::app) fn close_view(&self) -> Option<Element<'_, Message>> {
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:37:15
+   |
+37 | pub(in crate::app) fn on_key(
+   |               ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+37 | pub(in crate::probe_pike::app) fn on_key(
+   |               ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:60:19
+   |
+60 |     pub(in crate::app) fn command_refused(&mut self, error: Error) -> Task<Message> {
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+60 |     pub(in crate::probe_pike::app) fn command_refused(&mut self, error: Error) -> Task<Message> {
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:66:19
+   |
+66 |     pub(in crate::app) fn run_command(&mut self, command: Command) -> Task<Message> {
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+66 |     pub(in crate::probe_pike::app) fn run_command(&mut self, command: Command) -> Task<Message> {
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+   --> examples/../src/app/commands/host.rs:241:19
+    |
+241 |     pub(in crate::app) fn dismiss_help(&mut self) -> Task<Message> {
+    |                   ^^^ unresolved import
+    |
+help: a similar path exists
+    |
+241 |     pub(in crate::probe_pike::app) fn dismiss_help(&mut self) -> Task<Message> {
+    |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+   --> examples/../src/app/commands/host.rs:256:19
+    |
+256 |     pub(in crate::app) fn begin_command_paste(&self) -> Option<PasteRequest> {
+    |                   ^^^ unresolved import
+    |
+help: a similar path exists
+    |
+256 |     pub(in crate::probe_pike::app) fn begin_command_paste(&self) -> Option<PasteRequest> {
+    |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+   --> examples/../src/app/commands/host.rs:272:19
+    |
+272 |     pub(in crate::app) fn command_paste(
+    |                   ^^^ unresolved import
+    |
+help: a similar path exists
+    |
+272 |     pub(in crate::probe_pike::app) fn command_paste(
+    |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+   --> examples/../src/app/commands/reference.rs:161:19
+    |
+161 |     pub(in crate::app) fn open_help(&mut self) -> Task<Message> {
+    |                   ^^^ unresolved import
+    |
+help: a similar path exists
+    |
+161 |     pub(in crate::probe_pike::app) fn open_help(&mut self) -> Task<Message> {
+    |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+   --> examples/../src/app/commands/reference.rs:183:19
+    |
+183 |     pub(in crate::app) fn refresh_help_reference(&mut self) {
+    |                   ^^^ unresolved import
+    |
+help: a similar path exists
+    |
+183 |     pub(in crate::probe_pike::app) fn refresh_help_reference(&mut self) {
+    |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+   --> examples/../src/app/commands/reference.rs:202:19
+    |
+202 |     pub(in crate::app) fn refresh_help_focus(&mut self) {
+    |                   ^^^ unresolved import
+    |
+help: a similar path exists
+    |
+202 |     pub(in crate::probe_pike::app) fn refresh_help_focus(&mut self) {
+    |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+   --> examples/../src/app/commands/reference.rs:217:19
+    |
+217 |     pub(in crate::app) fn run_help_action(
+    |                   ^^^ unresolved import
+    |
+help: a similar path exists
+    |
+217 |     pub(in crate::probe_pike::app) fn run_help_action(
+    |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+   --> examples/../src/app/commands/reference.rs:267:19
+    |
+267 |     pub(in crate::app) fn help_view(&self) -> Option<Element<'_, Message>> {
+    |                   ^^^ unresolved import
+    |
+help: a similar path exists
+    |
+267 |     pub(in crate::probe_pike::app) fn help_view(&self) -> Option<Element<'_, Message>> {
+    |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/panes/view.rs:16:19
+   |
+16 |     pub(in crate::app) fn footer_height(&self, id: SessionId) -> f32 {
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+16 |     pub(in crate::probe_pike::app) fn footer_height(&self, id: SessionId) -> f32 {
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/panes/view.rs:33:19
+   |
+33 |     pub(in crate::app) fn pane_grid(
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+33 |     pub(in crate::probe_pike::app) fn pane_grid(
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:24:15
+   |
+24 | pub(in crate::app) struct State {
+   |               ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+24 | pub(in crate::probe_pike::app) struct State {
+   |               ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:26:19
+   |
+26 |     pub(in crate::app) help: Option<Option<SessionId>>,
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+26 |     pub(in crate::probe_pike::app) help: Option<Option<SessionId>>,
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:27:19
+   |
+27 |     pub(in crate::app) help_history: bool,
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+27 |     pub(in crate::probe_pike::app) help_history: bool,
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:28:19
+   |
+28 |     pub(in crate::app) help_token: u64,
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+28 |     pub(in crate::probe_pike::app) help_token: u64,
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:29:19
+   |
+29 |     pub(in crate::app) help_generation: u64,
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+29 |     pub(in crate::probe_pike::app) help_generation: u64,
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:30:19
+   |
+30 |     pub(in crate::app) help_window: Option<iced_term::WindowInputLease>,
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+30 |     pub(in crate::probe_pike::app) help_window: Option<iced_term::WindowInputLease>,
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:31:19
+   |
+31 |     pub(in crate::app) help_selected: usize,
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+31 |     pub(in crate::probe_pike::app) help_selected: usize,
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:32:19
+   |
+32 |     pub(in crate::app) help_scroll: Option<iced::widget::Id>,
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+32 |     pub(in crate::probe_pike::app) help_scroll: Option<iced::widget::Id>,
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:33:19
+   |
+33 |     pub(in crate::app) help_rows: Vec<iced::widget::Id>,
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+33 |     pub(in crate::probe_pike::app) help_rows: Vec<iced::widget::Id>,
+   |                   ++++++++++++
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:34:19
+   |
+34 |     pub(in crate::app) fonts: BTreeMap<SessionId, FontSettings>,
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+34 |     pub(in crate::probe_pike::app) fonts: BTreeMap<SessionId, FontSettings>,
+   |                   ++++++++++++
+
+error[E0433]: cannot find `settings` in `crate`
+   --> examples/../src/app/close.rs:108:62
+    |
+108 |             || self.settings.active.close_policy() == crate::settings::ClosePolicy::Never
+    |                                                              ^^^^^^^^ unresolved import
+    |
+help: a similar path exists
+    |
+108 |             || self.settings.active.close_policy() == crate::probe_pike::settings::ClosePolicy::Never
+    |                                                              ++++++++++++
+help: consider importing this enum
+    |
+  2 + use crate::probe_pike::settings::ClosePolicy;
+    |
+help: if you import `ClosePolicy`, refer to it directly
+    |
+108 -             || self.settings.active.close_policy() == crate::settings::ClosePolicy::Never
+108 +             || self.settings.active.close_policy() == ClosePolicy::Never
+    |
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/commands/host.rs:18:19
+   |
+18 |     lease: crate::app::focus::InputLease,
+   |                   ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+18 |     lease: crate::probe_pike::app::focus::InputLease,
+   |                   ++++++++++++
+help: consider importing this module
+   |
+ 2 + use crate::probe_pike::app::focus;
+   |
+help: if you import `focus`, refer to it directly
+   |
+18 -     lease: crate::app::focus::InputLease,
+18 +     lease: focus::InputLease,
+   |
+
+error[E0433]: cannot find `settings` in `crate`
+  --> examples/../src/app/commands/host.rs:39:25
+   |
+39 |     shortcuts: &[crate::settings::Shortcut],
+   |                         ^^^^^^^^ unresolved import
+   |
+help: a similar path exists
+   |
+39 |     shortcuts: &[crate::probe_pike::settings::Shortcut],
+   |                         ++++++++++++
+help: consider importing this module
+   |
+ 2 + use crate::probe_pike::settings;
+   |
+help: if you import `settings`, refer to it directly
+   |
+39 -     shortcuts: &[crate::settings::Shortcut],
+39 +     shortcuts: &[settings::Shortcut],
+   |
+
+error[E0433]: cannot find `tab_strip` in `crate`
+   --> examples/../src/app/commands/host.rs:100:40
+    |
+100 |                 self.tab_action(crate::tab_strip::TabAction::Move {
+    |                                        ^^^^^^^^^ unresolved import
+    |
+help: a similar path exists
+    |
+100 |                 self.tab_action(crate::probe_pike::tab_strip::TabAction::Move {
+    |                                        ++++++++++++
+help: consider importing this enum
+    |
+  2 + use crate::probe_pike::tab_strip::TabAction;
+    |
+help: if you import `TabAction`, refer to it directly
+    |
+100 -                 self.tab_action(crate::tab_strip::TabAction::Move {
+100 +                 self.tab_action(TabAction::Move {
+    |
+
+error[E0433]: cannot find `tabs` in `crate`
+   --> examples/../src/app/commands/host.rs:104:49
+    |
+104 |                         TabMove::Left => crate::tabs::Placement::Before,
+    |                                                 ^^^^ unresolved import
+    |
+help: a similar path exists
+    |
+104 |                         TabMove::Left => crate::probe_pike::tabs::Placement::Before,
+    |                                                 ++++++++++++
+help: consider importing this enum
+    |
+  2 + use crate::probe_pike::tabs::Placement;
+    |
+help: if you import `Placement`, refer to it directly
+    |
+104 -                         TabMove::Left => crate::tabs::Placement::Before,
+104 +                         TabMove::Left => Placement::Before,
+    |
+
+error[E0433]: cannot find `tabs` in `crate`
+   --> examples/../src/app/commands/host.rs:105:50
+    |
+105 |                         TabMove::Right => crate::tabs::Placement::After,
+    |                                                  ^^^^ unresolved import
+    |
+help: a similar path exists
+    |
+105 |                         TabMove::Right => crate::probe_pike::tabs::Placement::After,
+    |                                                  ++++++++++++
+help: consider importing this enum
+    |
+  2 + use crate::probe_pike::tabs::Placement;
+    |
+help: if you import `Placement`, refer to it directly
+    |
+105 -                         TabMove::Right => crate::tabs::Placement::After,
+105 +                         TabMove::Right => Placement::After,
+    |
+
+error[E0433]: cannot find `tab_strip` in `crate`
+   --> examples/../src/app/commands/host.rs:142:48
+    |
+142 |                         self.tab_action(crate::tab_strip::TabAction::ResetName(target.tab))
+    |                                                ^^^^^^^^^ unresolved import
+    |
+help: a similar path exists
+    |
+142 |                         self.tab_action(crate::probe_pike::tab_strip::TabAction::ResetName(target.tab))
+    |                                                ++++++++++++
+help: consider importing this enum
+    |
+  2 + use crate::probe_pike::tab_strip::TabAction;
+    |
+help: if you import `TabAction`, refer to it directly
+    |
+142 -                         self.tab_action(crate::tab_strip::TabAction::ResetName(target.tab))
+142 +                         self.tab_action(TabAction::ResetName(target.tab))
+    |
+
+error[E0433]: cannot find `ui` in `crate`
+   --> examples/../src/app/commands/reference.rs:154:16
+    |
+154 |         crate::ui::icon_maybe(
+    |                ^^ unresolved import
+    |
+help: a similar path exists
+    |
+154 |         crate::probe_pike::ui::icon_maybe(
+    |                ++++++++++++
+help: consider importing this module
+    |
+  2 + use crate::probe_pike::ui;
+    |
+help: if you import `ui`, refer to it directly
+    |
+154 -         crate::ui::icon_maybe(
+154 +         ui::icon_maybe(
+    |
+
+error[E0433]: cannot find `settings` in `crate`
+   --> examples/../src/app/commands/reference.rs:331:24
+    |
+331 |     mappings: &[crate::settings::Shortcut],
+    |                        ^^^^^^^^ unresolved import
+    |
+help: a similar path exists
+    |
+331 |     mappings: &[crate::probe_pike::settings::Shortcut],
+    |                        ++++++++++++
+help: consider importing this module
+    |
+  2 + use crate::probe_pike::settings;
+    |
+help: if you import `settings`, refer to it directly
+    |
+331 -     mappings: &[crate::settings::Shortcut],
+331 +     mappings: &[settings::Shortcut],
+    |
+
+error[E0433]: cannot find `workspace` in `crate`
+  --> examples/../src/app/commands.rs:25:22
+   |
+25 |     Workspace(crate::workspace::Error),
+   |                      ^^^^^^^^^ unresolved import
+   |
+note: found an item that was configured out
+  --> examples/startup_lifecycle.rs:8:17
+   |
+ 7 | #[cfg(test)]
+   |       ---- the item is gated here
+ 8 | use probe_pike::workspace;
+   |                 ^^^^^^^^^
+help: a similar path exists
+   |
+25 |     Workspace(crate::probe_pike::workspace::Error),
+   |                      ++++++++++++
+help: consider importing this module
+   |
+ 3 + use crate::probe_pike::workspace;
+   |
+help: if you import `workspace`, refer to it directly
+   |
+25 -     Workspace(crate::workspace::Error),
+25 +     Workspace(workspace::Error),
+   |
+
+error[E0433]: cannot find `settings` in `crate`
+   --> examples/../src/app/commands.rs:113:25
+    |
+113 |     shortcuts: &[crate::settings::Shortcut],
+    |                         ^^^^^^^^ unresolved import
+    |
+help: a similar path exists
+    |
+113 |     shortcuts: &[crate::probe_pike::settings::Shortcut],
+    |                         ++++++++++++
+help: consider importing this module
+    |
+  3 + use crate::probe_pike::settings;
+    |
+help: if you import `settings`, refer to it directly
+    |
+113 -     shortcuts: &[crate::settings::Shortcut],
+113 +     shortcuts: &[settings::Shortcut],
+    |
+
+error[E0433]: cannot find `app` in `crate`
+   --> examples/../src/app/panes/gesture.rs:340:56
+    |
+340 |         Size::new(Length::Shrink, Length::Fixed(crate::app::split::HEADER))
+    |                                                        ^^^ unresolved import
+    |
+help: a similar path exists
+    |
+340 |         Size::new(Length::Shrink, Length::Fixed(crate::probe_pike::app::split::HEADER))
+    |                                                        ++++++++++++
+help: consider importing this module
+    |
+  3 + use crate::probe_pike::app::split;
+    |
+help: if you import `split`, refer to it directly
+    |
+340 -         Size::new(Length::Shrink, Length::Fixed(crate::app::split::HEADER))
+340 +         Size::new(Length::Shrink, Length::Fixed(split::HEADER))
+    |
+
+error[E0433]: cannot find `app` in `crate`
+   --> examples/../src/app/panes/gesture.rs:356:20
+    |
+356 |             crate::app::split::HEADER,
+    |                    ^^^ unresolved import
+    |
+help: a similar path exists
+    |
+356 |             crate::probe_pike::app::split::HEADER,
+    |                    ++++++++++++
+help: consider importing this module
+    |
+  3 + use crate::probe_pike::app::split;
+    |
+help: if you import `split`, refer to it directly
+    |
+356 -             crate::app::split::HEADER,
+356 +             split::HEADER,
+    |
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/app/panes/view.rs:36:30
+   |
+36 |         references: &[crate::app::commands::CommandReference],
+   |                              ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+36 |         references: &[crate::probe_pike::app::commands::CommandReference],
+   |                              ++++++++++++
+help: consider importing this module
+   |
+ 1 + use crate::probe_pike::app::commands;
+   |
+help: if you import `commands`, refer to it directly
+   |
+36 -         references: &[crate::app::commands::CommandReference],
+36 +         references: &[commands::CommandReference],
+   |
+
+error[E0433]: cannot find `terminal` in `crate`
+  --> examples/../src/app/resize.rs:97:28
+   |
+97 |         if let Some(crate::terminal::Entry {
+   |                            ^^^^^^^^ unresolved import
+   |
+help: a similar path exists
+   |
+97 |         if let Some(crate::probe_pike::terminal::Entry {
+   |                            ++++++++++++
+help: consider importing this module
+   |
+ 3 + use crate::probe_pike::terminal;
+   |
+help: if you import `terminal`, refer to it directly
+   |
+97 -         if let Some(crate::terminal::Entry {
+97 +         if let Some(terminal::Entry {
+   |
+
+error[E0433]: cannot find `terminal` in `crate`
+  --> examples/../src/app/resize.rs:98:27
+   |
+98 |             owner: crate::terminal::Owner::Attached(terminal),
+   |                           ^^^^^^^^ unresolved import
+   |
+help: a similar path exists
+   |
+98 |             owner: crate::probe_pike::terminal::Owner::Attached(terminal),
+   |                           ++++++++++++
+help: consider importing this enum
+   |
+ 3 + use crate::probe_pike::terminal::Owner;
+   |
+help: if you import `Owner`, refer to it directly
+   |
+98 -             owner: crate::terminal::Owner::Attached(terminal),
+98 +             owner: Owner::Attached(terminal),
+   |
+
+error[E0433]: cannot find `ui` in `crate`
+  --> examples/../src/app/split.rs:10:39
+   |
+10 | pub(super) const GUTTER: f32 = crate::ui::tokens::GUTTER;
+   |                                       ^^ unresolved import
+   |
+help: a similar path exists
+   |
+10 | pub(super) const GUTTER: f32 = crate::probe_pike::ui::tokens::GUTTER;
+   |                                       ++++++++++++
+help: consider importing this module
+   |
+ 2 + use crate::probe_pike::ui::tokens;
+   |
+help: if you import `tokens`, refer to it directly
+   |
+10 - pub(super) const GUTTER: f32 = crate::ui::tokens::GUTTER;
+10 + pub(super) const GUTTER: f32 = tokens::GUTTER;
+   |
+
+error[E0433]: cannot find `ui` in `crate`
+  --> examples/../src/app/split.rs:11:39
+   |
+11 | pub(super) const HEADER: f32 = crate::ui::tokens::HEADER_HEIGHT;
+   |                                       ^^ unresolved import
+   |
+help: a similar path exists
+   |
+11 | pub(super) const HEADER: f32 = crate::probe_pike::ui::tokens::HEADER_HEIGHT;
+   |                                       ++++++++++++
+help: consider importing this module
+   |
+ 2 + use crate::probe_pike::ui::tokens;
+   |
+help: if you import `tokens`, refer to it directly
+   |
+11 - pub(super) const HEADER: f32 = crate::ui::tokens::HEADER_HEIGHT;
+11 + pub(super) const HEADER: f32 = tokens::HEADER_HEIGHT;
+   |
+
+error[E0433]: cannot find `ui` in `crate`
+  --> examples/../src/app/split.rs:12:39
+   |
+12 | pub(super) const BORDER: f32 = crate::ui::tokens::BORDER;
+   |                                       ^^ unresolved import
+   |
+help: a similar path exists
+   |
+12 | pub(super) const BORDER: f32 = crate::probe_pike::ui::tokens::BORDER;
+   |                                       ++++++++++++
+help: consider importing this module
+   |
+ 2 + use crate::probe_pike::ui::tokens;
+   |
+help: if you import `tokens`, refer to it directly
+   |
+12 - pub(super) const BORDER: f32 = crate::ui::tokens::BORDER;
+12 + pub(super) const BORDER: f32 = tokens::BORDER;
+   |
+
+error[E0433]: cannot find `settings` in `crate`
+   --> examples/../src/app/tab_dialog.rs:369:25
+    |
+369 |     shortcuts: &[crate::settings::Shortcut],
+    |                         ^^^^^^^^ unresolved import
+    |
+help: a similar path exists
+    |
+369 |     shortcuts: &[crate::probe_pike::settings::Shortcut],
+    |                         ++++++++++++
+help: consider importing this module
+    |
+  2 + use crate::probe_pike::settings;
+    |
+help: if you import `settings`, refer to it directly
+    |
+369 -     shortcuts: &[crate::settings::Shortcut],
+369 +     shortcuts: &[settings::Shortcut],
+    |
+
+error[E0433]: cannot find `settings` in `crate`
+  --> examples/../src/app.rs:43:34
+   |
+43 |     SettingsLoaded(Result<crate::settings::Settings, crate::settings::Error>),
+   |                                  ^^^^^^^^ unresolved import
+   |
+help: a similar path exists
+   |
+43 |     SettingsLoaded(Result<crate::probe_pike::settings::Settings, crate::settings::Error>),
+   |                                  ++++++++++++
+help: consider importing this module
+   |
+ 2 + use crate::probe_pike::settings;
+   |
+help: if you import `settings`, refer to it directly
+   |
+43 -     SettingsLoaded(Result<crate::settings::Settings, crate::settings::Error>),
+43 +     SettingsLoaded(Result<settings::Settings, crate::settings::Error>),
+   |
+
+error[E0433]: cannot find `settings` in `crate`
+  --> examples/../src/app.rs:43:61
+   |
+43 |     SettingsLoaded(Result<crate::settings::Settings, crate::settings::Error>),
+   |                                                             ^^^^^^^^ unresolved import
+   |
+help: a similar path exists
+   |
+43 |     SettingsLoaded(Result<crate::settings::Settings, crate::probe_pike::settings::Error>),
+   |                                                             ++++++++++++
+help: consider importing this module
+   |
+ 2 + use crate::probe_pike::settings;
+   |
+help: if you import `settings`, refer to it directly
+   |
+43 -     SettingsLoaded(Result<crate::settings::Settings, crate::settings::Error>),
+43 +     SettingsLoaded(Result<crate::settings::Settings, settings::Error>),
+   |
+
+error[E0433]: cannot find `tab_strip` in `crate`
+  --> examples/../src/app.rs:72:22
+   |
+72 |     TabAction(crate::tab_strip::TabAction),
+   |                      ^^^^^^^^^ unresolved import
+   |
+help: a similar path exists
+   |
+72 |     TabAction(crate::probe_pike::tab_strip::TabAction),
+   |                      ++++++++++++
+help: consider importing this module
+   |
+ 2 + use crate::probe_pike::tab_strip;
+   |
+help: if you import `tab_strip`, refer to it directly
+   |
+72 -     TabAction(crate::tab_strip::TabAction),
+72 +     TabAction(tab_strip::TabAction),
+   |
+
+error[E0433]: cannot find `settings` in `crate`
+   --> examples/../src/app.rs:101:22
+    |
+101 |         match crate::settings::user_path() {
+    |                      ^^^^^^^^ unresolved import
+    |
+help: a similar path exists
+    |
+101 |         match crate::probe_pike::settings::user_path() {
+    |                      ++++++++++++
+help: consider importing this module
+    |
+  2 + use crate::probe_pike::settings;
+    |
+help: if you import `settings`, refer to it directly
+    |
+101 -         match crate::settings::user_path() {
+101 +         match settings::user_path() {
+    |
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/ui.rs:39:26
+   |
+39 |     references: &[crate::app::commands::CommandReference],
+   |                          ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+39 |     references: &[crate::probe_pike::app::commands::CommandReference],
+   |                          ++++++++++++
+help: consider importing this module
+   |
+ 5 + use crate::probe_pike::app::commands;
+   |
+help: if you import `commands`, refer to it directly
+   |
+39 -     references: &[crate::app::commands::CommandReference],
+39 +     references: &[commands::CommandReference],
+   |
+
+error[E0433]: cannot find `app` in `crate`
+  --> examples/../src/ui.rs:40:21
+   |
+40 |     command: crate::app::commands::Command,
+   |                     ^^^ unresolved import
+   |
+help: a similar path exists
+   |
+40 |     command: crate::probe_pike::app::commands::Command,
+   |                     ++++++++++++
+help: consider importing this module
+   |
+ 5 + use crate::probe_pike::app::commands;
+   |
+help: if you import `commands`, refer to it directly
+   |
+40 -     command: crate::app::commands::Command,
+40 +     command: commands::Command,
+   |
+
+error[E0599]: no method named `run_command` found for mutable reference `&mut App` in the current scope
+   --> examples/../src/app/panes.rs:171:14
+    |
+171 |         self.run_command(Command::ToggleZoom)
+    |              ^^^^^^^^^^^ method not found in `&mut App`
+
+error[E0599]: no method named `refresh_help_reference` found for mutable reference `&mut App` in the current scope
+   --> examples/../src/app/settings.rs:117:26
+    |
+117 |                     self.refresh_help_reference();
+    |                          ^^^^^^^^^^^^^^^^^^^^^^ method not found in `&mut App`
+
+error[E0599]: no method named `command_refused` found for mutable reference `&mut App` in the current scope
+   --> examples/../src/app/tab_dialog.rs:157:25
+    |
+157 |             return self.command_refused(super::commands::Error::MissingTab);
+    |                         ^^^^^^^^^^^^^^^ method not found in `&mut App`
+
+error[E0599]: no method named `command_refused` found for mutable reference `&mut App` in the current scope
+  --> examples/../src/app/tabs.rs:68:25
+   |
+68 |             return self.command_refused(super::commands::Error::MissingTab);
+   |                         ^^^^^^^^^^^^^^^ method not found in `&mut App`
+
+error[E0599]: no method named `help_view` found for reference `&App` in the current scope
+  --> examples/../src/app/view.rs:12:34
+   |
+12 |         if let Some(help) = self.help_view() {
+   |                                  ^^^^^^^^^ method not found in `&App`
+
+error[E0599]: no method named `command_reference` found for reference `&App` in the current scope
+  --> examples/../src/app/view.rs:18:31
+   |
+18 |         let references = self.command_reference();
+   |                               ^^^^^^^^^^^^^^^^^ method not found in `&App`
+
+error[E0599]: no method named `command_enabled` found for reference `&App` in the current scope
+  --> examples/../src/app/view.rs:32:26
+   |
+32 |                     self.command_enabled(Command::NewTab)
+   |                          ^^^^^^^^^^^^^^^ method not found in `&App`
+
+error[E0599]: no method named `command_menu` found for reference `&App` in the current scope
+  --> examples/../src/app/view.rs:37:34
+   |
+37 |             .push(container(self.command_menu()).id("command-menu-control"));
+   |                                  ^^^^^^^^^^^^ method not found in `&App`
+
+error[E0599]: no method named `command_paste` found for mutable reference `&mut App` in the current scope
+   --> examples/../src/app.rs:239:60
+    |
+239 |             Message::CommandPaste(id, text) => return self.command_paste(id, text),
+    |                                                            ^^^^^^^^^^^^^ method not found in `&mut App`
+
+error[E0599]: no method named `run_help_action` found for mutable reference `&mut App` in the current scope
+   --> examples/../src/app.rs:241:29
+    |
+241 |                 return self.run_help_action(token, action);
+    |                             ^^^^^^^^^^^^^^^ method not found in `&mut App`
+
+error[E0599]: no method named `run_command` found for mutable reference `&mut App` in the current scope
+   --> examples/../src/app.rs:253:72
+    |
+253 |             Message::Control(Control::Command(command)) => return self.run_command(command),
+    |                                                                        ^^^^^^^^^^^ method not found in `&mut App`
+
+error[E0599]: no method named `run_command` found for mutable reference `&mut App` in the current scope
+   --> examples/../src/app.rs:267:33
+    |
+267 |                     return self.run_command(command);
+    |                                 ^^^^^^^^^^^ method not found in `&mut App`
+
+error[E0599]: no method named `dismiss_help` found for mutable reference `&mut App` in the current scope
+   --> examples/../src/app.rs:270:67
+    |
+270 |             Message::Control(Control::DismissHelp) => return self.dismiss_help(),
+    |                                                                   ^^^^^^^^^^^^ method not found in `&mut App`
+
+error[E0599]: no method named `refresh_help_focus` found for mutable reference `&mut App` in the current scope
+   --> examples/../src/app.rs:368:22
+    |
+368 |                 self.refresh_help_focus();
+    |                      ^^^^^^^^^^^^^^^^^^ method not found in `&mut App`
+
+Some errors have detailed explanations: E0432, E0433, E0599.
+For more information about an error, try `rustc --explain E0432`.
+error: could not compile `pike` (example "startup_lifecycle") due to 97 previous errors
+warning: build failed, waiting for other jobs to finish...

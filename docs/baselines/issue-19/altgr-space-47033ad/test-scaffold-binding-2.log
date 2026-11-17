@@ -1,0 +1,34 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling iced_term v0.8.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13/vendor/iced_term)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.20s
+     Running unittests src/lib.rs (target/issue-20/debug/deps/iced_term-ca704ebef456280b)
+
+running 1 test
+
+thread 'view::ime::tests::ime_public_row_named_space_altgr_text_and_nontext_binding_priority' (7114122) panicked at vendor/iced_term/src/view/ime/tests.rs:316:13:
+modifiers=Modifiers(0x0), text=None, events=[BackendCall(19004, Write([32]))]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test view::ime::tests::ime_public_row_named_space_altgr_text_and_nontext_binding_priority ... FAILED
+
+failures:
+
+failures:
+    view::ime::tests::ime_public_row_named_space_altgr_text_and_nontext_binding_priority
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 119 filtered out; finished in 0.36s
+
+error: test failed, to rerun pass `-p iced_term --lib`

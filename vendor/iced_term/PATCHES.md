@@ -270,7 +270,7 @@ and API/overload policy details.
   Ctrl+U=0x15 correction covers Ctrl+Shift+U too, following
   [upstream PR 89](https://github.com/kemokempo/iced_term/pull/89), head `f331a47`.
   Correct malformed modified F1–F4 SS3 sequences and Alt+Insert's wrong code.
-- Keep only platform clipboard/custom overrides in `BindingsLayout`, rather
+- Keep only platform clipboard/history/custom overrides in `BindingsLayout`, rather
   than allocating the large default keyboard table per session. Lookup borrows
   character keys without lowercasing allocations; latest matching overrides win.
   A missing binding is None; explicit `BindingAction::Ignore` consumes without
@@ -293,6 +293,11 @@ and API/overload policy details.
   exercises 168 cases in all four cursor/newline modes, byte admission, and a synthetic Vim
   edit/save/exit. No production polling/tasks or new dependencies are introduced.
   See [verification, policy and native limitations](../../docs/verification/issue-14.md).
+- Current-main integration preserves IME ownership, named-Space committed text,
+  ordered paste, local history and host shortcut delegation. Newest custom
+  overrides survive delegation changes. Keyboard fixtures now bind explicit
+  window-focus authorities. See the [integration review](../../docs/verification/issue-14-main-integration.md)
+  for the 12 encoder regressions, local checks and outstanding native checks.
 
 ## R15 / issue #15 — authoritative selection and explicit copy
 
@@ -388,3 +393,141 @@ and API/overload policy details.
 - No dependencies, features, lockfiles, tasks, timers or PTY implementation added.
   Remove when upstream provides equivalent steady shapes, focus/contrast behavior
   and cached Unicode paint invalidation; PR86 alone covers draw ordering only.
+
+## R17 / issue #17 — mouse ownership and local history navigation
+
+- Normalize line/logical-pixel wheel sign and per-pane fractional accumulation,
+  bounded to 256 steps/axis/event. Hovered wheel does not focus; Shift uses
+  local history and bypasses tracking/alternate input. Explicit HistoryScroll
+  lines/page/top/bottom uses pinned Term::scroll_display with safe history bounds.
+- Separate local selection and reported gestures at press. Track three buttons,
+  1000 click-only, 1002 held drag and 1003 any-motion without duplicate selection;
+  preserve screen coordinates while scrolled. Encode SGR/legacy/UTF8 Ctrl/Alt/Shift
+  reports, checked coordinates, wheel buttons and matching releases.
+- Clamp captured drag-out/release; clear on blur/leave/pane movement and session
+  focus loss. Session-owned held buttons deduplicate release after widget loss;
+  required release failure uses existing scoped reply/close policy. Deferred
+  event order, authoritative selection and all R18/R21 drawing remain intact.
+- PR71 review fixes: outside-click unfocus/cleanup runs despite an earlier
+  Row child's shared-Shell capture, without granting focus to consumed inside
+  clicks. Mandatory legacy/UTF8 releases clamp encoding coordinates after wide
+  drags or encoding changes; unsupported presses/motion/wheel still reject.
+  Public two-pane Row/raw-peer regressions cover both dispatch orders, exact
+  bytes, deferred input, consumed clicks, hover focus and exactly-once cleanup.
+- Reviewed upstream PR71 head da0d79c94d1ea945420391b714146523e7b4eaef and PR85
+  head 38085160c1b4de91fee311b86810ac0d6521ee31. Retain until upstream supplies
+  equivalent routing, bounds and cleanup; PR85 alone leaves click-only local
+  selection competing with TUI input.
+- Targeted adapter tests and the public mouse_history widget/raw-PTY/actual-Vim
+  fixture passed locally with tiny-skia; see
+  [verification and Windows/manual limits](../../docs/verification/issue-17.md).
+  No dependencies, features, lockfiles, polling, timers or second queue added.
+## R16 / issue #16 — bounded mode-aware paste
+
+- Add one shared `Terminal::paste(Option<String>)` path for menu clipboard
+  results and widget Ctrl+Shift+V/Shift+Insert (plus existing platform Paste).
+  Clipboard failure/oversize/pending/input rejection returns redacted
+  `Action::PasteRejected(PasteError)`; ordinary copy and Ctrl+C are unchanged.
+- Widget messages carry `BackendCommand::Paste(PasteRequest)`, an owner-bound,
+  redacted, cloneable single-use token. A separate pending slot retains at most
+  one original <=1 MiB UTF-8 payload per session as a boxed string. Queueing is
+  not acceptance or writer reservation. A second pending request fails visibly;
+  last-token drop, explicit cancel, wrong-owner handling, close and completion
+  release the payload. Replayed/cancelled requests cannot write again.
+- Keep existing deferred keyboard/mouse/focus/close ordering. At ordered handling,
+  read the current emulator mode and preflight the complete encoded frame before
+  allocation/write; atomically send it through R06's existing 2 MiB FIFO and
+  8 KiB chunks. Budget changes after advisory queue preflight can reject the
+  entire request, never a prefix or a lone opening marker. No Alacritty change.
+- Normalize CRLF/lone CR/LF to LF in bracketed mode, CR otherwise. Preserve tabs
+  and printable Unicode; strip other C0/C1 controls and DEL in both modes.
+  Bracket only when enabled, suppress empty frames, never append Enter.
+- Reviewed upstream PR91 at `ea95f8edd29fdd4d0e093fd3b528a3ea8902f4ec`
+  and Alacritty UI paste at pinned crate revision
+  `12082407d9cb3384a2bd83c578e556ec3faa2c4d`: retain its mode gating,
+  marker-breaking ESC/ETX filtering and normal-mode newline intent. Unlike
+  their separated/raw writes, Pike validates the whole frame, uses stricter
+  control filtering and canonical bracketed LF, and applies one atomic send.
+- No dependencies/features/lockfile or mouse/history behavior changes. The
+  current app host surfaces PasteRejected in its existing notice; R23 owns
+  the full session host/menu integration.
+  Remove this patch when upstream provides equivalent bounded, owner-bound,
+  ordered paste with the same byte/control/error contract. See
+  [targeted local evidence and limitations](../../docs/verification/issue-16.md).
+
+## R19 / issue #19 — session-owned input-method composition
+
+- Participate in pinned Iced's Opened/Preedit/Commit/Closed flow. Preedit stays
+  in one bounded transient session preview (4 KiB); Iced supplies the overlay.
+  Composing key presses/releases are captured before bindings, including Enter,
+  arrows and control shortcuts. Modifiers stay synchronized. Outside composition,
+  dead-key UTF-8/spacing accents and printable AltGr text preserve OS text.
+- Printable Ctrl+Alt text also takes priority for `Key::Named(Space)`, including
+  Shift: pinned Windows winit always names VK_SPACE even when a layout supplies
+  nonbreaking-space text. Character-key AltGr behavior stays the same. Empty,
+  absent/control text, logo combinations and other named keys retain binding
+  behavior; active composition still captures the event first. A public two-view
+  Row regression covers exact writes/capture and nontext Space/Ctrl/Alt bindings;
+  the raw-PTY IME fixture checks both named-Space variants without fallback bytes.
+- Request `Purpose::Terminal` only on RedrawRequested, with the current logical
+  cursor/line-height, wide-cell span, pane origin and ancestor clip. Winit applies
+  monitor DPI once. No custom text editor, glyph renderer or second output buffer.
+- A shared WindowFocus IME owner cancels the previous session and forces one
+  disabled redraw before re-enable on an owner transition, including an expired
+  owner. A fresh Opened is required before untagged native preedit/commit events
+  are accepted. The single follow-up redraw introduces no timer or idle loop.
+- Add redacted owner/epoch-bound `BackendCommand::ImeCommit(ImeCommit)` tokens.
+  Hosts call `ImeCommit::cancel()` before rejecting a queued origin so every held
+  clone is invalidated, including when the owning host entry no longer exists.
+  Each is consumed once in existing deferred event order and enters the original
+  writer atomically as one UTF-8 sequence, never pasted/framed or Enter-appended.
+  Pending requests have separate finite caps of 2 MiB and 256 distinct tokens;
+  the existing 2 MiB writer budget still applies at actual admission.
+- Blur, hide, focus loss, modal disable, replacement, close and native completion
+  clear previews and invalidate unaccepted commit tokens. Weak owner/token links
+  do not retain a PTY or discarded payloads. No input contents appear in Debug
+  metadata/errors. Add `Action::ImeRejected(ImeError)` and visible current-host
+  notice handling; expected replay/cancellation is a no-op.
+- Public host hooks: `Terminal::{is_composing,cancel_composition,
+  set_input_method_enabled}`. Keep one actual WindowFocus per window and exclusive
+  widget focus; consult composing before application shortcuts, and cancel/disable
+  before modals. Protocol focus reports and original deferred key/mouse paths stay
+  unchanged. Rebinding the identical WindowFocus is idempotent.
+- Reviewed [upstream73](https://github.com/kemokempo/iced_term/pull/73) at
+  `230945e443c7bded8eac0786240210a51a0e8303`: retain the native Iced strategy;
+  omit its already-addressed wide-rendering hunk and strengthen ownership, named
+  key capture, lifecycle, privacy and boundedness. Exact pinned Iced/winit sources
+  and targeted local results/Windows limits are in
+  [R19 verification](../../docs/verification/issue-19.md).
+- This adapter patch changes no dependency versions/features, Alacritty or
+  mouse/history behavior. R19 also patches the same-version iced_winit candidate
+  cache for DPI changes; see [its separate ledger](../iced_winit/PATCHES.md).
+  Remove when upstream supplies equivalent owner-safe, bounded lifecycle support.
+
+## R32 / issue #32 — opt-in host shortcut ownership and native focus receipts
+
+- `Terminal::set_host_shortcuts(bool)` defaults to false. Pike opts in once on
+  attachment. Host mode delegates built-in Copy/Paste/local-history bindings to
+  the application's single effective resolver and command menu, so replacing or
+  unbinding cannot leave a stale terminal-widget shortcut behind.
+- Existing native control-key and mode-aware history escape actions remain the
+  fallback. Normal-screen released history keys reuse the existing alternate-
+  screen actions; there is no second native byte table or Ignore suppression.
+  Custom `AddBindings` overrides survive both transitions and keep precedence.
+- `WindowFocus::{input_lease,accepts_input}` expose an opaque immutable
+  `WindowInputLease` for asynchronous clipboard admission. It is replaced only
+  on actual native focus transitions under a small local mutex; redundant focus
+  notifications preserve it. Returning to the same focused window after blur
+  cannot revive an old receipt, even before queued application blur delivery.
+  Existing AtomicBool/IME focus consumers retain their behavior. No sampling,
+  additional focus owner, counter wrap, clipboard payload or terminal text is
+  retained by these receipts.
+- Focused regression commands: `cargo test --locked -p iced_term --lib bindings`
+  and `cargo test --locked -p iced_term --lib window_focus`; the actual App/Iced/
+  real-PTY `remappable_shortcuts` fixture exercises effective maps and native
+  bytes. See [R32 verification](../../docs/verification/issue-32.md) for platform,
+  command results, red evidence and limitations.
+- Remove this patch when upstream supplies equivalent opt-in removal of hosted
+  default actions without disturbing native encoding/custom overrides and an
+  immutable native focus-transition receipt. Dependency versions, PTY/process
+  ownership, terminal encoding and composition rules are unchanged.

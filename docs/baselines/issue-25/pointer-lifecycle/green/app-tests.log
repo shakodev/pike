@@ -1,0 +1,56 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+   Compiling pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-c)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.55s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (target/debug/deps/pike-8047c988abb10012)
+
+running 32 tests
+test app::focus::tests::existing_target_still_gets_exclusive_focus ... ok
+test app::focus::tests::obsolete_focus_effect_does_not_unfocus_a_replacement ... ok
+test app::tests::aggregate_shutdown_acknowledges_disposal_even_when_bridge_receipts_are_queued ... ok
+test app::tests::all_live_entries_subscribe_and_background_exit_keeps_the_active_session ... ok
+test app::tests::already_exited_child_is_attached_read_only_without_late_focus_reports ... ok
+test app::tests::canceled_prepared_success_is_disposed_without_attaching_or_replacing_retry ... ok
+test app::tests::cancellation::cancellation_during_native_preparation_retains_closing_until_disposal ... ok
+test app::tests::disposal_receipt_cannot_acknowledge_a_different_attached_owner ... ok
+test app::tests::first_reservation_attaches_with_its_id_on_the_update_thread_and_requests_focus ... ok
+test app::tests::ime::ime_errors_are_visible_only_on_their_origin_without_writing_input ... ok
+test app::tests::ime::ime_rejected_origin_cancels_held_clones_and_valid_commit_is_once_only ... ignored, requires a local graphics device; run explicitly for host IME integration
+test app::tests::ime::ime_visible_sibling_requires_model_authority_and_cancels_every_held_clone ... ignored, requires a local graphics device; run explicitly for split IME ownership
+test app::tests::input_failure_metadata_is_visible_only_on_its_origin_and_keeps_the_model ... ok
+test app::tests::interaction::native::hidden_history_is_ignored_and_exited_history_selection_copy_stay_local ... ok
+test app::tests::interaction::native::hovered_mouse_and_alternate_wheel_are_owned_visible_and_do_not_focus ... ok
+test app::tests::interaction::queued_keyboard_requires_current_pane_and_window_focus ... ok
+test app::tests::invalid_launch_is_redacted_and_retry_reserves_a_fresh_session ... ok
+test app::tests::malformed_prepared_identity_fails_without_committing_a_running_entry ... ok
+test app::tests::paste::paste_errors_remain_visible_on_their_exact_origin_without_sending_input ... ok
+test app::tests::paste::real_widget_paste_tokens_require_owned_visible_live_focused_origins ... ignored, requires a local graphics device; run explicitly for host paste integration
+test app::tests::queued_preparation_is_nonblocking_and_canceled_before_native_creation ... ok
+test app::tests::rapid_exit_retains_final_output_without_a_live_subscription_or_admitted_input ... ok
+test app::tests::resize::resize_minimize_restore_font_and_repeated_dimensions_keep_native_session ... ok
+test app::tests::split::failed_split_can_retry_in_place_and_limit_or_geometry_refusal_is_actionable ... ok
+test app::tests::split::host_geometry_uses_measured_cells_and_accounts_for_status_chrome ... ok
+test app::tests::split::host_session_limit_refusal_keeps_original_and_explains_recovery ... ok
+test app::tests::split::real_widget_sibling_paste_cancels_held_clones_and_releases_pending_capacity ... ignored, requires a local graphics device; run explicitly for visible sibling paste routing
+test app::tests::split::removing_a_prepared_split_disposes_only_its_owner_and_keeps_original_input ... ok
+test app::tests::split::slow_queued_split_is_cancelable_while_the_original_remains_usable ... ok
+test app::tests::split::split_reserves_before_launch_keeps_source_selected_and_focuses_on_attachment ... ok
+test app::tests::split::visible_sibling_hovered_mouse_and_alternate_wheel_do_not_require_or_steal_focus ... ok
+test app::tests::split::visible_sibling_stale_focus_and_keyboard_cannot_change_input_authority ... ok
+
+test result: ok. 28 passed; 0 failed; 4 ignored; 0 measured; 48 filtered out; finished in 0.48s

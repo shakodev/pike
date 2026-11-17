@@ -1,5 +1,27 @@
 # Alacritty terminal patch ledger
 
+## Issue #28 — close the owned Unix master before waiting for its child
+
+- The unchanged 0.25.1 Unix destructor sent SIGHUP and called `Child::wait`
+  while retaining its master `File` until automatic field destruction. Native
+  macOS close under output reproduced a dying child waiting on terminal close,
+  with no event-loop reader left to consume the queued output. The exact path
+  also exists on main `5d34cb7`; a direct native PTY probe unblocks by closing
+  the master. This is pending native disposal, not a lost application receipt.
+- Store the master as `Option<File>` solely to take and drop it before wait.
+  Every live method retains the same `File` access; only exclusive destruction
+  takes it. SIGHUP, signal-handler removal and synchronous child reaping stay
+  on the existing disposal worker. No new unsafe production code, dependency,
+  PTY, timer, input change or Windows teardown change.
+- A direct Unix output-backlog regression checks timely destructor completion,
+  EBADF for its closed owned master and ECHILD for its reaped child. The exact
+  application close-under-output regression keeps its ten-second cleanup
+  oracle. See [native correction verification](../../docs/verification/issue-28-native-close-fix.md)
+  for old red, sandbox/native differences, baseline and retained failures.
+- Remove this local patch only when the selected upstream Unix destructor
+  releases its master before waiting and both native regressions pass without
+  this diff. Native Windows and Linux execution are not claimed by this patch.
+
 ## Issue #67 — bounded buffered-read continuation
 
 - Preserve `ReadStatus::More` in one worker-local bit. Notify the existing

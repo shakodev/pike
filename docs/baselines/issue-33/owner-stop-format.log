@@ -1,0 +1,9 @@
+Diff in /Users/daan.hoedjes/orca/workspaces/pike/pike-impl-b-r14/src/lib.rs:9:
+ pub mod settings;
+ pub mod tab_strip;
+ pub mod tabs;
+-pub mod ui;
+ mod terminal;
++pub mod ui;
+ pub mod workspace;
+ 

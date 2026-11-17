@@ -23,7 +23,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .iter()
         .flat_map(|bytes| bytes.iter().copied())
         .collect();
-    let terminal = Terminal::new(
+    let mut terminal = Terminal::new(
         15001,
         iced_term::settings::Settings {
             backend: iced_term::settings::BackendSettings {
@@ -43,6 +43,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             ..Default::default()
         },
     )?;
+    let window_focus = iced_term::WindowFocus::default();
+    terminal.set_window_focus(window_focus.clone());
     let expected_hash = bytes.iter().fold(0xcbf29ce484222325_u64, |hash, byte| {
         (hash ^ u64::from(*byte)).wrapping_mul(0x100000001b3)
     });
@@ -57,6 +59,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         .borrow_mut()
                         .take()
                         .expect("single probe initialization"),
+                    window_focus: window_focus.clone(),
                     directory: directory.clone(),
                     written: 0,
                     result: result.clone(),
@@ -85,6 +88,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 enum Message {
     Terminal(iced_term::Event),
     Focused,
+    WindowFocused(bool),
     Finished(Result<(), String>),
     Closed(bool),
     Failed(String),
@@ -92,6 +96,7 @@ enum Message {
 
 struct Probe {
     terminal: Terminal,
+    window_focus: iced_term::WindowFocus,
     directory: PathBuf,
     written: usize,
     result: String,
@@ -160,6 +165,10 @@ impl Probe {
                     }
                 }
             }
+            Message::WindowFocused(focused) => {
+                self.window_focus.set_focused(focused);
+                self.terminal.set_focused(focused);
+            }
             Message::Focused => {
                 if let Err(error) =
                     fs::write(self.directory.join("ready"), std::process::id().to_string())
@@ -207,8 +216,16 @@ impl Probe {
         )
     }
     fn subscription(&self) -> Subscription<Message> {
-        self.terminal.subscription().map(Message::Terminal)
+        Subscription::batch([
+            self.terminal.subscription().map(Message::Terminal),
+            iced::window::events().filter_map(|(_, event)| match event {
+                iced::window::Event::Focused => Some(Message::WindowFocused(true)),
+                iced::window::Event::Unfocused => Some(Message::WindowFocused(false)),
+                _ => None,
+            }),
+        ])
     }
+
     fn view(&self) -> Element<'_, Message> {
         TerminalView::show(&self.terminal).map(Message::Terminal)
     }

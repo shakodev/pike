@@ -1,0 +1,11 @@
+session=1 child=70657 exact_bytes=6
+session=3 child=70659 exact_bytes=6
+session=4 child=70661 exact_bytes=50
+session=5 child=70663 exact_bytes=4
+session=7 child=70665 exact_bytes=4
+session=9 child=70667 exact_bytes=4
+session=11 child=70669 exact_bytes=4
+session=13 child=70671 exact_bytes=4
+session=15 child=70673 exact_bytes=4
+session=17 child=70675 exact_bytes=2
+session=19 child=70677 exact_bytes=2

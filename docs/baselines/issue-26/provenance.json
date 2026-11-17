@@ -1,0 +1,19 @@
+{
+  "source_commit": "e60d188f3d039ebfdb6b8c5fd2629dd0b51e6863",
+  "merged_consumer_base": "013690ef60db99438c51773e1e220e77b6382ce7",
+  "original_work_preserved": "52b878fe69ca98489b510128c1ee035ab6a230ca",
+  "integration_commit": "a7ef524c7e5e6fb4e7c1f45bcaf561aecbd53383",
+  "personal_codex_home_verified": true,
+  "platform": "native aarch64-apple-darwin synthetic Iced input + controlled real PTY children",
+  "rustc": "1.97.1 (8bab26f4f 2026-07-14)",
+  "renderer": "renderer-tiny-skia",
+  "jobs": 4,
+  "cross_target": "x86_64-pc-windows-msvc compilation and Clippy only",
+  "cargo_lock_sha256": "6bfd038e9d522628046330db5acbe660739f4bf7ceb8dfd18c79440bf09362c7",
+  "fixture_children": 11,
+  "fixture_input_bytes": 90,
+  "fixture_observations": 175,
+  "actions_enabled": false,
+  "physical_windows_verification": false,
+  "resource_budget_measurement": false
+}

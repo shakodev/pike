@@ -122,7 +122,7 @@ fn modified_function_and_editing_keys_are_not_malformed_ss3() {
         (Named::Home, Modifiers::SHIFT, "\x1b[1;2H"),
     ] {
         assert_eq!(
-            bytes(&named(key, modifiers), TermMode::empty()),
+            bytes(&named(key, modifiers), TermMode::ALT_SCREEN),
             expected.as_bytes()
         );
     }
@@ -362,4 +362,141 @@ fn return_obeys_newline_mode_but_ctrl_m_remains_carriage_return() {
             );
         }
     }
+}
+
+#[test]
+fn host_delegation_keeps_native_bytes_and_restores_defaults_without_losing_overrides(
+) {
+    use crate::bindings::{Binding, InputKind};
+    let mut bindings = BindingsLayout::new();
+    let cs = Modifiers::CTRL | Modifiers::SHIFT;
+    let custom = Binding {
+        target: InputKind::Char("x".into()),
+        modifiers: Modifiers::empty(),
+        terminal_mode_include: TermMode::empty(),
+        terminal_mode_exclude: TermMode::empty(),
+    };
+    bindings.add_bindings(vec![(custom.clone(), BindingAction::Ignore)]);
+    // A later broad binding must remain newer than the earlier mode override.
+    bindings.add_bindings(vec![(
+        Binding {
+            terminal_mode_include: TermMode::APP_CURSOR,
+            ..custom.clone()
+        },
+        BindingAction::Char('!'),
+    )]);
+    bindings.add_bindings(vec![(custom, BindingAction::Ignore)]);
+    for enabled in [true, true, false, false, true] {
+        bindings.set_host_shortcuts(enabled);
+        for mode in [
+            TermMode::empty(),
+            TermMode::ALT_SCREEN,
+            TermMode::APP_CURSOR,
+        ] {
+            assert!(matches!(
+                action(
+                    &character("x", Modifiers::empty(), Some("x")),
+                    &bindings,
+                    mode
+                ),
+                KeyAction::Consume
+            ));
+        }
+        for (key, code) in [("c", 3), ("v", 22)] {
+            let event = character(key, cs, None);
+            if enabled {
+                assert!(
+                    matches!(action(&event, &bindings, TermMode::empty()), KeyAction::Write { bytes, alt_prefix: false } if bytes.as_ref() == [code])
+                );
+            } else if key == "c" {
+                assert!(matches!(
+                    action(&event, &bindings, TermMode::empty()),
+                    KeyAction::Copy
+                ));
+            } else {
+                assert!(matches!(
+                    action(&event, &bindings, TermMode::empty()),
+                    KeyAction::Paste
+                ));
+            }
+        }
+        for (key, scroll, encoded) in [
+            (
+                Named::PageUp,
+                crate::HistoryScroll::PageUp,
+                b"\x1b[5;2~".as_slice(),
+            ),
+            (
+                Named::PageDown,
+                crate::HistoryScroll::PageDown,
+                b"\x1b[6;2~".as_slice(),
+            ),
+            (
+                Named::Home,
+                crate::HistoryScroll::Top,
+                b"\x1b[1;2H".as_slice(),
+            ),
+            (
+                Named::End,
+                crate::HistoryScroll::Bottom,
+                b"\x1b[1;2F".as_slice(),
+            ),
+        ] {
+            for mode in [TermMode::empty(), TermMode::ALT_SCREEN] {
+                let event = named(key, Modifiers::SHIFT);
+                if !enabled && mode.is_empty() {
+                    assert!(
+                        matches!(action(&event, &bindings, mode), KeyAction::ScrollHistory(actual) if actual == scroll)
+                    );
+                } else {
+                    assert!(
+                        matches!(action(&event, &bindings, mode), KeyAction::Write { bytes, alt_prefix: false } if bytes.as_ref() == encoded)
+                    );
+                }
+            }
+        }
+        assert_eq!(
+            matches!(
+                action(
+                    &named(Named::Insert, Modifiers::SHIFT),
+                    &bindings,
+                    TermMode::empty()
+                ),
+                KeyAction::Paste
+            ),
+            !enabled
+        );
+    }
+}
+
+#[test]
+fn named_space_and_unidentified_commits_preserve_dead_key_and_altgr_text() {
+    for (key, modifiers, text) in [
+        (Key::Named(Named::Space), Modifiers::empty(), "´"),
+        (
+            Key::Named(Named::Space),
+            Modifiers::CTRL | Modifiers::ALT,
+            "\u{a0}",
+        ),
+        (Key::Unidentified, Modifiers::empty(), "é"),
+    ] {
+        let mut event = named(Named::Space, modifiers);
+        if let Event::KeyPressed {
+            key: logical,
+            modified_key,
+            text: committed,
+            ..
+        } = &mut event
+        {
+            *logical = key.clone();
+            *modified_key = key;
+            *committed = Some(text.into());
+        }
+        assert_eq!(bytes(&event, TermMode::empty()), text.as_bytes());
+    }
+    let mut event = named(Named::ArrowLeft, Modifiers::CTRL | Modifiers::ALT);
+    if let Event::KeyPressed { text, .. } = &mut event {
+        *text = Some("x".into());
+    }
+    assert_eq!(bytes(&event, TermMode::empty()), b"\x1b[1;7D");
 }

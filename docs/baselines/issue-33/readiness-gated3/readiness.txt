@@ -1,0 +1,4 @@
+initial_cells_copied=12900
+initial_blank_marker_accepted=false
+observed_current_prompt_marker=true
+stable_reservation=Reservation { session: SessionId(1), request: RequestId(1) }

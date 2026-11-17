@@ -1,0 +1,3 @@
+Manually retained observation from the first post-be04 IME subset tool output (not a full raw test log):
+view::ime::tests::ime_widget_preedit_zero_writes_capture_all_composing_keys_and_commit_once failed in Live::Drop, vendor/iced_term/src/view/ime/tests.rs:45, after the five-second shutdown_handle.wait timeout returned Elapsed.
+The test body assertions completed; the failure was cleanup. Exact single-test rerun passed in0.16s; the normal parallel IME11 subset rerun passed in0.15s. Subsequent pointer7/state5/paired-release1/focus1/paste-shortcut1 passed. A later authorized process listing showed no matching cargo/iced_term/sleep/ime_composition process. The timeout was not reproduced or diagnosed and no timeout/source weakening was applied.

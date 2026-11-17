@@ -1,0 +1,66 @@
+[
+  {
+    "name": "host-paste-609d702",
+    "argv": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "--no-default-features",
+      "--features",
+      "renderer-tiny-skia",
+      "--lib",
+      "app::tests::paste",
+      "--",
+      "--include-ignored"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "host-key-focus-609d702",
+    "argv": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "--no-default-features",
+      "--features",
+      "renderer-tiny-skia",
+      "--lib",
+      "queued_keyboard_requires_current_pane_and_window_focus"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "host-sibling-key-609d702",
+    "argv": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "--no-default-features",
+      "--features",
+      "renderer-tiny-skia",
+      "--lib",
+      "visible_sibling_stale_focus_and_keyboard_cannot_change_input_authority"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "host-sibling-paste-609d702",
+    "argv": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "--no-default-features",
+      "--features",
+      "renderer-tiny-skia",
+      "--lib",
+      "real_widget_sibling_paste_cancels_held_clones_and_releases_pending_capacity",
+      "--",
+      "--include-ignored"
+    ],
+    "exit_code": 0
+  }
+]

@@ -6,8 +6,13 @@ use iced::widget::pane_grid::{Axis, Split};
 
 pub use crate::identity::TabId;
 use crate::identity::{LaunchToken, Reservation, SessionId};
-use crate::layout::{PaneState, PaneTarget, TabState, contains_split};
-use crate::session::{Effect, Failure, SessionRegistry, SpawnDisposition};
+use crate::layout::{
+    PaneState, PaneTarget, ResizeGeometry, SplitGeometry, TabState, contains_split,
+};
+use crate::session::{Effect, Failure, Lifecycle, SessionRegistry, SpawnDisposition};
+use crate::tabs::{ActivityEvent, Placement, Selection, Title};
+
+mod moving;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Error {
@@ -18,6 +23,8 @@ pub enum Error {
     SessionLimit,
     IdsExhausted,
     LayoutExhausted,
+    Geometry,
+    NotRestartable,
 }
 
 #[derive(Debug, Default)]
@@ -41,6 +48,31 @@ impl Workspace {
         self.tab(target.tab)?.grid.get(target.pane)
     }
 
+    /// Resolve navigation against the current order. Cycling wraps; direct
+    /// selection outside the retained tab set is harmless and never wraps.
+    pub fn selection_target(&self, selection: Selection) -> Option<TabId> {
+        let index = match selection {
+            Selection::Index(index) => index,
+            Selection::Next | Selection::Previous => {
+                let current = self.order.iter().position(|id| Some(*id) == self.active)?;
+                match selection {
+                    Selection::Next => (current + 1) % self.order.len(),
+                    _ => (current + self.order.len() - 1) % self.order.len(),
+                }
+            }
+        };
+        self.order.get(index).copied()
+    }
+
+    fn activate(&mut self, id: TabId) {
+        self.tabs
+            .get_mut(&id)
+            .expect("validated tab")
+            .activity
+            .seen();
+        self.active = Some(id);
+    }
+
     fn remove_pane(&mut self, target: PaneTarget) {
         let tab = self.tabs.get_mut(&target.tab).expect("validated tab");
         if tab.grid.len() > 1 {
@@ -60,6 +92,9 @@ impl Workspace {
         self.order.remove(index);
         if self.active == Some(id) {
             self.active = self.order.get(index).or_else(|| self.order.last()).copied();
+            if let Some(next) = self.active {
+                self.activate(next);
+            }
         }
     }
 }
@@ -75,7 +110,7 @@ pub struct Model {
 
 impl Default for Model {
     fn default() -> Self {
-        Self::new(NonZeroU16::new(16).unwrap())
+        Self::new(NonZeroU16::new(32).unwrap())
     }
 }
 
@@ -114,7 +149,7 @@ impl Model {
         self.sessions.insert(reservation);
         self.workspace.tabs.insert(id, tab);
         self.workspace.order.push(id);
-        self.workspace.active = Some(id);
+        self.workspace.activate(id);
         Ok((target, Effect::Spawn(reservation)))
     }
 
@@ -132,7 +167,7 @@ impl Model {
             )
             .ok_or(Error::LayoutExhausted)?;
         self.sessions.insert(reservation);
-        self.workspace.active = Some(target.tab);
+        self.workspace.activate(target.tab);
         Ok((
             PaneTarget {
                 tab: target.tab,
@@ -140,6 +175,60 @@ impl Model {
             },
             Effect::Spawn(reservation),
         ))
+    }
+
+    /// Refusal is atomic: no identity, entry, focus or layout changes.
+    pub fn split_with_geometry(
+        &mut self,
+        target: PaneTarget,
+        axis: Axis,
+        geometry: SplitGeometry,
+    ) -> Result<(PaneTarget, Effect), Error> {
+        self.validate(target)?;
+        if !geometry.admits(self.workspace.tab(target.tab).unwrap(), target.pane, axis) {
+            return Err(Error::Geometry);
+        }
+        self.split(target, axis)
+    }
+
+    pub fn target(&self, session: SessionId) -> Option<PaneTarget> {
+        self.workspace.order.iter().find_map(|tab| {
+            self.workspace
+                .tab(*tab)?
+                .grid
+                .iter()
+                .find_map(|(pane, state)| {
+                    (state.session == session).then_some(PaneTarget {
+                        tab: *tab,
+                        pane: *pane,
+                    })
+                })
+        })
+    }
+
+    /// Retry a retained error/exit in place, preserving every sibling and ratio.
+    /// Replacing one disposable entry does not require an extra retained slot.
+    pub fn restart(&mut self, target: PaneTarget) -> Result<Effect, Error> {
+        self.validate(target)?;
+        let old = self.workspace.pane(target).unwrap().session;
+        if !matches!(
+            self.sessions.get(old).map(|e| e.lifecycle()),
+            Some(Lifecycle::Failed(_) | Lifecycle::Exited { .. })
+        ) {
+            return Err(Error::NotRestartable);
+        }
+        let reservation = Reservation::allocate().map_err(|_| Error::IdsExhausted)?;
+        self.sessions.close(old);
+        self.sessions.insert(reservation);
+        self.workspace
+            .tabs
+            .get_mut(&target.tab)
+            .unwrap()
+            .grid
+            .get_mut(target.pane)
+            .unwrap()
+            .session = reservation.session;
+        Ok(Effect::Spawn(reservation))
     }
 
     fn validate(&self, target: PaneTarget) -> Result<(), Error> {
@@ -154,7 +243,46 @@ impl Model {
 
     pub fn activate(&mut self, tab: TabId) -> Result<(), Error> {
         self.workspace.tab(tab).ok_or(Error::StaleTab)?;
-        self.workspace.active = Some(tab);
+        self.workspace.activate(tab);
+        Ok(())
+    }
+
+    /// A blank sanitized name resets the manual override. No session, focus,
+    /// activity or launch intent changes; stale tabs cannot rename a neighbor.
+    pub fn rename_tab(&mut self, id: TabId, name: &str) -> Result<(), Error> {
+        let tab = self.workspace.tabs.get_mut(&id).ok_or(Error::StaleTab)?;
+        tab.manual_name = Title::new(name);
+        Ok(())
+    }
+
+    pub fn reset_tab_name(&mut self, id: TabId) -> Result<(), Error> {
+        self.rename_tab(id, "")
+    }
+
+    /// Reposition by stable identities. Validate both before touching order;
+    /// pane trees, subscriptions, activity, focus and sessions stay untouched.
+    pub fn reorder_tab(
+        &mut self,
+        id: TabId,
+        anchor: TabId,
+        placement: Placement,
+    ) -> Result<(), Error> {
+        self.workspace.tab(id).ok_or(Error::StaleTab)?;
+        self.workspace.tab(anchor).ok_or(Error::StaleTab)?;
+        if id == anchor {
+            return Ok(());
+        }
+        let order = &mut self.workspace.order;
+        let source = order
+            .iter()
+            .position(|tab| *tab == id)
+            .expect("ordered tab");
+        order.remove(source);
+        let destination = order
+            .iter()
+            .position(|tab| *tab == anchor)
+            .expect("ordered anchor");
+        order.insert(destination + usize::from(placement == Placement::After), id);
         Ok(())
     }
 
@@ -167,8 +295,30 @@ impl Model {
             tab.grid.restore();
         }
         tab.focused = target.pane;
-        self.workspace.active = Some(target.tab);
+        self.workspace.activate(target.tab);
         Ok(())
+    }
+
+    /// Directional selection uses the canonical split tree. It never allocates,
+    /// closes or replaces a session; an outside edge preserves current focus.
+    pub fn focus_adjacent(
+        &mut self,
+        source: PaneTarget,
+        direction: iced::widget::pane_grid::Direction,
+    ) -> Result<Option<PaneTarget>, Error> {
+        self.validate(source)?;
+        let Some(pane) = self.workspace.tabs[&source.tab]
+            .grid
+            .adjacent(source.pane, direction)
+        else {
+            return Ok(None);
+        };
+        let target = PaneTarget {
+            tab: source.tab,
+            pane,
+        };
+        self.focus(target)?;
+        Ok(Some(target))
     }
 
     /// Swap positions within one tab, keeping pane handles and sessions intact.
@@ -209,7 +359,7 @@ impl Model {
             .split(destination.pane, axis, state)
             .ok_or(Error::LayoutExhausted)?;
         self.workspace.remove_pane(source);
-        self.workspace.active = Some(destination.tab);
+        self.workspace.activate(destination.tab);
         Ok(PaneTarget {
             tab: destination.tab,
             pane,
@@ -225,6 +375,31 @@ impl Model {
             return Err(Error::StaleSplit);
         }
         tab.grid.resize(split, ratio.clamp(0.1, 0.9));
+        Ok(())
+    }
+
+    /// Geometry-aware UI resize. No lifecycle, process, focus or identity edits.
+    pub fn resize_with_geometry(
+        &mut self,
+        tab: TabId,
+        split: Split,
+        ratio: f32,
+        geometry: &ResizeGeometry,
+    ) -> Result<(), Error> {
+        let tab = self.workspace.tabs.get_mut(&tab).ok_or(Error::StaleTab)?;
+        if !contains_split(tab.grid.layout(), split) {
+            return Err(Error::StaleSplit);
+        }
+        if !ratio.is_finite() || !(0.0..=1.0).contains(&ratio) {
+            return Err(Error::InvalidRatio);
+        }
+        if tab.grid.maximized().is_some() {
+            return Err(Error::Geometry);
+        }
+        let ratio = geometry
+            .clamp(tab.grid.layout(), split, ratio)
+            .ok_or(Error::Geometry)?;
+        tab.grid.resize(split, ratio);
         Ok(())
     }
 
@@ -286,12 +461,45 @@ impl Model {
         self.sessions.spawn_failed(reservation, failure)
     }
     pub fn exited(&mut self, session: SessionId, code: Option<i32>) -> bool {
-        self.sessions.exited(session, code)
+        let changed = self.sessions.exited(session, code);
+        if changed && let Some(entry) = self.sessions.get(session) {
+            self.record_activity(entry.reservation(), ActivityEvent::Exit);
+        }
+        changed
     }
     pub fn closed(&mut self, session: SessionId) -> bool {
         self.sessions.closed(session)
+    }
+
+    /// Only the current retained owner can mark its hidden tab. Removed panes,
+    /// closing sessions and pre-restart reservations have no activity authority.
+    pub(crate) fn record_activity(&mut self, owner: Reservation, event: ActivityEvent) -> bool {
+        if !self.sessions.get(owner.session).is_some_and(|entry| {
+            entry.reservation() == owner
+                && matches!(
+                    entry.lifecycle(),
+                    Lifecycle::Running | Lifecycle::Exited { .. }
+                )
+        }) {
+            return false;
+        }
+        let Some(target) = self.target(owner.session) else {
+            return false;
+        };
+        if self.workspace.active == Some(target.tab) {
+            return false;
+        }
+        self.workspace
+            .tabs
+            .get_mut(&target.tab)
+            .unwrap()
+            .activity
+            .record(event)
     }
 }
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod tab_tests;

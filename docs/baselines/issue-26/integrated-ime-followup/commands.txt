@@ -1,0 +1,167 @@
+repeated split right: status=Captured app_actions=0 owner=Some(3)
+repeated split right: status=Captured app_actions=0 owner=Some(3)
+repeated split right: status=Captured app_actions=0 owner=Some(3)
+split down: status=Captured app_actions=1 owner=Some(3)
+directional focus: status=Captured app_actions=1 owner=Some(3)
+exclusive actual widget/model owner=3
+exclusive actual widget/model owner=3
+directional focus: status=Captured app_actions=1 owner=Some(1)
+exclusive actual widget/model owner=1
+exclusive actual widget/model owner=1
+directional focus: status=Captured app_actions=1 owner=Some(3)
+exclusive actual widget/model owner=3
+exclusive actual widget/model owner=3
+directional focus: status=Captured app_actions=1 owner=Some(4)
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=1
+exclusive actual widget/model owner=1
+exclusive actual widget/model owner=1
+exclusive actual widget/model owner=1
+exclusive actual widget/model owner=3
+exclusive actual widget/model owner=3
+exclusive actual widget/model owner=3
+exclusive actual widget/model owner=3
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+maximize: status=Captured app_actions=1 owner=Some(4)
+repeat maximize: status=Captured app_actions=0 owner=Some(4)
+restore: status=Captured app_actions=1 owner=Some(4)
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+structural repeat: status=Captured app_actions=0 owner=Some(4)
+structural repeat: status=Captured app_actions=0 owner=Some(4)
+structural repeat: status=Captured app_actions=0 owner=Some(4)
+structural repeat: status=Captured app_actions=0 owner=Some(4)
+structural repeat: status=Captured app_actions=0 owner=Some(4)
+structural repeat: status=Captured app_actions=0 owner=Some(4)
+exclusive actual widget/model owner=4
+font larger: status=Captured app_actions=1 owner=Some(4)
+font smaller: status=Captured app_actions=1 owner=Some(4)
+font larger before reset: status=Captured app_actions=1 owner=Some(4)
+font reset: status=Captured app_actions=1 owner=Some(4)
+resize direction: status=Captured app_actions=1 owner=Some(4)
+exclusive actual widget/model owner=4
+resize direction: status=Captured app_actions=1 owner=Some(4)
+exclusive actual widget/model owner=4
+resize direction: status=Captured app_actions=1 owner=Some(4)
+exclusive actual widget/model owner=4
+resize direction: status=Captured app_actions=1 owner=Some(4)
+exclusive actual widget/model owner=4
+shortcut help: status=Captured app_actions=1 owner=Some(4)
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+close shortcut: status=Captured app_actions=1 owner=Some(4)
+exclusive actual widget/model owner=4
+close repeat after cancel: status=Captured app_actions=0 owner=Some(4)
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+close shortcut: status=Captured app_actions=1 owner=Some(4)
+exclusive actual widget/model owner=4
+close repeat after cancel: status=Captured app_actions=0 owner=Some(4)
+exclusive actual widget/model owner=4
+new tab: status=Captured app_actions=1 owner=Some(5)
+exclusive actual widget/model owner=5
+exclusive actual widget/model owner=5
+repeat new tab: status=Captured app_actions=0 owner=Some(5)
+new tab: status=Captured app_actions=1 owner=Some(7)
+exclusive actual widget/model owner=7
+exclusive actual widget/model owner=7
+repeat new tab: status=Captured app_actions=0 owner=Some(7)
+new tab: status=Captured app_actions=1 owner=Some(9)
+exclusive actual widget/model owner=9
+exclusive actual widget/model owner=9
+repeat new tab: status=Captured app_actions=0 owner=Some(9)
+new tab: status=Captured app_actions=1 owner=Some(11)
+exclusive actual widget/model owner=11
+exclusive actual widget/model owner=11
+repeat new tab: status=Captured app_actions=0 owner=Some(11)
+new tab: status=Captured app_actions=1 owner=Some(13)
+exclusive actual widget/model owner=13
+exclusive actual widget/model owner=13
+repeat new tab: status=Captured app_actions=0 owner=Some(13)
+new tab: status=Captured app_actions=1 owner=Some(15)
+exclusive actual widget/model owner=15
+exclusive actual widget/model owner=15
+repeat new tab: status=Captured app_actions=0 owner=Some(15)
+new tab: status=Captured app_actions=1 owner=Some(17)
+exclusive actual widget/model owner=17
+exclusive actual widget/model owner=17
+repeat new tab: status=Captured app_actions=0 owner=Some(17)
+new tab: status=Captured app_actions=1 owner=Some(19)
+exclusive actual widget/model owner=19
+exclusive actual widget/model owner=19
+repeat new tab: status=Captured app_actions=0 owner=Some(19)
+direct tab selection: status=Captured app_actions=1 owner=Some(4)
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+direct tab selection: status=Captured app_actions=1 owner=Some(5)
+exclusive actual widget/model owner=5
+exclusive actual widget/model owner=5
+direct tab selection: status=Captured app_actions=1 owner=Some(7)
+exclusive actual widget/model owner=7
+exclusive actual widget/model owner=7
+direct tab selection: status=Captured app_actions=1 owner=Some(9)
+exclusive actual widget/model owner=9
+exclusive actual widget/model owner=9
+direct tab selection: status=Captured app_actions=1 owner=Some(11)
+exclusive actual widget/model owner=11
+exclusive actual widget/model owner=11
+direct tab selection: status=Captured app_actions=1 owner=Some(13)
+exclusive actual widget/model owner=13
+exclusive actual widget/model owner=13
+direct tab selection: status=Captured app_actions=1 owner=Some(15)
+exclusive actual widget/model owner=15
+exclusive actual widget/model owner=15
+direct tab selection: status=Captured app_actions=1 owner=Some(17)
+exclusive actual widget/model owner=17
+exclusive actual widget/model owner=17
+direct tab selection: status=Captured app_actions=1 owner=Some(19)
+exclusive actual widget/model owner=19
+exclusive actual widget/model owner=19
+next tab wraps: status=Captured app_actions=1 owner=Some(4)
+exclusive actual widget/model owner=4
+previous tab wraps: status=Captured app_actions=1 owner=Some(19)
+exclusive actual widget/model owner=19
+exclusive actual widget/model owner=1
+exclusive actual widget/model owner=1
+exclusive actual widget/model owner=1
+exclusive actual widget/model owner=3
+exclusive actual widget/model owner=3
+exclusive actual widget/model owner=3
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=4
+exclusive actual widget/model owner=5
+exclusive actual widget/model owner=5
+exclusive actual widget/model owner=5
+exclusive actual widget/model owner=7
+exclusive actual widget/model owner=7
+exclusive actual widget/model owner=7
+exclusive actual widget/model owner=9
+exclusive actual widget/model owner=9
+exclusive actual widget/model owner=9
+exclusive actual widget/model owner=11
+exclusive actual widget/model owner=11
+exclusive actual widget/model owner=11
+exclusive actual widget/model owner=13
+exclusive actual widget/model owner=13
+exclusive actual widget/model owner=13
+exclusive actual widget/model owner=15
+exclusive actual widget/model owner=15
+exclusive actual widget/model owner=15
+exclusive actual widget/model owner=17
+exclusive actual widget/model owner=17
+exclusive actual widget/model owner=17
+exclusive actual widget/model owner=19
+exclusive actual widget/model owner=19
+exclusive actual widget/model owner=19

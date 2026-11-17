@@ -1,0 +1,1 @@
+custom shortcut bypassed native IME ownership

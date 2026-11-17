@@ -1,0 +1,36 @@
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:562:55
+    |
+562 |         let event = if let Ok(event) = event_receiver.try_next() {
+    |                                                       ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `iced_debug::iced_futures::futures::futures_channel::mpsc::UnboundedReceiver::<T>::try_next`: please use `try_recv` instead
+   --> vendor/iced_winit/src/lib.rs:281:64
+    |
+281 |                     task::Poll::Pending => match self.receiver.try_next() {
+    |                                                                ^^^^^^^^
+
+warning: `iced_winit` (lib) generated 2 warnings
+    Checking pike v0.1.0 (/Users/daan.hoedjes/orca/workspaces/pike/pike-impl-a-r13)
+error[E0583]: file not found for module `resize`
+ --> examples/../src/layout.rs:8:1
+  |
+8 | mod resize;
+  | ^^^^^^^^^^^
+  |
+  = help: to create the module `resize`, create file "examples/../src/resize.rs" or "examples/../src/resize/mod.rs"
+  = note: if there is a `mod resize` elsewhere in the crate already, import it with `use crate::...` instead
+
+error[E0583]: file not found for module `moving`
+  --> examples/../src/workspace.rs:15:1
+   |
+15 | mod moving;
+   | ^^^^^^^^^^^
+   |
+   = help: to create the module `moving`, create file "examples/../src/moving.rs" or "examples/../src/moving/mod.rs"
+   = note: if there is a `mod moving` elsewhere in the crate already, import it with `use crate::...` instead
+
+For more information about this error, try `rustc --explain E0583`.
+error: could not compile `pike` (example "startup_lifecycle") due to 2 previous errors
