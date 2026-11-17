@@ -4,6 +4,8 @@ mod interval;
 mod metrics;
 #[path = "samples.rs"]
 mod samples;
+#[path = "setup.rs"]
+mod setup;
 use crate::options::Options;
 use iced::{Element, Subscription, Task};
 use iced_term::{AlacrittyEvent, BackendCommand, Event};
@@ -100,6 +102,7 @@ struct Probe {
     latency: File,
     failed: bool,
     focus_requested: bool,
+    layout: setup::LayoutBarrier,
 }
 
 impl Probe {
@@ -148,6 +151,7 @@ impl Probe {
                 latency,
                 failed: false,
                 focus_requested: false,
+                layout: setup::LayoutBarrier::default(),
             },
             Task::batch([task.map(Msg::App), delay(deadline, Msg::Deadline)]),
         )
@@ -201,6 +205,11 @@ impl Probe {
                 }
                 if let Message::Terminal((id, Event::BackendCall(_, command))) = &message {
                     match command {
+                        BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::ResizeCompleted(
+                            result,
+                        )) => {
+                            self.layout.observe(*id, *result);
+                        }
                         BackendCommand::ProcessAlacrittyEvent(AlacrittyEvent::Title(title)) => {
                             self.title(*id, title)
                         }
@@ -426,7 +435,9 @@ impl Probe {
                 self.note("ready", id.get(), pid, 0);
             }
         } else if value == "prepared" {
-            self.prepared.insert(id);
+            if self.prepared.insert(id) {
+                self.note("prepared", id.get(), 0, 0);
+            }
         } else if value == "final" {
             self.final_seen.insert(id);
         } else if let Some(done) = value.strip_prefix("done:") {
@@ -474,9 +485,18 @@ impl Probe {
         let ids = self.ids();
         if self.stage == Stage::Build {
             if ids.is_empty()
-                || ids
-                    .iter()
-                    .any(|id| !self.ready.contains_key(id) || self.app.terminal(*id).is_none())
+                || ids.iter().any(|id| {
+                    !self.ready.contains_key(id)
+                        || self.app.terminal(*id).is_none_or(|terminal| {
+                            let stats = terminal.snapshot_stats();
+                            !self.layout.ready(
+                                *id,
+                                terminal.work_stats().pty_resizes,
+                                stats.columns,
+                                stats.screen_lines,
+                            )
+                        })
+                })
             {
                 return Task::none();
             }
@@ -524,6 +544,9 @@ impl Probe {
                     .map(Msg::App);
             }
             self.stage = Stage::Prepare;
+            self.note("prepare_begin", 0, ids.len(), 0);
+            metrics::counters(&self.app, &self.options.output, "prepare-begin")
+                .expect("setup counters");
             let mut tasks = vec![];
             for id in ids {
                 tasks.push(self.send(
